@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Adobe. All rights reserved.
+ * Copyright 2019 Adobe. All rights reserved.
  * This file is licensed to you under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License. You may obtain a copy
  * of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -13,12 +13,11 @@
 /* eslint-disable no-console */
 
 const yargs = require('yargs');
-const ActionBuilder = require('./action_builder.js');
 
 class CLI {
-  constructor(noRun) {
-    this._noRun = noRun; // this is for testing only.
+  constructor() {
     this._yargs = yargs
+      .pkgConf('wsk')
       .option('verbose', {
         alias: 'v',
         default: false,
@@ -36,7 +35,7 @@ class CLI {
       })
       .option('hints', {
         alias: 'no-hints',
-        description: 'Show action and github app settings',
+        description: 'Show additional hints for deployment',
         default: true,
       })
       .option('static', {
@@ -57,16 +56,32 @@ class CLI {
         type: 'array',
         default: [],
       })
-      .option('github-key', {
-        description: 'Specify the GitHub private key file',
+      .option('kind', {
+        description: 'Specifies the action kind. eg: nodejs:10-fat',
+        default: 'nodejs:10-fat',
       })
-      .epilogue('for more information, find our manual at https://github.com/tripodsan/probot-serverless-openwhisk')
+      .option('docker', {
+        description: 'Specifies a docker image.',
+      })
+      .epilogue(this._epiloge())
       .help();
   }
 
-  run(args) {
+  // eslint-disable-next-line class-methods-use-this
+  _epiloge() {
+    return 'for more information, find our manual at https://github.com/tripodsan/openwhisk-action-builder';
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  createBuilder() {
+    // eslint-disable-next-line global-require
+    const ActionBuilder = require('./action_builder.js');
+    return new ActionBuilder();
+  }
+
+  prepare(args) {
     const argv = this._yargs.parse(args);
-    const builder = new ActionBuilder()
+    return this.createBuilder()
       .verbose(argv.verbose)
       .withDeploy(argv.deploy)
       .withTest(argv.test)
@@ -74,15 +89,15 @@ class CLI {
       .withStatic(argv.static)
       .withParams(argv.params)
       .withName(argv.name)
-      .withParamsFile(argv.paramsFile)
-      .withGithubPrivateKey(argv.githubKey);
+      .withKind(argv.kind)
+      .withDocker(argv.docker)
+      .withParamsFile(argv.paramsFile);
+  }
 
-    if (!this._noRun) {
-      builder
-        .run()
-        .catch(console.error);
-    }
-    return builder;
+  async run(args) {
+    return this.prepare(args)
+      .run()
+      .catch(console.error);
   }
 }
 

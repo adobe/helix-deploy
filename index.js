@@ -10,7 +10,6 @@
  * governing permissions and limitations under the License.
  */
 const ActionBuilder = require('./src/action_builder.js');
-const Logger = require('./src/Logger');
 
 module.exports = {
   ActionBuilder,
