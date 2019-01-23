@@ -20,7 +20,7 @@
 2. add a build script to your package.json:
     ```json
     "scripts": {
-      "build": "./bin/wsk-builder"
+      "build": "./node_modules/.bin/wsk-builder"
     }
     ```
 
@@ -142,11 +142,25 @@ in the `wsk` object. eg:
 ```json
 {
 ...
+  "scripts": {
+    "build": "./node_modules/.bin/wsk-builder -v",
+    "deploy": "./node_modules/.bin/wsk-builder -v --deploy --test"
+  },
   "wsk": {
-    "name": "my-action",
+    "name": "my-test-action",
     "params-file": [
-      "secrets.env"
-    ]
+      "secrets/secrets.env"
+    ],
+    "externals": [
+      "fs-extra",
+      "js-yaml",
+      "dotenv",
+      "bunyan",
+      "bunyan-loggly",
+      "bunyan-syslog",
+      "bunyan-format"
+    ],
+    "docker": "tripodsan/probot-ow-nodejs8:latest"
   },
 ...
 }

@@ -85,6 +85,12 @@ describe('CLI Test', () => {
     assert.deepEqual(builder._params, { foo: 'bar' });
   });
 
+  it('can add externals with regexp', () => {
+    const builder = new CLI()
+      .prepare(['--externals', '/.*/']);
+    assert.deepEqual(builder._externals, [/.*/]);
+  });
+
   it('can add params from json file', () => {
     const file = path.resolve(__dirname, 'fixtures/test-params.json');
     const builder = new CLI()

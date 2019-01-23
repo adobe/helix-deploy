@@ -121,7 +121,12 @@ module.exports = class ActionBuilder {
   }
 
   withExternals(value) {
-    this._externals = value;
+    this._externals = (Array.isArray(value) ? value : [value]).map((e) => {
+      if (typeof e === 'string' && e.startsWith('/') && e.endsWith('/')) {
+        return new RegExp(e.substring(1, e.length - 1));
+      }
+      return e;
+    });
     return this;
   }
 
@@ -309,10 +314,7 @@ module.exports = class ActionBuilder {
     const actionoptions = {
       name: this._name,
       action: await fse.readFile(this._zipFile),
-      kind: this._kind || 'blackbox',
-      exec: {
-        image: this._docker,
-      },
+      kind: this._docker ? 'blackbox' : this._kind,
       annotations: {
         description: this._pkgJson.description,
         'web-export': this._webAction,
