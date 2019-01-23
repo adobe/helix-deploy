@@ -75,6 +75,7 @@ class CLI {
       .option('externals', {
         description: 'Defines the externals for webpack.',
         type: 'array',
+        default: [],
       })
       .group(['static', 'entryFile', 'externals'], 'Bundling Options')
       .help();

@@ -279,7 +279,7 @@ module.exports = class ActionBuilder {
         libraryTarget: 'umd',
       },
       devtool: false,
-      externals: this._externals || [],
+      externals: this._externals,
     });
 
     return new Promise((resolve, reject) => {
