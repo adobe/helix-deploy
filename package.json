@@ -1,6 +1,6 @@
 {
   "name": "openwhisk-action-builder",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Library and Commandline Tools to build and deploy OpenWhisk Actions",
   "license": "Apache-2.0",
   "repository": "https://github.com/tripodsan/openhwisk-action-builder",
