@@ -13,6 +13,7 @@
 /* eslint-disable no-console */
 
 const yargs = require('yargs');
+const chalk = require('chalk');
 
 class CLI {
   constructor() {
@@ -26,9 +27,6 @@ class CLI {
         description: 'Automatically deploy to OpenWhisk',
         default: false,
       })
-      .option('name', {
-        description: 'OpenWhisk action name. Can be prefixed with package.',
-      })
       .option('test', {
         description: 'Invoke action after deployment',
         default: false,
@@ -38,11 +36,17 @@ class CLI {
         description: 'Show additional hints for deployment',
         default: true,
       })
-      .option('static', {
-        alias: 's',
-        description: 'Includes a static file into the archive',
-        type: 'array',
-        default: [],
+      .group(['deploy', 'test', 'hints'], 'Operation Options')
+
+      .option('name', {
+        description: 'OpenWhisk action name. Can be prefixed with package.',
+      })
+      .option('kind', {
+        description: 'Specifies the action kind. eg: nodejs:10-fat',
+        default: 'nodejs:10-fat',
+      })
+      .option('docker', {
+        description: 'Specifies a docker image.',
       })
       .option('params', {
         alias: 'p',
@@ -56,13 +60,24 @@ class CLI {
         type: 'array',
         default: [],
       })
-      .option('kind', {
-        description: 'Specifies the action kind. eg: nodejs:10-fat',
-        default: 'nodejs:10-fat',
+      .group(['name', 'kind', 'docker', 'params', 'params-file'], 'OpenWhisk Action Options')
+
+      .option('static', {
+        alias: 's',
+        description: 'Includes a static file into the archive',
+        type: 'array',
+        default: [],
       })
-      .option('docker', {
-        description: 'Specifies a docker image.',
+      .option('entryFile', {
+        description: 'Specifies the entry file.',
+        default: 'src/index.js',
       })
+      .option('externals', {
+        description: 'Defines the externals for webpack.',
+        type: 'array',
+      })
+      .group(['static', 'entryFile', 'externals'], 'Bundling Options')
+
       .epilogue(this._epiloge())
       .help();
   }
@@ -90,14 +105,19 @@ class CLI {
       .withParams(argv.params)
       .withName(argv.name)
       .withKind(argv.kind)
+      .withEntryFile(argv.entryFile)
+      .withExternals(argv.externals)
       .withDocker(argv.docker)
       .withParamsFile(argv.paramsFile);
   }
 
   async run(args) {
-    return this.prepare(args)
-      .run()
-      .catch(console.error);
+    try {
+      return this.prepare(args).run();
+    } catch (err) {
+      console.log(`${chalk.redBright('[error] ')} ${err.message}`);
+      return -1;
+    }
   }
 }
 

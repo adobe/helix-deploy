@@ -9,6 +9,9 @@
     "openwhisk"
   ],
   "main": "index.js",
+  "bin": {
+    "wsk-builder": "src/index.js"
+  },
   "scripts": {
     "lint": "./node_modules/.bin/eslint .",
     "test": "nyc mocha && npm run lint",

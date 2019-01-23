@@ -17,56 +17,64 @@
     npm add openwhisk-action-builder
     ```
 
-2. todo: create cli.js
-3. todo: reference in package.json
-4. Build the OpenWhisk action
-    ```sh
-    $ ./node_modules/.bin/wskbot
-    ...
-    Created action: dist/probot-openwhisk-example.zip.
+2. add a build script to your package.json:
+    ```json
+    "scripts": {
+      "build": "./bin/wsk-builder"
+    }
     ```
-5. Deploy the OpenWhisk action
+
+3. Build the OpenWhisk action
     ```sh
-    $ wsk action update probot-openwhisk-example --docker tripodsan/probot-ow-nodejs8:latest --web raw dist/probot-openwhisk-example.zip
+    $ npm run build
+    ...
+    Created action: dist/my-example.zip.
+    ```
+4. Deploy the OpenWhisk action
+    ```sh
+    $ wsk action update ....
     ```
 
 The deploy parameters can be specifies in the CLI via `-p`. See below.
 
 ## CLI
 
-The command line interface `wskbot` can either be invoked via `./node_modules/.bin/wskbot`. 
-you can also use npx: `npx wskbot` or install it globally `npm install -g openwhisk-action-builder`.
+The command line interface `wsk-builder` can either be invoked via `./node_modules/.bin/wsk-builder`. 
+you can also use npx: `npx wsk-builder` or install it globally `npm install -g openwhisk-action-builder`.
 
 ```
-$ wskbot --help
-Options:
-  --version            Show version number                             [boolean]
-  --verbose, -v                                                 [default: false]
+$ wsk-builder --help
+Operation Options
   --deploy             Automatically deploy to OpenWhisk        [default: false]
   --test               Invoke action after deployment           [default: false]
-  --hints, --no-hints  Show action and github app settings       [default: true]
-  --static, -s         Includes a static file into the archive
+  --hints, --no-hints  Show additional hints for deployment      [default: true]
+
+OpenWhisk Action Options
+  --name             OpenWhisk action name. Can be prefixed with package.
+  --kind             Specifies the action kind. eg: nodejs:10-fat  [default: ""]
+  --docker           Specifies a docker image.
+                                 [default: "tripodsan/probot-ow-nodejs8:latest"]
+  --params, -p       Include the given action param. can be json or env.
                                                            [array] [default: []]
-  --params, -p         Include the given action param. Can be a file or a
-                       string; can be json or env.         [array] [default: []]
-  --help               Show help                                       [boolean]
+  --params-file, -f  Include the given action param from a file; can be json or
+                     env.                                  [array] [default: []]
+
+Bundling Options
+  --static, -s  Includes a static file into the archive    [array] [default: []]
+
+GitHub Options
+  --github-key  Specify the GitHub private key file
+
+Options:
+  --version      Show version number                                   [boolean]
+  --verbose, -v                                                 [default: false]
+  --help         Show help                                             [boolean]
 
 for more information, find our manual at
-https://github.com/tripodsan/openwhisk-action-builder
+https://github.com/tripodsan/probot-serverless-openwhisk
 ```
 
-With no arguments,the `wskbot` just bundles your code into the respective `action.zip`:
-
-```
-$ wskbot
-ok: created action: dist/probot-openwhisk-example.zip.
-Deploy to openwhisk the following command or specify --deploy on the commandline:
-$ wsk action update probot-openwhisk-example --docker tripodsan/probot-ow-nodejs8:latest --web raw dist/probot-openwhisk-example.zip
-
-Githup App Settings:
-Homepage URL: https://adobeioruntime.net/api/v1/web/tripod/default/probot-openwhisk-example/probot
- Webhook URL: https://adobeioruntime.net/api/v1/web/tripod/default/probot-openwhisk-example
-```
+With no arguments,the `wsk-builder` just bundles your code into the respective `action.zip`:
 
 ### Automatically deploy to openwhisk
 
@@ -75,33 +83,22 @@ When given the `--deploy`, the `wskbot` will try to deploy it ot OpenWhisk using
 environment or `.env` file.
 
 ```
-$ wskbot --deploy --no-hints
-ok: created action: dist/probot-openwhisk-example.zip.
-ok: updated action tripod/probot-openwhisk-example
+$ wsk-builder --deploy --no-hints
+ok: created action: dist/my-example.zip.
+ok: updated action tripod/my-example
 ```  
 
 ### Automatically _test_ the deployed action
 
-In order to quickly test the deployed action, `wskbot` can send a `GET` request to the action url.
+In order to quickly test the deployed action, `wsk-builder` can send a `GET` request to the action url.
 
 ```
-$ wskbot --deploy --no-hints --test
-ok: created action: dist/probot-openwhisk-example.zip.
-ok: updated action tripod/probot-openwhisk-example
---: requesting: https://runtime.adobe.io/api/v1/web/tripod/default/probot-openwhisk-example ...
+$ wsk-builder --deploy --no-hints --test
+ok: created action: dist/my-example.zip.
+ok: updated action tripod/my-example
+--: requesting: https://runtime.adobe.io/api/v1/web/tripod/default/my-example ...
 ok: 200
 ```
-
-..or sometimes:
-
-```
-$ wskbot --deploy --no-hints --test
-ok: created action: dist/probot-openwhisk-example.zip.
-ok: updated action tripod/probot-openwhisk-example
---: requesting: https://runtime.adobe.io/api/v1/web/tripod/default/probot-openwhisk-example ...
-error:  400 - "{\n  \"error\": \"Response is not valid 'message/http'.\",\n  \"code\": \"av6qzDTHdgd5dfg7WOynEjbVnTdE5JhnB4c\"\n}"
-```
-
 ### Including action parameters
 
 Action parameters can be defined via `-p`, either as json on env string, or json or env file.
@@ -134,7 +131,25 @@ Example:
 
 ```bash
 # include an image
-wskbot -s logo.png
+wsk-builder -s logo.png
+```
+ 
+### Specifying arguments in the `package.json`
+
+Instead of passing all the arguments via command line, you can also specify them in the `package.json`
+in the `wsk` object. eg:
+
+```json
+{
+...
+  "wsk": {
+    "name": "my-action",
+    "params-file": [
+      "secrets.env"
+    ]
+  },
+...
+}
 ```
  
 ## Notes

@@ -25,15 +25,6 @@ const { version } = require('../package.json');
 
 require('dotenv').config();
 
-// poor men's logging...
-let verbose = false;
-const log = {
-  debug: (...args) => { if (verbose) { console.log(...args); } },
-  info: console.log,
-  warn: console.warn,
-  error: console.error,
-};
-
 module.exports = class ActionBuilder {
   /**
    * Decoded the params string or file. First as JSON and if this fails, as ENV format.
@@ -96,9 +87,21 @@ module.exports = class ActionBuilder {
     this._showHints = false;
   }
 
+  get log() {
+    if (!this._logger) {
+      // poor men's logging...
+      this._logger = {
+        debug: (...args) => { if (this._verbose) { console.log(...args); } },
+        info: console.log,
+        warn: console.warn,
+        error: console.error,
+      };
+    }
+    return this._logger;
+  }
+
   verbose(enable) {
     this._verbose = enable;
-    verbose = this._verbose;
     return this;
   }
 
@@ -114,6 +117,11 @@ module.exports = class ActionBuilder {
 
   withHints(showHints) {
     this._showHints = showHints;
+    return this;
+  }
+
+  withExternals(value) {
+    this._externals = value;
     return this;
   }
 
@@ -165,16 +173,18 @@ module.exports = class ActionBuilder {
     return this;
   }
 
+  withEntryFile(value) {
+    this._file = value;
+    return this;
+  }
+
   async validate() {
     try {
       this._pkgJson = await fse.readJson(path.resolve(this._cwd, 'package.json'));
     } catch (e) {
       this._pkgJson = {};
     }
-
-    if (!this._file) {
-      this._file = path.resolve(this._cwd, 'index.js');
-    }
+    this._file = path.resolve(this._cwd, this._file || 'index.js');
     if (!this._env) {
       this._env = path.resolve(this._cwd, '.env');
     }
@@ -205,56 +215,50 @@ module.exports = class ActionBuilder {
   }
 
   async createArchive() {
-    // create zip file for package
-    const output = fse.createWriteStream(this._zipFile);
-    const archive = archiver('zip');
-    log.debug('Creating: ', path.relative(this._cwd, this._zipFile));
+    return new Promise(async (resolve, reject) => {
+      // create zip file for package
+      const output = fse.createWriteStream(this._zipFile);
+      const archive = archiver('zip');
+      this.log.debug('Creating: ', path.relative(this._cwd, this._zipFile));
 
-    const process = new Promise((resolve, reject) => {
       let hadErrors = false;
       output.on('close', () => {
         if (!hadErrors) {
-          log.debug(' %d total bytes', archive.pointer());
+          this.log.debug(' %d total bytes', archive.pointer());
           resolve();
         }
       });
       archive.on('entry', (data) => {
-        log.debug(' - %s', data.name);
+        this.log.debug(' - %s', data.name);
       });
       archive.on('warning', (err) => {
-        log.warn(`${chalk.redBright('[error] ')} ${err.message}`);
         hadErrors = true;
         reject(err);
       });
       archive.on('error', (err) => {
-        log.error(`${chalk.redBright('[error] ')} ${err.message}`);
         hadErrors = true;
         reject(err);
       });
+
+      const packageJson = {
+        name: this._name,
+        version: '1.0',
+        description: `OpenWhisk Action of ${this._name}`,
+        main: 'main.js',
+        license: 'Apache-2.0',
+      };
+
+      archive.pipe(output);
+      await this.updateArchive(archive, packageJson);
+      archive.finalize();
     });
-
-    const packageJson = {
-      name: this._name,
-      version: '1.0',
-      description: `OpenWhisk Action of ${this._name}`,
-      main: 'main.js',
-      license: 'Apache-2.0',
-    };
-
-    archive.pipe(output);
-    await this.updateArchive(archive, packageJson);
-    archive.finalize();
-    return process;
   }
 
   async updateArchive(archive, packageJson) {
-    archive.file(this._bundle, { name: 'app.js' });
-    archive.file(path.resolve(__dirname, '..', 'main.js'), { name: 'main.js' });
-
+    archive.file(this._bundle, { name: 'main.js' });
     this._statics.forEach((src, name) => {
       archive.file(src, { name });
     });
-
     archive.append(JSON.stringify(packageJson, null, '  '), { name: 'package.json' });
   }
 
@@ -279,13 +283,17 @@ module.exports = class ActionBuilder {
           reject(err);
           return;
         }
-        log.debug(stats.toString({
+        this.log.debug(stats.toString({
           chunks: false,
           colors: true,
         }));
         resolve();
       });
     });
+  }
+
+  async prepare() {
+    await this.createPackage();
   }
 
   async deploy() {
@@ -297,7 +305,7 @@ module.exports = class ActionBuilder {
 
 
     const relZip = path.relative(process.cwd(), this._zipFile);
-    log.debug(`Deploying ${relZip} as ${this._name} to OpenWhisk`);
+    this.log.debug(`Deploying ${relZip} as ${this._name} to OpenWhisk`);
     const actionoptions = {
       name: this._name,
       action: await fse.readFile(this._zipFile),
@@ -319,11 +327,10 @@ module.exports = class ActionBuilder {
     }
 
     const result = await openwhisk.actions.update(actionoptions);
-    console.log(result);
-    log.info(`${chalk.green('ok:')} updated action ${chalk.whiteBright(`${result.namespace}/${result.name}`)}`);
+    this.log.info(`${chalk.green('ok:')} updated action ${chalk.whiteBright(`${result.namespace}/${result.name}`)}`);
     if (this._showHints) {
-      log.info('\nYou can verify the action with:');
-      log.info(chalk.grey(`$ curl "${this._wskApiHost}/api/v1/web/${this._wskNamespace}/default/${result.name}"`));
+      this.log.info('\nYou can verify the action with:');
+      this.log.info(chalk.grey(`$ curl "${this._wskApiHost}/api/v1/web/${this._wskNamespace}/default/${result.name}"`));
     }
   }
 
@@ -336,13 +343,13 @@ module.exports = class ActionBuilder {
 
   async testRequest() {
     const url = `${this._wskApiHost}/api/v1/web/${this._wskNamespace}/${this._actionName}`;
-    log.info(`--: requesting: ${chalk.blueBright(url)} ...`);
+    this.log.info(`--: requesting: ${chalk.blueBright(url)} ...`);
     try {
       const ret = await request(url);
-      log.info(`${chalk.green('ok:')} 200`);
-      log.debug(chalk.grey(ret));
+      this.log.info(`${chalk.green('ok:')} 200`);
+      this.log.debug(chalk.grey(ret));
     } catch (e) {
-      log.error(`${chalk.red('error: ')} ${e.message}`);
+      this.log.error(`${chalk.red('error: ')} ${e.message}`);
     }
   }
 
@@ -353,37 +360,37 @@ module.exports = class ActionBuilder {
       namespace: this._wskNamespace,
     });
 
-    log.info(`--: invoking: ${chalk.blueBright(this._name)} ...`);
+    this.log.info(`--: invoking: ${chalk.blueBright(this._name)} ...`);
     try {
       const ret = await openwhisk.actions.invoke({
         name: this._name,
         blocking: true,
         result: true,
       });
-      log.info(`${chalk.green('ok:')} 200`);
-      log.debug(chalk.grey(JSON.stringify(ret, null, '  ')));
+      this.log.info(`${chalk.green('ok:')} 200`);
+      this.log.debug(chalk.grey(JSON.stringify(ret, null, '  ')));
     } catch (e) {
-      log.error(`${chalk.red('error: ')} ${e.message}`);
+      this.log.error(`${chalk.red('error: ')} ${e.message}`);
     }
   }
 
   async showDeployHints() {
     const relZip = path.relative(process.cwd(), this._zipFile);
-    log.info('Deploy to openwhisk the following command or specify --deploy on the commandline:');
+    this.log.info('Deploy to openwhisk the following command or specify --deploy on the commandline:');
     if (this._docker) {
-      log.info(chalk.grey(`$ wsk action update ${this._name} --docker ${this._docker} --web raw ${relZip}`));
+      this.log.info(chalk.grey(`$ wsk action update ${this._name} --docker ${this._docker} --web raw ${relZip}`));
     } else {
-      log.info(chalk.grey(`$ wsk action update ${this._name} --kind ${this._kind} --web raw ${relZip}`));
+      this.log.info(chalk.grey(`$ wsk action update ${this._name} --kind ${this._kind} --web raw ${relZip}`));
     }
   }
 
   async run() {
-    log.info(chalk`{grey openwhisk-action-builder v${version}}`);
+    this.log.info(chalk`{grey openwhisk-action-builder v${version}}`);
     await this.validate();
-    await this.createPackage();
+    await this.prepare();
     await this.createArchive();
     const relZip = path.relative(process.cwd(), this._zipFile);
-    log.info(`${chalk.green('ok:')} created action: ${chalk.whiteBright(relZip)}.`);
+    this.log.info(`${chalk.green('ok:')} created action: ${chalk.whiteBright(relZip)}.`);
     if (this._deploy) {
       await this.deploy();
     } else if (this._showHints) {
