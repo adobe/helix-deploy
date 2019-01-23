@@ -77,14 +77,7 @@ class CLI {
         type: 'array',
       })
       .group(['static', 'entryFile', 'externals'], 'Bundling Options')
-
-      .epilogue(this._epiloge())
       .help();
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  _epiloge() {
-    return 'for more information, find our manual at https://github.com/tripodsan/openwhisk-action-builder';
   }
 
   // eslint-disable-next-line class-methods-use-this
