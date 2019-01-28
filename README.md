@@ -2,12 +2,12 @@
 > Library and Commandline tool support for building and deploying OpenWhisk actions. 
 
 ## Status
-[![GitHub license](https://img.shields.io/github/license/tripodsan/openwhisk-action-builder.svg)](https://github.com/tripodsan/openwhisk-action-builder/blob/master/LICENSE.txt)
-[![GitHub issues](https://img.shields.io/github/issues/tripodsan/openwhisk-action-builder.svg)](https://github.com/tripodsan/openwhisk-action-builder/issues)
-[![CircleCI](https://img.shields.io/circleci/project/github/tripodsan/openwhisk-action-builder.svg)](https://circleci.com/gh/tripodsan/openwhisk-action-builder)
-[![codecov](https://img.shields.io/codecov/c/github/tripodsan/openwhisk-action-builder.svg)](https://codecov.io/gh/tripodsan/openwhisk-action-builder)
-[![Greenkeeper badge](https://badges.greenkeeper.io/tripodsan/openwhisk-action-builder.svg)](https://greenkeeper.io/)
-[![LGTM Code Quality Grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/tripodsan/openwhisk-action-builder.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/tripodsan/openwhisk-action-builder)
+[![GitHub license](https://img.shields.io/github/license/adobe/openwhisk-action-builder.svg)](https://github.com/adobe/openwhisk-action-builder/blob/master/LICENSE.txt)
+[![GitHub issues](https://img.shields.io/github/issues/adobe/openwhisk-action-builder.svg)](https://github.com/adobe/openwhisk-action-builder/issues)
+[![CircleCI](https://img.shields.io/circleci/project/github/adobe/openwhisk-action-builder.svg)](https://circleci.com/gh/adobe/openwhisk-action-builder)
+[![codecov](https://img.shields.io/codecov/c/github/adobe/openwhisk-action-builder.svg)](https://codecov.io/gh/adobe/openwhisk-action-builder)
+[![Greenkeeper badge](https://badges.greenkeeper.io/adobe/openwhisk-action-builder.svg)](https://greenkeeper.io/)
+[![LGTM Code Quality Grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/adobe/openwhisk-action-builder.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/adobe/openwhisk-action-builder)
 
 ## Setup
 
@@ -53,7 +53,7 @@ OpenWhisk Action Options
   --name             OpenWhisk action name. Can be prefixed with package.
   --kind             Specifies the action kind. eg: nodejs:10-fat  [default: ""]
   --docker           Specifies a docker image.
-                                 [default: "tripodsan/probot-ow-nodejs8:latest"]
+                                 [default: "adobe/probot-ow-nodejs8:latest"]
   --params, -p       Include the given action param. can be json or env.
                                                            [array] [default: []]
   --params-file, -f  Include the given action param from a file; can be json or
@@ -71,7 +71,7 @@ Options:
   --help         Show help                                             [boolean]
 
 for more information, find our manual at
-https://github.com/tripodsan/probot-serverless-openwhisk
+https://github.com/adobe/probot-serverless-openwhisk
 ```
 
 With no arguments,the `wsk-builder` just bundles your code into the respective `action.zip`:
@@ -160,7 +160,7 @@ in the `wsk` object. eg:
       "bunyan-syslog",
       "bunyan-format"
     ],
-    "docker": "tripodsan/probot-ow-nodejs8:latest"
+    "docker": "adobe/probot-ow-nodejs8:latest"
   },
 ...
 }

@@ -1,10 +1,10 @@
 {
-  "name": "openwhisk-action-builder",
+  "name": "@adobe/openwhisk-action-builder",
   "version": "0.0.6",
   "description": "Library and Commandline Tools to build and deploy OpenWhisk Actions",
   "license": "Apache-2.0",
-  "repository": "https://github.com/tripodsan/openhwisk-action-builder",
-  "bugs": "https://github.com/tripodsan/openwhisk-action-builder/issues",
+  "repository": "https://github.com/adobe/openhwisk-action-builder",
+  "bugs": "https://github.com/adobe/openwhisk-action-builder/issues",
   "keywords": [
     "openwhisk"
   ],
