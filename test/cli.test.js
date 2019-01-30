@@ -27,6 +27,7 @@ describe('CLI Test', () => {
     assert.equal(builder._showHints, true);
     assert.equal(builder._kind, 'nodejs:10-fat');
     assert.equal(builder._docker, null);
+    assert.deepEqual(builder._modules, []);
     assert.equal(JSON.stringify([...builder._statics]).toString(), '[]');
     assert.deepEqual(builder._params, {});
   });
@@ -83,6 +84,12 @@ describe('CLI Test', () => {
     const builder = new CLI()
       .prepare(['-p', 'foo=bar']);
     assert.deepEqual(builder._params, { foo: 'bar' });
+  });
+
+  it('can add modules', () => {
+    const builder = new CLI()
+      .prepare(['-m', 'foo', '-m', 'bar']);
+    assert.deepEqual(builder._modules, [ 'foo', 'bar']);
   });
 
   it('can add externals with regexp', () => {

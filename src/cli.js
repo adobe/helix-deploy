@@ -54,6 +54,12 @@ class CLI {
         type: 'array',
         default: [],
       })
+      .option('modules', {
+        alias: 'm',
+        description: 'Include a node_module as is.',
+        type: 'array',
+        default: [],
+      })
       .option('params-file', {
         alias: 'f',
         description: 'Include the given action param from a file; can be json or env.',
@@ -102,6 +108,7 @@ class CLI {
       .withEntryFile(argv.entryFile)
       .withExternals(argv.externals)
       .withDocker(argv.docker)
+      .withModules(argv.modules)
       .withParamsFile(argv.paramsFile);
   }
 

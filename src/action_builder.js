@@ -85,6 +85,7 @@ module.exports = class ActionBuilder {
     this._webAction = true;
     this._rawHttp = false;
     this._showHints = false;
+    this._modules = [];
   }
 
   get log() {
@@ -117,6 +118,11 @@ module.exports = class ActionBuilder {
 
   withHints(showHints) {
     this._showHints = showHints;
+    return this;
+  }
+
+  withModules(value) {
+    this._modules = value;
     return this;
   }
 
@@ -263,6 +269,9 @@ module.exports = class ActionBuilder {
     archive.file(this._bundle, { name: 'main.js' });
     this._statics.forEach((src, name) => {
       archive.file(src, { name });
+    });
+    this._modules.forEach((mod) => {
+      archive.directory(path.resolve(this._cwd, `node_modules/${mod}`), `node_modules/${mod}`);
     });
     archive.append(JSON.stringify(packageJson, null, '  '), { name: 'package.json' });
   }
