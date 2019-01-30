@@ -89,7 +89,7 @@ describe('CLI Test', () => {
   it('can add modules', () => {
     const builder = new CLI()
       .prepare(['-m', 'foo', '-m', 'bar']);
-    assert.deepEqual(builder._modules, [ 'foo', 'bar']);
+    assert.deepEqual(builder._modules, ['foo', 'bar']);
   });
 
   it('can add externals with regexp', () => {
