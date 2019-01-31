@@ -126,6 +126,16 @@ module.exports = class ActionBuilder {
     return this;
   }
 
+  withWebExport(value) {
+    this._webAction = value;
+    return this;
+  }
+
+  withRawHttp(value) {
+    this._rawHttp = value;
+    return this;
+  }
+
   withExternals(value) {
     this._externals = (Array.isArray(value) ? value : [value]).map((e) => {
       if (typeof e === 'string' && e.startsWith('/') && e.endsWith('/')) {
@@ -223,6 +233,10 @@ module.exports = class ActionBuilder {
     this._wskNamespace = this._wskNamespace || wskProps.NAMESPACE || process.env.WSK_NAMESPACE;
     this._wskAuth = this._wskAuth || wskProps.AUTH || process.env.WSK_AUTH;
     this._wskApiHost = this._wskApiHost || wskProps.APIHOST || process.env.WSK_APIHOST || 'https://adobeioruntime.net';
+
+    if (this._rawHttp && !this._webAction) {
+      throw new Error('raw-http requires web-export');
+    }
   }
 
   async createArchive() {

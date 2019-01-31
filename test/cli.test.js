@@ -30,6 +30,8 @@ describe('CLI Test', () => {
     assert.deepEqual(builder._modules, []);
     assert.equal(JSON.stringify([...builder._statics]).toString(), '[]');
     assert.deepEqual(builder._params, {});
+    assert.equal(builder._webAction, true);
+    assert.equal(builder._rawHttp, false);
   });
 
   it('sets verbose flag', () => {
@@ -72,6 +74,30 @@ describe('CLI Test', () => {
     const builder = new CLI()
       .prepare(['--no-hints']);
     assert.equal(builder._showHints, false);
+  });
+
+  it('sets disable web-action', () => {
+    const builder = new CLI()
+      .prepare(['--no-web-export']);
+    assert.equal(builder._webAction, false);
+  });
+
+  it('sets enable raw-http', () => {
+    const builder = new CLI()
+      .prepare(['--raw-http']);
+    assert.equal(builder._webAction, true);
+    assert.equal(builder._rawHttp, true);
+  });
+
+  it('raw http and disable webaction fails', async () => {
+    try {
+      await new CLI()
+        .prepare(['--raw-http', '--no-web-export'])
+        .validate();
+      assert.fail('should fail.');
+    } catch (e) {
+      assert.equal(e.toString(), 'Error: raw-http requires web-export');
+    }
   });
 
   it('can add statics', () => {

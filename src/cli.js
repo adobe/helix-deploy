@@ -45,6 +45,16 @@ class CLI {
         description: 'Specifies the action kind. eg: nodejs:10-fat',
         default: 'nodejs:10-fat',
       })
+      .option('web-export', {
+        description: 'Annotates the action as web-action',
+        type: 'boolean',
+        default: true,
+      })
+      .option('raw-http', {
+        description: 'Annotates the action as raw web-action (enforces web-export=true)',
+        type: 'boolean',
+        default: false,
+      })
       .option('docker', {
         description: 'Specifies a docker image.',
       })
@@ -66,7 +76,7 @@ class CLI {
         type: 'array',
         default: [],
       })
-      .group(['name', 'kind', 'docker', 'params', 'params-file'], 'OpenWhisk Action Options')
+      .group(['name', 'kind', 'docker', 'params', 'params-file', 'web-export', 'raw-http'], 'OpenWhisk Action Options')
 
       .option('static', {
         alias: 's',
@@ -109,6 +119,8 @@ class CLI {
       .withExternals(argv.externals)
       .withDocker(argv.docker)
       .withModules(argv.modules)
+      .withWebExport(argv.webExport)
+      .withRawHttp(argv.rawHttp)
       .withParamsFile(argv.paramsFile);
   }
 
