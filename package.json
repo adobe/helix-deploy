@@ -1,6 +1,6 @@
 {
   "name": "@adobe/openwhisk-action-builder",
-  "version": "0.2.0",
+  "version": "0.2.0-pre.0",
   "description": "Library and Commandline Tools to build and deploy OpenWhisk Actions",
   "license": "Apache-2.0",
   "repository": "https://github.com/adobe/openhwisk-action-builder",

@@ -355,7 +355,7 @@ module.exports = class ActionBuilder {
     this.log.info(`${chalk.green('ok:')} updated action ${chalk.whiteBright(`${result.namespace}/${result.name}`)}`);
     if (this._showHints) {
       this.log.info('\nYou can verify the action with:');
-      this.log.info(chalk.grey(`$ curl "${this._wskApiHost}/api/v1/web/${this._wskNamespace}/default/${result.name}"`));
+      this.log.info(chalk.grey(`$ curl "${this._wskApiHost}/api/v1/web/${result.namespace}/default/${result.name}"`));
     }
   }
 
@@ -370,11 +370,19 @@ module.exports = class ActionBuilder {
     const url = `${this._wskApiHost}/api/v1/web/${this._wskNamespace}/${this._actionName}`;
     this.log.info(`--: requesting: ${chalk.blueBright(url)} ...`);
     try {
-      const ret = await request(url);
+      const ret = await request({
+        url,
+        followRedirect: false,
+      });
       this.log.info(`${chalk.green('ok:')} 200`);
       this.log.debug(chalk.grey(ret));
     } catch (e) {
-      this.log.error(`${chalk.red('error: ')} ${e.message}`);
+      if (e.statusCode === 302 || e.statusCode === 301) {
+        this.log.info(`${chalk.green('ok:')} ${e.statusCode}`);
+        this.log.debug(chalk.grey(`Location: ${e.response.headers.location}`));
+      } else {
+        this.log.error(`${chalk.red('error: ')} ${e.message}`);
+      }
     }
   }
 
