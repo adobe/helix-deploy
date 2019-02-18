@@ -355,7 +355,7 @@ module.exports = class ActionBuilder {
     this.log.info(`${chalk.green('ok:')} updated action ${chalk.whiteBright(`${result.namespace}/${result.name}`)}`);
     if (this._showHints) {
       this.log.info('\nYou can verify the action with:');
-      this.log.info(chalk.grey(`$ curl "${this._wskApiHost}/api/v1/web/${result.namespace}/default/${result.name}"`));
+      this.log.info(chalk.grey(`$ curl "${this._wskApiHost}/api/v1/web/${result.namespace}/${result.name}"`));
     }
   }
 
