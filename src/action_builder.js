@@ -303,6 +303,12 @@ module.exports = class ActionBuilder {
       },
       devtool: false,
       externals: this._externals,
+      module: {
+        rules: [{
+          test: /\.mjs$/,
+          type: 'javascript/auto',
+        }],
+      },
     });
 
     return new Promise((resolve, reject) => {

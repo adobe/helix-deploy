@@ -1,0 +1,9 @@
+node_modules
+npm-debug.log
+*.pem
+.env
+.nyc_output/
+coverage.lcov
+test-results.xml
+.idea
+.circleci

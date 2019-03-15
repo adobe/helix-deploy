@@ -28,13 +28,13 @@
     "openwhisk": "^3.17.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
-    "webpack": "^4.29.5",
+    "webpack": "^4.29.6",
     "yargs": "^12.0.2"
   },
   "devDependencies": {
-    "ajv": "^6.9.1",
+    "ajv": "^6.10.0",
     "codecov": "^3.2.0",
-    "eslint": "^5.14.1",
+    "eslint": "^5.15.1",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-header": "^2.0.0",
     "eslint-plugin-import": "^2.16.0",
