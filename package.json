@@ -3,7 +3,7 @@
   "version": "0.2.3",
   "description": "Library and Commandline Tools to build and deploy OpenWhisk Actions",
   "license": "Apache-2.0",
-  "repository": "https://github.com/adobe/openhwisk-action-builder",
+  "repository": "https://github.com/adobe/openwhisk-action-builder",
   "bugs": "https://github.com/adobe/openwhisk-action-builder/issues",
   "keywords": [
     "openwhisk"
