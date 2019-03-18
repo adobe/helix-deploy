@@ -67,6 +67,7 @@ module.exports = class ActionBuilder {
     this._cwd = process.cwd();
     this._distDir = null;
     this._name = null;
+    this._version = null;
     this._file = null;
     this._zipFile = null;
     this._bundle = null;
@@ -184,6 +185,11 @@ module.exports = class ActionBuilder {
     return this;
   }
 
+  withVersion(value) {
+    this._version = value;
+    return this;
+  }
+
   withKind(value) {
     this._kind = value;
     return this;
@@ -214,6 +220,9 @@ module.exports = class ActionBuilder {
     }
     if (!this._name) {
       this._name = this._pkgJson.name || path.basename(this._cwd);
+    }
+    if (!this._version) {
+      this._version = this._pkgJson.version || '0.0.0';
     }
     if (!this._zipFile) {
       this._zipFile = path.resolve(this._distDir, `${this._name}.zip`);
@@ -267,7 +276,7 @@ module.exports = class ActionBuilder {
 
       const packageJson = {
         name: this._name,
-        version: '1.0',
+        version: this._version,
         description: `OpenWhisk Action of ${this._name}`,
         main: 'main.js',
         license: 'Apache-2.0',

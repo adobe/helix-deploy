@@ -41,6 +41,9 @@ class CLI {
       .option('name', {
         description: 'OpenWhisk action name. Can be prefixed with package.',
       })
+      .option('pkgVersion', {
+        description: 'Version use in the embedded package.json.',
+      })
       .option('kind', {
         description: 'Specifies the action kind. eg: nodejs:10-fat',
         default: 'nodejs:10-fat',
@@ -114,6 +117,7 @@ class CLI {
       .withStatic(argv.static)
       .withParams(argv.params)
       .withName(argv.name)
+      .withVersion(argv.pkgVersion)
       .withKind(argv.kind)
       .withEntryFile(argv.entryFile)
       .withExternals(argv.externals)

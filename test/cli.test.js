@@ -58,6 +58,12 @@ describe('CLI Test', () => {
     assert.equal(builder._name, 'foo');
   });
 
+  it('sets version', () => {
+    const builder = new CLI()
+      .prepare(['--pkgVersion', '1.2.3']);
+    assert.equal(builder._version, '1.2.3');
+  });
+
   it('sets kind', () => {
     const builder = new CLI()
       .prepare(['--kind', 'foo']);
