@@ -1,6 +1,6 @@
 {
   "name": "@adobe/openwhisk-action-builder",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "Library and Commandline Tools to build and deploy OpenWhisk Actions",
   "license": "Apache-2.0",
   "repository": "https://github.com/adobe/openwhisk-action-builder",
@@ -34,6 +34,7 @@
     "@semantic-release/changelog": "^3.0.2",
     "@semantic-release/git": "^7.0.8",
     "@semantic-release/github": "^5.2.10",
+    "@semantic-release/npm": "^5.1.4",
     "ajv": "^6.10.0",
     "codecov": "^3.2.0",
     "commitizen": "^3.0.7",
