@@ -21,19 +21,23 @@ class CLI {
       .pkgConf('wsk')
       .option('verbose', {
         alias: 'v',
+        type: 'boolean',
         default: false,
       })
       .option('deploy', {
         description: 'Automatically deploy to OpenWhisk',
+        type: 'boolean',
         default: false,
       })
       .option('test', {
         description: 'Invoke action after deployment',
+        type: 'boolean',
         default: false,
       })
       .option('hints', {
         alias: 'no-hints',
         description: 'Show additional hints for deployment',
+        type: 'boolean',
         default: true,
       })
       .group(['deploy', 'test', 'hints'], 'Operation Options')
