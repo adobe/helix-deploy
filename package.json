@@ -1,6 +1,6 @@
 {
   "name": "@adobe/openwhisk-action-builder",
-  "version": "0.3.0",
+  "version": "0.3.1-pre.0",
   "description": "Library and Commandline Tools to build and deploy OpenWhisk Actions",
   "license": "Apache-2.0",
   "repository": "https://github.com/adobe/openwhisk-action-builder",
@@ -20,7 +20,10 @@
     "commit": "git-cz"
   },
   "dependencies": {
+    "@tripod/bunyan-syslog": "^0.3.2",
     "archiver": "^3.0.0",
+    "bunyan": "^1.8.12",
+    "bunyan-loggly": "^1.4.1",
     "chalk": "^2.4.1",
     "dotenv": "^7.0.0",
     "fs-extra": "^7.0.1",

@@ -12,7 +12,13 @@
 const ActionBuilder = require('./src/action_builder.js');
 const CLI = require('./src/cli.js');
 
+// those are runtime helpers, maybe not perfect to mix them with the build helpers
+const logger = require('./src/logger.js');
+const logRequest = require('./src/log-request.js');
+
 module.exports = {
   ActionBuilder,
   CLI,
+  logger,
+  logRequest,
 };
