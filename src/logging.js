@@ -9,10 +9,10 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-const ActionBuilder = require('./src/action_builder.js');
-const CLI = require('./src/cli.js');
+const logger = require('./logger.js');
+const logRequest = require('./log-request.js');
 
 module.exports = {
-  ActionBuilder,
-  CLI,
+  logger,
+  logRequest,
 };
