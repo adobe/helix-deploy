@@ -15,7 +15,16 @@ const serverless = require('serverless-http');
 
 module.exports = function expressify(app) {
   return async (params) => {
-    const handler = serverless(app, {
+    const requestBodyAdapter = async (req, res) => {
+      // `serverless-http` converts the request.body by default to a buffer,
+      // which not all express apps can deal with.
+      if (req.body && Buffer.isBuffer(req.body)) {
+        req.body = req.body.toString('utf-8');
+      }
+      return app(req, res);
+    };
+
+    const handler = serverless(requestBodyAdapter, {
       // eslint-disable-next-line no-use-before-define
       binary: BINARY_MEDIA_TYPES,
     });
