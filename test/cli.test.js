@@ -25,7 +25,7 @@ describe('CLI Test', () => {
     assert.equal(builder._deploy, false);
     assert.equal(builder._test, false);
     assert.equal(builder._showHints, true);
-    assert.equal(builder._kind, 'nodejs:10-fat');
+    assert.equal(builder._kind, 'nodejs:10');
     assert.equal(builder._docker, null);
     assert.deepEqual(builder._modules, []);
     assert.equal(JSON.stringify([...builder._statics]).toString(), '[]');

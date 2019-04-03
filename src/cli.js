@@ -49,8 +49,8 @@ class CLI {
         description: 'Version use in the embedded package.json.',
       })
       .option('kind', {
-        description: 'Specifies the action kind. eg: nodejs:10-fat',
-        default: 'nodejs:10-fat',
+        description: 'Specifies the action kind.',
+        default: 'nodejs:10',
       })
       .option('web-export', {
         description: 'Annotates the action as web-action',

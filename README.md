@@ -51,7 +51,7 @@ Operation Options
 
 OpenWhisk Action Options
   --name             OpenWhisk action name. Can be prefixed with package.
-  --kind             Specifies the action kind. eg: nodejs:10-fat  [default: ""]
+  --kind             Specifies the action kind.           [default: "nodejs:10"]
   --docker           Specifies a docker image.
                                  [default: "adobe/probot-ow-nodejs8:latest"]
   --params, -p       Include the given action param. can be json or env.
