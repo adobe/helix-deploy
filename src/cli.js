@@ -17,7 +17,7 @@ const chalk = require('chalk');
 
 class CLI {
   constructor() {
-    this._yargs = yargs
+    this._yargs = yargs()
       .pkgConf('wsk')
       .option('verbose', {
         alias: 'v',
