@@ -23,6 +23,11 @@ class CLI {
         type: 'boolean',
         default: false,
       })
+      .option('build', {
+        description: 'Build the deployment package',
+        type: 'boolean',
+        default: true,
+      })
       .option('deploy', {
         description: 'Automatically deploy to OpenWhisk',
         type: 'boolean',
@@ -39,7 +44,7 @@ class CLI {
         type: 'boolean',
         default: true,
       })
-      .group(['deploy', 'test', 'hints'], 'Operation Options')
+      .group(['build', 'deploy', 'test', 'hints', 'update-package'], 'Operation Options')
 
       .option('name', {
         description: 'OpenWhisk action name. Can be prefixed with package.',
@@ -84,6 +89,32 @@ class CLI {
       })
       .group(['name', 'kind', 'docker', 'params', 'params-file', 'web-export', 'raw-http'], 'OpenWhisk Action Options')
 
+      .option('update-package', {
+        description: 'Create or update wsk package.',
+        type: 'boolean',
+        default: false,
+      })
+      .option('package.name', {
+        description: 'OpenWhisk package name.',
+        type: 'string',
+      })
+      .option('package.shared', {
+        description: 'OpenWhisk package scope.',
+        type: 'boolean',
+        default: false,
+      })
+      .option('package.params', {
+        description: 'OpenWhisk package params.',
+        type: 'array',
+        default: [],
+      })
+      .option('package.params-file', {
+        description: 'OpenWhisk package params file.',
+        type: 'array',
+        default: [],
+      })
+      .group(['package.name', 'package.params', 'package.params-file', 'package.shared'], 'OpenWhisk Package Options')
+
       .option('static', {
         alias: 's',
         description: 'Includes a static file into the archive',
@@ -114,12 +145,14 @@ class CLI {
     const argv = this._yargs.parse(args);
     return this.createBuilder()
       .verbose(argv.verbose)
+      .withBuild(argv.build)
       .withDeploy(argv.deploy)
       .withTest(argv.test)
       .withHints(argv.hints)
       .withStatic(argv.static)
-      .withParams(argv.params)
       .withName(argv.name)
+      .withParams(argv.params)
+      .withParamsFile(argv.paramsFile)
       .withVersion(argv.pkgVersion)
       .withKind(argv.kind)
       .withEntryFile(argv.entryFile)
@@ -128,12 +161,16 @@ class CLI {
       .withModules(argv.modules)
       .withWebExport(argv.webExport)
       .withRawHttp(argv.rawHttp)
-      .withParamsFile(argv.paramsFile);
+      .withUpdatePackage(argv.updatePackage)
+      .withPackageName(argv.package.name)
+      .withPackageParams(argv.package.params)
+      .withPackageParamsFile(argv.package['params-file'])
+      .withPackageShared(argv.package.shared);
   }
 
   async run(args) {
     try {
-      return this.prepare(args).run();
+      return await this.prepare(args).run();
     } catch (err) {
       console.log(`${chalk.redBright('[error] ')} ${err.message}`);
       return -1;

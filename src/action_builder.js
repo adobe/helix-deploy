@@ -87,6 +87,11 @@ module.exports = class ActionBuilder {
     this._rawHttp = false;
     this._showHints = false;
     this._modules = [];
+    this._build = true;
+    this._updatePackage = false;
+    this._packageName = '';
+    this._packageShared = false;
+    this._packageParams = {};
   }
 
   get log() {
@@ -109,6 +114,16 @@ module.exports = class ActionBuilder {
 
   withDeploy(enable) {
     this._deploy = enable;
+    return this;
+  }
+
+  withBuild(enable) {
+    this._build = enable;
+    return this;
+  }
+
+  withUpdatePackage(enable) {
+    this._updatePackage = enable;
     return this;
   }
 
@@ -176,8 +191,28 @@ module.exports = class ActionBuilder {
     return this;
   }
 
+  withPackageParams(params, forceFile) {
+    if (!params) {
+      return this;
+    }
+    if (Array.isArray(params)) {
+      params.forEach((v) => {
+        // eslint-disable-next-line max-len
+        this._packageParams = Object.assign(this._packageParams, ActionBuilder.decodeParams(v, forceFile));
+      });
+    } else {
+      // eslint-disable-next-line max-len
+      this._packageParams = Object.assign(this._packageParams, ActionBuilder.decodeParams(params, forceFile));
+    }
+    return this;
+  }
+
   withParamsFile(params) {
     return this.withParams(params, true);
+  }
+
+  withPackageParamsFile(params) {
+    return this.withPackageParams(params, true);
   }
 
   withName(value) {
@@ -202,6 +237,16 @@ module.exports = class ActionBuilder {
 
   withEntryFile(value) {
     this._file = value;
+    return this;
+  }
+
+  withPackageShared(value) {
+    this._packageShared = value;
+    return this;
+  }
+
+  withPackageName(value) {
+    this._packageName = value;
     return this;
   }
 
@@ -245,6 +290,12 @@ module.exports = class ActionBuilder {
 
     if (this._rawHttp && !this._webAction) {
       throw new Error('raw-http requires web-export');
+    }
+    if (!this._packageName) {
+      const idx = this._name.indexOf('/');
+      if (idx > 0) {
+        this._packageName = this._name.substring(0, idx);
+      }
     }
   }
 
@@ -346,7 +397,6 @@ module.exports = class ActionBuilder {
       namespace: this._wskNamespace,
     });
 
-
     const relZip = path.relative(process.cwd(), this._zipFile);
     this.log.debug(`Deploying ${relZip} as ${this._name} to OpenWhisk`);
     const actionoptions = {
@@ -367,10 +417,48 @@ module.exports = class ActionBuilder {
     }
 
     const result = await openwhisk.actions.update(actionoptions);
-    this.log.info(`${chalk.green('ok:')} updated action ${chalk.whiteBright(`${result.namespace}/${result.name}`)}`);
+    this.log.info(`${chalk.green('ok:')} updated action ${chalk.whiteBright(`/${result.namespace}/${result.name}`)}`);
     if (this._showHints) {
       this.log.info('\nYou can verify the action with:');
       this.log.info(chalk.grey(`$ curl "${this._wskApiHost}/api/v1/web/${result.namespace}/${result.name}"`));
+    }
+  }
+
+  async updatePackage() {
+    const openwhisk = ow({
+      apihost: this._wskApiHost,
+      api_key: this._wskAuth,
+      namespace: this._wskNamespace,
+    });
+    let fn = openwhisk.packages.update.bind(openwhisk.packages);
+    let verb = 'updateed';
+    try {
+      await openwhisk.packages.get(this._packageName);
+    } catch (e) {
+      if (e.statusCode === 404) {
+        fn = openwhisk.packages.create.bind(openwhisk.packages);
+        verb = 'created';
+      } else {
+        this.log.error(`${chalk.red('error: ')} ${e.message}`);
+      }
+    }
+
+    try {
+      const parameters = Object.keys(this._packageParams).map((key) => {
+        const value = this._packageParams[key];
+        return { key, value };
+      });
+      const result = await fn({
+        name: this._packageName,
+        package: {
+          publish: this._packageShared,
+          parameters,
+        },
+      });
+      this.log.info(`${chalk.green('ok:')} ${verb} package ${chalk.whiteBright(`/${result.namespace}/${result.name}`)}`);
+    } catch (e) {
+      this.log.error(`${chalk.red('error: failed processing package: ')} ${e.message}`);
+      throw Error('abort.');
     }
   }
 
@@ -435,10 +523,15 @@ module.exports = class ActionBuilder {
   async run() {
     this.log.info(chalk`{grey openwhisk-action-builder v${version}}`);
     await this.validate();
-    await this.prepare();
-    await this.createArchive();
-    const relZip = path.relative(process.cwd(), this._zipFile);
-    this.log.info(`${chalk.green('ok:')} created action: ${chalk.whiteBright(relZip)}.`);
+    if (this._build) {
+      await this.prepare();
+      await this.createArchive();
+      const relZip = path.relative(process.cwd(), this._zipFile);
+      this.log.info(`${chalk.green('ok:')} created action: ${chalk.whiteBright(relZip)}.`);
+    }
+    if (this._updatePackage) {
+      await this.updatePackage();
+    }
     if (this._deploy) {
       await this.deploy();
     } else if (this._showHints) {

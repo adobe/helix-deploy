@@ -23,6 +23,7 @@ describe('CLI Test', () => {
     const builder = new CLI().prepare();
     assert.equal(builder._verbose, false);
     assert.equal(builder._deploy, false);
+    assert.equal(builder._build, true);
     assert.equal(builder._test, false);
     assert.equal(builder._showHints, true);
     assert.equal(builder._kind, 'nodejs:10');
@@ -32,6 +33,8 @@ describe('CLI Test', () => {
     assert.deepEqual(builder._params, {});
     assert.equal(builder._webAction, true);
     assert.equal(builder._rawHttp, false);
+    assert.equal(builder._updatePackage, false);
+    assert.equal(builder._packageShared, false);
   });
 
   it('sets verbose flag', () => {
@@ -44,6 +47,12 @@ describe('CLI Test', () => {
     const builder = new CLI()
       .prepare(['--deploy']);
     assert.equal(builder._deploy, true);
+  });
+
+  it('clears build flag', () => {
+    const builder = new CLI()
+      .prepare(['--no-build']);
+    assert.equal(builder._build, false);
   });
 
   it('sets test flag', () => {
@@ -148,5 +157,51 @@ describe('CLI Test', () => {
       bar: 'Hello, world.',
       foo: 42,
     });
+  });
+
+  it('can add package params from json file', () => {
+    const file = path.resolve(__dirname, 'fixtures/test-params.json');
+    const builder = new CLI()
+      .prepare(['--package.params-file', file]);
+    assert.deepEqual(builder._packageParams, {
+      bar: 'Hello, world.',
+      foo: 42,
+    });
+  });
+
+  it('can add package params from env file', () => {
+    const file = path.resolve(__dirname, 'fixtures/test-params.env');
+    const builder = new CLI()
+      .prepare(['--package.params-file', file]);
+    assert.deepEqual(builder._packageParams, {
+      bar: 'Hello, world.',
+      foo: 42,
+    });
+  });
+
+  it('sets update-package', () => {
+    const builder = new CLI()
+      .prepare(['--update-package']);
+    assert.equal(builder._updatePackage, true);
+  });
+
+  it('sets package name', () => {
+    const builder = new CLI()
+      .prepare(['--package.name', 'foo']);
+    assert.equal(builder._packageName, 'foo');
+  });
+
+  it('gets package via action name', async () => {
+    const builder = new CLI()
+      .prepare(['--name', 'foo/bar']);
+    await builder.validate();
+    assert.equal(builder._name, 'foo/bar');
+    assert.equal(builder._packageName, 'foo');
+  });
+
+  it('sets package shared flag', () => {
+    const builder = new CLI()
+      .prepare(['--package.shared']);
+    assert.equal(builder._packageShared, true);
   });
 });
