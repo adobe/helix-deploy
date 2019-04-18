@@ -32,22 +32,56 @@ module.exports = class ActionBuilder {
    * @param {boolean} isFile {@code true} to indicate a file.
    * @returns {*} Decoded params object.
    */
-  static decodeParams(params, isFile) {
+  decodeParams(params, isFile) {
     let content = params;
+    let cwd = this._cwd;
     if (isFile) {
       if (!fse.existsSync(params)) {
         throw Error(`Specified param file does not exist: ${params}`);
       }
       content = fse.readFileSync(params, 'utf-8');
+      cwd = path.dirname(params);
     }
+    let data;
     // first try JSON
     try {
-      return JSON.parse(content);
+      data = JSON.parse(content);
     } catch (e) {
-      // ignore
+      // then try env
+      data = dotenv.parse(content);
     }
-    // then try env
-    return dotenv.parse(content);
+
+    // resolve file references
+    Object.keys(data).forEach((key) => {
+      const param = `${data[key]}`;
+      if (param.startsWith('@') && !param.startsWith('@@')) {
+        const filePath = path.resolve(cwd, param.substring(1));
+        data[key] = `@${filePath}`;
+      }
+    });
+    return data;
+  }
+
+  /**
+   * Iterates the given params and resolves potential file references.
+   * @param {object} params the params
+   * @returns the resolved object.
+   */
+  static async resolveParams(params) {
+    const resolved = {};
+    await Promise.all(Object.keys(params).map(async (key) => {
+      const param = params[key];
+      if (!param.startsWith('@')) {
+        resolved[key] = param;
+        return;
+      }
+      if (param.startsWith('@@')) {
+        resolved[key] = param.substring(1);
+        return;
+      }
+      resolved[key] = await fse.readFile(param.substring(1), 'utf-8');
+    }));
+    return resolved;
   }
 
   /**
@@ -183,10 +217,10 @@ module.exports = class ActionBuilder {
     }
     if (Array.isArray(params)) {
       params.forEach((v) => {
-        this._params = Object.assign(this._params, ActionBuilder.decodeParams(v, forceFile));
+        this._params = Object.assign(this._params, this.decodeParams(v, forceFile));
       });
     } else {
-      this._params = Object.assign(this._params, ActionBuilder.decodeParams(params, forceFile));
+      this._params = Object.assign(this._params, this.decodeParams(params, forceFile));
     }
     return this;
   }
@@ -198,11 +232,11 @@ module.exports = class ActionBuilder {
     if (Array.isArray(params)) {
       params.forEach((v) => {
         // eslint-disable-next-line max-len
-        this._packageParams = Object.assign(this._packageParams, ActionBuilder.decodeParams(v, forceFile));
+        this._packageParams = Object.assign(this._packageParams, this.decodeParams(v, forceFile));
       });
     } else {
       // eslint-disable-next-line max-len
-      this._packageParams = Object.assign(this._packageParams, ActionBuilder.decodeParams(params, forceFile));
+      this._packageParams = Object.assign(this._packageParams, this.decodeParams(params, forceFile));
     }
     return this;
   }
@@ -297,6 +331,9 @@ module.exports = class ActionBuilder {
         this._packageName = this._name.substring(0, idx);
       }
     }
+
+    this._params = await ActionBuilder.resolveParams(this._params);
+    this._packageParams = await ActionBuilder.resolveParams(this._packageParams);
   }
 
   async createArchive() {

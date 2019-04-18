@@ -159,6 +159,19 @@ describe('CLI Test', () => {
     });
   });
 
+  it('can add params from env file with references', async () => {
+    const file = path.resolve(__dirname, 'fixtures/test-params-file.env');
+    const builder = new CLI()
+      .prepare(['-f', file]);
+    await builder.validate();
+    assert.deepEqual(builder._params, {
+      bar: 'Hello, world.',
+      foo: '42',
+      key: 'my test key!\n',
+      nofile: '@foo@',
+    });
+  });
+
   it('can add package params from json file', () => {
     const file = path.resolve(__dirname, 'fixtures/test-params.json');
     const builder = new CLI()
@@ -176,6 +189,19 @@ describe('CLI Test', () => {
     assert.deepEqual(builder._packageParams, {
       bar: 'Hello, world.',
       foo: 42,
+    });
+  });
+
+  it('can add params from env file with references', async () => {
+    const file = path.resolve(__dirname, 'fixtures/test-params-file.env');
+    const builder = new CLI()
+      .prepare(['--package.params-file', file]);
+    await builder.validate();
+    assert.deepEqual(builder._packageParams, {
+      bar: 'Hello, world.',
+      foo: '42',
+      key: 'my test key!\n',
+      nofile: '@foo@',
     });
   });
 
