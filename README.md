@@ -45,33 +45,43 @@ you can also use npx: `npx wsk-builder` or install it globally `npm install -g o
 ```
 $ wsk-builder --help
 Operation Options
-  --deploy             Automatically deploy to OpenWhisk        [default: false]
-  --test               Invoke action after deployment           [default: false]
-  --hints, --no-hints  Show additional hints for deployment      [default: true]
+  --build              Build the deployment package    [boolean] [default: true]
+  --deploy             Automatically deploy to OpenWhisk
+                                                      [boolean] [default: false]
+  --test               Invoke action after deployment [boolean] [default: false]
+  --hints, --no-hints  Show additional hints for deployment
+                                                       [boolean] [default: true]
+  --update-package     Create or update wsk package.  [boolean] [default: false]
 
 OpenWhisk Action Options
   --name             OpenWhisk action name. Can be prefixed with package.
   --kind             Specifies the action kind.           [default: "nodejs:10"]
   --docker           Specifies a docker image.
-                                 [default: "adobe/probot-ow-nodejs8:latest"]
   --params, -p       Include the given action param. can be json or env.
                                                            [array] [default: []]
   --params-file, -f  Include the given action param from a file; can be json or
                      env.                                  [array] [default: []]
+  --web-export       Annotates the action as web-action[boolean] [default: true]
+  --raw-http         Annotates the action as raw web-action (enforces
+                     web-export=true)                 [boolean] [default: false]
+
+OpenWhisk Package Options
+  --package.name         OpenWhisk package name.                        [string]
+  --package.params       OpenWhisk package params.         [array] [default: []]
+  --package.params-file  OpenWhisk package params file.    [array] [default: []]
+  --package.shared       OpenWhisk package scope.     [boolean] [default: false]
 
 Bundling Options
   --static, -s  Includes a static file into the archive    [array] [default: []]
-
-GitHub Options
-  --github-key  Specify the GitHub private key file
+  --entryFile   Specifies the entry file.              [default: "src/index.js"]
+  --externals   Defines the externals for webpack.         [array] [default: []]
 
 Options:
   --version      Show version number                                   [boolean]
-  --verbose, -v                                                 [default: false]
+  --verbose, -v                                       [boolean] [default: false]
+  --pkgVersion   Version use in the embedded package.json.
+  --modules, -m  Include a node_module as is.              [array] [default: []]
   --help         Show help                                             [boolean]
-
-for more information, find our manual at
-https://github.com/adobe/probot-serverless-openwhisk
 ```
 
 With no arguments,the `wsk-builder` just bundles your code into the respective `action.zip`:
@@ -120,6 +130,10 @@ wskbot -p params.json
 
 # and a combination of the above
 wskbot -p .env -p params.json -p MY_TOKEN=123
+
+# like in curl, you can include file contents with `@` (also works in .env or .json file)
+wskbot -p MY_TOKEN=@token.txt
+
 ```
 
 ### Including static files
