@@ -14,6 +14,8 @@
 const yargs = require('yargs');
 const chalk = require('chalk');
 
+const defaultConfig = require('./config/adobeioruntime-node10.js');
+
 class CLI {
   constructor() {
     this._yargs = yargs()
@@ -143,6 +145,10 @@ class CLI {
 
   prepare(args) {
     const argv = this._yargs.parse(args);
+
+    if (argv.externals.length === 0) {
+      argv.externals = defaultConfig.externals;
+    }
     return this.createBuilder()
       .verbose(argv.verbose)
       .withBuild(argv.build)
