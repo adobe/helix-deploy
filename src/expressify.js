@@ -31,11 +31,18 @@ module.exports = function expressify(app) {
       // eslint-disable-next-line no-use-before-define
       binary: BINARY_MEDIA_TYPES,
     });
+
+    // check content type:
+    const contentType = params.__ow_headers['content-type'] || 'text/plain';
+    // eslint-disable-next-line no-use-before-define
+    const isBase64Encoded = BINARY_CONTENT_TYPES.find(pat => pat.test(contentType));
+
     const event = {
       httpMethod: params.__ow_method.toUpperCase(),
       path: params.__ow_path,
       body: params.__ow_body,
       headers: params.__ow_headers,
+      isBase64Encoded,
     };
     const result = await handler(event, {});
     delete result.isBase64Encoded;
@@ -105,3 +112,10 @@ const BINARY_MEDIA_TYPES = [
   'application/x-xpinstall',
   'application/zip',
 ];
+
+// __ow_body (type: string): the request body entity, as a base64 encoded string when content
+// is binary or JSON object/array, or plain string otherwise.
+const BINARY_CONTENT_TYPES = [
+  '*/json',
+  'multipart/*',
+  ...BINARY_MEDIA_TYPES].map(glob => new RegExp(glob.replace(/\./g, '\\.').replace(/\*/g, '.*')));
