@@ -112,4 +112,32 @@ describe('Expressify', () => {
       statusCode: 200,
     });
   });
+
+  it('handles POST body with no content type', async () => {
+    const app = express();
+    app.use(bodyParser.raw({ type: () => true }));
+    app.post('/data', (req, res) => {
+      assert.equal(req.body.toString('utf8'), 'foo');
+      res.send('ok');
+    });
+
+    const params = {
+      __ow_path: '/data',
+      __ow_method: 'post',
+      __ow_body: Buffer.from('foo').toString('base64'),
+    };
+
+    const result = await expressify(app)(params);
+
+    assert.deepEqual(result, {
+      body: 'ok',
+      headers: {
+        'content-length': '2',
+        'content-type': 'text/html; charset=utf-8',
+        etag: 'W/"2-eoX0dku9ba8cNUXvu/DyeabcC+s"',
+        'x-powered-by': 'Express',
+      },
+      statusCode: 200,
+    });
+  });
 });

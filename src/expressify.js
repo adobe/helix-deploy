@@ -33,7 +33,8 @@ module.exports = function expressify(app) {
     });
 
     // check content type:
-    const contentType = params.__ow_headers['content-type'] || 'text/plain';
+    const contentType = (params.__ow_headers ? params.__ow_headers['content-type'] : '') || 'application/octet-stream';
+
     // eslint-disable-next-line no-use-before-define
     const isBase64Encoded = BINARY_CONTENT_TYPES.find(pat => pat.test(contentType));
 
