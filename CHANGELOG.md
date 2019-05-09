@@ -1,3 +1,15 @@
+# [1.0.0](https://github.com/adobe/openwhisk-action-builder/compare/v0.9.0...v1.0.0) (2019-05-09)
+
+
+### Features
+
+* **expressify:** set isBase64Encoded flag correctly to ensure proper decoding ([e555c6e](https://github.com/adobe/openwhisk-action-builder/commit/e555c6e))
+
+
+### BREAKING CHANGES
+
+* **expressify:** the __ow_body doesn't need to be decoded manually anymore
+
 # [0.9.0](https://github.com/adobe/openwhisk-action-builder/compare/v0.8.0...v0.9.0) (2019-05-09)
 
 
