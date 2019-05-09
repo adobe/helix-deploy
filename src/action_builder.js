@@ -387,8 +387,8 @@ module.exports = class ActionBuilder {
     archive.append(JSON.stringify(packageJson, null, '  '), { name: 'package.json' });
   }
 
-  async createPackage() {
-    const compiler = webpack({
+  async getWebpackConfig() {
+    return {
       target: 'node',
       mode: 'development',
       entry: this._file,
@@ -406,8 +406,14 @@ module.exports = class ActionBuilder {
           type: 'javascript/auto',
         }],
       },
-    });
+      resolve: {
+        mainFields: ['main', 'module'],
+      },
+    };
+  }
 
+  async createPackage() {
+    const compiler = webpack(await this.getWebpackConfig());
     return new Promise((resolve, reject) => {
       compiler.run((err, stats) => {
         if (err) {
