@@ -32,7 +32,7 @@
     "request-promise-native": "^1.0.7",
     "serverless-http": "^2.0.0",
     "webpack": "^4.30.0",
-    "yargs": "^13.2.2"
+    "yargs": "^13.2.4"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^3.0.2",
