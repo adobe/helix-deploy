@@ -64,6 +64,8 @@ OpenWhisk Action Options
   --web-export       Annotates the action as web-action[boolean] [default: true]
   --raw-http         Annotates the action as raw web-action (enforces
                      web-export=true)                 [boolean] [default: false]
+  --timeout, -t      the timeout LIMIT in milliseconds after which the action is
+                     terminated                                 [default: 60000]
 
 OpenWhisk Package Options
   --package.name         OpenWhisk package name.                        [string]

@@ -126,6 +126,7 @@ module.exports = class ActionBuilder {
     this._packageName = '';
     this._packageShared = false;
     this._packageParams = {};
+    this._timeout = 60000;
   }
 
   get log() {
@@ -281,6 +282,11 @@ module.exports = class ActionBuilder {
 
   withPackageName(value) {
     this._packageName = value;
+    return this;
+  }
+
+  withTimeout(value) {
+    this._timeout = value;
     return this;
   }
 
@@ -452,6 +458,9 @@ module.exports = class ActionBuilder {
         'raw-http': this._rawHttp,
       },
       params: this._params,
+      limits: {
+        timeout: this._timeout,
+      },
     };
     if (this._docker) {
       actionoptions.exec = {

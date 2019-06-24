@@ -89,7 +89,13 @@ class CLI {
         type: 'array',
         default: [],
       })
-      .group(['name', 'kind', 'docker', 'params', 'params-file', 'web-export', 'raw-http'], 'OpenWhisk Action Options')
+      .option('timeout', {
+        alias: 't',
+        description: 'the timeout limit in milliseconds after which the action is terminated',
+        type: 'integer',
+        default: 60000,
+      })
+      .group(['name', 'kind', 'docker', 'params', 'params-file', 'web-export', 'raw-http', 'timeout'], 'OpenWhisk Action Options')
 
       .option('update-package', {
         description: 'Create or update wsk package.',
@@ -171,6 +177,7 @@ class CLI {
       .withPackageName(argv.package.name)
       .withPackageParams(argv.package.params)
       .withPackageParamsFile(argv.package['params-file'])
+      .withTimeout(argv.timeout)
       .withPackageShared(argv.package.shared);
   }
 
