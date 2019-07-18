@@ -43,6 +43,12 @@ describe('CLI Test', () => {
     assert.equal(builder._verbose, true);
   });
 
+  it('sets directory argument', () => {
+    const builder = new CLI()
+      .prepare(['--directory', 'foo']);
+    assert.equal(builder._cwd, 'foo');
+  });
+
   it('sets deploy flag', () => {
     const builder = new CLI()
       .prepare(['--deploy']);

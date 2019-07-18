@@ -1,0 +1,17 @@
+{
+  "name": "simple-project",
+  "version": "1.43",
+  "description": "Simple Test Project",
+  "private": true,
+  "license": "Apache-2.0",
+  "main": "index.js",
+  "wsk": {
+    "name": "simple-package/simple-name",
+    "params-file": [
+      "test.env"
+    ],
+    "static": [
+      "files/hello.txt"
+    ]
+  }
+}

@@ -30,6 +30,11 @@ class CLI {
         type: 'boolean',
         default: true,
       })
+      .option('directory', {
+        description: 'Project directory',
+        type: 'string',
+        default: '.',
+      })
       .option('deploy', {
         description: 'Automatically deploy to OpenWhisk',
         type: 'boolean',
@@ -157,6 +162,7 @@ class CLI {
     }
     return this.createBuilder()
       .verbose(argv.verbose)
+      .withDirectory(argv.directory)
       .withBuild(argv.build)
       .withDeploy(argv.deploy)
       .withTest(argv.test)

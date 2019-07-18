@@ -8,3 +8,5 @@ coverage.lcov
 test-results.xml
 .idea
 .circleci
+test
+.releaserc.js

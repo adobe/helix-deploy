@@ -147,6 +147,11 @@ module.exports = class ActionBuilder {
     return this;
   }
 
+  withDirectory(value) {
+    this._cwd = value === '.' ? process.cwd() : value;
+    return this;
+  }
+
   withDeploy(enable) {
     this._deploy = enable;
     return this;
@@ -316,6 +321,9 @@ module.exports = class ActionBuilder {
       this._bundle = path.resolve(this._distDir, `${this._name}-bundle.js`);
     }
 
+    // create dist dir
+    await fse.ensureDir(this._distDir);
+
     this._actionName = this._name.indexOf('/') < 0 ? `default/${this._name}` : this._name;
 
     // init openwhisk props
@@ -414,6 +422,9 @@ module.exports = class ActionBuilder {
       },
       resolve: {
         mainFields: ['main', 'module'],
+      },
+      node: {
+        __dirname: true,
       },
     };
   }
