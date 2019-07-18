@@ -324,9 +324,9 @@ module.exports = class ActionBuilder {
     if (await fse.pathExists(wskPropsFile)) {
       wskProps = dotenv.parse(await fse.readFile(wskPropsFile));
     }
-    this._wskNamespace = this._wskNamespace || wskProps.NAMESPACE || process.env.WSK_NAMESPACE;
-    this._wskAuth = this._wskAuth || wskProps.AUTH || process.env.WSK_AUTH;
-    this._wskApiHost = this._wskApiHost || wskProps.APIHOST || process.env.WSK_APIHOST || 'https://adobeioruntime.net';
+    this._wskNamespace = this._wskNamespace || process.env.WSK_NAMESPACE || wskProps.NAMESPACE;
+    this._wskAuth = this._wskAuth || process.env.WSK_AUTH || wskProps.AUTH;
+    this._wskApiHost = this._wskApiHost || process.env.WSK_APIHOST || wskProps.APIHOST || 'https://adobeioruntime.net';
 
     if (this._rawHttp && !this._webAction) {
       throw new Error('raw-http requires web-export');
