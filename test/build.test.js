@@ -77,14 +77,14 @@ describe('Build Test', () => {
 
     await builder.run();
 
-    await assertZipEntries(path.resolve(testRoot, 'dist', 'simple-package', 'simple-name.zip'), [
+    await assertZipEntries(path.resolve(testRoot, 'dist', 'simple-package', 'simple-name@1.43.zip'), [
       'main.js',
       'package.json',
       'files/hello.txt',
     ]);
 
     // unzip action again
-    const zipFile = path.resolve(testRoot, 'dist', 'simple-package', 'simple-name.zip');
+    const zipFile = path.resolve(testRoot, 'dist', 'simple-package', 'simple-name@1.43.zip');
     const zipDir = path.resolve(testRoot, 'dist', 'extracted');
     await new Promise((resolve, reject) => {
       fse.createReadStream(zipFile).pipe(unzip.Extract({

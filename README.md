@@ -138,6 +138,27 @@ wskbot -p MY_TOKEN=@token.txt
 
 ```
 
+### Versioning your action
+
+It can be helpful to version the action name, eg with the `@version` notation. So for example
+
+```json
+"wsk": {
+  "name": "my-action@4.3.1"
+}
+```
+
+In order to automatically use the version of the `package.json` use:
+
+```json
+"wsk": {
+  "name": "my-action@${version}"
+}
+```
+
+> **Note**: the version is internally taken from the `pkgVersion` variable, so it can be overridden with
+ the `--pkgVersion` argument, in case it should be deployed differently.
+
 ### Including static files
 
 Adding static files, i.e. files that are not referenced from the `index.js` and detected by webpack,

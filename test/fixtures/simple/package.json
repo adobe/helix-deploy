@@ -6,7 +6,7 @@
   "license": "Apache-2.0",
   "main": "index.js",
   "wsk": {
-    "name": "simple-package/simple-name",
+    "name": "simple-package/simple-name@${version}",
     "params-file": [
       "test.env"
     ],

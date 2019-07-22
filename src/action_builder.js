@@ -314,6 +314,10 @@ module.exports = class ActionBuilder {
     if (!this._version) {
       this._version = this._pkgJson.version || '0.0.0';
     }
+    // do some very simple variable substitution
+    // eslint-disable-next-line no-template-curly-in-string
+    this._name = this._name.replace('${version}', this._version);
+
     if (!this._zipFile) {
       this._zipFile = path.resolve(this._distDir, `${this._name}.zip`);
     }
