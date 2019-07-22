@@ -189,10 +189,10 @@ class CLI {
 
   async run(args) {
     try {
-      return await this.prepare(args).run();
+      await this.prepare(args).run();
     } catch (err) {
-      console.log(`${chalk.redBright('[error] ')} ${err.message}`);
-      return -1;
+      console.log(`${chalk.redBright('[error]')} ${err.message}`);
+      process.exitCode = 1;
     }
   }
 }
