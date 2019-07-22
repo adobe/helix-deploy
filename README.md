@@ -111,6 +111,17 @@ ok: updated action tripod/my-example
 --: requesting: https://runtime.adobe.io/api/v1/web/tripod/default/my-example ...
 ok: 200
 ```
+
+the `--test` argument can be a relative url, in case the request should not be made against the root url, eg:
+
+```
+$ wsk-builder --deploy --no-hints --test=/ping
+ok: created action: dist/my-example.zip.
+ok: updated action tripod/my-example
+--: requesting: https://runtime.adobe.io/api/v1/web/tripod/default/my-example/ping ...
+ok: 200
+```
+
 ### Including action parameters
 
 Action parameters can be defined via `-p`, either as json on env string, or json or env file.

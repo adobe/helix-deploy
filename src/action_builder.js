@@ -114,7 +114,7 @@ module.exports = class ActionBuilder {
     this._docker = null;
     this._kind = null;
     this._deploy = false;
-    this._test = false;
+    this._test = null;
     this._statics = new Map();
     this._params = {};
     this._webAction = true;
@@ -529,15 +529,15 @@ module.exports = class ActionBuilder {
     }
   }
 
-  async test() {
+  async test(url) {
     if (this._webAction) {
-      return this.testRequest();
+      return this.testRequest(url);
     }
     return this.testInvoke();
   }
 
-  async testRequest() {
-    const url = `${this._wskApiHost}/api/v1/web/${this._wskNamespace}/${this._actionName}`;
+  async testRequest(relUrl) {
+    const url = `${this._wskApiHost}/api/v1/web/${this._wskNamespace}/${this._actionName}${relUrl}`;
     this.log.info(`--: requesting: ${chalk.blueBright(url)} ...`);
     try {
       const ret = await request({
@@ -605,8 +605,8 @@ module.exports = class ActionBuilder {
       await this.showDeployHints();
     }
 
-    if (this._test) {
-      await this.test();
+    if (typeof this._test === 'string') {
+      await this.test(this._test);
     }
   }
 };

@@ -24,7 +24,7 @@ describe('CLI Test', () => {
     assert.equal(builder._verbose, false);
     assert.equal(builder._deploy, false);
     assert.equal(builder._build, true);
-    assert.equal(builder._test, false);
+    assert.equal(builder._test, undefined);
     assert.equal(builder._showHints, true);
     assert.equal(builder._kind, 'nodejs:10');
     assert.equal(builder._docker, null);
@@ -64,7 +64,13 @@ describe('CLI Test', () => {
   it('sets test flag', () => {
     const builder = new CLI()
       .prepare(['--test']);
-    assert.equal(builder._test, true);
+    assert.equal(builder._test, '');
+  });
+
+  it('sets test url', () => {
+    const builder = new CLI()
+      .prepare(['--test', '/ping']);
+    assert.equal(builder._test, '/ping');
   });
 
   it('sets name', () => {

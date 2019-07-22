@@ -41,9 +41,8 @@ class CLI {
         default: false,
       })
       .option('test', {
-        description: 'Invoke action after deployment',
-        type: 'boolean',
-        default: false,
+        description: 'Invoke action after deployment. Can be relative url.',
+        type: 'string',
       })
       .option('hints', {
         alias: 'no-hints',
