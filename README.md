@@ -170,6 +170,17 @@ In order to automatically use the version of the `package.json` use:
 > **Note**: the version is internally taken from the `pkgVersion` variable, so it can be overridden with
  the `--pkgVersion` argument, in case it should be deployed differently.
 
+#### Automatically create semantic versioning sequence actions
+
+By using the `--vesion-link` (`-l`), the bulider can create action sequences _linking_ to the deployed version,
+using the semantic versioning notation: `latest`, `major`, `minor`:
+
+| Action Name | Specifier | Sequence Name |
+|-------------|-----------|---------------|
+| `foo@2.4.3` | `latest`  | `foo@latest`     |
+| `foo@2.4.3` | `major`   | `foo@v2`         |
+| `foo@2.4.3` | `minor`   | `foo@v2.4`       |
+
 ### Including static files
 
 Adding static files, i.e. files that are not referenced from the `index.js` and detected by webpack,

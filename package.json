@@ -29,6 +29,7 @@
     "openwhisk": "^3.17.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
+    "semver": "^6.2.0",
     "serverless-http": "^2.0.2",
     "webpack": "^4.36.1",
     "yargs": "^13.3.0"

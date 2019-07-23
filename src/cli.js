@@ -50,7 +50,14 @@ class CLI {
         type: 'boolean',
         default: true,
       })
-      .group(['build', 'deploy', 'test', 'hints', 'update-package'], 'Operation Options')
+      .option('version-link', {
+        alias: 'l',
+        description: 'Create symlinks (sequences) after deployment',
+        type: 'string',
+        array: true,
+        choices: ['latest', 'major', 'minor'],
+      })
+      .group(['build', 'deploy', 'test', 'hints', 'update-package', 'version-link'], 'Operation Options')
 
       .option('name', {
         description: 'OpenWhisk action name. Can be prefixed with package.',
@@ -183,6 +190,7 @@ class CLI {
       .withPackageParams(argv.package.params)
       .withPackageParamsFile(argv.package['params-file'])
       .withTimeout(argv.timeout)
+      .withLinks(argv.versionLink)
       .withPackageShared(argv.package.shared);
   }
 

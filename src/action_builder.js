@@ -20,6 +20,7 @@ const chalk = require('chalk');
 const dotenv = require('dotenv');
 const os = require('os');
 const ow = require('openwhisk');
+const semver = require('semver');
 const request = require('request-promise-native');
 const { version } = require('../package.json');
 
@@ -127,6 +128,7 @@ module.exports = class ActionBuilder {
     this._packageShared = false;
     this._packageParams = {};
     this._timeout = 60000;
+    this._links = [];
   }
 
   get log() {
@@ -292,6 +294,11 @@ module.exports = class ActionBuilder {
 
   withTimeout(value) {
     this._timeout = value;
+    return this;
+  }
+
+  withLinks(value) {
+    this._links = value || [];
     return this;
   }
 
@@ -587,6 +594,82 @@ module.exports = class ActionBuilder {
     }
   }
 
+  async updateLinks() {
+    if (this._links.length === 0) {
+      return;
+    }
+    const idx = this._name.lastIndexOf('@');
+    if (idx < 0) {
+      this.log.warn(`${chalk.yellow('warn:')} unable to create version sequence. unsupported action name format. should be: "name@version"`);
+      return;
+    }
+    const prefix = this._name.substring(0, idx + 1);
+    const s = semver.parse(this._version);
+    if (!s) {
+      this.log.warn(`${chalk.yellow('warn:')} unable to create version sequences. error while parsing version: ${this._version}`);
+      return;
+    }
+
+    const fqn = `/${this._wskNamespace}/${this._name}`;
+    const sfx = [];
+    this._links.forEach((link) => {
+      switch (link) {
+        case 'latest':
+          sfx.push('latest');
+          break;
+        case 'major':
+          sfx.push(`v${s.major}`);
+          break;
+        case 'minor':
+          sfx.push(`v${s.major}.${s.minor}`);
+          break;
+        default:
+          throw new Error(`Unsupported link type: ${link}`);
+      }
+    });
+
+    const openwhisk = ow({
+      apihost: this._wskApiHost,
+      api_key: this._wskAuth,
+      namespace: this._wskNamespace,
+    });
+
+    await Promise.all(sfx.map(async (sf) => {
+      const options = {
+        name: `${prefix}${sf}`,
+        action: {
+          namespace: this._wskNamespace,
+          name: `${prefix}${sf}`,
+          exec: {
+            kind: 'sequence',
+            components: [fqn],
+          },
+          annotations: [{
+            key: 'exec',
+            value: 'sequence',
+          }, {
+            key: 'web-export',
+            value: this._webAction,
+          }, {
+            key: 'raw-http',
+            value: this._rawHttp,
+          }, {
+            key: 'final',
+            value: true,
+          }],
+        },
+      };
+
+      try {
+        this.log.debug(`creating sequence: ${options.name} -> ${options.action.exec.components[0]}`);
+        const result = await openwhisk.actions.update(options);
+        this.log.info(`${chalk.green('ok:')} created sequence ${chalk.whiteBright(`/${result.namespace}/${result.name}`)} -> ${chalk.whiteBright(fqn)}`);
+      } catch (e) {
+        this.log.error(`${chalk.red('error: failed creating sequence:')} ${e.message}`);
+      }
+    }));
+  }
+
   async run() {
     this.log.info(chalk`{grey openwhisk-action-builder v${version}}`);
     await this.validate();
@@ -608,5 +691,7 @@ module.exports = class ActionBuilder {
     if (typeof this._test === 'string') {
       await this.test(this._test);
     }
+
+    await this.updateLinks();
   }
 };

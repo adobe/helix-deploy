@@ -103,6 +103,12 @@ describe('CLI Test', () => {
     assert.equal(builder._showHints, false);
   });
 
+  it('sets links', () => {
+    const builder = new CLI()
+      .prepare(['--version-link', 'latest', '-l', 'major']);
+    assert.deepEqual(builder._links, ['latest', 'major']);
+  });
+
   it('sets disable web-action', () => {
     const builder = new CLI()
       .prepare(['--no-web-export']);
