@@ -19,12 +19,5 @@ module.exports = {
     'cls-hooked': true,
     request: true,
     'request-promise': true,
-
-    // webpack injects itself during the collection phase due to a reference to `require.cache`
-    // currently it is not needed in the action, so we deliberately exclude it here.
-    webpack: true,
-
-    // not really provided in container, but needed for webpack to ignore
-    formidable: true,
   },
 };
