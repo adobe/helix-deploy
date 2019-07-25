@@ -634,6 +634,7 @@ module.exports = class ActionBuilder {
       namespace: this._wskNamespace,
     });
 
+    let hasErrors = false;
     await Promise.all(sfx.map(async (sf) => {
       const options = {
         name: `${prefix}${sf}`,
@@ -665,9 +666,13 @@ module.exports = class ActionBuilder {
         const result = await openwhisk.actions.update(options);
         this.log.info(`${chalk.green('ok:')} created sequence ${chalk.whiteBright(`/${result.namespace}/${result.name}`)} -> ${chalk.whiteBright(fqn)}`);
       } catch (e) {
-        this.log.error(`${chalk.red('error: failed creating sequence:')} ${e.message}`);
+        hasErrors = true;
+        this.log.error(`${chalk.red('error:')} failed creating sequence: ${e.message}`);
       }
     }));
+    if (hasErrors) {
+      throw new Error('Aborting due to errors during sequence updates.');
+    }
   }
 
   async run() {

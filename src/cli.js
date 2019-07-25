@@ -198,7 +198,7 @@ class CLI {
     try {
       await this.prepare(args).run();
     } catch (err) {
-      console.log(`${chalk.redBright('[error]')} ${err.message}`);
+      console.log(`${chalk.red('error:')} ${err.message}`);
       process.exitCode = 1;
     }
   }
