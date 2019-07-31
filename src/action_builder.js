@@ -605,11 +605,6 @@ module.exports = class ActionBuilder {
     }
     const prefix = this._name.substring(0, idx + 1);
     const s = semver.parse(this._version);
-    if (!s) {
-      this.log.warn(`${chalk.yellow('warn:')} unable to create version sequences. error while parsing version: ${this._version}`);
-      return;
-    }
-
     const fqn = `/${this._wskNamespace}/${this._name}`;
     const sfx = [];
     this._links.forEach((link) => {
@@ -621,9 +616,17 @@ module.exports = class ActionBuilder {
           sfx.push('ci');
           break;
         case 'major':
+          if (!s) {
+            this.log.warn(`${chalk.yellow('warn:')} unable to create version sequences. error while parsing version: ${this._version}`);
+            return;
+          }
           sfx.push(`v${s.major}`);
           break;
         case 'minor':
+          if (!s) {
+            this.log.warn(`${chalk.yellow('warn:')} unable to create version sequences. error while parsing version: ${this._version}`);
+            return;
+          }
           sfx.push(`v${s.major}.${s.minor}`);
           break;
         default:
