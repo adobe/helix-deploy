@@ -55,7 +55,7 @@ class CLI {
         description: 'Create symlinks (sequences) after deployment',
         type: 'string',
         array: true,
-        choices: ['latest', 'major', 'minor'],
+        choices: ['latest', 'major', 'minor', 'ci'],
       })
       .group(['build', 'deploy', 'test', 'hints', 'update-package', 'version-link'], 'Operation Options')
 

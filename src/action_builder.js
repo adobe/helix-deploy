@@ -617,6 +617,9 @@ module.exports = class ActionBuilder {
         case 'latest':
           sfx.push('latest');
           break;
+        case 'ci':
+          sfx.push('ci');
+          break;
         case 'major':
           sfx.push(`v${s.major}`);
           break;
