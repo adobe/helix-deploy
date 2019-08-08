@@ -136,13 +136,13 @@ wskbot -p MY_TOKEN=1234 -p MY_PWD=foo
 wskbot -p '{ "MY_TOKEN": 1234, "MY_PWD": "foo" }'
 
 # specify as env file
-wskbot -p .env
+wskbot -f .env
 
 # specify as json file
-wskbot -p params.json
+wskbot -f params.json
 
 # and a combination of the above
-wskbot -p .env -p params.json -p MY_TOKEN=123
+wskbot -f .env -f params.json -p MY_TOKEN=123
 
 # like in curl, you can include file contents with `@` (also works in .env or .json file)
 wskbot -p MY_TOKEN=@token.txt
