@@ -36,7 +36,7 @@ module.exports = function expressify(app) {
     const contentType = (params.__ow_headers ? params.__ow_headers['content-type'] : '') || 'application/octet-stream';
 
     // eslint-disable-next-line no-use-before-define
-    const isBase64Encoded = BINARY_CONTENT_TYPES.find(pat => pat.test(contentType));
+    const isBase64Encoded = BINARY_CONTENT_TYPES.find((pat) => pat.test(contentType));
 
     const event = {
       httpMethod: params.__ow_method.toUpperCase(),
@@ -119,4 +119,4 @@ const BINARY_MEDIA_TYPES = [
 const BINARY_CONTENT_TYPES = [
   '*/json',
   'multipart/*',
-  ...BINARY_MEDIA_TYPES].map(glob => new RegExp(glob.replace(/\./g, '\\.').replace(/\*/g, '.*')));
+  ...BINARY_MEDIA_TYPES].map((glob) => new RegExp(glob.replace(/\./g, '\\.').replace(/\*/g, '.*')));

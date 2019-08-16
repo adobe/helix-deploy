@@ -362,7 +362,7 @@ module.exports = class ActionBuilder {
   }
 
   async createArchive() {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       // create zip file for package
       const output = fse.createWriteStream(this._zipFile);
       const archive = archiver('zip');
@@ -396,8 +396,9 @@ module.exports = class ActionBuilder {
       };
 
       archive.pipe(output);
-      await this.updateArchive(archive, packageJson);
-      archive.finalize();
+      this.updateArchive(archive, packageJson).then(() => {
+        archive.finalize();
+      });
     });
   }
 

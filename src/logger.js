@@ -118,7 +118,7 @@ function addLogglyStream(logger, params) {
   }
 
   // check if not already added
-  if (logger.streams.find(s => s.name === 'LogglyStream')) {
+  if (logger.streams.find((s) => s.name === 'LogglyStream')) {
     // eslint-disable-next-line no-console
     console.log('(Loggly stream already added)');
     return true;
@@ -144,7 +144,7 @@ function addPaperTrailStream(logger, params) {
   }
 
   // check if not already added
-  if (logger.streams.find(s => s.name === 'PapertrailStream')) {
+  if (logger.streams.find((s) => s.name === 'PapertrailStream')) {
     // eslint-disable-next-line no-console
     console.log('(Papertrail stream already added)');
     return true;
