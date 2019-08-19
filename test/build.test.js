@@ -16,13 +16,14 @@
 const assert = require('assert');
 const crypto = require('crypto');
 const path = require('path');
-const unzip = require('unzip2');
+const yauzl = require('yauzl');
 const fse = require('fs-extra');
 
 const CLI = require('../src/cli.js');
 
 async function createTestRoot() {
-  const dir = path.resolve(__dirname, 'tmp', crypto.randomBytes(16).toString('hex'));
+  const dir = path.resolve(__dirname, 'tmp', crypto.randomBytes(16)
+    .toString('hex'));
   await fse.ensureDir(dir);
   return dir;
 }
@@ -31,22 +32,29 @@ async function assertZipEntries(zipPath, entries) {
   // check zip
   const result = await new Promise((resolve, reject) => {
     const es = [];
-    const srcStream = fse.createReadStream(zipPath);
-    srcStream.pipe(unzip.Parse())
-      .on('entry', (entry) => {
-        es.push(entry.path);
-        entry.autodrain();
-      })
-      .on('close', () => {
-        resolve(es);
-      })
-      .on('error', reject);
+    yauzl.open(zipPath, {
+      lazyEntries: true,
+      autoClose: true,
+    }, (err, zipfile) => {
+      if (err) {
+        reject(err);
+      }
+      zipfile.readEntry();
+      zipfile
+        .on('entry', (entry) => {
+          es.push(entry.fileName);
+          zipfile.readEntry();
+        })
+        .on('close', () => {
+          resolve(es);
+        })
+        .on('error', reject);
+    });
   });
   entries.forEach((s) => {
     assert.ok(result.indexOf(s) >= 0, `${s} must be included in ${zipPath}`);
   });
 }
-
 
 const PROJECT_SIMPLE = path.resolve(__dirname, 'fixtures', 'simple');
 
@@ -87,11 +95,33 @@ describe('Build Test', () => {
     const zipFile = path.resolve(testRoot, 'dist', 'simple-package', 'simple-name@1.43.zip');
     const zipDir = path.resolve(testRoot, 'dist', 'extracted');
     await new Promise((resolve, reject) => {
-      fse.createReadStream(zipFile).pipe(unzip.Extract({
-        path: zipDir,
-      })
-        .on('close', resolve)
-        .on('error', reject));
+      yauzl.open(zipFile, { lazyEntries: true }, (err, zipfile) => {
+        if (err) {
+          reject(err);
+        }
+        zipfile.readEntry();
+        zipfile
+          .on('end', resolve)
+          .on('error', reject)
+          .on('entry', (entry) => {
+            if (/\/$/.test(entry.fileName)) {
+              zipfile.readEntry();
+            } else {
+              // file entry
+              zipfile.openReadStream(entry, (er, readStream) => {
+                if (er) {
+                  throw err;
+                }
+                readStream.on('end', () => {
+                  zipfile.readEntry();
+                });
+                const p = path.resolve(zipDir, entry.fileName);
+                fse.ensureFileSync(p);
+                readStream.pipe(fse.createWriteStream(p));
+              });
+            }
+          });
+      });
     });
 
     // execute main script
@@ -99,5 +129,6 @@ describe('Build Test', () => {
     const { main } = require(path.resolve(zipDir, 'main.js'));
     const ret = await main({});
     assert.equal(ret, 'Hello, world.\n');
-  }).timeout(5000);
+  })
+    .timeout(5000);
 });
