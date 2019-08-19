@@ -19,10 +19,7 @@
     "semantic-release": "semantic-release"
   },
   "dependencies": {
-    "@tripod/bunyan-syslog": "^0.3.2",
     "archiver": "^3.1.1",
-    "bunyan": "^1.8.12",
-    "bunyan-loggly": "^1.4.1",
     "chalk": "^2.4.1",
     "dotenv": "^8.0.0",
     "fs-extra": "^8.1.0",
@@ -30,7 +27,6 @@
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
     "semver": "^6.3.0",
-    "serverless-http": "^2.1.0",
     "webpack": "^4.39.2",
     "yargs": "^13.3.0"
   },
@@ -39,13 +35,11 @@
     "@semantic-release/git": "^7.0.16",
     "@semantic-release/github": "^5.4.2",
     "@semantic-release/npm": "^5.1.13",
-    "body-parser": "^1.19.0",
     "codecov": "^3.5.0",
     "eslint": "^6.1.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-header": "^3.0.0",
     "eslint-plugin-import": "^2.18.2",
-    "express": "^4.17.1",
     "ghooks": "^2.0.4",
     "lint-staged": "^9.2.1",
     "lodash": "^4.17.15",
