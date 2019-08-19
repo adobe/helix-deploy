@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/adobe/openwhisk-action-builder/compare/v1.3.1...v2.0.0) (2019-08-19)
+
+
+### Code Refactoring
+
+* **lib:** extract helper to own package ([#60](https://github.com/adobe/openwhisk-action-builder/issues/60)) ([de04fcd](https://github.com/adobe/openwhisk-action-builder/commit/de04fcd))
+
+
+### BREAKING CHANGES
+
+* **lib:** logging and expressify are no longer exported by this package. use @adobe/openwhisk-action-utils instead.
+
 ## [1.3.1](https://github.com/adobe/openwhisk-action-builder/compare/v1.3.0...v1.3.1) (2019-07-31)
 
 
