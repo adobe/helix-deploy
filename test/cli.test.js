@@ -35,6 +35,7 @@ describe('CLI Test', () => {
     assert.equal(builder._rawHttp, false);
     assert.equal(builder._updatePackage, false);
     assert.equal(builder._packageShared, false);
+    assert.equal(builder._webSecure, undefined);
   });
 
   it('sets verbose flag', () => {
@@ -113,6 +114,18 @@ describe('CLI Test', () => {
     const builder = new CLI()
       .prepare(['--no-web-export']);
     assert.equal(builder._webAction, false);
+  });
+
+  it('sets web-secure', () => {
+    const builder = new CLI()
+      .prepare(['--web-secure']);
+    assert.ok(builder._webSecure);
+  });
+
+  it('sets web-secure to token', () => {
+    const builder = new CLI()
+      .prepare(['--web-secure=123']);
+    assert.equal(builder._webSecure, '123');
   });
 
   it('sets enable raw-http', () => {

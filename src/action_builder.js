@@ -119,6 +119,7 @@ module.exports = class ActionBuilder {
     this._statics = new Map();
     this._params = {};
     this._webAction = true;
+    this._webSecure = '';
     this._rawHttp = false;
     this._showHints = false;
     this._modules = [];
@@ -186,6 +187,11 @@ module.exports = class ActionBuilder {
 
   withWebExport(value) {
     this._webAction = value;
+    return this;
+  }
+
+  withWebSecure(value) {
+    this._webSecure = value;
     return this;
   }
 
@@ -490,12 +496,19 @@ module.exports = class ActionBuilder {
         image: this._docker,
       };
     }
+    if (this._webSecure) {
+      actionoptions.annotations['require-whisk-auth'] = this._webSecure;
+    }
 
     const result = await openwhisk.actions.update(actionoptions);
     this.log.info(`${chalk.green('ok:')} updated action ${chalk.whiteBright(`/${result.namespace}/${result.name}`)}`);
     if (this._showHints) {
+      let opts = '';
+      if (this._webSecure) {
+        opts = ` -H "x-require-whisk-auth: ${this._webSecure}"`;
+      }
       this.log.info('\nYou can verify the action with:');
-      this.log.info(chalk.grey(`$ curl "${this._wskApiHost}/api/v1/web/${result.namespace}/${result.name}"`));
+      this.log.info(chalk.grey(`$ curl${opts} "${this._wskApiHost}/api/v1/web/${result.namespace}/${result.name}"`));
     }
   }
 
@@ -506,7 +519,7 @@ module.exports = class ActionBuilder {
       namespace: this._wskNamespace,
     });
     let fn = openwhisk.packages.update.bind(openwhisk.packages);
-    let verb = 'updateed';
+    let verb = 'updated';
     try {
       await openwhisk.packages.get(this._packageName);
     } catch (e) {
@@ -547,10 +560,15 @@ module.exports = class ActionBuilder {
   async testRequest(relUrl) {
     const url = `${this._wskApiHost}/api/v1/web/${this._wskNamespace}/${this._actionName}${relUrl}`;
     this.log.info(`--: requesting: ${chalk.blueBright(url)} ...`);
+    const headers = {};
+    if (this._webSecure) {
+      headers['x-require-whisk-auth'] = this._webSecure;
+    }
     try {
       const ret = await request({
         url,
         followRedirect: false,
+        headers,
       });
       this.log.info(`${chalk.green('ok:')} 200`);
       this.log.debug(chalk.grey(ret));
@@ -641,6 +659,26 @@ module.exports = class ActionBuilder {
       namespace: this._wskNamespace,
     });
 
+    const annotations = [{
+      key: 'exec',
+      value: 'sequence',
+    }, {
+      key: 'web-export',
+      value: this._webAction,
+    }, {
+      key: 'raw-http',
+      value: this._rawHttp,
+    }, {
+      key: 'final',
+      value: true,
+    }];
+    if (this._webSecure) {
+      annotations.push({
+        key: 'require-whisk-auth',
+        value: this._webSecure,
+      });
+    }
+
     let hasErrors = false;
     await Promise.all(sfx.map(async (sf) => {
       const options = {
@@ -652,19 +690,7 @@ module.exports = class ActionBuilder {
             kind: 'sequence',
             components: [fqn],
           },
-          annotations: [{
-            key: 'exec',
-            value: 'sequence',
-          }, {
-            key: 'web-export',
-            value: this._webAction,
-          }, {
-            key: 'raw-http',
-            value: this._rawHttp,
-          }, {
-            key: 'final',
-            value: true,
-          }],
+          annotations,
         },
       };
 

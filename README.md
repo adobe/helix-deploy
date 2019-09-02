@@ -48,10 +48,13 @@ Operation Options
   --build              Build the deployment package    [boolean] [default: true]
   --deploy             Automatically deploy to OpenWhisk
                                                       [boolean] [default: false]
-  --test               Invoke action after deployment [boolean] [default: false]
+  --test               Invoke action after deployment. Can be relative url.
+                                                                        [string]
   --hints, --no-hints  Show additional hints for deployment
                                                        [boolean] [default: true]
   --update-package     Create or update wsk package.  [boolean] [default: false]
+  --version-link, -l   Create symlinks (sequences) after deployment
+                             [array] [choices: "latest", "major", "minor", "ci"]
 
 OpenWhisk Action Options
   --name             OpenWhisk action name. Can be prefixed with package.
@@ -64,7 +67,9 @@ OpenWhisk Action Options
   --web-export       Annotates the action as web-action[boolean] [default: true]
   --raw-http         Annotates the action as raw web-action (enforces
                      web-export=true)                 [boolean] [default: false]
-  --timeout, -t      the timeout LIMIT in milliseconds after which the action is
+  --web-secure       Annotates the action with require-whisk-auth. leave empty
+                     to generate random token.                          [string]
+  --timeout, -t      the timeout limit in milliseconds after which the action is
                      terminated                                 [default: 60000]
 
 OpenWhisk Package Options
@@ -81,6 +86,7 @@ Bundling Options
 Options:
   --version      Show version number                                   [boolean]
   --verbose, -v                                       [boolean] [default: false]
+  --directory    Project directory                       [string] [default: "."]
   --pkgVersion   Version use in the embedded package.json.
   --modules, -m  Include a node_module as is.              [array] [default: []]
   --help         Show help                                             [boolean]

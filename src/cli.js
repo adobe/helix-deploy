@@ -11,6 +11,7 @@
  */
 
 /* eslint-disable no-console */
+const crypto = require('crypto');
 const yargs = require('yargs');
 const chalk = require('chalk');
 
@@ -79,6 +80,11 @@ class CLI {
         type: 'boolean',
         default: false,
       })
+      .option('web-secure', {
+        description: 'Annotates the action with require-whisk-auth. leave empty to generate random token.',
+        type: 'string',
+        coerce: (value) => (value.trim() ? value.trim() : crypto.randomBytes(32).toString('base64')),
+      })
       .option('docker', {
         description: 'Specifies a docker image.',
       })
@@ -106,7 +112,7 @@ class CLI {
         type: 'integer',
         default: 60000,
       })
-      .group(['name', 'kind', 'docker', 'params', 'params-file', 'web-export', 'raw-http', 'timeout'], 'OpenWhisk Action Options')
+      .group(['name', 'kind', 'docker', 'params', 'params-file', 'web-export', 'raw-http', 'web-secure', 'timeout'], 'OpenWhisk Action Options')
 
       .option('update-package', {
         description: 'Create or update wsk package.',
@@ -184,6 +190,7 @@ class CLI {
       .withDocker(argv.docker)
       .withModules(argv.modules)
       .withWebExport(argv.webExport)
+      .withWebSecure(argv.webSecure)
       .withRawHttp(argv.rawHttp)
       .withUpdatePackage(argv.updatePackage)
       .withPackageName(argv.package.name)
