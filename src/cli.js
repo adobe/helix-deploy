@@ -58,7 +58,11 @@ class CLI {
         array: true,
         choices: ['latest', 'major', 'minor', 'ci'],
       })
-      .group(['build', 'deploy', 'test', 'hints', 'update-package', 'version-link'], 'Operation Options')
+      .option('linkPackage', {
+        description: 'Package name for version links',
+        type: 'string',
+      })
+      .group(['build', 'deploy', 'test', 'hints', 'update-package', 'version-link', 'linkPackage'], 'Operation Options')
 
       .option('name', {
         description: 'OpenWhisk action name. Can be prefixed with package.',
@@ -198,6 +202,7 @@ class CLI {
       .withPackageParamsFile(argv.package['params-file'])
       .withTimeout(argv.timeout)
       .withLinks(argv.versionLink)
+      .withLinksPackage(argv.linksPackage)
       .withPackageShared(argv.package.shared);
   }
 

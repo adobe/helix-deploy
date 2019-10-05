@@ -99,37 +99,41 @@ module.exports = class ActionBuilder {
   }
 
   constructor() {
-    this._cwd = process.cwd();
-    this._distDir = null;
-    this._name = null;
-    this._version = null;
-    this._file = null;
-    this._zipFile = null;
-    this._bundle = null;
-    this._env = null;
-    this._wskNamespace = null;
-    this._wskAuth = null;
-    this._wskApiHost = null;
-    this._verbose = false;
-    this._externals = [];
-    this._docker = null;
-    this._kind = null;
-    this._deploy = false;
-    this._test = null;
-    this._statics = new Map();
-    this._params = {};
-    this._webAction = true;
-    this._webSecure = '';
-    this._rawHttp = false;
-    this._showHints = false;
-    this._modules = [];
-    this._build = true;
-    this._updatePackage = false;
-    this._packageName = '';
-    this._packageShared = false;
-    this._packageParams = {};
-    this._timeout = 60000;
-    this._links = [];
+    Object.assign(this, {
+      _cwd: process.cwd(),
+      _distDir: null,
+      _name: null,
+      _version: null,
+      _file: null,
+      _zipFile: null,
+      _bundle: null,
+      _env: null,
+      _wskNamespace: null,
+      _wskAuth: null,
+      _wskApiHost: null,
+      _verbose: false,
+      _externals: [],
+      _docker: null,
+      _kind: null,
+      _deploy: false,
+      _test: null,
+      _statics: new Map(),
+      _params: {},
+      _webAction: true,
+      _webSecure: '',
+      _rawHttp: false,
+      _showHints: false,
+      _modules: [],
+      _build: true,
+      _updatePackage: false,
+      _actionName: '',
+      _packageName: '',
+      _packageShared: false,
+      _packageParams: {},
+      _timeout: 60000,
+      _links: [],
+      _linksPackage: null,
+    });
   }
 
   get log() {
@@ -308,6 +312,11 @@ module.exports = class ActionBuilder {
     return this;
   }
 
+  withLinksPackage(value) {
+    this._linksPackage = value;
+    return this;
+  }
+
   async validate() {
     try {
       this._pkgJson = await fse.readJson(path.resolve(this._cwd, 'package.json'));
@@ -331,17 +340,29 @@ module.exports = class ActionBuilder {
     // eslint-disable-next-line no-template-curly-in-string
     this._name = this._name.replace('${version}', this._version);
 
+    const segs = this._name.split('/');
+    this._name = segs.pop();
+    if (segs.length > 0 && !this._packageName) {
+      this._packageName = segs.pop();
+    }
+    this._actionName = `${this._packageName}/${this._name}`;
+    if (!this._packageName) {
+      this._packageName = 'default';
+      this._actionName = this._name;
+    }
+    if (!this._linksPackage) {
+      this._linksPackage = this._packageName;
+    }
+
     if (!this._zipFile) {
-      this._zipFile = path.resolve(this._distDir, `${this._name}.zip`);
+      this._zipFile = path.resolve(this._distDir, this._packageName, `${this._name}.zip`);
     }
     if (!this._bundle) {
-      this._bundle = path.resolve(this._distDir, `${this._name}-bundle.js`);
+      this._bundle = path.resolve(this._distDir, this._packageName, `${this._name}-bundle.js`);
     }
 
     // create dist dir
     await fse.ensureDir(this._distDir);
-
-    this._actionName = this._name.indexOf('/') < 0 ? `default/${this._name}` : this._name;
 
     // init openwhisk props
     const wskPropsFile = path.resolve(os.homedir(), '.wskprops');
@@ -356,13 +377,6 @@ module.exports = class ActionBuilder {
     if (this._rawHttp && !this._webAction) {
       throw new Error('raw-http requires web-export');
     }
-    if (!this._packageName) {
-      const idx = this._name.indexOf('/');
-      if (idx > 0) {
-        this._packageName = this._name.substring(0, idx);
-      }
-    }
-
     this._params = await ActionBuilder.resolveParams(this._params);
     this._packageParams = await ActionBuilder.resolveParams(this._packageParams);
   }
@@ -394,7 +408,7 @@ module.exports = class ActionBuilder {
       });
 
       const packageJson = {
-        name: this._name,
+        name: this._actionName,
         version: this._version,
         description: `OpenWhisk Action of ${this._name}`,
         main: 'main.js',
@@ -476,9 +490,9 @@ module.exports = class ActionBuilder {
     });
 
     const relZip = path.relative(process.cwd(), this._zipFile);
-    this.log.debug(`Deploying ${relZip} as ${this._name} to OpenWhisk`);
+    this.log.debug(`Deploying ${relZip} as ${this._actionName} to OpenWhisk`);
     const actionoptions = {
-      name: this._name,
+      name: this._actionName,
       action: await fse.readFile(this._zipFile),
       kind: this._docker ? 'blackbox' : this._kind,
       annotations: {
@@ -558,7 +572,7 @@ module.exports = class ActionBuilder {
   }
 
   async testRequest(relUrl) {
-    const url = `${this._wskApiHost}/api/v1/web/${this._wskNamespace}/${this._actionName}${relUrl}`;
+    const url = `${this._wskApiHost}/api/v1/web/${this._wskNamespace}/${this._packageName}/${this._name}${relUrl}`;
     this.log.info(`--: requesting: ${chalk.blueBright(url)} ...`);
     const headers = {};
     if (this._webSecure) {
@@ -569,10 +583,13 @@ module.exports = class ActionBuilder {
         url,
         followRedirect: false,
         headers,
+        resolveWithFullResponse: true,
       });
+      this.log.info(`id: ${chalk.grey(ret.headers['x-openwhisk-activation-id'])}`);
       this.log.info(`${chalk.green('ok:')} 200`);
-      this.log.debug(chalk.grey(ret));
+      this.log.debug(chalk.grey(ret.body));
     } catch (e) {
+      this.log.info(`id: ${chalk.grey(e.response.headers['x-openwhisk-activation-id'])}`);
       if (e.statusCode === 302 || e.statusCode === 301) {
         this.log.info(`${chalk.green('ok:')} ${e.statusCode}`);
         this.log.debug(chalk.grey(`Location: ${e.response.headers.location}`));
@@ -589,10 +606,10 @@ module.exports = class ActionBuilder {
       namespace: this._wskNamespace,
     });
 
-    this.log.info(`--: invoking: ${chalk.blueBright(this._name)} ...`);
+    this.log.info(`--: invoking: ${chalk.blueBright(this._actionName)} ...`);
     try {
       const ret = await openwhisk.actions.invoke({
-        name: this._name,
+        name: this._actionName,
         blocking: true,
         result: true,
       });
@@ -607,9 +624,9 @@ module.exports = class ActionBuilder {
     const relZip = path.relative(process.cwd(), this._zipFile);
     this.log.info('Deploy to openwhisk the following command or specify --deploy on the commandline:');
     if (this._docker) {
-      this.log.info(chalk.grey(`$ wsk action update ${this._name} --docker ${this._docker} --web raw ${relZip}`));
+      this.log.info(chalk.grey(`$ wsk action update ${this._actionName} --docker ${this._docker} --web raw ${relZip}`));
     } else {
-      this.log.info(chalk.grey(`$ wsk action update ${this._name} --kind ${this._kind} --web raw ${relZip}`));
+      this.log.info(chalk.grey(`$ wsk action update ${this._actionName} --kind ${this._kind} --web raw ${relZip}`));
     }
   }
 
@@ -622,9 +639,10 @@ module.exports = class ActionBuilder {
       this.log.warn(`${chalk.yellow('warn:')} unable to create version sequence. unsupported action name format. should be: "name@version"`);
       return;
     }
-    const prefix = this._name.substring(0, idx + 1);
+    const prefix = `${this._linksPackage}/${this._name.substring(0, idx + 1)}`;
+    console.log(prefix);
     const s = semver.parse(this._version);
-    const fqn = `/${this._wskNamespace}/${this._name}`;
+    const fqn = `/${this._wskNamespace}/${this._packageName}/${this._name}`;
     const sfx = [];
     this._links.forEach((link) => {
       switch (link) {

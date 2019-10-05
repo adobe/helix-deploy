@@ -110,6 +110,12 @@ describe('CLI Test', () => {
     assert.deepEqual(builder._links, ['latest', 'major']);
   });
 
+  it('sets link package', () => {
+    const builder = new CLI()
+      .prepare(['--linksPackage', 'foo']);
+    assert.deepEqual(builder._linksPackage, 'foo');
+  });
+
   it('sets disable web-action', () => {
     const builder = new CLI()
       .prepare(['--no-web-export']);
@@ -252,7 +258,8 @@ describe('CLI Test', () => {
     const builder = new CLI()
       .prepare(['--name', 'foo/bar']);
     await builder.validate();
-    assert.equal(builder._name, 'foo/bar');
+    assert.equal(builder._name, 'bar');
+    assert.equal(builder._actionName, 'foo/bar');
     assert.equal(builder._packageName, 'foo');
   });
 
