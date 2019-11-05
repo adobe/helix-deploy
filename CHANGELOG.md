@@ -1,3 +1,10 @@
+# [2.2.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.1.1...v2.2.0) (2019-11-05)
+
+
+### Features
+
+* **params:** add support for nested action and package params ([#68](https://github.com/adobe/openwhisk-action-builder/issues/68)) ([3d0619b](https://github.com/adobe/openwhisk-action-builder/commit/3d0619b)), closes [#67](https://github.com/adobe/openwhisk-action-builder/issues/67)
+
 ## [2.1.1](https://github.com/adobe/openwhisk-action-builder/compare/v2.1.0...v2.1.1) (2019-10-05)
 
 
