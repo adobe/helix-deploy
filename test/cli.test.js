@@ -176,13 +176,17 @@ describe('CLI Test', () => {
     assert.deepEqual(builder._externals, [/.*/]);
   });
 
-  it('can add params from json file', () => {
+  it('can add params from json file', async () => {
     const file = path.resolve(__dirname, 'fixtures/test-params.json');
     const builder = new CLI()
       .prepare(['-f', file]);
+    await builder.validate();
     assert.deepEqual(builder._params, {
       bar: 'Hello, world.',
       foo: 42,
+      secrets: {
+        key: 'my test key!\n',
+      },
     });
   });
 
@@ -209,13 +213,17 @@ describe('CLI Test', () => {
     });
   });
 
-  it('can add package params from json file', () => {
+  it('can add package params from json file', async () => {
     const file = path.resolve(__dirname, 'fixtures/test-params.json');
     const builder = new CLI()
       .prepare(['--package.params-file', file]);
+    await builder.validate();
     assert.deepEqual(builder._packageParams, {
       bar: 'Hello, world.',
       foo: 42,
+      secrets: {
+        key: 'my test key!\n',
+      },
     });
   });
 

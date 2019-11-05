@@ -44,22 +44,35 @@ module.exports = class ActionBuilder {
       cwd = path.dirname(params);
     }
     let data;
-    // first try JSON
-    try {
-      data = JSON.parse(content);
-    } catch (e) {
-      // then try env
-      data = dotenv.parse(content);
+    if (typeof params === 'object') {
+      data = content;
+    } else {
+      // first try JSON
+      try {
+        data = JSON.parse(content);
+      } catch (e) {
+        // then try env
+        data = dotenv.parse(content);
+      }
     }
 
-    // resolve file references
-    Object.keys(data).forEach((key) => {
-      const param = `${data[key]}`;
-      if (param.startsWith('@') && !param.startsWith('@@')) {
-        const filePath = path.resolve(cwd, param.substring(1));
-        data[key] = `@${filePath}`;
-      }
-    });
+    const resolve = (obj) => {
+      // resolve file references
+      Object.keys(obj).forEach((key) => {
+        const value = obj[key];
+        if (typeof value === 'object') {
+          resolve(value);
+        } else {
+          const param = String(value);
+          if (param.startsWith('@') && !param.startsWith('@@')) {
+            const filePath = path.resolve(cwd, param.substring(1));
+            // eslint-disable-next-line no-param-reassign
+            obj[key] = `@${filePath}`;
+          }
+        }
+      });
+    };
+    resolve(data);
     return data;
   }
 
@@ -69,20 +82,34 @@ module.exports = class ActionBuilder {
    * @returns the resolved object.
    */
   static async resolveParams(params) {
-    const resolved = {};
-    await Promise.all(Object.keys(params).map(async (key) => {
-      const param = params[key];
-      if (!param.startsWith('@')) {
-        resolved[key] = param;
-        return;
-      }
-      if (param.startsWith('@@')) {
-        resolved[key] = param.substring(1);
-        return;
-      }
-      resolved[key] = await fse.readFile(param.substring(1), 'utf-8');
-    }));
-    return resolved;
+    const tasks = [];
+    const resolve = async (obj, key, file) => {
+      // eslint-disable-next-line no-param-reassign
+      obj[key] = await fse.readFile(file, 'utf-8');
+    };
+
+    const resolver = (obj) => {
+      Object.keys(obj).forEach((key) => {
+        const param = obj[key];
+        if (typeof param === 'object') {
+          resolver(param);
+        } else {
+          const value = String(param);
+          if (value.startsWith('@@')) {
+            // eslint-disable-next-line no-param-reassign
+            obj[key] = value.substring(1);
+          } else if (value.startsWith('@')) {
+            tasks.push(resolve(obj, key, value.substring(1)));
+          } else {
+            // eslint-disable-next-line no-param-reassign
+            obj[key] = value;
+          }
+        }
+      });
+    };
+    resolver(params);
+    await Promise.all(tasks);
+    return params;
   }
 
   /**

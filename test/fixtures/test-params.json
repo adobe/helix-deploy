@@ -1,4 +1,7 @@
 {
   "foo": 42,
-  "bar": "Hello, world."
+  "bar": "Hello, world.",
+  "secrets": {
+    "key": "@./test-key.txt"
+  }
 }
