@@ -208,7 +208,8 @@ class CLI {
 
   async run(args) {
     try {
-      await this.prepare(args).run();
+      const res = await this.prepare(args).run();
+      console.log(JSON.stringify(res, null, 2));
     } catch (err) {
       console.log(`${chalk.red('error:')} ${err.message}`);
       process.exitCode = 1;

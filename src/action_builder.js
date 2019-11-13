@@ -10,8 +10,6 @@
  * governing permissions and limitations under the License.
  */
 
-/* eslint-disable no-console */
-
 const path = require('path');
 const fse = require('fs-extra');
 const archiver = require('archiver');
@@ -166,12 +164,14 @@ module.exports = class ActionBuilder {
   get log() {
     if (!this._logger) {
       // poor men's logging...
+      /* eslint-disable no-console */
       this._logger = {
-        debug: (...args) => { if (this._verbose) { console.log(...args); } },
-        info: console.log,
-        warn: console.warn,
+        debug: (...args) => { if (this._verbose) { console.error(...args); } },
+        info: console.error,
+        warn: console.error,
         error: console.error,
       };
+      /* eslint-enable no-console */
     }
     return this._logger;
   }
@@ -544,12 +544,16 @@ module.exports = class ActionBuilder {
     const result = await openwhisk.actions.update(actionoptions);
     this.log.info(`${chalk.green('ok:')} updated action ${chalk.whiteBright(`/${result.namespace}/${result.name}`)}`);
     if (this._showHints) {
-      let opts = '';
-      if (this._webSecure) {
-        opts = ` -H "x-require-whisk-auth: ${this._webSecure}"`;
-      }
       this.log.info('\nYou can verify the action with:');
-      this.log.info(chalk.grey(`$ curl${opts} "${this._wskApiHost}/api/v1/web/${result.namespace}/${result.name}"`));
+      if (this._webAction) {
+        let opts = '';
+        if (this._webSecure) {
+          opts = ` -H "x-require-whisk-auth: ${this._webSecure}"`;
+        }
+        this.log.info(chalk.grey(`$ curl${opts} "${this._wskApiHost}/api/v1/web/${result.namespace}/${result.name}"`));
+      } else {
+        this.log.info(chalk.grey(`$ wsk action invoke -r ${result.name}`));
+      }
     }
   }
 
@@ -667,7 +671,6 @@ module.exports = class ActionBuilder {
       return;
     }
     const prefix = `${this._linksPackage}/${this._name.substring(0, idx + 1)}`;
-    console.log(prefix);
     const s = semver.parse(this._version);
     const fqn = `/${this._wskNamespace}/${this._packageName}/${this._name}`;
     const sfx = [];
@@ -776,5 +779,10 @@ module.exports = class ActionBuilder {
     }
 
     await this.updateLinks();
+
+    return {
+      name: `Release ${this._version}`,
+      url: `/${this._wskNamespace}/${this._packageName}/${this._name}`,
+    };
   }
 };

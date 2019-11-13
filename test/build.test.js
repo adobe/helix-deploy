@@ -76,6 +76,7 @@ describe('Build Test', () => {
   it('generates the bundle', async () => {
     // need to change .cwd() for yargs to pickup `wsk` in package.json
     process.chdir(testRoot);
+    process.env.WSK_NAMESPACE = 'foobar';
     const builder = new CLI()
       .prepare([
         '--verbose',
@@ -83,7 +84,11 @@ describe('Build Test', () => {
         '--entryFile', 'index.js',
       ]);
 
-    await builder.run();
+    const res = await builder.run();
+    assert.deepEqual(res, {
+      name: 'Release 1.43',
+      url: '/foobar/simple-package/simple-name@1.43',
+    });
 
     await assertZipEntries(path.resolve(testRoot, 'dist', 'simple-package', 'simple-name@1.43.zip'), [
       'main.js',
