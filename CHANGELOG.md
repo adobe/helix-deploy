@@ -1,3 +1,10 @@
+## [2.2.2](https://github.com/adobe/openwhisk-action-builder/compare/v2.2.1...v2.2.2) (2019-11-13)
+
+
+### Bug Fixes
+
+* **build:** write all output to stderr and generate JSON to stdout. ([#72](https://github.com/adobe/openwhisk-action-builder/issues/72)) ([44694c7](https://github.com/adobe/openwhisk-action-builder/commit/44694c7)), closes [#35](https://github.com/adobe/openwhisk-action-builder/issues/35) [#71](https://github.com/adobe/openwhisk-action-builder/issues/71)
+
 ## [2.2.1](https://github.com/adobe/openwhisk-action-builder/compare/v2.2.0...v2.2.1) (2019-11-05)
 
 
