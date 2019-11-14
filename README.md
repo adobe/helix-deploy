@@ -178,7 +178,7 @@ In order to automatically use the version of the `package.json` use:
 
 #### Automatically create semantic versioning sequence actions
 
-By using the `--vesion-link` (`-l`), the bulider can create action sequences _linking_ to the deployed version,
+By using the `--version-link` (`-l`), the bulider can create action sequences _linking_ to the deployed version,
 using the semantic versioning notation: `latest`, `major`, `minor`:
 
 | Action Name | Specifier | Sequence Name |
