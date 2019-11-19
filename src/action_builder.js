@@ -625,7 +625,7 @@ module.exports = class ActionBuilder {
         this.log.info(`${chalk.green('ok:')} ${e.statusCode}`);
         this.log.debug(chalk.grey(`Location: ${e.response.headers.location}`));
       } else {
-        this.log.error(`${chalk.red('error: ')} ${e.message}`);
+        throw new Error(`test failed: ${e.message}`);
       }
     }
   }
@@ -647,7 +647,7 @@ module.exports = class ActionBuilder {
       this.log.info(`${chalk.green('ok:')} 200`);
       this.log.debug(chalk.grey(JSON.stringify(ret, null, '  ')));
     } catch (e) {
-      this.log.error(`${chalk.red('error: ')} ${e.message}`);
+      throw new Error(`test failed: ${e.message}`);
     }
   }
 
