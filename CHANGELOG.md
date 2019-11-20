@@ -1,3 +1,16 @@
+# [2.3.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.2.2...v2.3.0) (2019-11-20)
+
+
+### Bug Fixes
+
+* **builder:** ensure non 0 exit code with failed tests (fixes [#74](https://github.com/adobe/openwhisk-action-builder/issues/74)) ([c496487](https://github.com/adobe/openwhisk-action-builder/commit/c496487))
+
+
+### Features
+
+* **builder:** don't restict links (fixes [#73](https://github.com/adobe/openwhisk-action-builder/issues/73)) ([06c8f53](https://github.com/adobe/openwhisk-action-builder/commit/06c8f53))
+* **builder:** validate bundle before deploying (fixes [#76](https://github.com/adobe/openwhisk-action-builder/issues/76)) ([a049536](https://github.com/adobe/openwhisk-action-builder/commit/a049536))
+
 ## [2.2.2](https://github.com/adobe/openwhisk-action-builder/compare/v2.2.1...v2.2.2) (2019-11-13)
 
 
