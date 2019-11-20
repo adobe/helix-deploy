@@ -769,8 +769,8 @@ module.exports = class ActionBuilder {
       await this.createArchive();
       const relZip = path.relative(process.cwd(), this._zipFile);
       this.log.info(`${chalk.green('ok:')} created action: ${chalk.whiteBright(relZip)}.`);
+      await this.validateBundle();
     }
-    await this.validateBundle();
 
     if (this._updatePackage) {
       await this.updatePackage();
