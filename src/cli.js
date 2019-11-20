@@ -53,10 +53,9 @@ class CLI {
       })
       .option('version-link', {
         alias: 'l',
-        description: 'Create symlinks (sequences) after deployment',
+        description: 'Create symlinks (sequences) after deployment. "major" and "minor" will create respective version links',
         type: 'string',
         array: true,
-        choices: ['latest', 'major', 'minor', 'ci'],
       })
       .option('linkPackage', {
         description: 'Package name for version links',

@@ -675,29 +675,18 @@ module.exports = class ActionBuilder {
     const fqn = `/${this._wskNamespace}/${this._packageName}/${this._name}`;
     const sfx = [];
     this._links.forEach((link) => {
-      switch (link) {
-        case 'latest':
-          sfx.push('latest');
-          break;
-        case 'ci':
-          sfx.push('ci');
-          break;
-        case 'major':
-          if (!s) {
-            this.log.warn(`${chalk.yellow('warn:')} unable to create version sequences. error while parsing version: ${this._version}`);
-            return;
-          }
+      if (link === 'major' || link === 'minor') {
+        if (!s) {
+          this.log.warn(`${chalk.yellow('warn:')} unable to create version sequences. error while parsing version: ${this._version}`);
+          return;
+        }
+        if (link === 'major') {
           sfx.push(`v${s.major}`);
-          break;
-        case 'minor':
-          if (!s) {
-            this.log.warn(`${chalk.yellow('warn:')} unable to create version sequences. error while parsing version: ${this._version}`);
-            return;
-          }
+        } else {
           sfx.push(`v${s.major}.${s.minor}`);
-          break;
-        default:
-          throw new Error(`Unsupported link type: ${link}`);
+        }
+      } else {
+        sfx.push(link);
       }
     });
 
