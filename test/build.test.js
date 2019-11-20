@@ -77,6 +77,7 @@ describe('Build Test', () => {
     // need to change .cwd() for yargs to pickup `wsk` in package.json
     process.chdir(testRoot);
     process.env.WSK_NAMESPACE = 'foobar';
+    process.env.WSK_APIHOST = 'https://example.com';
     const builder = new CLI()
       .prepare([
         '--verbose',
@@ -86,7 +87,7 @@ describe('Build Test', () => {
 
     const res = await builder.run();
     assert.deepEqual(res, {
-      name: 'Release 1.43',
+      name: 'openwhisk;host=https://example.com',
       url: '/foobar/simple-package/simple-name@1.43',
     });
 

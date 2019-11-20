@@ -509,6 +509,22 @@ module.exports = class ActionBuilder {
     await this.createPackage();
   }
 
+  async validateBundle() {
+    this.log.info('--: validating bundle ...');
+    let module;
+    try {
+      // eslint-disable-next-line global-require,import/no-dynamic-require
+      module = require(this._bundle);
+    } catch (e) {
+      this.log.error(chalk`{red error:}`, e);
+      throw Error(`Validation failed: ${e}`);
+    }
+    if (!module.main && typeof module.main !== 'function') {
+      throw Error('Validation failed: Action has no main() function.');
+    }
+    this.log.info(chalk`{green ok:} bundle can be loaded and has a {gray main()} function.\n`);
+  }
+
   async deploy() {
     const openwhisk = ow({
       apihost: this._wskApiHost,
@@ -754,6 +770,8 @@ module.exports = class ActionBuilder {
       const relZip = path.relative(process.cwd(), this._zipFile);
       this.log.info(`${chalk.green('ok:')} created action: ${chalk.whiteBright(relZip)}.`);
     }
+    await this.validateBundle();
+
     if (this._updatePackage) {
       await this.updatePackage();
     }
@@ -770,7 +788,7 @@ module.exports = class ActionBuilder {
     await this.updateLinks();
 
     return {
-      name: `Release ${this._version}`,
+      name: `openwhisk;host=${this._wskApiHost}`,
       url: `/${this._wskNamespace}/${this._packageName}/${this._name}`,
     };
   }
