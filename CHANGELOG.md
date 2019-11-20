@@ -1,3 +1,10 @@
+## [2.3.1](https://github.com/adobe/openwhisk-action-builder/compare/v2.3.0...v2.3.1) (2019-11-20)
+
+
+### Bug Fixes
+
+* **build:** only validate bundle if it's built (fixes [#77](https://github.com/adobe/openwhisk-action-builder/issues/77)) ([#79](https://github.com/adobe/openwhisk-action-builder/issues/79)) ([3c62bfd](https://github.com/adobe/openwhisk-action-builder/commit/3c62bfd))
+
 # [2.3.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.2.2...v2.3.0) (2019-11-20)
 
 
