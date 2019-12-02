@@ -481,6 +481,7 @@ module.exports = class ActionBuilder {
       },
       resolve: {
         mainFields: ['main', 'module'],
+        extensions: ['.wasm', '.js', '.mjs', '.json'],
       },
       node: {
         __dirname: true,
