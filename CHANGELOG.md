@@ -1,3 +1,11 @@
+## [2.3.3](https://github.com/adobe/openwhisk-action-builder/compare/v2.3.2...v2.3.3) (2019-12-02)
+
+
+### Bug Fixes
+
+* **build:** fix module resolution order (fixes [#84](https://github.com/adobe/openwhisk-action-builder/issues/84)) ([#85](https://github.com/adobe/openwhisk-action-builder/issues/85)) ([8390a95](https://github.com/adobe/openwhisk-action-builder/commit/8390a9536a4737046b598bef172e88f62d3f1a04))
+* **deps:** re-add missing semantic release plugin ([e536056](https://github.com/adobe/openwhisk-action-builder/commit/e536056a293c8b97cc8ee15bb1065ed5f7690262))
+
 ## [2.3.2](https://github.com/adobe/openwhisk-action-builder/compare/v2.3.1...v2.3.2) (2019-11-24)
 
 
