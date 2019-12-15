@@ -1,3 +1,10 @@
+## [2.3.4](https://github.com/adobe/openwhisk-action-builder/compare/v2.3.3...v2.3.4) (2019-12-15)
+
+
+### Bug Fixes
+
+* **deps:** update dependency semver to v7 ([#88](https://github.com/adobe/openwhisk-action-builder/issues/88)) ([04a44e1](https://github.com/adobe/openwhisk-action-builder/commit/04a44e1101c221fba3d0ec6b0d047b92e8dd2ffd))
+
 ## [2.3.3](https://github.com/adobe/openwhisk-action-builder/compare/v2.3.2...v2.3.3) (2019-12-02)
 
 
