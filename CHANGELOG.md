@@ -1,3 +1,10 @@
+# [2.4.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.3.4...v2.4.0) (2020-01-08)
+
+
+### Features
+
+* **builder:** Support WSK_CONFIG_FILE environment variable ([#92](https://github.com/adobe/openwhisk-action-builder/issues/92)) ([629e09f](https://github.com/adobe/openwhisk-action-builder/commit/629e09f45e73e499dd74215b63fa96e6dc4d9d06))
+
 ## [2.3.4](https://github.com/adobe/openwhisk-action-builder/compare/v2.3.3...v2.3.4) (2019-12-15)
 
 
