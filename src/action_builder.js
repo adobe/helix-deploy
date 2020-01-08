@@ -392,7 +392,7 @@ module.exports = class ActionBuilder {
     await fse.ensureDir(this._distDir);
 
     // init openwhisk props
-    const wskPropsFile = path.resolve(os.homedir(), '.wskprops');
+    const wskPropsFile = process.env.WSK_CONFIG_FILE || path.resolve(os.homedir(), '.wskprops');
     let wskProps = {};
     if (await fse.pathExists(wskPropsFile)) {
       wskProps = dotenv.parse(await fse.readFile(wskPropsFile));
