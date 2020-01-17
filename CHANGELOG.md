@@ -1,3 +1,10 @@
+# [2.5.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.4.0...v2.5.0) (2020-01-17)
+
+
+### Features
+
+* **dev:** implement development server fixes [#96](https://github.com/adobe/openwhisk-action-builder/issues/96) ([#97](https://github.com/adobe/openwhisk-action-builder/issues/97)) ([c9df2c0](https://github.com/adobe/openwhisk-action-builder/commit/c9df2c0b5aa6098919de61642fc49036d6cf27c0))
+
 # [2.4.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.3.4...v2.4.0) (2020-01-08)
 
 
