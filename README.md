@@ -1,5 +1,5 @@
 # Openwhisk Action Builder
-> Library and Commandline tool support for building and deploying OpenWhisk actions. 
+> Library and Commandline tool support for building and deploying OpenWhisk actions.
 
 ## Status
 [![GitHub license](https://img.shields.io/github/license/adobe/openwhisk-action-builder.svg)](https://github.com/adobe/openwhisk-action-builder/blob/master/LICENSE.txt)
@@ -39,7 +39,7 @@ The deploy parameters can be specifies in the CLI via `-p`. See below.
 
 ## CLI
 
-The command line interface `wsk-builder` can either be invoked via `./node_modules/.bin/wsk-builder`. 
+The command line interface `wsk-builder` can either be invoked via `./node_modules/.bin/wsk-builder`.
 you can also use npx: `npx wsk-builder` or install it globally `npm install -g openwhisk-action-builder`.
 
 ```
@@ -104,7 +104,7 @@ environment or `.env` file.
 $ wsk-builder --deploy --no-hints
 ok: created action: dist/my-example.zip.
 ok: updated action tripod/my-example
-```  
+```
 
 ### Automatically _test_ the deployed action
 
@@ -198,7 +198,7 @@ Example:
 # include an image
 wsk-builder -s logo.png
 ```
- 
+
 ### Specifying arguments in the `package.json`
 
 Instead of passing all the arguments via command line, you can also specify them in the `package.json`
@@ -230,7 +230,27 @@ in the `wsk` object. eg:
 ...
 }
 ```
- 
+
+## Using the development server
+
+Testing an openwhisk action that was _expressified_ using [ActionUtils.expressify()](https://github.com/adobe/openwhisk-action-utils/blob/master/src/expressify.js)
+can be done with the `DevelopmentServer`. Just create a `test/dev.js` file with:
+
+```js
+const { DevelopmentServer } = require('@adobe/openwhisk-action-builder');
+const App = require('../src/app.js');
+
+async function run() {
+  const devServer = await new DevelopmentServer(App).init();
+  return devServer.start();
+}
+
+// eslint-disable-next-line no-console
+run().catch(console.error);
+```
+
+and run `node test/dev.js`.
+
 ## Notes
 
 ### Bundling

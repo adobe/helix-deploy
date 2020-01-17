@@ -11,8 +11,10 @@
  */
 const ActionBuilder = require('./src/action_builder.js');
 const CLI = require('./src/cli.js');
+const DevelopmentServer = require('./src/DevelopmentServer.js');
 
 module.exports = {
   ActionBuilder,
   CLI,
+  DevelopmentServer,
 };

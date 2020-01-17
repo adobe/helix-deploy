@@ -344,6 +344,17 @@ module.exports = class ActionBuilder {
     return this;
   }
 
+  async initWskProps() {
+    const wskPropsFile = process.env.WSK_CONFIG_FILE || path.resolve(os.homedir(), '.wskprops');
+    let wskProps = {};
+    if (await fse.pathExists(wskPropsFile)) {
+      wskProps = dotenv.parse(await fse.readFile(wskPropsFile));
+    }
+    this._wskNamespace = this._wskNamespace || process.env.WSK_NAMESPACE || wskProps.NAMESPACE;
+    this._wskAuth = this._wskAuth || process.env.WSK_AUTH || wskProps.AUTH;
+    this._wskApiHost = this._wskApiHost || process.env.WSK_APIHOST || wskProps.APIHOST || 'https://adobeioruntime.net';
+  }
+
   async validate() {
     try {
       this._pkgJson = await fse.readJson(path.resolve(this._cwd, 'package.json'));
@@ -392,14 +403,7 @@ module.exports = class ActionBuilder {
     await fse.ensureDir(this._distDir);
 
     // init openwhisk props
-    const wskPropsFile = process.env.WSK_CONFIG_FILE || path.resolve(os.homedir(), '.wskprops');
-    let wskProps = {};
-    if (await fse.pathExists(wskPropsFile)) {
-      wskProps = dotenv.parse(await fse.readFile(wskPropsFile));
-    }
-    this._wskNamespace = this._wskNamespace || process.env.WSK_NAMESPACE || wskProps.NAMESPACE;
-    this._wskAuth = this._wskAuth || process.env.WSK_AUTH || wskProps.AUTH;
-    this._wskApiHost = this._wskApiHost || process.env.WSK_APIHOST || wskProps.APIHOST || 'https://adobeioruntime.net';
+    await this.initWskProps();
 
     if (this._rawHttp && !this._webAction) {
       throw new Error('raw-http requires web-export');
