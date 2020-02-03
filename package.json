@@ -31,8 +31,8 @@
     "yargs": "^15.0.0"
   },
   "devDependencies": {
-    "@semantic-release/changelog": "3.0.6",
-    "@semantic-release/git": "8.0.0",
+    "@semantic-release/changelog": "5.0.0",
+    "@semantic-release/git": "9.0.0",
     "chai": "4.2.0",
     "chai-http": "4.3.0",
     "codecov": "3.6.2",
@@ -47,7 +47,7 @@
     "mocha": "7.0.1",
     "mocha-junit-reporter": "1.23.3",
     "nyc": "15.0.0",
-    "semantic-release": "16.0.3",
+    "semantic-release": "17.0.2",
     "yauzl": "2.10.0"
   },
   "engines": {
