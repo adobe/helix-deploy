@@ -11,7 +11,9 @@
       "test.env"
     ],
     "static": [
-      "files/hello.txt"
+      "files/hello.txt",
+      ["files/hello.txt", "morefiles/foo.txt"],
+      ["files", "evenmorefiles"]
     ]
   }
 }

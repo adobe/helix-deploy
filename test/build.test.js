@@ -95,6 +95,9 @@ describe('Build Test', () => {
       'main.js',
       'package.json',
       'files/hello.txt',
+      'morefiles/foo.txt',
+      'evenmorefiles/hello.txt',
+      'evenmorefiles/world.txt',
     ]);
 
     // unzip action again

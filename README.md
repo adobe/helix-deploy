@@ -155,6 +155,38 @@ wskbot -p MY_TOKEN=@token.txt
 
 ```
 
+### Specifying arguments in the `package.json`
+
+Instead of passing all the arguments via command line, you can also specify them in the `package.json`
+in the `wsk` object. eg:
+
+```json
+{
+...
+  "scripts": {
+    "build": "./node_modules/.bin/wsk-builder -v",
+    "deploy": "./node_modules/.bin/wsk-builder -v --deploy --test"
+  },
+  "wsk": {
+    "name": "my-test-action",
+    "params-file": [
+      "secrets/secrets.env"
+    ],
+    "externals": [
+      "fs-extra",
+      "js-yaml",
+      "dotenv",
+      "bunyan",
+      "bunyan-loggly",
+      "bunyan-syslog",
+      "bunyan-format"
+    ],
+    "docker": "adobe/probot-ow-nodejs8:latest"
+  },
+...
+}
+```
+
 ### Versioning your action
 
 It can be helpful to version the action name, eg with the `@version` notation. So for example
@@ -199,36 +231,22 @@ Example:
 wsk-builder -s logo.png
 ```
 
-### Specifying arguments in the `package.json`
+If the path points to a directory, it is recursively included.
 
-Instead of passing all the arguments via command line, you can also specify them in the `package.json`
-in the `wsk` object. eg:
+The files of static files can also be specified in the `package.json` which allows specifying the
+destination filename. eg:
 
 ```json
-{
 ...
-  "scripts": {
-    "build": "./node_modules/.bin/wsk-builder -v",
-    "deploy": "./node_modules/.bin/wsk-builder -v --deploy --test"
-  },
   "wsk": {
-    "name": "my-test-action",
-    "params-file": [
-      "secrets/secrets.env"
-    ],
-    "externals": [
-      "fs-extra",
-      "js-yaml",
-      "dotenv",
-      "bunyan",
-      "bunyan-loggly",
-      "bunyan-syslog",
-      "bunyan-format"
-    ],
-    "docker": "adobe/probot-ow-nodejs8:latest"
-  },
+    ...
+    "static": [
+      "config.json",
+      ["assets/logo.png", "static/icon.ong"],
+      ["public/", "static/"],
+    ]
+  }
 ...
-}
 ```
 
 ## Using the development server

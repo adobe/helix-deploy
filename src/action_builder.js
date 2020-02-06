@@ -142,7 +142,7 @@ module.exports = class ActionBuilder {
       _kind: null,
       _deploy: false,
       _test: null,
-      _statics: new Map(),
+      _statics: [],
       _params: {},
       _webAction: true,
       _webSecure: '',
@@ -248,10 +248,14 @@ module.exports = class ActionBuilder {
 
     if (Array.isArray(srcPath)) {
       srcPath.forEach((v) => {
-        this._statics.set(v, v);
+        if (Array.isArray(v)) {
+          this._statics.push(v);
+        } else {
+          this._statics.push([v, v]);
+        }
       });
     } else {
-      this._statics.set(srcPath, dstRelPath);
+      this._statics.push([srcPath, dstRelPath]);
     }
     return this;
   }
@@ -455,8 +459,12 @@ module.exports = class ActionBuilder {
 
   async updateArchive(archive, packageJson) {
     archive.file(this._bundle, { name: 'main.js' });
-    this._statics.forEach((src, name) => {
-      archive.file(src, { name });
+    this._statics.forEach(([src, name]) => {
+      if (fse.lstatSync(src).isDirectory()) {
+        archive.directory(src, name);
+      } else {
+        archive.file(src, { name });
+      }
     });
     this._modules.forEach((mod) => {
       archive.directory(path.resolve(this._cwd, `node_modules/${mod}`), `node_modules/${mod}`);
