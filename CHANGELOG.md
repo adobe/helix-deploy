@@ -1,3 +1,10 @@
+## [2.5.1](https://github.com/adobe/openwhisk-action-builder/compare/v2.5.0...v2.5.1) (2020-02-06)
+
+
+### Bug Fixes
+
+* **params:** ignore WSK_xxx in params ([#110](https://github.com/adobe/openwhisk-action-builder/issues/110)) ([f543aeb](https://github.com/adobe/openwhisk-action-builder/commit/f543aeb24e8d4679626d724d77bc0fdfebe24915))
+
 # [2.5.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.4.0...v2.5.0) (2020-01-17)
 
 
