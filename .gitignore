@@ -7,3 +7,4 @@ coverage.lcov
 test-results.xml
 coverage
 test/tmp
+dist
