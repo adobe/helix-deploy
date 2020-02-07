@@ -66,6 +66,9 @@ class CLI {
       .option('name', {
         description: 'OpenWhisk action name. Can be prefixed with package.',
       })
+      .option('namespace', {
+        description: 'OpenWhisk namespace. Needs to match the namespace provided with the openwhisk credentials.',
+      })
       .option('pkgVersion', {
         description: 'Version use in the embedded package.json.',
       })
@@ -184,6 +187,7 @@ class CLI {
       .withHints(argv.hints)
       .withStatic(argv.static)
       .withName(argv.name)
+      .withNamespace(argv.namespace)
       .withParams(argv.params)
       .withParamsFile(argv.paramsFile)
       .withVersion(argv.pkgVersion)

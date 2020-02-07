@@ -128,6 +128,7 @@ module.exports = class ActionBuilder {
       _cwd: process.cwd(),
       _distDir: null,
       _name: null,
+      _namespace: null,
       _version: null,
       _file: null,
       _zipFile: null,
@@ -300,6 +301,11 @@ module.exports = class ActionBuilder {
 
   withName(value) {
     this._name = value;
+    return this;
+  }
+
+  withNamespace(value) {
+    this._namespace = value;
     return this;
   }
 
@@ -541,6 +547,9 @@ module.exports = class ActionBuilder {
   getOpenwhiskClient() {
     if (!this._wskApiHost || !this._wskAuth || !this._wskNamespace) {
       throw Error(chalk`\nMissing OpenWhisk credentials. Make sure you have a {grey .wskprops} in your home directory.\nYou can also set {grey WSK_NAMESPACE}, {gray WSK_AUTH} and {gray WSK_API_HOST} environment variables.`);
+    }
+    if (this._namespace && this._namespace !== this._wskNamespace) {
+      throw Error(chalk`Openhwhisk namespace {grey '${this._wskNamespace}'} doesn't match configured namespace {grey '${this._namespace}'}.\nThis is a security measure to prevent accidental deployment dues to wrong .wskprops.`);
     }
     return ow({
       apihost: this._wskApiHost,

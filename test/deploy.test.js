@@ -95,11 +95,23 @@ describe('Deploy Test', () => {
         '--deploy',
         '--directory', testRoot,
       ]);
-    builder._logger = new TestLogger();
     // hack to invalidate the wsk props, if any
     builder.initWskProps = () => {};
 
     await assert.rejects(builder.run(), /Missing OpenWhisk credentials./);
+  });
+
+  it('reports error configured namespace does not match wsk namespace', async () => {
+    await fse.copy(path.resolve(__dirname, 'fixtures', 'web-action'), testRoot);
+    process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
+    const builder = new CLI()
+      .prepare([
+        '--verbose',
+        '--deploy',
+        '--namespace', 'baz',
+        '--directory', testRoot,
+      ]);
+    await assert.rejects(builder.run(), /Error: Openhwhisk namespace .*'foobar'.* doesn't match configured namespace .*'baz'.*./);
   });
 
   it('deploys a web action', async () => {
@@ -136,7 +148,6 @@ describe('Deploy Test', () => {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'web-action-with-package'), testRoot);
 
     nock(process.env.WSK_APIHOST)
-      .log(console.log)
       .put('/api/v1/namespaces/foobar/actions/test-package/simple-project?overwrite=true')
       .reply(201, {
         namespace: process.env.WSK_NAMESPACE,
