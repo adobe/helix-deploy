@@ -30,3 +30,4 @@ licensing:
     - SSPL-1.0
     - Sleepycat
     - Facebook
+extra_ignore_directories: [ test/fixtures ]

@@ -571,7 +571,7 @@ module.exports = class ActionBuilder {
     }
 
     const result = await openwhisk.actions.update(actionoptions);
-    this.log.info(`${chalk.green('ok:')} updated action ${chalk.whiteBright(`/${result.namespace}/${result.name}`)}`);
+    this.log.info(`${chalk.green('ok:')} updated action ${chalk.whiteBright(`/${result.namespace}/${this._packageName}/${this._name}`)}`);
     if (this._showHints) {
       this.log.info('\nYou can verify the action with:');
       if (this._webAction) {
@@ -579,9 +579,9 @@ module.exports = class ActionBuilder {
         if (this._webSecure) {
           opts = ` -H "x-require-whisk-auth: ${this._webSecure}"`;
         }
-        this.log.info(chalk.grey(`$ curl${opts} "${this._wskApiHost}/api/v1/web/${result.namespace}/${result.name}"`));
+        this.log.info(chalk.grey(`$ curl${opts} "${this._wskApiHost}/api/v1/web/${result.namespace}/${this._packageName}/${this._name}"`));
       } else {
-        this.log.info(chalk.grey(`$ wsk action invoke -r ${result.name}`));
+        this.log.info(chalk.grey(`$ wsk action invoke -r /${result.namespace}/${this._packageName}/${this._name}`));
       }
     }
   }

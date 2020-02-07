@@ -14,7 +14,7 @@
   },
   "scripts": {
     "lint": "./node_modules/.bin/eslint .",
-    "test": "nyc --reporter=text --reporter=lcov mocha",
+    "test": "nyc --reporter=text --reporter=lcov --check-coverage --branches 50 --statements 70 --lines 70 mocha",
     "test-ci": "npm run lint && npm run test && codecov",
     "semantic-release": "semantic-release"
   },
@@ -46,6 +46,7 @@
     "lodash": "4.17.15",
     "mocha": "7.0.1",
     "mocha-junit-reporter": "1.23.3",
+    "nock": "11.7.2",
     "nyc": "15.0.0",
     "semantic-release": "17.0.2",
     "yauzl": "2.10.0"
