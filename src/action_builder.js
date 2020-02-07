@@ -538,13 +538,19 @@ module.exports = class ActionBuilder {
     this.log.info(chalk`{green ok:} bundle can be loaded and has a {gray main()} function.\n`);
   }
 
-  async deploy() {
-    const openwhisk = ow({
+  getOpenwhiskClient() {
+    if (!this._wskApiHost || !this._wskAuth || !this._wskNamespace) {
+      throw Error(chalk`\nMissing OpenWhisk credentials. Make sure you have a {grey .wskprops} in your home directory.\nYou can also set {grey WSK_NAMESPACE}, {gray WSK_AUTH} and {gray WSK_API_HOST} environment variables.`);
+    }
+    return ow({
       apihost: this._wskApiHost,
       api_key: this._wskAuth,
       namespace: this._wskNamespace,
     });
+  }
 
+  async deploy() {
+    const openwhisk = this.getOpenwhiskClient();
     const relZip = path.relative(process.cwd(), this._zipFile);
     this.log.debug(`Deploying ${relZip} as ${this._actionName} to OpenWhisk`);
     const actionoptions = {
@@ -587,11 +593,7 @@ module.exports = class ActionBuilder {
   }
 
   async updatePackage() {
-    const openwhisk = ow({
-      apihost: this._wskApiHost,
-      api_key: this._wskAuth,
-      namespace: this._wskNamespace,
-    });
+    const openwhisk = this.getOpenwhiskClient();
     let fn = openwhisk.packages.update.bind(openwhisk.packages);
     let verb = 'updated';
     try {
@@ -660,11 +662,7 @@ module.exports = class ActionBuilder {
   }
 
   async testInvoke() {
-    const openwhisk = ow({
-      apihost: this._wskApiHost,
-      api_key: this._wskAuth,
-      namespace: this._wskNamespace,
-    });
+    const openwhisk = this.getOpenwhiskClient();
 
     this.log.info(`--: invoking: ${chalk.blueBright(this._actionName)} ...`);
     try {
@@ -719,11 +717,7 @@ module.exports = class ActionBuilder {
       }
     });
 
-    const openwhisk = ow({
-      apihost: this._wskApiHost,
-      api_key: this._wskAuth,
-      namespace: this._wskNamespace,
-    });
+    const openwhisk = this.getOpenwhiskClient();
 
     const annotations = [{
       key: 'exec',

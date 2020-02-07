@@ -86,6 +86,22 @@ describe('Deploy Test', () => {
     await fse.remove(testRoot);
   });
 
+  it('reports nice error if no wsk props are set', async () => {
+    await fse.copy(path.resolve(__dirname, 'fixtures', 'web-action'), testRoot);
+    process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
+    const builder = new CLI()
+      .prepare([
+        '--verbose',
+        '--deploy',
+        '--directory', testRoot,
+      ]);
+    builder._logger = new TestLogger();
+    // hack to invalidate the wsk props, if any
+    builder.initWskProps = () => {};
+
+    await assert.rejects(builder.run(), /Missing OpenWhisk credentials./);
+  });
+
   it('deploys a web action', async () => {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'web-action'), testRoot);
 
