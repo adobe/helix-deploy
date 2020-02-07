@@ -1,3 +1,17 @@
+# [2.6.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.5.1...v2.6.0) (2020-02-07)
+
+
+### Bug Fixes
+
+* **builder:** add support for static file renaming and directories. ([bce8f31](https://github.com/adobe/openwhisk-action-builder/commit/bce8f316873204607c04771ed0bfd8de0f46c573)), closes [#6](https://github.com/adobe/openwhisk-action-builder/issues/6)
+* **deploy:** report correct action package ([999af39](https://github.com/adobe/openwhisk-action-builder/commit/999af39a70f289ade3f3ce07c288af35ed5ffb51)), closes [#109](https://github.com/adobe/openwhisk-action-builder/issues/109)
+
+
+### Features
+
+* **builder:** display nicer error message if openwhisk creds are missing ([2a2ef39](https://github.com/adobe/openwhisk-action-builder/commit/2a2ef39278a3b00a4dad37a1a421889e552a2fa1)), closes [#103](https://github.com/adobe/openwhisk-action-builder/issues/103)
+* **deploy:** provide security measure to prevent deployment to wrong namespace ([ed47697](https://github.com/adobe/openwhisk-action-builder/commit/ed47697a9d3b029ab1734d652a8724f5f032a5cc)), closes [#93](https://github.com/adobe/openwhisk-action-builder/issues/93)
+
 ## [2.5.1](https://github.com/adobe/openwhisk-action-builder/compare/v2.5.0...v2.5.1) (2020-02-06)
 
 
