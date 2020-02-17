@@ -46,7 +46,7 @@
     "lodash": "4.17.15",
     "mocha": "7.0.1",
     "mocha-junit-reporter": "1.23.3",
-    "nock": "11.7.2",
+    "nock": "12.0.0",
     "nyc": "15.0.0",
     "semantic-release": "17.0.2",
     "yauzl": "2.10.0"
