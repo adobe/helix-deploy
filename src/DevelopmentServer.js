@@ -79,6 +79,8 @@ module.exports = class DevelopmentServer {
     // set openwhisk coordinates for transparent ow client usage.
     process.env.__OW_API_KEY = builder._wskAuth;
     process.env.__OW_API_HOST = builder._wskApiHost;
+    process.env.__OW_NAMESPACE = builder._wskNamespace;
+
     this.params = params;
     return this;
   }
