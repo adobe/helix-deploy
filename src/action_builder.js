@@ -420,6 +420,7 @@ module.exports = class ActionBuilder {
     }
     this._params = await ActionBuilder.resolveParams(this._params);
     this._packageParams = await ActionBuilder.resolveParams(this._packageParams);
+    this._fqn = `/${this._wskNamespace}/${this._packageName}/${this._name}`;
   }
 
   async createArchive() {
@@ -585,8 +586,8 @@ module.exports = class ActionBuilder {
       actionoptions.annotations['require-whisk-auth'] = this._webSecure;
     }
 
-    const result = await openwhisk.actions.update(actionoptions);
-    this.log.info(`${chalk.green('ok:')} updated action ${chalk.whiteBright(`/${result.namespace}/${this._packageName}/${this._name}`)}`);
+    await openwhisk.actions.update(actionoptions);
+    this.log.info(`${chalk.green('ok:')} updated action ${chalk.whiteBright(`/${this._wskNamespace}/${this._packageName}/${this._name}`)}`);
     if (this._showHints) {
       this.log.info('\nYou can verify the action with:');
       if (this._webAction) {
@@ -594,9 +595,9 @@ module.exports = class ActionBuilder {
         if (this._webSecure) {
           opts = ` -H "x-require-whisk-auth: ${this._webSecure}"`;
         }
-        this.log.info(chalk.grey(`$ curl${opts} "${this._wskApiHost}/api/v1/web/${result.namespace}/${this._packageName}/${this._name}"`));
+        this.log.info(chalk.grey(`$ curl${opts} "${this._wskApiHost}/api/v1/web${this._fqn}"`));
       } else {
-        this.log.info(chalk.grey(`$ wsk action invoke -r /${result.namespace}/${this._packageName}/${this._name}`));
+        this.log.info(chalk.grey(`$ wsk action invoke -r ${this._fqn}`));
       }
     }
   }
@@ -643,7 +644,7 @@ module.exports = class ActionBuilder {
   }
 
   async testRequest(relUrl) {
-    const url = `${this._wskApiHost}/api/v1/web/${this._wskNamespace}/${this._packageName}/${this._name}${relUrl}`;
+    const url = `${this._wskApiHost}/api/v1/web${this._fqn}${relUrl}`;
     this.log.info(`--: requesting: ${chalk.blueBright(url)} ...`);
     const headers = {};
     if (this._webSecure) {
@@ -805,7 +806,7 @@ module.exports = class ActionBuilder {
 
     return {
       name: `openwhisk;host=${this._wskApiHost}`,
-      url: `/${this._wskNamespace}/${this._packageName}/${this._name}`,
+      url: this._fqn,
     };
   }
 };

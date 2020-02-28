@@ -150,7 +150,8 @@ describe('Deploy Test', () => {
     nock(process.env.WSK_APIHOST)
       .put('/api/v1/namespaces/foobar/actions/test-package/simple-project?overwrite=true')
       .reply(201, {
-        namespace: process.env.WSK_NAMESPACE,
+        // openwhisk returns the package in the namespace property!
+        namespace: `${process.env.WSK_NAMESPACE}/test-package`,
       });
 
 
@@ -180,7 +181,8 @@ describe('Deploy Test', () => {
       // .log(console.log)
       .put('/api/v1/namespaces/foobar/actions/simple-project?overwrite=true')
       .reply(201, {
-        namespace: process.env.WSK_NAMESPACE,
+        // openwhisk returns the package in the namespace property!
+        namespace: `${process.env.WSK_NAMESPACE}/test-package`,
       });
 
 
