@@ -1,3 +1,10 @@
+## [2.6.2](https://github.com/adobe/openwhisk-action-builder/compare/v2.6.1...v2.6.2) (2020-02-28)
+
+
+### Bug Fixes
+
+* **builder:** correct output on deploy ([#118](https://github.com/adobe/openwhisk-action-builder/issues/118)) ([380ff1a](https://github.com/adobe/openwhisk-action-builder/commit/380ff1a144244f242e0a1db64d3bb50e962036f2)), closes [#113](https://github.com/adobe/openwhisk-action-builder/issues/113)
+
 ## [2.6.1](https://github.com/adobe/openwhisk-action-builder/compare/v2.6.0...v2.6.1) (2020-02-19)
 
 
