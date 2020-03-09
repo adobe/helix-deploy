@@ -1,3 +1,10 @@
+# [2.7.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.6.2...v2.7.0) (2020-03-09)
+
+
+### Features
+
+* **builder:** add --test-params for testing wsk actions ([b805047](https://github.com/adobe/openwhisk-action-builder/commit/b8050478f31b16ef230bc8e677ffbac846e38acf)), closes [#102](https://github.com/adobe/openwhisk-action-builder/issues/102)
+
 ## [2.6.2](https://github.com/adobe/openwhisk-action-builder/compare/v2.6.1...v2.6.2) (2020-02-28)
 
 
