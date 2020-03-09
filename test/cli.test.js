@@ -164,6 +164,18 @@ describe('CLI Test', () => {
     assert.deepEqual(builder._params, { foo: 'bar' });
   });
 
+  it('can add test params', () => {
+    const builder = new CLI()
+      .prepare(['--test-params', 'foo=bar', '--test-params', 'zoo=42']);
+    assert.deepEqual(builder._test_params, { foo: 'bar', zoo: 42 });
+  });
+
+  it('can add test params as json', () => {
+    const builder = new CLI()
+      .prepare(['--test-params', '{ "foo": "bar" }']);
+    assert.deepEqual(builder._test_params, { foo: 'bar' });
+  });
+
   it('can add modules', () => {
     const builder = new CLI()
       .prepare(['-m', 'foo', '-m', 'bar']);

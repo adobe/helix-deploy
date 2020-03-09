@@ -122,7 +122,9 @@ describe('Deploy Test', () => {
       .put('/api/v1/namespaces/foobar/actions/simple-project?overwrite=true')
       .reply(201, {
         namespace: process.env.WSK_NAMESPACE,
-      });
+      })
+      .get('/api/v1/web/foobar/default/simple-project/foo')
+      .reply(200, 'ok');
 
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
@@ -130,6 +132,7 @@ describe('Deploy Test', () => {
       .prepare([
         '--verbose',
         '--deploy',
+        '--test', '/foo',
         '--directory', testRoot,
       ]);
     builder._logger = new TestLogger();
@@ -183,14 +186,20 @@ describe('Deploy Test', () => {
       .reply(201, {
         // openwhisk returns the package in the namespace property!
         namespace: `${process.env.WSK_NAMESPACE}/test-package`,
+      })
+      .post('/api/v1/namespaces/foobar/actions/simple-project?blocking=true')
+      .reply(200, {
+        response: {
+          result: 'ok',
+        },
       });
-
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
       .prepare([
         '--verbose',
         '--deploy',
+        '--test-params', 'foo=bar',
         '--directory', testRoot,
       ]);
     builder._logger = new TestLogger();

@@ -12,7 +12,7 @@
 ## Setup
 
 1. Add this wrapper as dev dependency:
-    ```sh
+    ```console
     # Add OpenWhisk wrapper as dependency 
     npm add openwhisk-action-builder
     ```
@@ -25,13 +25,13 @@
     ```
 
 3. Build the OpenWhisk action
-    ```sh
+    ```console
     $ npm run build
     ...
     Created action: dist/my-example.zip.
     ```
 4. Deploy the OpenWhisk action
-    ```sh
+    ```console
     $ wsk action update ....
     ```
 
@@ -42,7 +42,7 @@ The deploy parameters can be specifies in the CLI via `-p`. See below.
 The command line interface `wsk-builder` can either be invoked via `./node_modules/.bin/wsk-builder`.
 you can also use npx: `npx wsk-builder` or install it globally `npm install -g openwhisk-action-builder`.
 
-```
+```console
 $ wsk-builder --help
 Operation Options
   --build              Build the deployment package    [boolean] [default: true]
@@ -50,11 +50,14 @@ Operation Options
                                                       [boolean] [default: false]
   --test               Invoke action after deployment. Can be relative url.
                                                                         [string]
+  --test-params        Invoke openwhisk action after deployment with the given
+                       params.                             [array] [default: []]
   --hints, --no-hints  Show additional hints for deployment
                                                        [boolean] [default: true]
   --update-package     Create or update wsk package.  [boolean] [default: false]
-  --version-link, -l   Create symlinks (sequences) after deployment
-                             [array] [choices: "latest", "major", "minor", "ci"]
+  --version-link, -l   Create symlinks (sequences) after deployment. "major" and
+                       "minor" will create respective version links      [array]
+  --linkPackage        Package name for version links                   [string]
 
 OpenWhisk Action Options
   --name             OpenWhisk action name. Can be prefixed with package.
@@ -87,6 +90,8 @@ Options:
   --version      Show version number                                   [boolean]
   --verbose, -v                                       [boolean] [default: false]
   --directory    Project directory                       [string] [default: "."]
+  --namespace    OpenWhisk namespace. Needs to match the namespace provided with
+                 the openwhisk credentials.
   --pkgVersion   Version use in the embedded package.json.
   --modules, -m  Include a node_module as is.              [array] [default: []]
   --help         Show help                                             [boolean]
@@ -100,7 +105,7 @@ When given the `--deploy`, the `wskbot` will try to deploy it ot OpenWhisk using
 `~/.wskprops`. Alternatively, you can also set the `WSK_NAMESPACE`, `WSK_AUTH`, `WSK_APIHOST` in your
 environment or `.env` file.
 
-```
+```console
 $ wsk-builder --deploy --no-hints
 ok: created action: dist/my-example.zip.
 ok: updated action tripod/my-example
@@ -110,7 +115,7 @@ ok: updated action tripod/my-example
 
 In order to quickly test the deployed action, `wsk-builder` can send a `GET` request to the action url.
 
-```
+```console
 $ wsk-builder --deploy --no-hints --test
 ok: created action: dist/my-example.zip.
 ok: updated action tripod/my-example
@@ -120,7 +125,7 @@ ok: 200
 
 the `--test` argument can be a relative url, in case the request should not be made against the root url, eg:
 
-```
+```console
 $ wsk-builder --deploy --no-hints --test=/ping
 ok: created action: dist/my-example.zip.
 ok: updated action tripod/my-example
@@ -134,24 +139,24 @@ Action parameters can be defined via `-p`, either as json on env string, or json
 
 Examples:
 
-```bash
+```console
 # specify as env string
-wskbot -p MY_TOKEN=1234 -p MY_PWD=foo
+wsk-builder -p MY_TOKEN=1234 -p MY_PWD=foo
 
 # specify as json string
-wskbot -p '{ "MY_TOKEN": 1234, "MY_PWD": "foo" }'
+wsk-builder -p '{ "MY_TOKEN": 1234, "MY_PWD": "foo" }'
 
 # specify as env file
-wskbot -f .env
+wsk-builder -f .env
 
 # specify as json file
-wskbot -f params.json
+wsk-builder -f params.json
 
 # and a combination of the above
-wskbot -f .env -f params.json -p MY_TOKEN=123
+wsk-builder -f .env -f params.json -p MY_TOKEN=123
 
 # like in curl, you can include file contents with `@` (also works in .env or .json file)
-wskbot -p MY_TOKEN=@token.txt
+wsk-builder -p MY_TOKEN=@token.txt
 
 ```
 

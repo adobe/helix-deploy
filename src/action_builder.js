@@ -143,6 +143,7 @@ module.exports = class ActionBuilder {
       _kind: null,
       _deploy: false,
       _test: null,
+      _test_params: {},
       _statics: [],
       _params: {},
       _webAction: true,
@@ -204,6 +205,20 @@ module.exports = class ActionBuilder {
 
   withTest(enable) {
     this._test = enable;
+    return this;
+  }
+
+  withTestParams(params) {
+    if (!params) {
+      return this;
+    }
+    if (Array.isArray(params)) {
+      params.forEach((v) => {
+        this._test_params = Object.assign(this._test_params, this.decodeParams(v, false));
+      });
+    } else {
+      this._test_params = Object.assign(this._test_params, this.decodeParams(params, false));
+    }
     return this;
   }
 
@@ -636,15 +651,15 @@ module.exports = class ActionBuilder {
     }
   }
 
-  async test(url) {
+  async test() {
     if (this._webAction) {
-      return this.testRequest(url);
+      return this.testRequest();
     }
     return this.testInvoke();
   }
 
-  async testRequest(relUrl) {
-    const url = `${this._wskApiHost}/api/v1/web${this._fqn}${relUrl}`;
+  async testRequest() {
+    const url = `${this._wskApiHost}/api/v1/web${this._fqn}${this._test || ''}`;
     this.log.info(`--: requesting: ${chalk.blueBright(url)} ...`);
     const headers = {};
     if (this._webSecure) {
@@ -674,12 +689,14 @@ module.exports = class ActionBuilder {
   async testInvoke() {
     const openwhisk = this.getOpenwhiskClient();
 
-    this.log.info(`--: invoking: ${chalk.blueBright(this._actionName)} ...`);
+    const params = Object.entries(this._test_params).reduce((s, [key, value]) => (`${s} -p ${key} ${value}`), '');
+    this.log.info(chalk`--: invoking: {blueBright ${this._actionName}${params}} ...`);
     try {
       const ret = await openwhisk.actions.invoke({
         name: this._actionName,
         blocking: true,
         result: true,
+        params: this._test_params,
       });
       this.log.info(`${chalk.green('ok:')} 200`);
       this.log.debug(chalk.grey(JSON.stringify(ret, null, '  ')));
@@ -798,8 +815,8 @@ module.exports = class ActionBuilder {
       await this.showDeployHints();
     }
 
-    if (typeof this._test === 'string') {
-      await this.test(this._test);
+    if (typeof this._test === 'string' || Object.keys(this._test_params).length) {
+      await this.test();
     }
 
     await this.updateLinks();

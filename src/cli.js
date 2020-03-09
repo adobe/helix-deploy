@@ -45,6 +45,11 @@ class CLI {
         description: 'Invoke action after deployment. Can be relative url.',
         type: 'string',
       })
+      .option('test-params', {
+        description: 'Invoke openwhisk action after deployment with the given params.',
+        type: 'array',
+        default: [],
+      })
       .option('hints', {
         alias: 'no-hints',
         description: 'Show additional hints for deployment',
@@ -61,7 +66,7 @@ class CLI {
         description: 'Package name for version links',
         type: 'string',
       })
-      .group(['build', 'deploy', 'test', 'hints', 'update-package', 'version-link', 'linkPackage'], 'Operation Options')
+      .group(['build', 'deploy', 'test', 'test-params', 'hints', 'update-package', 'version-link', 'linkPackage'], 'Operation Options')
 
       .option('name', {
         description: 'OpenWhisk action name. Can be prefixed with package.',
@@ -184,6 +189,7 @@ class CLI {
       .withBuild(argv.build)
       .withDeploy(argv.deploy)
       .withTest(argv.test)
+      .withTestParams(argv.testParams)
       .withHints(argv.hints)
       .withStatic(argv.static)
       .withName(argv.name)
