@@ -1,3 +1,10 @@
+# [2.8.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.7.0...v2.8.0) (2020-03-17)
+
+
+### Features
+
+* **builder:** ensure that web-secure works correctly ([#125](https://github.com/adobe/openwhisk-action-builder/issues/125)) ([17f9530](https://github.com/adobe/openwhisk-action-builder/commit/17f9530741705c03618df4befe36a69aceedded4)), closes [#124](https://github.com/adobe/openwhisk-action-builder/issues/124)
+
 # [2.7.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.6.2...v2.7.0) (2020-03-09)
 
 
