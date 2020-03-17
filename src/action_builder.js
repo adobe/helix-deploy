@@ -147,7 +147,7 @@ module.exports = class ActionBuilder {
       _statics: [],
       _params: {},
       _webAction: true,
-      _webSecure: '',
+      _webSecure: false,
       _rawHttp: false,
       _showHints: false,
       _modules: [],
@@ -607,7 +607,9 @@ module.exports = class ActionBuilder {
       this.log.info('\nYou can verify the action with:');
       if (this._webAction) {
         let opts = '';
-        if (this._webSecure) {
+        if (this._webSecure === true) {
+          opts = ' -u "$WSK_AUTH"';
+        } else if (this._webSecure) {
           opts = ` -H "x-require-whisk-auth: ${this._webSecure}"`;
         }
         this.log.info(chalk.grey(`$ curl${opts} "${this._wskApiHost}/api/v1/web${this._fqn}"`));
@@ -662,7 +664,9 @@ module.exports = class ActionBuilder {
     const url = `${this._wskApiHost}/api/v1/web${this._fqn}${this._test || ''}`;
     this.log.info(`--: requesting: ${chalk.blueBright(url)} ...`);
     const headers = {};
-    if (this._webSecure) {
+    if (this._webSecure === true) {
+      headers.authorization = `Basic ${Buffer.from(this._wskAuth).toString('base64')}`;
+    } else if (this._webSecure) {
       headers['x-require-whisk-auth'] = this._webSecure;
     }
     try {

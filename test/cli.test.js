@@ -126,12 +126,19 @@ describe('CLI Test', () => {
     const builder = new CLI()
       .prepare(['--web-secure']);
     assert.ok(builder._webSecure);
+    assert.ok(typeof builder._webSecure === 'string');
   });
 
   it('sets web-secure to token', () => {
     const builder = new CLI()
       .prepare(['--web-secure=123']);
     assert.equal(builder._webSecure, '123');
+  });
+
+  it('sets web-secure to true', () => {
+    const builder = new CLI()
+      .prepare(['--web-secure=true']);
+    assert.equal(builder._webSecure, true);
   });
 
   it('sets enable raw-http', () => {

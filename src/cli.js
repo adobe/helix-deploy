@@ -94,7 +94,18 @@ class CLI {
       .option('web-secure', {
         description: 'Annotates the action with require-whisk-auth. leave empty to generate random token.',
         type: 'string',
-        coerce: (value) => (value.trim() ? value.trim() : crypto.randomBytes(32).toString('base64')),
+        coerce: (value) => {
+          if (typeof value === 'string') {
+            if (value === 'true') {
+              return true;
+            }
+            if (value === 'false') {
+              return false;
+            }
+            return (value.trim() ? value.trim() : crypto.randomBytes(32).toString('base64'));
+          }
+          return value;
+        },
       })
       .option('docker', {
         description: 'Specifies a docker image.',
