@@ -1,3 +1,10 @@
+## [2.8.1](https://github.com/adobe/openwhisk-action-builder/compare/v2.8.0...v2.8.1) (2020-03-23)
+
+
+### Bug Fixes
+
+* **deps:** update dependency fs-extra to v9 ([#127](https://github.com/adobe/openwhisk-action-builder/issues/127)) ([e430bb1](https://github.com/adobe/openwhisk-action-builder/commit/e430bb181246e6774bdaf1bfac910b1a864ddf3a))
+
 # [2.8.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.7.0...v2.8.0) (2020-03-17)
 
 
