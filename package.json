@@ -44,9 +44,9 @@
     "ghooks": "2.0.4",
     "lint-staged": "10.0.8",
     "lodash": "4.17.15",
-    "mocha": "7.1.0",
+    "mocha": "7.1.1",
     "mocha-junit-reporter": "1.23.3",
-    "nock": "12.0.2",
+    "nock": "12.0.3",
     "nyc": "15.0.0",
     "semantic-release": "17.0.4",
     "yauzl": "2.10.0"
