@@ -1,3 +1,10 @@
+## [2.8.2](https://github.com/adobe/openwhisk-action-builder/compare/v2.8.1...v2.8.2) (2020-04-06)
+
+
+### Bug Fixes
+
+* **deps:** update dependency chalk to v4 ([#130](https://github.com/adobe/openwhisk-action-builder/issues/130)) ([33cb7d0](https://github.com/adobe/openwhisk-action-builder/commit/33cb7d09f337d1ac31fa32a2676ddafe25667071))
+
 ## [2.8.1](https://github.com/adobe/openwhisk-action-builder/compare/v2.8.0...v2.8.1) (2020-03-23)
 
 
