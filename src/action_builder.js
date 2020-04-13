@@ -11,6 +11,7 @@
  */
 
 const path = require('path');
+const fs = require('fs');
 const fse = require('fs-extra');
 const archiver = require('archiver');
 const webpack = require('webpack');
@@ -20,9 +21,41 @@ const os = require('os');
 const ow = require('openwhisk');
 const semver = require('semver');
 const request = require('request-promise-native');
+const git = require('isomorphic-git');
 const { version } = require('../package.json');
 
 require('dotenv').config();
+
+/**
+ * Returns the `origin` remote url or `''` if none is defined.
+ *
+ * @param {string} dir working tree directory path of the git repo
+ * @returns {Promise<string>} `origin` remote url
+ */
+async function getOrigin(dir) {
+  try {
+    const rmt = (await git.listRemotes({ fs, dir })).find((entry) => entry.remote === 'origin');
+    return typeof rmt === 'object' ? rmt.url : '';
+  } catch (e) {
+    // don't fail if directory is not a git repository
+    return '';
+  }
+}
+
+/**
+ * Returns the sha of the current (i.e. `HEAD`) commit.
+ *
+ * @param {string} dir working tree directory path of the git repo
+ * @returns {Promise<string>} sha of the current (i.e. `HEAD`) commit
+ */
+async function getCurrentRevision(dir) {
+  try {
+    return await git.resolveRef({ fs, dir, ref: 'HEAD' });
+  } catch (e) {
+    // ignore if no git repository
+    return '';
+  }
+}
 
 module.exports = class ActionBuilder {
   /**
@@ -160,6 +193,10 @@ module.exports = class ActionBuilder {
       _timeout: 60000,
       _links: [],
       _linksPackage: null,
+      _dependencies: {},
+      _gitUrl: '',
+      _gitOrigin: '',
+      _gitRef: '',
     });
   }
 
@@ -386,6 +423,11 @@ module.exports = class ActionBuilder {
     } catch (e) {
       this._pkgJson = {};
     }
+    try {
+      this._pkgLockJson = await fse.readJson(path.resolve(this._cwd, 'package-lock.json'));
+    } catch (e) {
+      this._pkgLockJson = {};
+    }
     this._file = path.resolve(this._cwd, this._file || 'index.js');
     if (!this._env) {
       this._env = path.resolve(this._cwd, '.env');
@@ -436,6 +478,11 @@ module.exports = class ActionBuilder {
     this._params = await ActionBuilder.resolveParams(this._params);
     this._packageParams = await ActionBuilder.resolveParams(this._packageParams);
     this._fqn = `/${this._wskNamespace}/${this._packageName}/${this._name}`;
+
+    // init git coordinates
+    this._gitUrl = (this._pkgJson.repository || {}).url || '';
+    this._gitRef = await getCurrentRevision(this._cwd);
+    this._gitOrigin = await getOrigin(this._cwd);
   }
 
   async createArchive() {
@@ -535,9 +582,54 @@ module.exports = class ActionBuilder {
           chunks: false,
           colors: true,
         }));
+        this.resolveDependencyInfos(stats);
         resolve();
       });
     });
+  }
+
+  /**
+   * Resolves the dependencies
+   */
+  resolveDependencyInfos(stats) {
+    // get list of dependencies
+    const deps = {};
+    stats.toJson({
+      source: false,
+      chunks: false,
+      assets: false,
+    })
+      .modules
+      .forEach((mod) => {
+        const segs = mod.identifier.split('/');
+        const idx = segs.lastIndexOf('node_modules');
+        if (idx >= 0) {
+          let dep = segs[idx + 1];
+          if (dep.charAt(0) === '@') {
+            dep += `/${segs[idx + 2]}`;
+          }
+          deps[dep] = true;
+        }
+      });
+    this._dependencies = Object.keys(deps)
+      .sort()
+      .map((name) => {
+        const dep = {
+          name,
+        };
+        const depVersion = this._pkgJson.dependencies[name];
+        if (depVersion) {
+          dep.version = depVersion;
+        }
+        const lockDep = this._pkgLockJson.dependencies[name];
+        if (lockDep) {
+          if (!depVersion) {
+            dep.version = lockDep.version;
+            dep.transitive = true;
+          }
+        }
+        return dep;
+      });
   }
 
   async prepare() {
@@ -583,9 +675,13 @@ module.exports = class ActionBuilder {
       action: await fse.readFile(this._zipFile),
       kind: this._docker ? 'blackbox' : this._kind,
       annotations: {
-        description: this._pkgJson.description,
         'web-export': this._webAction,
         'raw-http': this._rawHttp,
+        description: this._pkgJson.description,
+        pkgVersion: this._version,
+        dependencies: this._dependencies.map((dep) => `${dep.name}:${dep.version}`).join(','),
+        repository: this._gitUrl,
+        git: `${this._gitOrigin}#${this._gitRef}`,
       },
       params: this._params,
       limits: {
