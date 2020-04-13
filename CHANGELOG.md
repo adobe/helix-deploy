@@ -1,3 +1,10 @@
+# [2.9.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.8.2...v2.9.0) (2020-04-13)
+
+
+### Features
+
+* **builder:** record dependencies as annotations ([#131](https://github.com/adobe/openwhisk-action-builder/issues/131)) ([01e3527](https://github.com/adobe/openwhisk-action-builder/commit/01e35272b170bf4704c3c9b02a96a8c6d368ea4b)), closes [#121](https://github.com/adobe/openwhisk-action-builder/issues/121)
+
 ## [2.8.2](https://github.com/adobe/openwhisk-action-builder/compare/v2.8.1...v2.8.2) (2020-04-06)
 
 
