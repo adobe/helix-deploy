@@ -42,7 +42,7 @@
     "eslint-plugin-import": "2.20.2",
     "express": "4.17.1",
     "ghooks": "2.0.4",
-    "lint-staged": "10.1.2",
+    "lint-staged": "10.1.3",
     "lodash": "4.17.15",
     "mocha": "7.1.1",
     "mocha-junit-reporter": "1.23.3",
