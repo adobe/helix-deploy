@@ -1,3 +1,10 @@
+# [2.10.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.9.0...v2.10.0) (2020-04-16)
+
+
+### Features
+
+* **deps:** improve dependency resolution ([#135](https://github.com/adobe/openwhisk-action-builder/issues/135)) ([a74e079](https://github.com/adobe/openwhisk-action-builder/commit/a74e079a768ffc63cf0575cee6dcb69c059c09cb)), closes [#134](https://github.com/adobe/openwhisk-action-builder/issues/134)
+
 # [2.9.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.8.2...v2.9.0) (2020-04-13)
 
 
