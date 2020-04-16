@@ -572,63 +572,86 @@ module.exports = class ActionBuilder {
 
   async createPackage() {
     const compiler = webpack(await this.getWebpackConfig());
-    return new Promise((resolve, reject) => {
-      compiler.run((err, stats) => {
+    const stats = await new Promise((resolve, reject) => {
+      compiler.run((err, s) => {
         if (err) {
           reject(err);
-          return;
+        } else {
+          resolve(s);
         }
-        this.log.debug(stats.toString({
-          chunks: false,
-          colors: true,
-        }));
-        this.resolveDependencyInfos(stats);
-        resolve();
       });
     });
+    this.log.debug(stats.toString({
+      chunks: false,
+      colors: true,
+    }));
+
+    await this.resolveDependencyInfos(stats);
   }
 
   /**
-   * Resolves the dependencies
+   * Resolves the dependencies by chunk. eg:
+   *
+   * {
+   *   'src/idx_json.bundle.js': [{
+   *      id: '@adobe/helix-epsagon:1.2.0',
+   *      name: '@adobe/helix-epsagon',
+   *      version: '1.2.0' },
+   *   ],
+   *   ...
+   * }
    */
-  resolveDependencyInfos(stats) {
+  async resolveDependencyInfos(stats) {
     // get list of dependencies
-    const deps = {};
-    stats.toJson({
-      source: false,
-      chunks: false,
-      assets: false,
-    })
-      .modules
-      .forEach((mod) => {
-        const segs = mod.identifier.split('/');
-        const idx = segs.lastIndexOf('node_modules');
-        if (idx >= 0) {
-          let dep = segs[idx + 1];
-          if (dep.charAt(0) === '@') {
-            dep += `/${segs[idx + 2]}`;
+    const depsByFile = {};
+    const resolved = {};
+
+    const jsonStats = stats.toJson({
+      chunks: true,
+      chunkModules: true,
+    });
+
+    await Promise.all(jsonStats.chunks
+      .map(async (chunk) => {
+        const chunkName = chunk.names[0];
+        const deps = {};
+        depsByFile[chunkName] = deps;
+
+        await Promise.all(chunk.modules.map(async (mod) => {
+          const segs = mod.identifier.split('/');
+          let idx = segs.lastIndexOf('node_modules');
+          if (idx >= 0) {
+            idx += 1;
+            if (segs[idx].charAt(0) === '@') {
+              idx += 1;
+            }
+            segs.splice(idx + 1);
+            const dir = path.resolve('/', ...segs);
+
+            try {
+              if (!resolved[dir]) {
+                const pkgJson = await fse.readJson(path.resolve(dir, 'package.json'));
+                const id = `${pkgJson.name}:${pkgJson.version}`;
+                resolved[dir] = {
+                  id,
+                  name: pkgJson.name,
+                  version: pkgJson.version,
+                };
+              }
+              const dep = resolved[dir];
+              deps[dep.id] = dep;
+            } catch (e) {
+              // ignore
+            }
           }
-          deps[dep] = true;
-        }
-      });
-    this._dependencies = Object.keys(deps)
-      .sort()
-      .map((name) => {
-        const dep = {
-          name,
-        };
-        const depVersion = this._pkgJson.dependencies[name];
-        if (depVersion) {
-          dep.version = depVersion;
-        }
-        const lockDep = this._pkgLockJson.dependencies[name];
-        if (lockDep) {
-          if (!depVersion) {
-            dep.version = lockDep.version;
-            dep.transitive = true;
-          }
-        }
-        return dep;
+        }));
+      }));
+
+    // sort the deps
+    Object.entries(depsByFile)
+      .forEach(([scriptFile, deps]) => {
+        this._dependencies[scriptFile] = Object.values(deps)
+          .sort((d0, d1) => d0.name.localeCompare(d1.name));
       });
   }
 
@@ -679,7 +702,7 @@ module.exports = class ActionBuilder {
         'raw-http': this._rawHttp,
         description: this._pkgJson.description,
         pkgVersion: this._version,
-        dependencies: this._dependencies.map((dep) => `${dep.name}:${dep.version}`).join(','),
+        dependencies: this._dependencies.main.map((dep) => `${dep.name}:${dep.version}`).join(','),
         repository: this._gitUrl,
         git: `${this._gitOrigin}#${this._gitRef}`,
       },
