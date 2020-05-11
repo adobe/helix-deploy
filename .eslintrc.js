@@ -11,26 +11,26 @@
  */
 
 module.exports = {
-  'env': {
-    'node': true,
-    'es6': true
+  env: {
+    node: true,
+    es6: true,
   },
   // this is the root project for all sub modules. stop searching for any
   // eslintrc files in parent directories.
-  'root': true,
-  'parserOptions': {
-    'sourceType': 'script',
-    'ecmaVersion': 10,
+  root: true,
+  parserOptions: {
+    sourceType: 'script',
+    ecmaVersion: 10,
   },
-  'plugins': [
+  plugins: [
     'header',
   ],
-  'extends': 'airbnb-base',
-  'rules': {
-    'strict': 0,
+  extends: 'airbnb-base',
+  rules: {
+    strict: 0,
 
     // allow dangling underscores for 'fields'
-    'no-underscore-dangle': ['error', {'allowAfterThis': true}],
+    'no-underscore-dangle': ['error', { allowAfterThis: true }],
 
     // enforce license header
     'header/header': [2, 'block', ['',
@@ -45,5 +45,5 @@ module.exports = {
       ' * governing permissions and limitations under the License.',
       ' ',
     ]],
-  }
+  },
 };
