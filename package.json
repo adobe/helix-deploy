@@ -3,8 +3,13 @@
   "version": "2.10.1",
   "description": "Library and Commandline Tools to build and deploy OpenWhisk Actions",
   "license": "Apache-2.0",
-  "repository": "https://github.com/adobe/openwhisk-action-builder",
-  "bugs": "https://github.com/adobe/openwhisk-action-builder/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adobe/openwhisk-action-builder.git"
+  },
+  "bugs": {
+    "url": "https://github.com/adobe/openwhisk-action-builder/issues"
+  },
   "keywords": [
     "openwhisk"
   ],
@@ -62,5 +67,6 @@
     "ghooks": {
       "pre-commit": "npx lint-staged"
     }
-  }
+  },
+  "homepage": "https://github.com/adobe/openwhisk-action-builder#readme"
 }
