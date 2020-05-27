@@ -1,3 +1,10 @@
+## [2.10.2](https://github.com/adobe/openwhisk-action-builder/compare/v2.10.1...v2.10.2) (2020-05-27)
+
+
+### Bug Fixes
+
+* **link:** annotations in sequences are not updated correctly ([#144](https://github.com/adobe/openwhisk-action-builder/issues/144)) ([fec7f7e](https://github.com/adobe/openwhisk-action-builder/commit/fec7f7ecc25b4c862b5a797c0ee349a84a16c47b))
+
 ## [2.10.1](https://github.com/adobe/openwhisk-action-builder/compare/v2.10.0...v2.10.1) (2020-05-04)
 
 
