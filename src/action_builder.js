@@ -902,6 +902,7 @@ module.exports = class ActionBuilder {
           },
           annotations,
         },
+        annotations,
       };
 
       try {
