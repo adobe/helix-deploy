@@ -1,3 +1,10 @@
+# [2.11.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.10.2...v2.11.0) (2020-06-01)
+
+
+### Features
+
+* **builder:** add timestamp and delete command ([d3ed7ec](https://github.com/adobe/openwhisk-action-builder/commit/d3ed7ec78bf9b57448c926bf89473367e27d9bf9)), closes [#145](https://github.com/adobe/openwhisk-action-builder/issues/145) [#138](https://github.com/adobe/openwhisk-action-builder/issues/138)
+
 ## [2.10.2](https://github.com/adobe/openwhisk-action-builder/compare/v2.10.1...v2.10.2) (2020-05-27)
 
 
