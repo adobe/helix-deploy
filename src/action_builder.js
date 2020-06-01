@@ -185,6 +185,7 @@ module.exports = class ActionBuilder {
       _showHints: false,
       _modules: [],
       _build: true,
+      _delete: false,
       _updatePackage: false,
       _actionName: '',
       _packageName: '',
@@ -197,6 +198,8 @@ module.exports = class ActionBuilder {
       _gitUrl: '',
       _gitOrigin: '',
       _gitRef: '',
+      _updatedAt: null,
+      _updatedBy: null,
     });
   }
 
@@ -232,6 +235,11 @@ module.exports = class ActionBuilder {
 
   withBuild(enable) {
     this._build = enable;
+    return this;
+  }
+
+  withDelete(enable) {
+    this._delete = enable;
     return this;
   }
 
@@ -406,6 +414,16 @@ module.exports = class ActionBuilder {
     return this;
   }
 
+  withUpdatedBy(value) {
+    this._updatedBy = value;
+    return this;
+  }
+
+  withUpdatedAt(value) {
+    this._updatedAt = value;
+    return this;
+  }
+
   async initWskProps() {
     const wskPropsFile = process.env.WSK_CONFIG_FILE || path.resolve(os.homedir(), '.wskprops');
     let wskProps = {};
@@ -422,11 +440,6 @@ module.exports = class ActionBuilder {
       this._pkgJson = await fse.readJson(path.resolve(this._cwd, 'package.json'));
     } catch (e) {
       this._pkgJson = {};
-    }
-    try {
-      this._pkgLockJson = await fse.readJson(path.resolve(this._cwd, 'package-lock.json'));
-    } catch (e) {
-      this._pkgLockJson = {};
     }
     this._file = path.resolve(this._cwd, this._file || 'index.js');
     if (!this._env) {
@@ -483,6 +496,20 @@ module.exports = class ActionBuilder {
     this._gitUrl = (this._pkgJson.repository || {}).url || '';
     this._gitRef = await getCurrentRevision(this._cwd);
     this._gitOrigin = await getOrigin(this._cwd);
+
+    // init deploy user and time
+    if (!this._updatedBy) {
+      this._updatedBy = os.userInfo().username;
+    }
+    if (!this._updatedAt) {
+      this._updatedAt = new Date().getTime();
+    }
+    if (this._delete) {
+      this._deploy = false;
+      this._build = false;
+      this._showHints = false;
+      this._links = [];
+    }
   }
 
   async createArchive() {
@@ -490,7 +517,7 @@ module.exports = class ActionBuilder {
       // create zip file for package
       const output = fse.createWriteStream(this._zipFile);
       const archive = archiver('zip');
-      this.log.debug('Creating: ', path.relative(this._cwd, this._zipFile));
+      this.log.info('--: creating zip file ...');
 
       let hadErrors = false;
       output.on('close', () => {
@@ -571,7 +598,9 @@ module.exports = class ActionBuilder {
   }
 
   async createPackage() {
-    const compiler = webpack(await this.getWebpackConfig());
+    this.log.info('--: creating bundle ...');
+    const config = await this.getWebpackConfig();
+    const compiler = webpack(config);
     const stats = await new Promise((resolve, reject) => {
       compiler.run((err, s) => {
         if (err) {
@@ -587,6 +616,7 @@ module.exports = class ActionBuilder {
     }));
 
     await this.resolveDependencyInfos(stats);
+    this.log.info(chalk`{green ok:} created bundle {yellow ${config.output.filename}}`);
   }
 
   /**
@@ -655,10 +685,6 @@ module.exports = class ActionBuilder {
       });
   }
 
-  async prepare() {
-    await this.createPackage();
-  }
-
   async validateBundle() {
     this.log.info('--: validating bundle ...');
     let module;
@@ -672,7 +698,7 @@ module.exports = class ActionBuilder {
     if (!module.main && typeof module.main !== 'function') {
       throw Error('Validation failed: Action has no main() function.');
     }
-    this.log.info(chalk`{green ok:} bundle can be loaded and has a {gray main()} function.\n`);
+    this.log.info(chalk`{green ok:} bundle can be loaded and has a {gray main()} function.`);
   }
 
   getOpenwhiskClient() {
@@ -692,7 +718,7 @@ module.exports = class ActionBuilder {
   async deploy() {
     const openwhisk = this.getOpenwhiskClient();
     const relZip = path.relative(process.cwd(), this._zipFile);
-    this.log.debug(`Deploying ${relZip} as ${this._actionName} to OpenWhisk`);
+    this.log.info(`--: deploying ${relZip} as ${this._actionName} ...`);
     const actionoptions = {
       name: this._actionName,
       action: await fse.readFile(this._zipFile),
@@ -705,6 +731,8 @@ module.exports = class ActionBuilder {
         dependencies: this._dependencies.main.map((dep) => `${dep.name}:${dep.version}`).join(','),
         repository: this._gitUrl,
         git: `${this._gitOrigin}#${this._gitRef}`,
+        updated: this._updatedAt,
+        updatedBy: this._updatedBy,
       },
       params: this._params,
       limits: {
@@ -721,7 +749,7 @@ module.exports = class ActionBuilder {
     }
 
     await openwhisk.actions.update(actionoptions);
-    this.log.info(`${chalk.green('ok:')} updated action ${chalk.whiteBright(`/${this._wskNamespace}/${this._packageName}/${this._name}`)}`);
+    this.log.info(chalk`{green ok:} updated action {yellow ${`/${this._wskNamespace}/${this._packageName}/${this._name}`}}`);
     if (this._showHints) {
       this.log.info('\nYou can verify the action with:');
       if (this._webAction) {
@@ -731,11 +759,18 @@ module.exports = class ActionBuilder {
         } else if (this._webSecure) {
           opts = ` -H "x-require-whisk-auth: ${this._webSecure}"`;
         }
-        this.log.info(chalk.grey(`$ curl${opts} "${this._wskApiHost}/api/v1/web${this._fqn}"`));
+        this.log.info(chalk`{grey $ curl${opts} "${this._wskApiHost}/api/v1/web${this._fqn}"}`);
       } else {
-        this.log.info(chalk.grey(`$ wsk action invoke -r ${this._fqn}`));
+        this.log.info(chalk`{grey $ wsk action invoke -r ${this._fqn}}`);
       }
     }
+  }
+
+  async delete() {
+    const openwhisk = this.getOpenwhiskClient();
+    this.log.info('--: deleting action ...');
+    await openwhisk.actions.delete(this._actionName);
+    this.log.info(chalk`{green ok:} deleted action {yellow ${`/${this._wskNamespace}/${this._packageName}/${this._name}`}}`);
   }
 
   async updatePackage() {
@@ -847,9 +882,12 @@ module.exports = class ActionBuilder {
       this.log.warn(`${chalk.yellow('warn:')} unable to create version sequence. unsupported action name format. should be: "name@version"`);
       return;
     }
-    const prefix = `${this._linksPackage}/${this._name.substring(0, idx + 1)}`;
+    // using `default` as package name doesn't work with sequences...
+    const pkgPrefix = this._linksPackage === 'default' ? '' : `${this._linksPackage}/`;
+    const prefix = `${pkgPrefix}${this._name.substring(0, idx + 1)}`;
     const s = semver.parse(this._version);
-    const fqn = `/${this._wskNamespace}/${this._packageName}/${this._name}`;
+    const pkgName = this._packageName === 'default' ? '' : `${this._packageName}/`;
+    const fqn = `/${this._wskNamespace}/${pkgName}${this._name}`;
     const sfx = [];
     this._links.forEach((link) => {
       if (link === 'major' || link === 'minor') {
@@ -881,6 +919,12 @@ module.exports = class ActionBuilder {
     }, {
       key: 'final',
       value: true,
+    }, {
+      key: 'updated',
+      value: this._updatedAt,
+    }, {
+      key: 'updatedBy',
+      value: this._updatedBy,
     }];
     if (this._webSecure) {
       annotations.push({
@@ -923,10 +967,10 @@ module.exports = class ActionBuilder {
     this.log.info(chalk`{grey openwhisk-action-builder v${version}}`);
     await this.validate();
     if (this._build) {
-      await this.prepare();
+      await this.createPackage();
       await this.createArchive();
       const relZip = path.relative(process.cwd(), this._zipFile);
-      this.log.info(`${chalk.green('ok:')} created action: ${chalk.whiteBright(relZip)}.`);
+      this.log.info(chalk`{green ok:} created action: {yellow ${relZip}}.`);
       await this.validateBundle();
     }
 
@@ -937,6 +981,10 @@ module.exports = class ActionBuilder {
       await this.deploy();
     } else if (this._showHints) {
       await this.showDeployHints();
+    }
+
+    if (this._delete) {
+      await this.delete();
     }
 
     if (typeof this._test === 'string' || Object.keys(this._test_params).length) {

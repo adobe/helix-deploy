@@ -11,6 +11,7 @@
  */
 
 /* eslint-disable no-console */
+const os = require('os');
 const crypto = require('crypto');
 const yargs = require('yargs');
 const chalk = require('chalk');
@@ -62,11 +63,16 @@ class CLI {
         type: 'string',
         array: true,
       })
+      .option('delete', {
+        description: 'Delete the action from OpenWhisk. Implies no-build',
+        type: 'boolean',
+        default: false,
+      })
       .option('linkPackage', {
         description: 'Package name for version links',
         type: 'string',
       })
-      .group(['build', 'deploy', 'test', 'test-params', 'hints', 'update-package', 'version-link', 'linkPackage'], 'Operation Options')
+      .group(['build', 'deploy', 'test', 'test-params', 'hints', 'update-package', 'version-link', 'linkPackage', 'delete'], 'Operation Options')
 
       .option('name', {
         description: 'OpenWhisk action name. Can be prefixed with package.',
@@ -134,7 +140,19 @@ class CLI {
         type: 'integer',
         default: 60000,
       })
-      .group(['name', 'kind', 'docker', 'params', 'params-file', 'web-export', 'raw-http', 'web-secure', 'timeout'], 'OpenWhisk Action Options')
+      .option('updated-by', {
+        description: 'user that updated the action or sequence (defaults to system user).',
+        type: 'string',
+        default: os.userInfo().username,
+      })
+      .option('updated-at', {
+        description: 'unix timestamp when the action or sequence was updated (defaults to the current time).',
+        type: 'number',
+        default: (new Date().getTime()),
+      })
+      .group([
+        'name', 'kind', 'docker', 'params', 'params-file', 'web-export', 'raw-http', 'web-secure',
+        'namespace', 'timeout', 'updated-by', 'updated-at'], 'OpenWhisk Action Options')
 
       .option('update-package', {
         description: 'Create or update wsk package.',
@@ -177,7 +195,7 @@ class CLI {
         type: 'array',
         default: [],
       })
-      .group(['static', 'entryFile', 'externals'], 'Bundling Options')
+      .group(['static', 'entryFile', 'externals', 'modules'], 'Bundling Options')
       .help();
   }
 
@@ -198,6 +216,7 @@ class CLI {
       .verbose(argv.verbose)
       .withDirectory(argv.directory)
       .withBuild(argv.build)
+      .withDelete(argv.delete)
       .withDeploy(argv.deploy)
       .withTest(argv.test)
       .withTestParams(argv.testParams)
@@ -205,6 +224,8 @@ class CLI {
       .withStatic(argv.static)
       .withName(argv.name)
       .withNamespace(argv.namespace)
+      .withUpdatedAt(argv.updatedAt)
+      .withUpdatedBy(argv.updatedBy)
       .withParams(argv.params)
       .withParamsFile(argv.paramsFile)
       .withVersion(argv.pkgVersion)
