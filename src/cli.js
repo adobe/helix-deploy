@@ -11,7 +11,6 @@
  */
 
 /* eslint-disable no-console */
-const os = require('os');
 const crypto = require('crypto');
 const yargs = require('yargs');
 const chalk = require('chalk');
@@ -141,9 +140,8 @@ class CLI {
         default: 60000,
       })
       .option('updated-by', {
-        description: 'user that updated the action or sequence (defaults to system user).',
+        description: 'user that updated the action or sequence.',
         type: 'string',
-        default: os.userInfo().username,
       })
       .option('updated-at', {
         description: 'unix timestamp when the action or sequence was updated (defaults to the current time).',

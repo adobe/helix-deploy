@@ -497,10 +497,7 @@ module.exports = class ActionBuilder {
     this._gitRef = await getCurrentRevision(this._cwd);
     this._gitOrigin = await getOrigin(this._cwd);
 
-    // init deploy user and time
-    if (!this._updatedBy) {
-      this._updatedBy = os.userInfo().username;
-    }
+    // init deploy time
     if (!this._updatedAt) {
       this._updatedAt = new Date().getTime();
     }
@@ -732,7 +729,6 @@ module.exports = class ActionBuilder {
         repository: this._gitUrl,
         git: `${this._gitOrigin}#${this._gitRef}`,
         updated: this._updatedAt,
-        updatedBy: this._updatedBy,
       },
       params: this._params,
       limits: {
@@ -746,6 +742,9 @@ module.exports = class ActionBuilder {
     }
     if (this._webSecure) {
       actionoptions.annotations['require-whisk-auth'] = this._webSecure;
+    }
+    if (this._updatedBy) {
+      actionoptions.annotations.updatedBy = this._updatedBy;
     }
 
     await openwhisk.actions.update(actionoptions);
@@ -907,30 +906,18 @@ module.exports = class ActionBuilder {
 
     const openwhisk = this.getOpenwhiskClient();
 
-    const annotations = [{
-      key: 'exec',
-      value: 'sequence',
-    }, {
-      key: 'web-export',
-      value: this._webAction,
-    }, {
-      key: 'raw-http',
-      value: this._rawHttp,
-    }, {
-      key: 'final',
-      value: true,
-    }, {
-      key: 'updated',
-      value: this._updatedAt,
-    }, {
-      key: 'updatedBy',
-      value: this._updatedBy,
-    }];
+    const annotations = [
+      { key: 'exec', value: 'sequence' },
+      { key: 'web-export', value: this._webAction },
+      { key: 'raw-http', value: this._rawHttp },
+      { key: 'final', value: true },
+      { key: 'updated', value: this._updatedAt },
+    ];
     if (this._webSecure) {
-      annotations.push({
-        key: 'require-whisk-auth',
-        value: this._webSecure,
-      });
+      annotations.push({ key: 'require-whisk-auth', value: this._webSecure });
+    }
+    if (this._updatedBy) {
+      annotations.push({ key: 'updatedBy', value: this._updatedBy });
     }
 
     let hasErrors = false;
