@@ -1,3 +1,10 @@
+## [2.11.1](https://github.com/adobe/openwhisk-action-builder/compare/v2.11.0...v2.11.1) (2020-06-02)
+
+
+### Bug Fixes
+
+* **builder:** make updated-by optional ([#148](https://github.com/adobe/openwhisk-action-builder/issues/148)) ([1f8d88a](https://github.com/adobe/openwhisk-action-builder/commit/1f8d88a6682b57816ea3528fa0cfb853bdf17b26))
+
 # [2.11.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.10.2...v2.11.0) (2020-06-01)
 
 
