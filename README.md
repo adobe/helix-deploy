@@ -273,6 +273,21 @@ run().catch(console.error);
 
 and run `node test/dev.js`.
 
+### Using development params with the server
+
+Sometimes it might be useful to specify action params that would be provided during deployment
+but are not available during development. those can be specified by a `dev-params-file` `wsk`
+property. those parameters are loaded an applied to every action call. eg:
+
+```json
+...
+  "wsk": {
+    ...
+    "dev-params-file": ".dev-secrets.env"
+  }
+...
+```
+
 ## Notes
 
 ### Bundling
