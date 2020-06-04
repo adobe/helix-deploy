@@ -1,3 +1,10 @@
+# [2.12.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.11.1...v2.12.0) (2020-06-04)
+
+
+### Features
+
+* **server:** add dev-params-file support ([b5ba20c](https://github.com/adobe/openwhisk-action-builder/commit/b5ba20c0b94ec94e2a808241ca8c1494261c9525))
+
 ## [2.11.1](https://github.com/adobe/openwhisk-action-builder/compare/v2.11.0...v2.11.1) (2020-06-02)
 
 
