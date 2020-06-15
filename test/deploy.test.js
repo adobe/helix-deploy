@@ -71,7 +71,6 @@ process.env.WSK_NAMESPACE = 'foobar';
 process.env.WSK_APIHOST = 'https://example.com';
 process.env.WSK_AUTH = 'fake-key';
 
-
 describe('Deploy Test', () => {
   let testRoot;
   let origPwd;
@@ -126,7 +125,6 @@ describe('Deploy Test', () => {
       .get('/api/v1/web/foobar/default/simple-project/foo')
       .reply(200, 'ok');
 
-
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
       .prepare([
@@ -156,7 +154,6 @@ describe('Deploy Test', () => {
         // openwhisk returns the package in the namespace property!
         namespace: `${process.env.WSK_NAMESPACE}/test-package`,
       });
-
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
@@ -223,7 +220,6 @@ describe('Deploy Test', () => {
       .reply(201, {
         namespace: process.env.WSK_NAMESPACE,
       });
-
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
