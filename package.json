@@ -52,7 +52,7 @@
     "lodash": "4.17.15",
     "mocha": "8.0.1",
     "mocha-junit-reporter": "2.0.0",
-    "nock": "12.0.3",
+    "nock": "13.0.0",
     "nyc": "15.1.0",
     "semantic-release": "17.1.0",
     "yauzl": "2.10.0"
