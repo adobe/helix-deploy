@@ -1,3 +1,10 @@
+# [2.13.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.12.0...v2.13.0) (2020-07-01)
+
+
+### Features
+
+* **builder:** use helix-fetch instead of request ([#158](https://github.com/adobe/openwhisk-action-builder/issues/158)) ([b94ef77](https://github.com/adobe/openwhisk-action-builder/commit/b94ef77d9db1395a20893cd530a8a8611a607e95)), closes [#157](https://github.com/adobe/openwhisk-action-builder/issues/157)
+
 # [2.12.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.11.1...v2.12.0) (2020-06-04)
 
 
