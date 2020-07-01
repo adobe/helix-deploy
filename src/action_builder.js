@@ -20,11 +20,18 @@ const dotenv = require('dotenv');
 const os = require('os');
 const ow = require('openwhisk');
 const semver = require('semver');
-const request = require('request-promise-native');
+const fetchAPI = require('@adobe/helix-fetch');
 const git = require('isomorphic-git');
 const { version } = require('../package.json');
 
 require('dotenv').config();
+
+const { fetch } = process.env.HELIX_FETCH_FORCE_HTTP1
+  ? fetchAPI.context({
+    httpProtocol: 'http1',
+    httpsProtocols: ['http1'],
+  })
+  : fetchAPI;
 
 /**
  * Returns the `origin` remote url or `''` if none is defined.
@@ -822,23 +829,22 @@ module.exports = class ActionBuilder {
     } else if (this._webSecure) {
       headers['x-require-whisk-auth'] = this._webSecure;
     }
-    try {
-      const ret = await request({
-        url,
-        followRedirect: false,
-        headers,
-        resolveWithFullResponse: true,
-      });
-      this.log.info(`id: ${chalk.grey(ret.headers['x-openwhisk-activation-id'])}`);
-      this.log.info(`${chalk.green('ok:')} 200`);
-      this.log.debug(chalk.grey(ret.body));
-    } catch (e) {
-      this.log.info(`id: ${chalk.grey(e.response.headers['x-openwhisk-activation-id'])}`);
-      if (e.statusCode === 302 || e.statusCode === 301) {
-        this.log.info(`${chalk.green('ok:')} ${e.statusCode}`);
-        this.log.debug(chalk.grey(`Location: ${e.response.headers.location}`));
+    const ret = await fetch(url, {
+      headers,
+    });
+    const body = await ret.text();
+    const id = ret.headers.get('x-openwhisk-activation-id');
+    if (ret.ok) {
+      this.log.info(`id: ${chalk.grey(id)}`);
+      this.log.info(`${chalk.green('ok:')} ${ret.status}`);
+      this.log.debug(chalk.grey(body));
+    } else {
+      this.log.info(`id: ${chalk.grey(id)}`);
+      if (ret.status === 302 || ret.status === 301) {
+        this.log.info(`${chalk.green('ok:')} ${ret.status}`);
+        this.log.debug(chalk.grey(`Location: ${ret.headers.get('location')}`));
       } else {
-        throw new Error(`test failed: ${e.message}`);
+        throw new Error(`test failed: ${ret.status} ${body}`);
       }
     }
   }

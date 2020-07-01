@@ -24,14 +24,13 @@
     "semantic-release": "semantic-release"
   },
   "dependencies": {
+    "@adobe/helix-fetch": "^1.7.0",
     "archiver": "^4.0.0",
     "chalk": "^4.0.0",
     "dotenv": "^8.0.0",
     "fs-extra": "^9.0.0",
     "isomorphic-git": "1.5.0",
     "openwhisk": "^3.17.0",
-    "request": "^2.88.0",
-    "request-promise-native": "^1.0.7",
     "semver": "^7.0.0",
     "webpack": "^4.39.2",
     "yargs": "^15.3.1"
@@ -49,8 +48,7 @@
     "express": "4.17.1",
     "ghooks": "2.0.4",
     "lint-staged": "10.2.11",
-    "lodash": "4.17.15",
-    "mocha": "8.0.1",
+    "mocha": "7.2.0",
     "mocha-junit-reporter": "2.0.0",
     "nock": "13.0.0",
     "nyc": "15.1.0",

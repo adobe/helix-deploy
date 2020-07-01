@@ -20,6 +20,8 @@ const fse = require('fs-extra');
 const nock = require('nock');
 const util = require('util');
 
+process.env.HELIX_FETCH_FORCE_HTTP1 = 'true';
+
 const CLI = require('../src/cli.js');
 
 const ANSI_REGEXP = RegExp([
@@ -143,6 +145,35 @@ describe('Deploy Test', () => {
 
     const out = builder._logger.output;
     assert.ok(out.indexOf('$ curl "https://example.com/api/v1/web/foobar/default/simple-project"') > 0);
+  });
+
+  it('tests a web action with redirect', async () => {
+    await fse.copy(path.resolve(__dirname, 'fixtures', 'web-action'), testRoot);
+
+    nock(process.env.WSK_APIHOST)
+      .get('/api/v1/web/foobar/default/simple-project/foo')
+      .reply(302, 'ok', {
+        location: 'https://www.example.com/',
+      });
+    process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
+    const builder = new CLI()
+      .prepare([
+        '--verbose',
+        '--no-build',
+        '--test', '/foo',
+        '--directory', testRoot,
+      ]);
+    builder._logger = new TestLogger();
+
+    const res = await builder.run();
+    assert.deepEqual(res, {
+      name: 'openwhisk;host=https://example.com',
+      url: '/foobar/default/simple-project',
+    });
+
+    const out = builder._logger.output;
+    assert.ok(out.indexOf('requesting: https://example.com/api/v1/web/foobar/default/simple-project/foo') > 0);
+    assert.ok(out.indexOf('Location: https://www.example.com/') > 0);
   });
 
   it('deploys a web action with package', async () => {
