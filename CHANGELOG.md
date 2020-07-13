@@ -1,3 +1,10 @@
+## [2.13.1](https://github.com/adobe/openwhisk-action-builder/compare/v2.13.0...v2.13.1) (2020-07-13)
+
+
+### Bug Fixes
+
+* **deps:** update dependency isomorphic-git to v1.7.1 ([#161](https://github.com/adobe/openwhisk-action-builder/issues/161)) ([a593bc8](https://github.com/adobe/openwhisk-action-builder/commit/a593bc80a2d4d7398bbbc6061070a0461546ada1))
+
 # [2.13.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.12.0...v2.13.0) (2020-07-01)
 
 
