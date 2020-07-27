@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@adobe/helix-fetch": "^1.7.0",
-    "archiver": "^4.0.0",
+    "archiver": "^5.0.0",
     "chalk": "^4.0.0",
     "dotenv": "^8.0.0",
     "fs-extra": "^9.0.0",
@@ -48,7 +48,7 @@
     "express": "4.17.1",
     "ghooks": "2.0.4",
     "lint-staged": "10.2.11",
-    "mocha": "7.2.0",
+    "mocha": "8.0.1",
     "mocha-junit-reporter": "2.0.0",
     "nock": "13.0.2",
     "nyc": "15.1.0",
