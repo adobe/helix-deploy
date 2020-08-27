@@ -199,6 +199,8 @@ module.exports = class ActionBuilder {
       _packageShared: false,
       _packageParams: {},
       _timeout: 60000,
+      _concurrency: null,
+      _memory: null,
       _links: [],
       _linksPackage: null,
       _dependencies: {},
@@ -408,6 +410,16 @@ module.exports = class ActionBuilder {
 
   withTimeout(value) {
     this._timeout = value;
+    return this;
+  }
+
+  withConcurrency(value) {
+    this._concurrency = value;
+    return this;
+  }
+
+  withMemory(value) {
+    this._memory = value;
     return this;
   }
 
@@ -752,6 +764,12 @@ module.exports = class ActionBuilder {
     }
     if (this._updatedBy) {
       actionoptions.annotations.updatedBy = this._updatedBy;
+    }
+    if (this._memory) {
+      actionoptions.limits.memory = this._memory;
+    }
+    if (this._concurrency) {
+      actionoptions.limits.concurrency = this._concurrency;
     }
 
     await openwhisk.actions.update(actionoptions);

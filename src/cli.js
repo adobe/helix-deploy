@@ -139,6 +139,14 @@ class CLI {
         type: 'integer',
         default: 60000,
       })
+      .option('memory', {
+        description: 'the maximum memory LIMIT in MB for the action',
+        type: 'integer',
+      })
+      .option('concurrency', {
+        description: 'the maximum intra-container concurrent activation LIMIT for the action',
+        type: 'integer',
+      })
       .option('updated-by', {
         description: 'user that updated the action or sequence.',
         type: 'string',
@@ -240,6 +248,8 @@ class CLI {
       .withPackageParams(argv.package.params)
       .withPackageParamsFile(argv.package['params-file'])
       .withTimeout(argv.timeout)
+      .withMemory(argv.memory)
+      .withConcurrency(argv.concurrency)
       .withLinks(argv.versionLink)
       .withLinksPackage(argv.linksPackage)
       .withPackageShared(argv.package.shared);

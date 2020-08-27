@@ -104,6 +104,24 @@ describe('CLI Test', () => {
     assert.equal(builder._showHints, false);
   });
 
+  it('sets timeout', () => {
+    const builder = new CLI()
+      .prepare(['--timeout', 10]);
+    assert.equal(builder._timeout, 10);
+  });
+
+  it('sets memory', () => {
+    const builder = new CLI()
+      .prepare(['--memory', 10]);
+    assert.equal(builder._memory, 10);
+  });
+
+  it('sets concurrency', () => {
+    const builder = new CLI()
+      .prepare(['--concurrency', 10]);
+    assert.equal(builder._concurrency, 10);
+  });
+
   it('sets links', () => {
     const builder = new CLI()
       .prepare(['--version-link', 'latest', '-l', 'major']);
