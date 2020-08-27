@@ -1,3 +1,10 @@
+# [2.14.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.13.2...v2.14.0) (2020-08-27)
+
+
+### Features
+
+* **cli:** add support for --memory and --concurrency ([#171](https://github.com/adobe/openwhisk-action-builder/issues/171)) ([4a1314e](https://github.com/adobe/openwhisk-action-builder/commit/4a1314ee033a356617d68904a4547fdbab4748c7))
+
 ## [2.13.2](https://github.com/adobe/openwhisk-action-builder/compare/v2.13.1...v2.13.2) (2020-07-27)
 
 
