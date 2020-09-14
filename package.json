@@ -33,7 +33,7 @@
     "openwhisk": "^3.17.0",
     "semver": "^7.0.0",
     "webpack": "^4.39.2",
-    "yargs": "^15.3.1"
+    "yargs": "^16.0.0"
   },
   "devDependencies": {
     "@semantic-release/changelog": "5.0.1",
