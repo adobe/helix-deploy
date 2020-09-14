@@ -1,3 +1,10 @@
+## [2.14.1](https://github.com/adobe/openwhisk-action-builder/compare/v2.14.0...v2.14.1) (2020-09-14)
+
+
+### Bug Fixes
+
+* **deps:** update dependency yargs to v16 ([#177](https://github.com/adobe/openwhisk-action-builder/issues/177)) ([5a9d53b](https://github.com/adobe/openwhisk-action-builder/commit/5a9d53bba941e8741895495445fb6ce054ae9680))
+
 # [2.14.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.13.2...v2.14.0) (2020-08-27)
 
 
