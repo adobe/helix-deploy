@@ -1,3 +1,10 @@
+## [2.14.2](https://github.com/adobe/openwhisk-action-builder/compare/v2.14.1...v2.14.2) (2020-09-21)
+
+
+### Bug Fixes
+
+* **deps:** update external ([#178](https://github.com/adobe/openwhisk-action-builder/issues/178)) ([45a6f78](https://github.com/adobe/openwhisk-action-builder/commit/45a6f781aa49c3947a22b06c0226785cf8491d89))
+
 ## [2.14.1](https://github.com/adobe/openwhisk-action-builder/compare/v2.14.0...v2.14.1) (2020-09-14)
 
 
