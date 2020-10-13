@@ -7,6 +7,10 @@
   "timezone": "Europe/Zurich",
   "packageRules": [
     {
+      "packageNames": ["webpack"],
+      "allowedVersions": "<5.0.0"
+    },
+    {
       "packagePatterns": [
         "^@adobe/"
       ],
