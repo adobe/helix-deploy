@@ -69,13 +69,18 @@ module.exports = class ActionBuilder {
    * Decoded the params string or file. First as JSON and if this fails, as ENV format.
    * @param {string} params Params string or file name
    * @param {boolean} isFile {@code true} to indicate a file.
+   * @param {boolean} warnError {@code true} to only issue warning instead of throwing error
    * @returns {*} Decoded params object.
    */
-  decodeParams(params, isFile) {
+  decodeParams(params, isFile, warnError) {
     let content = params;
     let cwd = this._cwd;
     if (isFile) {
       if (!fse.existsSync(params)) {
+        if (warnError) {
+          this.log.info(chalk`{yellow warn:} specified param file does not exist: ${params}`);
+          return {};
+        }
         throw Error(`Specified param file does not exist: ${params}`);
       }
       content = fse.readFileSync(params, 'utf-8');
@@ -348,14 +353,15 @@ module.exports = class ActionBuilder {
     if (!params) {
       return this;
     }
+    const warnError = !this._updatePackage;
     if (Array.isArray(params)) {
       params.forEach((v) => {
         // eslint-disable-next-line max-len
-        this._packageParams = Object.assign(this._packageParams, this.decodeParams(v, forceFile));
+        this._packageParams = Object.assign(this._packageParams, this.decodeParams(v, forceFile, warnError));
       });
     } else {
       // eslint-disable-next-line max-len
-      this._packageParams = Object.assign(this._packageParams, this.decodeParams(params, forceFile));
+      this._packageParams = Object.assign(this._packageParams, this.decodeParams(params, forceFile, warnError));
     }
     return this;
   }

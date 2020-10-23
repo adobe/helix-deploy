@@ -96,7 +96,7 @@ module.exports = class DevelopmentServer {
    * @returns {Promise<void>}
    */
   async start() {
-    const app = this._appFn(this.params);
+    const app = await this._appFn(this.params);
 
     // bind default params like expressify does
     Object.defineProperty(app.request, 'owActionParams', {

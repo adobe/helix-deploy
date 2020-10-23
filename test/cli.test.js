@@ -274,6 +274,18 @@ describe('CLI Test', () => {
     });
   });
 
+  it('can add package params throws error if file not found', () => {
+    const file = path.resolve(__dirname, 'fixtures/test-params1.env');
+    assert.throws(() => new CLI().prepare(['--package.params-file', file, '--update-package']));
+  });
+
+  it('can add package params shows warn if file not when not updating package', () => {
+    const file = path.resolve(__dirname, 'fixtures/test-params1.env');
+    const builder = new CLI()
+      .prepare(['--package.params-file', file]);
+    assert.deepEqual(builder._packageParams, {});
+  });
+
   it('can add params from env file with references', async () => {
     const file = path.resolve(__dirname, 'fixtures/test-params-file.env');
     const builder = new CLI()
