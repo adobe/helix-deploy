@@ -1,3 +1,10 @@
+# [2.15.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.14.2...v2.15.0) (2020-10-23)
+
+
+### Features
+
+* **cli:** package parameter-file should only be required on package … ([#185](https://github.com/adobe/openwhisk-action-builder/issues/185)) ([14e7d43](https://github.com/adobe/openwhisk-action-builder/commit/14e7d4364901d2656a985674317451fd50789784)), closes [#184](https://github.com/adobe/openwhisk-action-builder/issues/184)
+
 ## [2.14.2](https://github.com/adobe/openwhisk-action-builder/compare/v2.14.1...v2.14.2) (2020-09-21)
 
 
