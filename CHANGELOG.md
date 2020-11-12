@@ -1,3 +1,10 @@
+## [2.15.1](https://github.com/adobe/openwhisk-action-builder/compare/v2.15.0...v2.15.1) (2020-11-12)
+
+
+### Bug Fixes
+
+* **server:** dev-params should win over package params ([#189](https://github.com/adobe/openwhisk-action-builder/issues/189)) ([53c8afb](https://github.com/adobe/openwhisk-action-builder/commit/53c8afb9cb77a0d3f6ce4eb3f01b409e3f0ee1e4)), closes [#188](https://github.com/adobe/openwhisk-action-builder/issues/188)
+
 # [2.15.0](https://github.com/adobe/openwhisk-action-builder/compare/v2.14.2...v2.15.0) (2020-10-23)
 
 
