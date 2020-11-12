@@ -69,14 +69,14 @@ module.exports = class DevelopmentServer {
     if (pkgJson.wsk && pkgJson.wsk['params-file']) {
       builder.withParamsFile(pkgJson.wsk['params-file']);
     }
+    if (pkgJson.wsk && pkgJson.wsk.package && pkgJson.wsk.package['params-file']) {
+      builder.withParamsFile(pkgJson.wsk.package['params-file']);
+    }
     if (pkgJson.wsk && pkgJson.wsk['dev-params-file']) {
       const file = pkgJson.wsk['dev-params-file'];
       if (await fse.exists(file)) {
         builder.withParamsFile(file);
       }
-    }
-    if (pkgJson.wsk && pkgJson.wsk.package && pkgJson.wsk.package['params-file']) {
-      builder.withParamsFile(pkgJson.wsk.package['params-file']);
     }
     await builder.initWskProps();
 
