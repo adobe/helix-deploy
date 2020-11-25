@@ -588,6 +588,8 @@ module.exports = class ActionBuilder {
       archive.directory(path.resolve(this._cwd, `node_modules/${mod}`), `node_modules/${mod}`);
     });
     archive.append(JSON.stringify(packageJson, null, '  '), { name: 'package.json' });
+    // universal serverless wrapper
+    archive.append(fse.readFileSync(path.resolve(__dirname, 'template', 'index.js')).toString(), { name: 'index.js' });
   }
 
   async getWebpackConfig() {
