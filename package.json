@@ -30,6 +30,7 @@
     "dotenv": "^8.0.0",
     "fs-extra": "^9.0.0",
     "isomorphic-git": "1.8.0",
+    "node-fetch": "^2.6.1",
     "openwhisk": "^3.17.0",
     "semver": "^7.0.0",
     "webpack": "^4.39.2",

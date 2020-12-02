@@ -93,6 +93,7 @@ describe('Build Test', () => {
 
     await assertZipEntries(path.resolve(testRoot, 'dist', 'simple-package', 'simple-name@1.43.zip'), [
       'main.js',
+      'index.js',
       'package.json',
       'files/hello.txt',
       'morefiles/foo.txt',
@@ -135,9 +136,9 @@ describe('Build Test', () => {
 
     // execute main script
     // eslint-disable-next-line global-require,import/no-dynamic-require
-    const { main } = require(path.resolve(zipDir, 'main.js'));
-    const ret = await main({});
-    assert.equal(ret, 'Hello, world.\n');
+    const { openwhisk } = require(path.resolve(zipDir, 'index.js'));
+    const ret = await openwhisk({});
+    assert.deepEqual(await ret.body, 'Hello, world.\n');
   })
     .timeout(5000);
 });

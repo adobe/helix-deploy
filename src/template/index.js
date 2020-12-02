@@ -101,22 +101,22 @@ module.exports = async function azure(context, req) {
 };
 
 // OW
-module.exports.openwhisk = async function openwhisk(params) {
+module.exports.openwhisk = async function openwhisk(params = {}) {
   try {
     let body;
     if (!/^(GET|HEAD)$/i.test(params.__ow_method)) {
-      body = isBinary(params.__ow_headers['content-type']) ? Buffer.from(params.__ow_body, 'base64') : params.__ow_body;
+      body = params.__ow_headers && isBinary(params.__ow_headers['content-type']) ? Buffer.from(params.__ow_body, 'base64') : params.__ow_body;
     }
 
     const env = { ...process.env };
     delete env.__OW_API_KEY;
-    const request = new Request(`https://${params.__ow_headers['x-forwarded-host'].split(',')[0]}/api/v1/web${process.env.__OW_ACTION_NAME}${params.__ow_path}${params.__ow_query ? '?' : ''}${params.__ow_query}`, {
+    const request = new Request(`https://${params.__ow_headers && typeof params.__ow_headers['x-forwarded-host'] === 'string' ? params.__ow_headers['x-forwarded-host'].split(',')[0] : 'localhost'}/api/v1/web${process.env.__OW_ACTION_NAME}${params.__ow_path}${params.__ow_query ? '?' : ''}${params.__ow_query}`, {
       method: params.__ow_method,
       headers: params.__ow_headers,
       body,
     });
 
-    const [namespace, ...names] = process.env.__OW_ACTION_NAME.split('/');
+    const [namespace, ...names] = (process.env.__OW_ACTION_NAME || 'default/test').split('/');
 
     delete params.__ow_method;
     delete params.__ow_query;
@@ -157,7 +157,7 @@ module.exports.openwhisk = async function openwhisk(params) {
       headers: {
         'Content-Type': 'text/plain',
       },
-      body: e.message,
+      body: `${e.message}\n${e.stack}`,
     };
   }
 };

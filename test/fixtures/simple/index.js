@@ -9,8 +9,10 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+const { Response } = require('node-fetch');
 const reader = require('./helper/read.js');
 
-module.exports.main = function main() {
-  return reader();
+// eslint-disable-next-line no-unused-vars
+module.exports.main = function main(req, context) {
+  return new Response(reader());
 };
