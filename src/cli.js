@@ -86,16 +86,6 @@ class CLI {
         description: 'Specifies the action kind.',
         default: 'nodejs:10',
       })
-      .option('web-export', {
-        description: 'Annotates the action as web-action',
-        type: 'boolean',
-        default: true,
-      })
-      .option('raw-http', {
-        description: 'Annotates the action as raw web-action (enforces web-export=true)',
-        type: 'boolean',
-        default: false,
-      })
       .option('web-secure', {
         description: 'Annotates the action with require-whisk-auth. leave empty to generate random token.',
         type: 'string',
@@ -240,9 +230,9 @@ class CLI {
       .withExternals(argv.externals)
       .withDocker(argv.docker)
       .withModules(argv.modules)
-      .withWebExport(argv.webExport)
       .withWebSecure(argv.webSecure)
-      .withRawHttp(argv.rawHttp)
+      .withRawHttp(true)
+      .withWebExport(true)
       .withUpdatePackage(argv.updatePackage)
       .withPackageName(argv.package.name)
       .withPackageParams(argv.package.params)

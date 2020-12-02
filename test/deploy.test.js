@@ -205,7 +205,7 @@ describe('Deploy Test', () => {
     assert.ok(out.indexOf('$ curl "https://example.com/api/v1/web/foobar/test-package/simple-project"') > 0);
   });
 
-  it('deploys a pure action', async () => {
+  it.skip('deploys a pure action', async () => {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'pure-action'), testRoot);
 
     nock(process.env.WSK_APIHOST)
@@ -242,7 +242,7 @@ describe('Deploy Test', () => {
     assert.ok(out.indexOf('$ wsk action invoke -r /foobar/default/simple-project') > 0);
   });
 
-  it('deploys a pure action with package', async () => {
+  it.skip('deploys a pure action with package', async () => {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'pure-action-with-package'), testRoot);
 
     nock(process.env.WSK_APIHOST)
