@@ -14,59 +14,14 @@
 /* eslint-disable no-underscore-dangle */
 
 const assert = require('assert');
-const crypto = require('crypto');
 const path = require('path');
 const fse = require('fs-extra');
 const nock = require('nock');
-const util = require('util');
+const { createTestRoot, TestLogger } = require('./utils');
 
 process.env.HELIX_FETCH_FORCE_HTTP1 = 'true';
 
 const CLI = require('../src/cli.js');
-
-const ANSI_REGEXP = RegExp([
-  '[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:[a-zA-Z\\d]*(?:;[a-zA-Z\\d]*)*)?\\u0007)',
-  '(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PRZcf-ntqry=><~]))',
-].join('|'), 'g');
-
-class TestLogger {
-  constructor() {
-    this.messages = [];
-  }
-
-  _log(level, ...args) {
-    this.messages.push(util.format(...args).replace(ANSI_REGEXP, ''));
-    // eslint-disable-next-line no-console
-    console[level](...args);
-  }
-
-  get output() {
-    return this.messages.join('\n');
-  }
-
-  debug(...args) {
-    this._log('debug', ...args);
-  }
-
-  info(...args) {
-    this._log('info', ...args);
-  }
-
-  warn(...args) {
-    this._log('warn', ...args);
-  }
-
-  error(...args) {
-    this._log('error', ...args);
-  }
-}
-
-async function createTestRoot() {
-  const dir = path.resolve(__dirname, 'tmp', crypto.randomBytes(16)
-    .toString('hex'));
-  await fse.ensureDir(dir);
-  return dir;
-}
 
 // set fake wsk props
 process.env.WSK_NAMESPACE = 'foobar';
