@@ -136,8 +136,8 @@ describe('Build Test', () => {
 
     // execute main script
     // eslint-disable-next-line global-require,import/no-dynamic-require
-    const { openwhisk } = require(path.resolve(zipDir, 'index.js'));
-    const ret = await openwhisk({});
+    const { main } = require(path.resolve(zipDir, 'index.js'));
+    const ret = await main({});
     assert.deepEqual(await ret.body, 'Hello, world.\n');
   })
     .timeout(5000);
