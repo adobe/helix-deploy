@@ -2,7 +2,7 @@
 > Library and Commandline tool support for building and deploying OpenWhisk actions.
 
 ## Status
-[![GitHub license](https://img.shields.io/github/license/adobe/openwhisk-action-builder.svg)](https://github.com/adobe/openwhisk-action-builder/blob/master/LICENSE.txt)
+[![GitHub license](https://img.shields.io/github/license/adobe/openwhisk-action-builder.svg)](https://github.com/adobe/openwhisk-action-builder/blob/main/LICENSE.txt)
 [![GitHub issues](https://img.shields.io/github/issues/adobe/openwhisk-action-builder.svg)](https://github.com/adobe/openwhisk-action-builder/issues)
 [![CircleCI](https://img.shields.io/circleci/project/github/adobe/openwhisk-action-builder.svg)](https://circleci.com/gh/adobe/openwhisk-action-builder)
 [![codecov](https://img.shields.io/codecov/c/github/adobe/openwhisk-action-builder.svg)](https://codecov.io/gh/adobe/openwhisk-action-builder)
@@ -255,7 +255,7 @@ destination filename. eg:
 
 ## Using the development server
 
-Testing an openwhisk action that was _expressified_ using [ActionUtils.expressify()](https://github.com/adobe/openwhisk-action-utils/blob/master/src/expressify.js)
+Testing an openwhisk action that was _expressified_ using [ActionUtils.expressify()](https://github.com/adobe/openwhisk-action-utils/blob/main/src/expressify.js)
 can be done with the `DevelopmentServer`. Just create a `test/dev.js` file with:
 
 ```js
