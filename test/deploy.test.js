@@ -23,23 +23,27 @@ process.env.HELIX_FETCH_FORCE_HTTP1 = 'true';
 
 const CLI = require('../src/cli.js');
 
-// set fake wsk props
-process.env.WSK_NAMESPACE = 'foobar';
-process.env.WSK_APIHOST = 'https://example.com';
-process.env.WSK_AUTH = 'fake-key';
-
 describe('Deploy Test', () => {
   let testRoot;
   let origPwd;
+  let origEnv;
 
   beforeEach(async () => {
     testRoot = await createTestRoot();
     origPwd = process.cwd();
+    origEnv = { ...process.env };
+
+    // set fake wsk props
+    process.env.WSK_NAMESPACE = 'foobar';
+    process.env.WSK_APIHOST = 'https://example.com';
+    process.env.WSK_AUTH = 'fake-key';
   });
 
   afterEach(async () => {
     process.chdir(origPwd);
     await fse.remove(testRoot);
+
+    process.env = origEnv;
   });
 
   it('reports nice error if no wsk props are set', async () => {
