@@ -564,7 +564,7 @@ module.exports = class ActionBuilder {
         name: this._actionName,
         version: this._version,
         description: `OpenWhisk Action of ${this._name}`,
-        main: 'main.js',
+        main: 'index.js',
         license: 'Apache-2.0',
       };
 
@@ -587,6 +587,9 @@ module.exports = class ActionBuilder {
     this._modules.forEach((mod) => {
       archive.directory(path.resolve(this._cwd, `node_modules/${mod}`), `node_modules/${mod}`);
     });
+
+    archive.directory(path.resolve(__dirname, '../node_modules/node-fetch'), 'node_modules/node-fetch');
+
     archive.append(JSON.stringify(packageJson, null, '  '), { name: 'package.json' });
     // universal serverless wrapper
     archive.append(fse.readFileSync(path.resolve(__dirname, 'template', 'index.js')).toString(), { name: 'index.js' });

@@ -13,9 +13,44 @@
 /* eslint-env mocha */
 /* eslint-disable no-underscore-dangle */
 const assert = require('assert');
+const fse = require('fs-extra');
+const path = require('path');
+const { createTestRoot, TestLogger } = require('./utils');
+const CLI = require('../src/cli.js');
 
 describe('OpenWhisk Integration Test', () => {
-  it('Deploy to OpenWhisk', () => {
-    assert.fail('not yet ready');
+  let testRoot;
+  let origPwd;
+
+  beforeEach(async () => {
+    testRoot = await createTestRoot();
+    origPwd = process.cwd();
   });
+
+  afterEach(async () => {
+    process.chdir(origPwd);
+    await fse.remove(testRoot);
+  });
+
+  it('Deploy to OpenWhisk (for real)', async () => {
+    await fse.copy(path.resolve(__dirname, 'fixtures', 'simple'), testRoot);
+
+    process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
+    const builder = new CLI()
+      .prepare([
+        '--build',
+        '--verbose',
+        '--deploy',
+        '--test', '/foo',
+        '--directory', testRoot,
+        '--entryFile', 'index.js',
+      ]);
+    builder._logger = new TestLogger();
+
+    const res = await builder.run();
+    assert.ok(res);
+    const out = builder._logger.output;
+    assert.ok(out.indexOf(`ok: 200
+Hello, world.`) > 0, out);
+  }).timeout(10000);
 });

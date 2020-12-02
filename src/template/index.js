@@ -101,7 +101,7 @@ module.exports = async function azure(context, req) {
 };
 
 // OW
-module.exports.openwhisk = async function openwhisk(params = {}) {
+module.exports.main = async function openwhisk(params = {}) {
   try {
     let body;
     if (!/^(GET|HEAD)$/i.test(params.__ow_method)) {
