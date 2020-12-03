@@ -592,7 +592,7 @@ module.exports = class ActionBuilder {
 
     archive.append(JSON.stringify(packageJson, null, '  '), { name: 'package.json' });
     // universal serverless wrapper
-    archive.append(fse.readFileSync(path.resolve(__dirname, 'template', 'index.js')).toString(), { name: 'index.js' });
+    archive.file(path.resolve(__dirname, 'template', 'index.js'), { name: 'index.js' });
   }
 
   async getWebpackConfig() {
