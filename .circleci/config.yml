@@ -38,7 +38,12 @@ jobs:
       - run:
           name: Test and Code Coverage
           command: npm run test-ci
-          
+         
+      - run:
+          name: Integration Test and Code Coverage
+          command: npm run test-ci
+         
+
       - store_test_results:
           path: junit
 
