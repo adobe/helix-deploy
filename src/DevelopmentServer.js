@@ -78,14 +78,14 @@ module.exports = class DevelopmentServer {
         builder.withParamsFile(file);
       }
     }
-    await builder.initWskProps();
+    await builder._deployers.openwhisk.init();
 
     const params = await ActionBuilder.resolveParams(builder._params);
 
     // set openwhisk coordinates for transparent ow client usage.
-    process.env.__OW_API_KEY = builder._wskAuth;
-    process.env.__OW_API_HOST = builder._wskApiHost;
-    process.env.__OW_NAMESPACE = builder._wskNamespace;
+    process.env.__OW_API_KEY = builder._deployers.openwhisk._wskAuth;
+    process.env.__OW_API_HOST = builder._deployers.openwhisk._wskApiHost;
+    process.env.__OW_NAMESPACE = builder._deployers.openwhisk._wskNamespace;
 
     this.params = params;
     return this;

@@ -82,9 +82,9 @@ class CLI {
       .option('pkgVersion', {
         description: 'Version use in the embedded package.json.',
       })
-      .option('kind', {
-        description: 'Specifies the action kind.',
-        default: 'nodejs:10',
+      .option('node-version', {
+        description: 'Specifies the node.js version to use in the serverless runtime',
+        default: '10',
       })
       .option('web-secure', {
         description: 'Annotates the action with require-whisk-auth. leave empty to generate random token.',
@@ -101,9 +101,6 @@ class CLI {
           }
           return value;
         },
-      })
-      .option('docker', {
-        description: 'Specifies a docker image.',
       })
       .option('params', {
         alias: 'p',
@@ -147,7 +144,7 @@ class CLI {
         default: (new Date().getTime()),
       })
       .group([
-        'name', 'kind', 'docker', 'params', 'params-file', 'web-export', 'raw-http', 'web-secure',
+        'name', 'node-version', 'params', 'params-file', 'web-secure',
         'namespace', 'timeout', 'updated-by', 'updated-at'], 'OpenWhisk Action Options')
 
       .option('update-package', {
@@ -225,14 +222,11 @@ class CLI {
       .withParams(argv.params)
       .withParamsFile(argv.paramsFile)
       .withVersion(argv.pkgVersion)
-      .withKind(argv.kind)
+      .withNodeVersion(argv.nodeVersion)
       .withEntryFile(argv.entryFile)
       .withExternals(argv.externals)
-      .withDocker(argv.docker)
       .withModules(argv.modules)
       .withWebSecure(argv.webSecure)
-      .withRawHttp(true)
-      .withWebExport(true)
       .withUpdatePackage(argv.updatePackage)
       .withPackageName(argv.package.name)
       .withPackageParams(argv.package.params)

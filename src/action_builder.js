@@ -17,21 +17,11 @@ const archiver = require('archiver');
 const webpack = require('webpack');
 const chalk = require('chalk');
 const dotenv = require('dotenv');
-const os = require('os');
-const ow = require('openwhisk');
-const semver = require('semver');
-const fetchAPI = require('@adobe/helix-fetch');
 const git = require('isomorphic-git');
 const { version } = require('../package.json');
+const OpenWhiskDeployer = require('./deploy/OpenWhiskDeployer');
 
 require('dotenv').config();
-
-const { fetch } = process.env.HELIX_FETCH_FORCE_HTTP1
-  ? fetchAPI.context({
-    httpProtocol: 'http1',
-    httpsProtocols: ['http1'],
-  })
-  : fetchAPI;
 
 /**
  * Returns the `origin` remote url or `''` if none is defined.
@@ -173,27 +163,20 @@ module.exports = class ActionBuilder {
       _cwd: process.cwd(),
       _distDir: null,
       _name: null,
-      _namespace: null,
       _version: null,
       _file: null,
       _zipFile: null,
       _bundle: null,
       _env: null,
-      _wskNamespace: null,
-      _wskAuth: null,
-      _wskApiHost: null,
       _verbose: false,
       _externals: [],
-      _docker: null,
-      _kind: null,
+      _nodeVersion: null,
       _deploy: false,
       _test: null,
       _test_params: {},
       _statics: [],
       _params: {},
-      _webAction: true,
       _webSecure: false,
-      _rawHttp: false,
       _showHints: false,
       _modules: [],
       _build: true,
@@ -214,6 +197,9 @@ module.exports = class ActionBuilder {
       _gitRef: '',
       _updatedAt: null,
       _updatedBy: null,
+      _deployers: {
+        openwhisk: new OpenWhiskDeployer(this),
+      },
     });
   }
 
@@ -301,11 +287,6 @@ module.exports = class ActionBuilder {
     return this;
   }
 
-  withRawHttp(value) {
-    this._rawHttp = value;
-    return this;
-  }
-
   withExternals(value) {
     this._externals = (Array.isArray(value) ? value : [value]).map((e) => {
       if (typeof e === 'string' && e.startsWith('/') && e.endsWith('/')) {
@@ -380,7 +361,12 @@ module.exports = class ActionBuilder {
   }
 
   withNamespace(value) {
-    this._namespace = value;
+    // propagate namespace
+    Object.values(this._deployers)
+      .filter((deployer) => typeof deployer.withNamespace === 'function')
+      .forEach(async (deployer) => {
+        deployer.withNamespace(value);
+      });
     return this;
   }
 
@@ -389,13 +375,8 @@ module.exports = class ActionBuilder {
     return this;
   }
 
-  withKind(value) {
-    this._kind = value;
-    return this;
-  }
-
-  withDocker(value) {
-    this._docker = value;
+  withNodeVersion(value) {
+    this._nodeVersion = value;
     return this;
   }
 
@@ -411,6 +392,12 @@ module.exports = class ActionBuilder {
 
   withPackageName(value) {
     this._packageName = value;
+    // propagate package name
+    Object.values(this._deployers)
+      .filter((deployer) => typeof deployer.withPackageName === 'function')
+      .forEach(async (deployer) => {
+        deployer.withPackageName(value);
+      });
     return this;
   }
 
@@ -449,15 +436,84 @@ module.exports = class ActionBuilder {
     return this;
   }
 
-  async initWskProps() {
-    const wskPropsFile = process.env.WSK_CONFIG_FILE || path.resolve(os.homedir(), '.wskprops');
-    let wskProps = {};
-    if (await fse.pathExists(wskPropsFile)) {
-      wskProps = dotenv.parse(await fse.readFile(wskPropsFile));
-    }
-    this._wskNamespace = this._wskNamespace || process.env.WSK_NAMESPACE || wskProps.NAMESPACE;
-    this._wskAuth = this._wskAuth || process.env.WSK_AUTH || wskProps.AUTH;
-    this._wskApiHost = this._wskApiHost || process.env.WSK_APIHOST || wskProps.APIHOST || 'https://adobeioruntime.net';
+  get testPath() {
+    return this._test;
+  }
+
+  get packageName() {
+    return this._packageName;
+  }
+
+  get name() {
+    return this._name;
+  }
+
+  get actionName() {
+    return this._actionName;
+  }
+
+  get zipFile() {
+    return this._zipFile;
+  }
+
+  get nodeVersion() {
+    return this._nodeVersion;
+  }
+
+  get pkgJson() {
+    return this._pkgJson;
+  }
+
+  get version() {
+    return this._version;
+  }
+
+  get dependencies() {
+    return this._dependencies;
+  }
+
+  get gitUrl() {
+    return this._gitUrl;
+  }
+
+  get gitOrigin() {
+    return this._gitOrigin;
+  }
+
+  get gitRef() {
+    return this._gitRef;
+  }
+
+  get updatedAt() {
+    return this._updatedAt;
+  }
+
+  get params() {
+    return this._params;
+  }
+
+  get timeout() {
+    return this._timeout;
+  }
+
+  get webSecure() {
+    return this._webSecure;
+  }
+
+  get updatedBy() {
+    return this._updatedBy;
+  }
+
+  get memory() {
+    return this._memory;
+  }
+
+  get concurrency() {
+    return this._concurrency;
+  }
+
+  get showHints() {
+    return this._showHints;
   }
 
   async validate() {
@@ -508,14 +564,15 @@ module.exports = class ActionBuilder {
     await fse.ensureDir(this._distDir);
 
     // init openwhisk props
-    await this.initWskProps();
+    await Object.values(this._deployers)
+      .filter((deployer) => !deployer.ready())
+      .filter((deployer) => typeof deployer.init === 'function')
+      .forEach(async (deployer) => {
+        await deployer.init();
+      });
 
-    if (this._rawHttp && !this._webAction) {
-      throw new Error('raw-http requires web-export');
-    }
     this._params = await ActionBuilder.resolveParams(this._params);
     this._packageParams = await ActionBuilder.resolveParams(this._packageParams);
-    this._fqn = `/${this._wskNamespace}/${this._packageName}/${this._name}`;
 
     // init git coordinates
     this._gitUrl = (this._pkgJson.repository || {}).url || '';
@@ -728,261 +785,66 @@ module.exports = class ActionBuilder {
     this.log.info(chalk`{green ok:} bundle can be loaded and has a {gray main()} function.`);
   }
 
-  getOpenwhiskClient() {
-    if (!this._wskApiHost || !this._wskAuth || !this._wskNamespace) {
-      throw Error(chalk`\nMissing OpenWhisk credentials. Make sure you have a {grey .wskprops} in your home directory.\nYou can also set {grey WSK_NAMESPACE}, {gray WSK_AUTH} and {gray WSK_API_HOST} environment variables.`);
-    }
-    if (this._namespace && this._namespace !== this._wskNamespace) {
-      throw Error(chalk`Openhwhisk namespace {grey '${this._wskNamespace}'} doesn't match configured namespace {grey '${this._namespace}'}.\nThis is a security measure to prevent accidental deployment dues to wrong .wskprops.`);
-    }
-    return ow({
-      apihost: this._wskApiHost,
-      api_key: this._wskAuth,
-      namespace: this._wskNamespace,
-    });
-  }
-
   async deploy() {
-    const openwhisk = this.getOpenwhiskClient();
-    const relZip = path.relative(process.cwd(), this._zipFile);
-    this.log.info(`--: deploying ${relZip} as ${this._actionName} ...`);
-    const actionoptions = {
-      name: this._actionName,
-      action: await fse.readFile(this._zipFile),
-      kind: this._docker ? 'blackbox' : this._kind,
-      annotations: {
-        'web-export': this._webAction,
-        'raw-http': this._rawHttp,
-        description: this._pkgJson.description,
-        pkgVersion: this._version,
-        dependencies: this._dependencies.main.map((dep) => `${dep.name}:${dep.version}`).join(','),
-        repository: this._gitUrl,
-        git: `${this._gitOrigin}#${this._gitRef}`,
-        updated: this._updatedAt,
-      },
-      params: this._params,
-      limits: {
-        timeout: this._timeout,
-      },
-    };
-    if (this._docker) {
-      actionoptions.exec = {
-        image: this._docker,
-      };
-    }
-    if (this._webSecure) {
-      actionoptions.annotations['require-whisk-auth'] = this._webSecure;
-    }
-    if (this._updatedBy) {
-      actionoptions.annotations.updatedBy = this._updatedBy;
-    }
-    if (this._memory) {
-      actionoptions.limits.memory = this._memory;
-    }
-    if (this._concurrency) {
-      actionoptions.limits.concurrency = this._concurrency;
-    }
-
-    await openwhisk.actions.update(actionoptions);
-    this.log.info(chalk`{green ok:} updated action {yellow ${`/${this._wskNamespace}/${this._packageName}/${this._name}`}}`);
-    if (this._showHints) {
-      this.log.info('\nYou can verify the action with:');
-      if (this._webAction) {
-        let opts = '';
-        if (this._webSecure === true) {
-          opts = ' -u "$WSK_AUTH"';
-        } else if (this._webSecure) {
-          opts = ` -H "x-require-whisk-auth: ${this._webSecure}"`;
+    const results = await Promise.all(Object.values(this._deployers)
+      .filter((deployer) => deployer.ready())
+      .map(async (deployer) => {
+        try {
+          return deployer.deploy();
+        } catch (e) {
+          return e;
         }
-        this.log.info(chalk`{grey $ curl${opts} "${this._wskApiHost}/api/v1/web${this._fqn}"}`);
-      } else {
-        this.log.info(chalk`{grey $ wsk action invoke -r ${this._fqn}}`);
-      }
-    }
-  }
+      }));
 
-  async delete() {
-    const openwhisk = this.getOpenwhiskClient();
-    this.log.info('--: deleting action ...');
-    await openwhisk.actions.delete(this._actionName);
-    this.log.info(chalk`{green ok:} deleted action {yellow ${`/${this._wskNamespace}/${this._packageName}/${this._name}`}}`);
+    const errors = results.filter((result) => result instanceof Error);
+    if (errors.length) {
+      throw errors[0];
+    }
+    if (!results.length) {
+      throw Error('No applicable deployers found');
+    }
   }
 
   async updatePackage() {
-    const openwhisk = this.getOpenwhiskClient();
-    let fn = openwhisk.packages.update.bind(openwhisk.packages);
-    let verb = 'updated';
-    try {
-      await openwhisk.packages.get(this._packageName);
-    } catch (e) {
-      if (e.statusCode === 404) {
-        fn = openwhisk.packages.create.bind(openwhisk.packages);
-        verb = 'created';
-      } else {
-        this.log.error(`${chalk.red('error: ')} ${e.message}`);
-      }
-    }
-
-    try {
-      const parameters = Object.keys(this._packageParams).map((key) => {
-        const value = this._packageParams[key];
-        return { key, value };
+    await Object.values(this._deployers)
+      .filter((deployer) => deployer.ready())
+      .filter((deployer) => typeof deployer.updatePackage === 'function')
+      .forEach(async (deployer) => {
+        await deployer.updatePackage();
       });
-      const result = await fn({
-        name: this._packageName,
-        package: {
-          publish: this._packageShared,
-          parameters,
-        },
-      });
-      this.log.info(`${chalk.green('ok:')} ${verb} package ${chalk.whiteBright(`/${result.namespace}/${result.name}`)}`);
-    } catch (e) {
-      this.log.error(`${chalk.red('error: failed processing package: ')} ${e.message}`);
-      throw Error('abort.');
-    }
-  }
-
-  async test() {
-    if (this._webAction) {
-      return this.testRequest();
-    }
-    return this.testInvoke();
-  }
-
-  async testRequest() {
-    const url = `${this._wskApiHost}/api/v1/web${this._fqn}${this._test || ''}`;
-    this.log.info(`--: requesting: ${chalk.blueBright(url)} ...`);
-    const headers = {};
-    if (this._webSecure === true) {
-      headers.authorization = `Basic ${Buffer.from(this._wskAuth).toString('base64')}`;
-    } else if (this._webSecure) {
-      headers['x-require-whisk-auth'] = this._webSecure;
-    }
-    const ret = await fetch(url, {
-      headers,
-    });
-    const body = await ret.text();
-    const id = ret.headers.get('x-openwhisk-activation-id');
-    if (ret.ok) {
-      this.log.info(`id: ${chalk.grey(id)}`);
-      this.log.info(`${chalk.green('ok:')} ${ret.status}`);
-      this.log.debug(chalk.grey(body));
-    } else {
-      this.log.info(`id: ${chalk.grey(id)}`);
-      if (ret.status === 302 || ret.status === 301) {
-        this.log.info(`${chalk.green('ok:')} ${ret.status}`);
-        this.log.debug(chalk.grey(`Location: ${ret.headers.get('location')}`));
-      } else {
-        throw new Error(`test failed: ${ret.status} ${body}`);
-      }
-    }
-  }
-
-  async testInvoke() {
-    const openwhisk = this.getOpenwhiskClient();
-
-    const params = Object.entries(this._test_params).reduce((s, [key, value]) => (`${s} -p ${key} ${value}`), '');
-    this.log.info(chalk`--: invoking: {blueBright ${this._actionName}${params}} ...`);
-    try {
-      const ret = await openwhisk.actions.invoke({
-        name: this._actionName,
-        blocking: true,
-        result: true,
-        params: this._test_params,
-      });
-      this.log.info(`${chalk.green('ok:')} 200`);
-      this.log.debug(chalk.grey(JSON.stringify(ret, null, '  ')));
-    } catch (e) {
-      throw new Error(`test failed: ${e.message}`);
-    }
   }
 
   async showDeployHints() {
-    const relZip = path.relative(process.cwd(), this._zipFile);
-    this.log.info('Deploy to openwhisk the following command or specify --deploy on the commandline:');
-    if (this._docker) {
-      this.log.info(chalk.grey(`$ wsk action update ${this._actionName} --docker ${this._docker} --web raw ${relZip}`));
-    } else {
-      this.log.info(chalk.grey(`$ wsk action update ${this._actionName} --kind ${this._kind} --web raw ${relZip}`));
-    }
+    await Object.values(this._deployers)
+      .filter((deployer) => typeof deployer.showDeployHints === 'function')
+      .forEach(async (deployer) => {
+        await deployer.showDeployHints();
+      });
+  }
+
+  async delete() {
+    await Object.values(this._deployers)
+      .filter((deployer) => deployer.ready())
+      .filter((deployer) => typeof deployer.delete === 'function')
+      .forEach(async (deployer) => {
+        await deployer.delete();
+      });
+  }
+
+  async test() {
+    await Promise.all(Object.values(this._deployers)
+      .filter((deployer) => deployer.ready())
+      .filter((deployer) => typeof deployer.test === 'function')
+      .map(async (deployer) => deployer.test()));
   }
 
   async updateLinks() {
-    if (this._links.length === 0) {
-      return;
-    }
-    const idx = this._name.lastIndexOf('@');
-    if (idx < 0) {
-      this.log.warn(`${chalk.yellow('warn:')} unable to create version sequence. unsupported action name format. should be: "name@version"`);
-      return;
-    }
-    // using `default` as package name doesn't work with sequences...
-    const pkgPrefix = this._linksPackage === 'default' ? '' : `${this._linksPackage}/`;
-    const prefix = `${pkgPrefix}${this._name.substring(0, idx + 1)}`;
-    const s = semver.parse(this._version);
-    const pkgName = this._packageName === 'default' ? '' : `${this._packageName}/`;
-    const fqn = `/${this._wskNamespace}/${pkgName}${this._name}`;
-    const sfx = [];
-    this._links.forEach((link) => {
-      if (link === 'major' || link === 'minor') {
-        if (!s) {
-          this.log.warn(`${chalk.yellow('warn:')} unable to create version sequences. error while parsing version: ${this._version}`);
-          return;
-        }
-        if (link === 'major') {
-          sfx.push(`v${s.major}`);
-        } else {
-          sfx.push(`v${s.major}.${s.minor}`);
-        }
-      } else {
-        sfx.push(link);
-      }
-    });
-
-    const openwhisk = this.getOpenwhiskClient();
-
-    const annotations = [
-      { key: 'exec', value: 'sequence' },
-      { key: 'web-export', value: this._webAction },
-      { key: 'raw-http', value: this._rawHttp },
-      { key: 'final', value: true },
-      { key: 'updated', value: this._updatedAt },
-    ];
-    if (this._webSecure) {
-      annotations.push({ key: 'require-whisk-auth', value: this._webSecure });
-    }
-    if (this._updatedBy) {
-      annotations.push({ key: 'updatedBy', value: this._updatedBy });
-    }
-
-    let hasErrors = false;
-    await Promise.all(sfx.map(async (sf) => {
-      const options = {
-        name: `${prefix}${sf}`,
-        action: {
-          namespace: this._wskNamespace,
-          name: `${prefix}${sf}`,
-          exec: {
-            kind: 'sequence',
-            components: [fqn],
-          },
-          annotations,
-        },
-        annotations,
-      };
-
-      try {
-        this.log.debug(`creating sequence: ${options.name} -> ${options.action.exec.components[0]}`);
-        const result = await openwhisk.actions.update(options);
-        this.log.info(`${chalk.green('ok:')} created sequence ${chalk.whiteBright(`/${result.namespace}/${result.name}`)} -> ${chalk.whiteBright(fqn)}`);
-      } catch (e) {
-        hasErrors = true;
-        this.log.error(`${chalk.red('error:')} failed creating sequence: ${e.message}`);
-      }
-    }));
-    if (hasErrors) {
-      throw new Error('Aborting due to errors during sequence updates.');
-    }
+    await Object.values(this._deployers)
+      .filter((deployer) => deployer.ready())
+      .filter((deployer) => typeof deployer.updateLinks === 'function')
+      .forEach(async (deployer) => {
+        await deployer.updateLinks();
+      });
   }
 
   async run() {
@@ -1016,8 +878,8 @@ module.exports = class ActionBuilder {
     await this.updateLinks();
 
     return {
-      name: `openwhisk;host=${this._wskApiHost}`,
-      url: this._fqn,
+      name: `openwhisk;host=${this._deployers.openwhisk.host}`,
+      url: this._deployers.openwhisk.fullFunctionName,
     };
   }
 };
