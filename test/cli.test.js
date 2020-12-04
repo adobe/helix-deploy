@@ -26,13 +26,11 @@ describe('CLI Test', () => {
     assert.equal(builder._build, true);
     assert.equal(builder._test, undefined);
     assert.equal(builder._showHints, true);
-    assert.equal(builder._kind, 'nodejs:10');
+    assert.equal(builder._nodeVersion, '10');
     assert.equal(builder._docker, null);
     assert.deepEqual(builder._modules, []);
     assert.equal(JSON.stringify([...builder._statics]).toString(), '[]');
     assert.deepEqual(builder._params, {});
-    assert.equal(builder._webAction, true);
-    assert.equal(builder._rawHttp, true);
     assert.equal(builder._updatePackage, false);
     assert.equal(builder._packageShared, false);
     assert.equal(builder._webSecure, undefined);
@@ -86,16 +84,10 @@ describe('CLI Test', () => {
     assert.equal(builder._version, '1.2.3');
   });
 
-  it('sets kind', () => {
+  it('sets node version', () => {
     const builder = new CLI()
-      .prepare(['--kind', 'foo']);
-    assert.equal(builder._kind, 'foo');
-  });
-
-  it('sets docker', () => {
-    const builder = new CLI()
-      .prepare(['--docker', 'foo']);
-    assert.equal(builder._docker, 'foo');
+      .prepare(['--node-version', 'foo']);
+    assert.equal(builder._nodeVersion, 'foo');
   });
 
   it('sets hints', () => {

@@ -209,17 +209,14 @@ class OpenWhiskDeployer extends BaseDeployer {
   }
 
   async showDeployHints() {
-    const relZip = path.relative(process.cwd(), this._zipFile);
+    const relZip = path.relative(process.cwd(), this._builder.zipFile);
     this.log.info('Deploy to openwhisk the following command or specify --deploy on the commandline:');
-    if (this._docker) {
-      this.log.info(chalk.grey(`$ wsk action update ${this._actionName} --docker ${this._docker} --web raw ${relZip}`));
-    } else {
-      this.log.info(chalk.grey(`$ wsk action update ${this._actionName} --kind ${this._kind} --web raw ${relZip}`));
-    }
+    this.log.info(chalk.grey(`$ wsk action update ${this._builder.actionName} --kind nodejs:${this._builder.nodeVersion} --web raw ${relZip}`));
   }
 
   async updateLinks() {
-    if (this._links.length === 0) {
+    // TODO: build
+    if (!this._links || this._links.length === 0) {
       return;
     }
     const idx = this._name.lastIndexOf('@');

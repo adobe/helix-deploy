@@ -806,29 +806,23 @@ module.exports = class ActionBuilder {
   }
 
   async updatePackage() {
-    await Object.values(this._deployers)
+    await Promise.all(await Object.values(this._deployers)
       .filter((deployer) => deployer.ready())
       .filter((deployer) => typeof deployer.updatePackage === 'function')
-      .forEach(async (deployer) => {
-        await deployer.updatePackage();
-      });
+      .map(async (deployer) => deployer.updatePackage()));
   }
 
   async showDeployHints() {
-    await Object.values(this._deployers)
+    await Promise.all(await Object.values(this._deployers)
       .filter((deployer) => typeof deployer.showDeployHints === 'function')
-      .forEach(async (deployer) => {
-        await deployer.showDeployHints();
-      });
+      .map(async (deployer) => deployer.showDeployHints()));
   }
 
   async delete() {
-    await Object.values(this._deployers)
+    await Promise.all(await Object.values(this._deployers)
       .filter((deployer) => deployer.ready())
       .filter((deployer) => typeof deployer.delete === 'function')
-      .forEach(async (deployer) => {
-        await deployer.delete();
-      });
+      .map(async (deployer) => deployer.delete()));
   }
 
   async test() {
@@ -839,12 +833,10 @@ module.exports = class ActionBuilder {
   }
 
   async updateLinks() {
-    await Object.values(this._deployers)
+    await Promise.all(await Object.values(this._deployers)
       .filter((deployer) => deployer.ready())
       .filter((deployer) => typeof deployer.updateLinks === 'function')
-      .forEach(async (deployer) => {
-        await deployer.updateLinks();
-      });
+      .map(async (deployer) => deployer.updateLinks()));
   }
 
   async run() {

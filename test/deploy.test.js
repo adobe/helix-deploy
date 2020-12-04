@@ -56,9 +56,9 @@ describe('Deploy Test', () => {
         '--directory', testRoot,
       ]);
     // hack to invalidate the wsk props, if any
-    builder.initWskProps = () => {};
+    builder._deployers.openwhisk.init = () => {};
 
-    await assert.rejects(builder.run(), /Missing OpenWhisk credentials./);
+    await assert.rejects(builder.run(), /No applicable deployers found/);
   });
 
   it('reports error configured namespace does not match wsk namespace', async () => {
