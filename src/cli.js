@@ -143,6 +143,11 @@ class CLI {
         type: 'number',
         default: (new Date().getTime()),
       })
+      .option('aws-region', {
+        description: 'the AWS region to deploy lambda functions to',
+        type: 'string',
+        default: '',
+      })
       .group([
         'name', 'node-version', 'params', 'params-file', 'web-secure',
         'namespace', 'timeout', 'updated-by', 'updated-at'], 'OpenWhisk Action Options')
@@ -236,6 +241,7 @@ class CLI {
       .withConcurrency(argv.concurrency)
       .withLinks(argv.versionLink)
       .withLinksPackage(argv.linksPackage)
+      .withAWSRegion(argv.awsRegion)
       .withPackageShared(argv.package.shared);
   }
 
