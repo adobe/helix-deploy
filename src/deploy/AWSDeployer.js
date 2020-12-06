@@ -9,7 +9,9 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-const { S3Client, CreateBucketCommand, PutObjectCommand } = require('@aws-sdk/client-s3');
+const {
+  S3Client, CreateBucketCommand, PutObjectCommand, DeleteBucketCommand, DeleteObjectCommand,
+} = require('@aws-sdk/client-s3');
 const path = require('path');
 const fse = require('fs-extra');
 const crypto = require('crypto');
@@ -30,19 +32,21 @@ class AWSDeployer extends BaseDeployer {
   }
 
   ready() {
-    return !!this._region;
+    return !!this._region && !!this._s3;
   }
 
   async init() {
     this._bucket = `poly-func-maker-temp-${crypto.randomBytes(16).toString('hex')}`;
-    this._s3 = new S3Client(this._region);
+    this._s3 = new S3Client({
+      region: this._region,
+    });
   }
 
   async createS3Bucket() {
     const data = await this._s3.send(new CreateBucketCommand({
       Bucket: this._bucket,
     }));
-    this.log().info('Bucket created ', data);
+    this.log.info(`Bucket ${data.Location} created`);
   }
 
   async uploadZIP() {
@@ -55,18 +59,31 @@ class AWSDeployer extends BaseDeployer {
       Body: await fse.readFile(this._builder.zipFile),
     };
 
-    const data = this._s3.send(new PutObjectCommand(uploadParams));
-    this.log().info('File uploaded ', data);
+    await this._s3.send(new PutObjectCommand(uploadParams));
+
+    this._key = relZip;
+    this.log.info('File uploaded ');
+  }
+
+  async deleteS3Bucket() {
+    await this._s3.send(new DeleteObjectCommand({
+      Bucket: this._bucket,
+      Key: this._key,
+    }));
+    await this._s3.send(new DeleteBucketCommand({
+      Bucket: this._bucket,
+    }));
+    this.log.info(`Bucket ${this._bucket} emptied and deleted`);
   }
 
   async deploy() {
     try {
       await this.createS3Bucket();
       await this.uploadZIP();
-      // await createLambda();
-      // await deleteS3Bucket();
+      // await this.createLambda();
+      await this.deleteS3Bucket();
     } catch (err) {
-      this.log.error(`Unable to deploy Lambda function: ${err.message}`);
+      this.log.error(`Unable to deploy Lambda function: ${err.message}`, err);
       throw err;
     }
   }

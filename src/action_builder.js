@@ -571,13 +571,12 @@ module.exports = class ActionBuilder {
     // create dist dir
     await fse.ensureDir(this._distDir);
 
+    console.log('init all');
     // init openwhisk props
-    await Object.values(this._deployers)
+    await Promise.all(Object.values(this._deployers)
       .filter((deployer) => !deployer.ready())
       .filter((deployer) => typeof deployer.init === 'function')
-      .forEach(async (deployer) => {
-        await deployer.init();
-      });
+      .map(async (deployer) => deployer.init()));
 
     this._params = await ActionBuilder.resolveParams(this._params);
     this._packageParams = await ActionBuilder.resolveParams(this._packageParams);
