@@ -148,6 +148,11 @@ class CLI {
         type: 'string',
         default: '',
       })
+      .option('aws-role', {
+        description: 'the AWS role ARN to execute lambda functions with',
+        type: 'string',
+        default: '',
+      })
       .group([
         'name', 'node-version', 'params', 'params-file', 'web-secure',
         'namespace', 'timeout', 'updated-by', 'updated-at'], 'OpenWhisk Action Options')
@@ -242,6 +247,7 @@ class CLI {
       .withLinks(argv.versionLink)
       .withLinksPackage(argv.linksPackage)
       .withAWSRegion(argv.awsRegion)
+      .withAWSRole(argv.awsRole)
       .withPackageShared(argv.package.shared);
   }
 

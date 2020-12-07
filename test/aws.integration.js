@@ -42,6 +42,8 @@ describe('AWS Integration Test', () => {
         '--verbose',
         '--deploy',
         '--aws-region', 'us-east-1',
+        '--aws-role', 'arn:aws:iam::320028119408:role/lambda-role',
+        '-p', 'FOO=bar',
         '--test', '/foo',
         '--directory', testRoot,
         '--entryFile', 'index.js',
@@ -53,5 +55,5 @@ describe('AWS Integration Test', () => {
     const out = builder._logger.output;
     assert.ok(out.indexOf(`ok: 200
 Hello, world.`) > 0, out);
-  }).timeout(10000);
+  }).timeout(50000);
 });

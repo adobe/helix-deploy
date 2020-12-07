@@ -444,6 +444,12 @@ module.exports = class ActionBuilder {
     return this;
   }
 
+  withAWSRole(value) {
+    // propagate AWS region
+    this._deployers.aws.withAWSRole(value);
+    return this;
+  }
+
   get testPath() {
     return this._test;
   }
