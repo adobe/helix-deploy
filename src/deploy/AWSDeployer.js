@@ -9,6 +9,7 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+const chalk = require('chalk');
 const {
   S3Client,
   CreateBucketCommand,
@@ -26,7 +27,15 @@ const {
   PublishVersionCommand,
   CreateAliasCommand,
   UpdateAliasCommand,
+  AddPermissionCommand,
 } = require('@aws-sdk/client-lambda');
+const {
+  ApiGatewayV2Client,
+  CreateApiCommand,
+  CreateStageCommand,
+  CreateIntegrationCommand,
+  CreateRouteCommand,
+} = require('@aws-sdk/client-apigatewayv2');
 const path = require('path');
 const fse = require('fs-extra');
 const crypto = require('crypto');
@@ -39,6 +48,7 @@ class AWSDeployer extends BaseDeployer {
     Object.assign(this, {
       _region: '',
       _role: '',
+      _functionARN: '',
     });
   }
 
@@ -63,6 +73,9 @@ class AWSDeployer extends BaseDeployer {
       region: this._region,
     });
     this._lambda = new LambdaClient({
+      region: this._region,
+    });
+    this._api = new ApiGatewayV2Client({
       region: this._region,
     });
   }
@@ -162,6 +175,8 @@ class AWSDeployer extends BaseDeployer {
       FunctionName: functionName,
     }));
 
+    this._functionARN = versiondata.functionArn;
+
     const versionNum = versiondata.Version;
     try {
       await this._lambda.send(new GetAliasCommand({
@@ -170,24 +185,79 @@ class AWSDeployer extends BaseDeployer {
       }));
 
       this.log.info(`Updating existing alias ${functionName}:${functionVersion} to v${versionNum}`);
-      await this._lambda.send(new UpdateAliasCommand({
+      const updatedata = await this._lambda.send(new UpdateAliasCommand({
         FunctionName: functionName,
         Name: functionVersion,
         FunctionVersion: versionNum,
-
       }));
+
+      this._functionARN = updatedata.AliasArn;
     } catch (e) {
       if (e.name === 'ResourceNotFoundException') {
         this.log.info(`Creating new alias ${functionName}:${functionVersion} at v${versionNum}`);
-        await this._lambda.send(new CreateAliasCommand({
+        const createdata = await this._lambda.send(new CreateAliasCommand({
           FunctionName: functionName,
           Name: functionVersion,
           FunctionVersion: versionNum,
         }));
+        this._functionARN = createdata.AliasArn;
       } else {
         this.log.error(`Unable to verify existence of Lambda alias ${functionName}:${functionVersion}`);
         throw e;
       }
+    }
+  }
+
+  async createAPI() {
+    this.log.info('Creating API from scratch');
+    let res = await this._api.send(new CreateApiCommand({
+      Name: 'API managed by Poly-Func',
+      ProtocolType: 'HTTP',
+    }));
+
+    const { ApiId, ApiEndpoint } = res;
+
+    this._functionURL = ApiEndpoint;
+
+    res = await this._api.send(new CreateStageCommand({
+      StageName: '$default',
+      AutoDeploy: true,
+      ApiId,
+    }));
+
+    res = await this._api.send(new CreateIntegrationCommand({
+      ApiId,
+      IntegrationMethod: 'POST',
+      IntegrationType: 'AWS_PROXY',
+      IntegrationUri: this._functionARN,
+      PayloadFormatVersion: '2.0',
+      TimeoutInMillis: Math.min(this._builder.timeout, 30000),
+    }));
+
+    const { IntegrationId } = res;
+
+    res = await this._api.send(new CreateRouteCommand({
+      ApiId,
+      RouteKey: `ANY /${this._builder.actionName.replace('@', '_')}`,
+      Target: `integrations/${IntegrationId}`,
+    }));
+
+    const sourceArn = `arn:aws:execute-api:${this._region}:${this._functionARN.split(':')[4]}:${ApiId}/*/*/${this._builder.actionName.replace('@', '_')}`;
+
+    res = await this._lambda.send(new AddPermissionCommand({
+      FunctionName: this._functionARN,
+      Action: 'lambda:InvokeFunction',
+      SourceArn: sourceArn,
+      Principal: 'apigateway.amazonaws.com',
+      StatementId: crypto.randomBytes(16).toString('hex'),
+    }));
+
+    this._functionURL += `/${this._builder.actionName.replace('@', '_')}`;
+
+    if (this._builder.showHints) {
+      const opts = '';
+      this.log.info('\nYou can verify the action with:');
+      this.log.info(chalk`{grey $ curl${opts} "${this._functionURL}"}`);
     }
   }
 
@@ -196,6 +266,7 @@ class AWSDeployer extends BaseDeployer {
       await this.createS3Bucket();
       await this.uploadZIP();
       await this.createLambda();
+      await this.createAPI();
       await this.deleteS3Bucket();
     } catch (err) {
       this.log.error(`Unable to deploy Lambda function: ${err.message}`, err);
