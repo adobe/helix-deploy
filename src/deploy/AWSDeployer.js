@@ -69,15 +69,17 @@ class AWSDeployer extends BaseDeployer {
 
   async init() {
     this._bucket = `poly-func-maker-temp-${crypto.randomBytes(16).toString('hex')}`;
-    this._s3 = new S3Client({
-      region: this._region,
-    });
-    this._lambda = new LambdaClient({
-      region: this._region,
-    });
-    this._api = new ApiGatewayV2Client({
-      region: this._region,
-    });
+    if (this.region) {
+      this._s3 = new S3Client({
+        region: this._region,
+      });
+      this._lambda = new LambdaClient({
+        region: this._region,
+      });
+      this._api = new ApiGatewayV2Client({
+        region: this._region,
+      });
+    }
   }
 
   async createS3Bucket() {
