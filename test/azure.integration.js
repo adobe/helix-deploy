@@ -18,7 +18,7 @@ const path = require('path');
 const { createTestRoot, TestLogger } = require('./utils');
 const CLI = require('../src/cli.js');
 
-describe('AWS Integration Test', () => {
+describe('Azure Integration Test', () => {
   let testRoot;
   let origPwd;
 
@@ -29,7 +29,7 @@ describe('AWS Integration Test', () => {
 
   afterEach(async () => {
     process.chdir(origPwd);
-    await fse.remove(testRoot);
+    // await fse.remove(testRoot);
   });
 
   it('Deploy to Azure (for real)', async () => {
@@ -41,8 +41,10 @@ describe('AWS Integration Test', () => {
         '--build',
         '--verbose',
         '--deploy',
-        '--azure-app', 'universal-serverless',
+        '--azure-app', 'deploy-helix',
         '-p', 'FOO=bar',
+        '--package.params', 'HEY=ho',
+        '--update-package', 'true',
         '--test', '/foo',
         '--directory', testRoot,
         '--entryFile', 'index.js',

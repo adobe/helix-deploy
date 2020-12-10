@@ -537,6 +537,10 @@ module.exports = class ActionBuilder {
     return this._showHints;
   }
 
+  get packageParams() {
+    return this._packageParams;
+  }
+
   async validate() {
     try {
       this._pkgJson = await fse.readJson(path.resolve(this._cwd, 'package.json'));
@@ -670,6 +674,7 @@ module.exports = class ActionBuilder {
     archive.append(JSON.stringify(packageJson, null, '  '), { name: 'package.json' });
     // universal serverless wrapper
     archive.file(path.resolve(__dirname, 'template', 'index.js'), { name: 'index.js' });
+    archive.file(path.resolve(__dirname, 'template', 'function.json'), { name: 'function.json' });
   }
 
   async getWebpackConfig() {
@@ -697,6 +702,7 @@ module.exports = class ActionBuilder {
       },
       node: {
         __dirname: true,
+        __filename: false,
       },
     };
   }
@@ -826,6 +832,7 @@ module.exports = class ActionBuilder {
   }
 
   async updatePackage() {
+    console.log('updating all packages');
     await Promise.all(await Object.values(this._deployers)
       .filter((deployer) => deployer.ready())
       .filter((deployer) => typeof deployer.updatePackage === 'function')

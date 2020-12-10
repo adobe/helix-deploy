@@ -11,6 +11,10 @@
  */
 const msRestNodeAuth = require('@azure/ms-rest-nodeauth');
 const { WebSiteManagementClient } = require('@azure/arm-appservice');
+const { fetch } = require('@adobe/helix-fetch').context({
+  httpsProtocols: ['http1'],
+});
+const fs = require('fs');
 const BaseDeployer = require('./BaseDeployer');
 
 class AzureDeployer extends BaseDeployer {
@@ -20,6 +24,7 @@ class AzureDeployer extends BaseDeployer {
     Object.assign(this, {
       _appName: '',
       _auth: null,
+      _pubcreds: null,
     });
   }
 
@@ -39,27 +44,96 @@ class AzureDeployer extends BaseDeployer {
 
     if (!!clientId && !!secret && !!tenantId && !!this._appName) {
       try {
-        let res = await msRestNodeAuth.loginWithServicePrincipalSecretWithAuthResponse(
+        const res = await msRestNodeAuth.loginWithServicePrincipalSecretWithAuthResponse(
           clientId,
           secret,
           tenantId,
         );
-        console.log(res);
         this._auth = res;
 
         const subscription = process.env.AZURE_SUBSCRIPTION_ID || this._auth.subscriptions[0].id;
 
-        this._client = new WebSiteManagementClient(this._auth.credentials, subscription);
-        const [apps] = (await this._client.webApps.list())
-          .filter((app) => app.name === this._appName);
+        this._client = new WebSiteManagementClient(
+          this._auth.credentials,
+          subscription,
+        );
+        const [apps] = (await this._client.webApps.list()).filter(
+          (app) => app.name === this._appName,
+        );
         this._app = apps;
 
-        res = await this._client.webApps.listFunctions(this._app.resourceGroup, this._appName);
-        console.log(res);
+        this._pubcreds = await this._client.webApps.listPublishingCredentials(
+          this._app.resourceGroup,
+          this._appName,
+        );
       } catch (e) {
         this.log.error(`Unable to authenticate with Azure:${e.message}`);
         throw e;
       }
+    }
+  }
+
+  async uploadFunctionZIP() {
+    const funcname = this._builder.actionName.replace('/', '--').replace('@', '_').replace('.', '_');
+    const url = new URL(
+      `${this._pubcreds.scmUri}/api/zip/site/wwwroot/${funcname}/`,
+    ).href.replace(/https:\/\/.*?@/, 'https://');
+    // const url = new URL(this._pubcreds.scmUri + `/api/zip/site/wwwroot/${'newfunc'.replace('/', '--')}/`).href.replace(/https:\/\/.*?@/, 'https://');
+    const body = fs.createReadStream(this._builder.zipFile);
+    const authorization = `Basic ${Buffer.from(
+      `${this._pubcreds.publishingUserName
+      }:${
+        this._pubcreds.publishingPassword}`,
+    ).toString('base64')}`;
+
+    this.log.info(`--: uploading ${this.relZip} to Azure bucket ${url} …`);
+
+    const resp = await fetch(url, {
+      method: 'PUT',
+      body,
+      headers: {
+        authorization,
+      },
+    });
+    if (resp.ok) {
+      this.log.info(`File uploaded ${await resp.text()}`);
+    } else {
+      throw new Error(
+        `File upload failed (${resp.status}): ${await resp.text()}`,
+      );
+    }
+  }
+
+  async updatePackage() {
+    this.log.info('--: updating app (package) parameters …');
+    const url = new URL(
+      `${this._pubcreds.scmUri}/api/settings`,
+    ).href.replace(/https:\/\/.*?@/, 'https://');
+
+    const authorization = `Basic ${Buffer.from(
+      `${this._pubcreds.publishingUserName
+      }:${
+        this._pubcreds.publishingPassword}`,
+    ).toString('base64')}`;
+
+    const resp = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify(this._builder.packageParams),
+      headers: {
+        authorization,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log(resp.status, await resp.text());
+  }
+
+  async deploy() {
+    try {
+      await this.uploadFunctionZIP();
+    } catch (err) {
+      this.log.error(`Unable to update Azure function: ${err.message}`);
+      throw err;
     }
   }
 }

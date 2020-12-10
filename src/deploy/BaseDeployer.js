@@ -9,6 +9,8 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+const path = require('path');
+
 class BaseDeployer {
   constructor(builder) {
     this._builder = builder;
@@ -20,6 +22,10 @@ class BaseDeployer {
 
   ready() {
     return this._builder && false;
+  }
+
+  get relZip() {
+    return path.relative(process.cwd(), this._builder.zipFile);
   }
 }
 
