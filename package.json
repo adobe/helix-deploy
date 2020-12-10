@@ -1,21 +1,21 @@
 {
-  "name": "@adobe/openwhisk-action-builder",
+  "name": "@adobe/helix-deploy",
   "version": "2.15.1",
   "description": "Library and Commandline Tools to build and deploy OpenWhisk Actions",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/adobe/openwhisk-action-builder.git"
+    "url": "https://github.com/adobe/helix-deploy.git"
   },
   "bugs": {
-    "url": "https://github.com/adobe/openwhisk-action-builder/issues"
+    "url": "https://github.com/adobe/helix-deploy/issues"
   },
   "keywords": [
     "openwhisk"
   ],
   "main": "index.js",
   "bin": {
-    "wsk-builder": "src/index.js"
+    "hedy": "src/index.js"
   },
   "scripts": {
     "lint": "./node_modules/.bin/eslint .",
@@ -71,5 +71,5 @@
       "pre-commit": "npx lint-staged"
     }
   },
-  "homepage": "https://github.com/adobe/openwhisk-action-builder#readme"
+  "homepage": "https://github.com/adobe/helix-deploy#readme"
 }

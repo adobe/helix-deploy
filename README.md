@@ -2,24 +2,24 @@
 > Library and Commandline tool support for building and deploying OpenWhisk actions.
 
 ## Status
-[![GitHub license](https://img.shields.io/github/license/adobe/openwhisk-action-builder.svg)](https://github.com/adobe/openwhisk-action-builder/blob/main/LICENSE.txt)
-[![GitHub issues](https://img.shields.io/github/issues/adobe/openwhisk-action-builder.svg)](https://github.com/adobe/openwhisk-action-builder/issues)
-[![CircleCI](https://img.shields.io/circleci/project/github/adobe/openwhisk-action-builder.svg)](https://circleci.com/gh/adobe/openwhisk-action-builder)
-[![codecov](https://img.shields.io/codecov/c/github/adobe/openwhisk-action-builder.svg)](https://codecov.io/gh/adobe/openwhisk-action-builder)
-[![LGTM Code Quality Grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/adobe/openwhisk-action-builder.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/adobe/openwhisk-action-builder)
+[![GitHub license](https://img.shields.io/github/license/adobe/helix-deploy.svg)](https://github.com/adobe/helix-deploy/blob/main/LICENSE.txt)
+[![GitHub issues](https://img.shields.io/github/issues/adobe/helix-deploy.svg)](https://github.com/adobe/helix-deploy/issues)
+[![CircleCI](https://img.shields.io/circleci/project/github/adobe/helix-deploy.svg)](https://circleci.com/gh/adobe/helix-deploy)
+[![codecov](https://img.shields.io/codecov/c/github/adobe/helix-deploy.svg)](https://codecov.io/gh/adobe/helix-deploy)
+[![LGTM Code Quality Grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/adobe/helix-deploy.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/adobe/helix-deploy)
 
 ## Setup
 
 1. Add this wrapper as dev dependency:
     ```console
     # Add OpenWhisk wrapper as dependency 
-    npm add openwhisk-action-builder
+    npm add helix-deploy
     ```
 
 2. add a build script to your package.json:
     ```json
     "scripts": {
-      "build": "./node_modules/.bin/wsk-builder"
+      "build": "./node_modules/.bin/hedy"
     }
     ```
 
@@ -38,11 +38,11 @@ The deploy parameters can be specifies in the CLI via `-p`. See below.
 
 ## CLI
 
-The command line interface `wsk-builder` can either be invoked via `./node_modules/.bin/wsk-builder`.
-you can also use npx: `npx wsk-builder` or install it globally `npm install -g openwhisk-action-builder`.
+The command line interface `hedy` can either be invoked via `./node_modules/.bin/hedy`.
+you can also use npx: `npx hedy` or install it globally `npm install -g helix-deploy`.
 
 ```console
-$ wsk-builder --help
+$ hedy --help
 Operation Options
   --build              Build the deployment package    [boolean] [default: true]
   --deploy             Automatically deploy to OpenWhisk
@@ -96,7 +96,7 @@ Options:
   --help         Show help                                             [boolean]
 ```
 
-With no arguments,the `wsk-builder` just bundles your code into the respective `action.zip`:
+With no arguments,the `hedy` just bundles your code into the respective `action.zip`:
 
 ### Automatically deploy to openwhisk
 
@@ -105,17 +105,17 @@ When given the `--deploy`, the `wskbot` will try to deploy it ot OpenWhisk using
 environment or `.env` file.
 
 ```console
-$ wsk-builder --deploy --no-hints
+$ hedy --deploy --no-hints
 ok: created action: dist/my-example.zip.
 ok: updated action tripod/my-example
 ```
 
 ### Automatically _test_ the deployed action
 
-In order to quickly test the deployed action, `wsk-builder` can send a `GET` request to the action url.
+In order to quickly test the deployed action, `hedy` can send a `GET` request to the action url.
 
 ```console
-$ wsk-builder --deploy --no-hints --test
+$ hedy --deploy --no-hints --test
 ok: created action: dist/my-example.zip.
 ok: updated action tripod/my-example
 --: requesting: https://runtime.adobe.io/api/v1/web/tripod/default/my-example ...
@@ -125,7 +125,7 @@ ok: 200
 the `--test` argument can be a relative url, in case the request should not be made against the root url, eg:
 
 ```console
-$ wsk-builder --deploy --no-hints --test=/ping
+$ hedy --deploy --no-hints --test=/ping
 ok: created action: dist/my-example.zip.
 ok: updated action tripod/my-example
 --: requesting: https://runtime.adobe.io/api/v1/web/tripod/default/my-example/ping ...
@@ -140,22 +140,22 @@ Examples:
 
 ```console
 # specify as env string
-wsk-builder -p MY_TOKEN=1234 -p MY_PWD=foo
+hedy -p MY_TOKEN=1234 -p MY_PWD=foo
 
 # specify as json string
-wsk-builder -p '{ "MY_TOKEN": 1234, "MY_PWD": "foo" }'
+hedy -p '{ "MY_TOKEN": 1234, "MY_PWD": "foo" }'
 
 # specify as env file
-wsk-builder -f .env
+hedy -f .env
 
 # specify as json file
-wsk-builder -f params.json
+hedy -f params.json
 
 # and a combination of the above
-wsk-builder -f .env -f params.json -p MY_TOKEN=123
+hedy -f .env -f params.json -p MY_TOKEN=123
 
 # like in curl, you can include file contents with `@` (also works in .env or .json file)
-wsk-builder -p MY_TOKEN=@token.txt
+hedy -p MY_TOKEN=@token.txt
 
 ```
 
@@ -168,8 +168,8 @@ in the `wsk` object. eg:
 {
 ...
   "scripts": {
-    "build": "./node_modules/.bin/wsk-builder -v",
-    "deploy": "./node_modules/.bin/wsk-builder -v --deploy --test"
+    "build": "./node_modules/.bin/hedy -v",
+    "deploy": "./node_modules/.bin/hedy -v --deploy --test"
   },
   "wsk": {
     "name": "my-test-action",
@@ -232,7 +232,7 @@ Example:
 
 ```bash
 # include an image
-wsk-builder -s logo.png
+hedy -s logo.png
 ```
 
 If the path points to a directory, it is recursively included.
@@ -259,7 +259,7 @@ Testing an openwhisk action that was _expressified_ using [ActionUtils.expressif
 can be done with the `DevelopmentServer`. Just create a `test/dev.js` file with:
 
 ```js
-const { DevelopmentServer } = require('@adobe/openwhisk-action-builder');
+const { DevelopmentServer } = require('@adobe/helix-deploy');
 const App = require('../src/app.js');
 
 async function run() {
