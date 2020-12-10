@@ -104,6 +104,56 @@ class AzureDeployer extends BaseDeployer {
     }
   }
 
+  async updateParams() {
+    this.log.info('--: updating function parameters …');
+    const funcname = this._builder.actionName.replace('/', '--').replace('@', '_').replace('.', '_');
+    const url = new URL(
+      `${this._pubcreds.scmUri}/api/vfs/site/wwwroot/${funcname}/params.json`,
+    ).href.replace(/https:\/\/.*?@/, 'https://');
+
+    const authorization = `Basic ${Buffer.from(
+      `${this._pubcreds.publishingUserName
+      }:${
+        this._pubcreds.publishingPassword}`,
+    ).toString('base64')}`;
+
+    let params = {};
+    let ifmatch = '*';
+    try {
+      const prereq = await fetch(url, {
+        method: 'GET',
+        headers: {
+          authorization,
+        },
+      });
+      ifmatch = prereq.headers.get('ETag');
+      params = prereq.json();
+    } catch (err) {
+      this.log.warn('Unable to get existing function parameters, starting from scratch.');
+    }
+
+    const resp = await fetch(url, {
+      method: 'PUT',
+      body: JSON.stringify({
+        ...this._builder.params,
+        ...params,
+      }),
+      headers: {
+        authorization,
+        'Content-Type': 'application/json',
+        'If-Match': ifmatch,
+      },
+    });
+
+    if (resp.ok) {
+      this.log.info(`Params updated ${await resp.text()}`);
+    } else {
+      throw new Error(
+        `Parameter update failed (${resp.status}): ${await resp.text()}`,
+      );
+    }
+  }
+
   async updatePackage() {
     this.log.info('--: updating app (package) parameters …');
     const url = new URL(
@@ -131,6 +181,7 @@ class AzureDeployer extends BaseDeployer {
   async deploy() {
     try {
       await this.uploadFunctionZIP();
+      await this.updateParams();
     } catch (err) {
       this.log.error(`Unable to update Azure function: ${err.message}`);
       throw err;
