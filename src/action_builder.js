@@ -21,6 +21,7 @@ const git = require('isomorphic-git');
 const { version } = require('../package.json');
 const OpenWhiskDeployer = require('./deploy/OpenWhiskDeployer');
 const AWSDeployer = require('./deploy/AWSDeployer');
+const AzureDeployer = require('./deploy/AzureDeployer');
 
 require('dotenv').config();
 
@@ -201,6 +202,7 @@ module.exports = class ActionBuilder {
       _deployers: {
         openwhisk: new OpenWhiskDeployer(this),
         aws: new AWSDeployer(this),
+        azure: new AzureDeployer(this),
       },
     });
   }
@@ -447,6 +449,11 @@ module.exports = class ActionBuilder {
   withAWSRole(value) {
     // propagate AWS region
     this._deployers.aws.withAWSRole(value);
+    return this;
+  }
+
+  withAzureApp(value) {
+    this._deployers.azure.withAzureApp(value);
     return this;
   }
 

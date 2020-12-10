@@ -29,6 +29,8 @@
     "@aws-sdk/client-apigatewayv2": "^1.0.0-rc.8",
     "@aws-sdk/client-lambda": "^1.0.0-rc.8",
     "@aws-sdk/client-s3": "^1.0.0-rc.8",
+    "@azure/arm-appservice": "^6.1.0",
+    "@azure/ms-rest-nodeauth": "^3.0.6",
     "archiver": "^5.0.0",
     "chalk": "^4.0.0",
     "dotenv": "^8.0.0",

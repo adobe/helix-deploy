@@ -153,6 +153,11 @@ class CLI {
         type: 'string',
         default: '',
       })
+      .option('azure-app', {
+        description: 'the Azure function app to deploy to',
+        type: 'string',
+        default: '',
+      })
       .group([
         'name', 'node-version', 'params', 'params-file', 'web-secure',
         'namespace', 'timeout', 'updated-by', 'updated-at'], 'OpenWhisk Action Options')
@@ -248,6 +253,7 @@ class CLI {
       .withLinksPackage(argv.linksPackage)
       .withAWSRegion(argv.awsRegion)
       .withAWSRole(argv.awsRole)
+      .withAzureApp(argv.azureApp)
       .withPackageShared(argv.package.shared);
   }
 

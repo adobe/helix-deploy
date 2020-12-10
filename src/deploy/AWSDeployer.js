@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Adobe. All rights reserved.
+ * Copyright 2020 Adobe. All rights reserved.
  * This file is licensed to you under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License. You may obtain a copy
  * of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -68,16 +68,18 @@ class AWSDeployer extends BaseDeployer {
   }
 
   async init() {
-    this._bucket = `poly-func-maker-temp-${crypto.randomBytes(16).toString('hex')}`;
-    this._s3 = new S3Client({
-      region: this._region,
-    });
-    this._lambda = new LambdaClient({
-      region: this._region,
-    });
-    this._api = new ApiGatewayV2Client({
-      region: this._region,
-    });
+    if (this._region) {
+      this._bucket = `poly-func-maker-temp-${crypto.randomBytes(16).toString('hex')}`;
+      this._s3 = new S3Client({
+        region: this._region,
+      });
+      this._lambda = new LambdaClient({
+        region: this._region,
+      });
+      this._api = new ApiGatewayV2Client({
+        region: this._region,
+      });
+    }
   }
 
   async createS3Bucket() {
