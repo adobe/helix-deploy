@@ -11,6 +11,7 @@
  */
 /* eslint-disable no-param-reassign, no-underscore-dangle, import/no-extraneous-dependencies */
 const { Request } = require('node-fetch');
+const { promisify } = require('util');
 // eslint-disable-next-line  import/no-unresolved
 const { main } = require('./main.js');
 /*
@@ -36,6 +37,29 @@ function isBinary(type) {
     return /svg/.test(type); // openwhisk treats SVG as binary
   }
   return true;
+}
+
+async function getAWSSecrets(functionName) {
+  // delay the import so that other runtimes do not have to care
+  // eslint-disable-next-line  import/no-unresolved, global-require
+  const AWS = require('aws-sdk');
+
+  AWS.config.update({
+    region: process.env.AWS_REGION,
+  });
+
+  const ssm = new AWS.SSM();
+  ssm.getParametersByPath = promisify(ssm.getParametersByPath.bind(ssm));
+
+  const params = await ssm.getParametersByPath({
+    Path: `/helix-deploy/${functionName.replace(/--.*/, '')}/`,
+    WithDecryption: true,
+  });
+
+  return params.reduce((p, param) => {
+    p[param.Name.replace(/.*\//, '')] = param.Value;
+    return p;
+  }, {});
 }
 
 // Azure
@@ -222,7 +246,10 @@ module.exports.lambda = async function lambda(event, context) {
         id: context.awsRequestId,
         deadline: Date.now() + context.getRemainingTimeInMillis(),
       },
-      env: process.env,
+      env: {
+        ...process.env,
+        ...(await getAWSSecrets(context.functionName)),
+      },
     };
 
     const response = await main(request, con);
