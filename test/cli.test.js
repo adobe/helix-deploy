@@ -32,7 +32,6 @@ describe('CLI Test', () => {
     assert.equal(JSON.stringify([...builder._statics]).toString(), '[]');
     assert.deepEqual(builder._params, {});
     assert.equal(builder._updatePackage, false);
-    assert.equal(builder._packageShared, false);
     assert.equal(builder._webSecure, undefined);
   });
 
@@ -292,11 +291,5 @@ describe('CLI Test', () => {
     assert.equal(builder._name, 'bar');
     assert.equal(builder._actionName, 'foo/bar');
     assert.equal(builder._packageName, 'foo');
-  });
-
-  it('sets package shared flag', () => {
-    const builder = new CLI()
-      .prepare(['--package.shared']);
-    assert.equal(builder._packageShared, true);
   });
 });
