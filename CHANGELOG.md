@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/adobe/helix-deploy/compare/v1.0.1...v1.1.0) (2020-12-11)
+
+
+### Features
+
+* **deploy:** allow to deploy to select targets ([ecd946a](https://github.com/adobe/helix-deploy/commit/ecd946a8706689af8a647bedba96345a91669d39))
+
 ## [1.0.1](https://github.com/adobe/helix-deploy/compare/v1.0.0...v1.0.1) (2020-12-11)
 
 
