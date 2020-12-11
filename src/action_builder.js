@@ -186,7 +186,6 @@ module.exports = class ActionBuilder {
       _updatePackage: false,
       _actionName: '',
       _packageName: '',
-      _packageShared: false,
       _packageParams: {},
       _timeout: 60000,
       _concurrency: null,
@@ -390,7 +389,11 @@ module.exports = class ActionBuilder {
   }
 
   withPackageShared(value) {
-    this._packageShared = value;
+    Object.values(this._deployers)
+      .filter((deployer) => typeof deployer.withPackageShared === 'function')
+      .forEach(async (deployer) => {
+        deployer.withPackageShared(value);
+      });
     return this;
   }
 

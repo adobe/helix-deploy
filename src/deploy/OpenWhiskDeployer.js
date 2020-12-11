@@ -34,6 +34,7 @@ class OpenWhiskDeployer extends BaseDeployer {
     Object.assign(this, {
       _packageName: '',
       _namespace: '',
+      _packageShared: false,
     });
   }
 
@@ -44,6 +45,11 @@ class OpenWhiskDeployer extends BaseDeployer {
 
   withNamespace(value) {
     this._namespace = value;
+    return this;
+  }
+
+  withPackageShared(value) {
+    this._packageShared = value;
     return this;
   }
 
@@ -164,7 +170,7 @@ class OpenWhiskDeployer extends BaseDeployer {
       const result = await fn({
         name: this._builder.packageName,
         package: {
-          publish: this._builder._packageShared,
+          publish: this._packageShared,
           parameters,
         },
       });
