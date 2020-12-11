@@ -21,6 +21,7 @@ const git = require('isomorphic-git');
 const { version } = require('../package.json');
 const OpenWhiskDeployer = require('./deploy/OpenWhiskDeployer');
 const AWSDeployer = require('./deploy/AWSDeployer');
+const AzureDeployer = require('./deploy/AzureDeployer');
 
 require('dotenv').config();
 
@@ -185,7 +186,6 @@ module.exports = class ActionBuilder {
       _updatePackage: false,
       _actionName: '',
       _packageName: '',
-      _packageShared: false,
       _packageParams: {},
       _timeout: 60000,
       _concurrency: null,
@@ -201,6 +201,7 @@ module.exports = class ActionBuilder {
       _deployers: {
         wsk: new OpenWhiskDeployer(this),
         aws: new AWSDeployer(this),
+        azure: new AzureDeployer(this),
       },
     });
   }
@@ -388,7 +389,11 @@ module.exports = class ActionBuilder {
   }
 
   withPackageShared(value) {
-    this._packageShared = value;
+    Object.values(this._deployers)
+      .filter((deployer) => typeof deployer.withPackageShared === 'function')
+      .forEach(async (deployer) => {
+        deployer.withPackageShared(value);
+      });
     return this;
   }
 
@@ -447,6 +452,11 @@ module.exports = class ActionBuilder {
   withAWSRole(value) {
     // propagate AWS region
     this._deployers.aws.withAWSRole(value);
+    return this;
+  }
+
+  withAzureApp(value) {
+    this._deployers.azure.withAzureApp(value);
     return this;
   }
 
@@ -528,6 +538,10 @@ module.exports = class ActionBuilder {
 
   get showHints() {
     return this._showHints;
+  }
+
+  get packageParams() {
+    return this._packageParams;
   }
 
   async validate() {
@@ -662,6 +676,7 @@ module.exports = class ActionBuilder {
     archive.append(JSON.stringify(packageJson, null, '  '), { name: 'package.json' });
     // universal serverless wrapper
     archive.file(path.resolve(__dirname, 'template', 'index.js'), { name: 'index.js' });
+    archive.file(path.resolve(__dirname, 'template', 'function.json'), { name: 'function.json' });
   }
 
   async getWebpackConfig() {
@@ -689,6 +704,7 @@ module.exports = class ActionBuilder {
       },
       node: {
         __dirname: true,
+        __filename: false,
       },
     };
   }
@@ -821,6 +837,7 @@ module.exports = class ActionBuilder {
   }
 
   async updatePackage() {
+    console.log('updating all packages');
     await Promise.all(await Object.values(this._deployers)
       .filter((deployer) => deployer.ready())
       .filter((deployer) => typeof deployer.updatePackage === 'function')

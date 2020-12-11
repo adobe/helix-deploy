@@ -65,6 +65,8 @@ async function getAWSSecrets(functionName) {
 // Azure
 module.exports = async function azure(context, req) {
   context.log('JavaScript HTTP trigger function processed a request.');
+  // eslint-disable-next-line global-require, import/no-unresolved
+  const params = require('./params.json');
 
   let body;
   if (!/^(GET|HEAD)$/i.test(req.method)) {
@@ -96,7 +98,10 @@ module.exports = async function azure(context, req) {
         id: context.invocationId,
         deadline: undefined,
       },
-      env: process.env,
+      env: {
+        ...params,
+        ...process.env,
+      },
       debug: Object.keys(req),
       types: [typeof req.body, typeof req.rawBody],
       headers: req.headers,

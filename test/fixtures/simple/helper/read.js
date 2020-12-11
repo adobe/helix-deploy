@@ -13,9 +13,21 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = () => {
-  const hello = path.resolve(__dirname, '..', 'files', 'hello.txt');
-  const data = fs.readFileSync(hello, 'utf-8');
-  // eslint-disable-next-line no-console
-  console.log(hello, data);
-  return data;
+  try {
+    const hello = path.resolve(process.platform === 'win32' ? __filename : __dirname, '..', 'files', 'hello.txt');
+    const data = fs.readFileSync(hello, 'utf-8');
+    // eslint-disable-next-line no-console
+    console.log(hello, data);
+    return data;
+  } catch (e) {
+    return `
+${e.message}
+${e.stack}
+${__dirname}
+${__filename}
+${process.cwd()}
+${require.main.path}
+${process.platform === 'win32'}
+`;
+  }
 };

@@ -18,7 +18,7 @@ const path = require('path');
 const { createTestRoot, TestLogger } = require('./utils');
 const CLI = require('../src/cli.js');
 
-describe.skip('OpenWhisk Integration Test', () => {
+describe('Azure Integration Test', () => {
   let testRoot;
   let origPwd;
 
@@ -29,10 +29,10 @@ describe.skip('OpenWhisk Integration Test', () => {
 
   afterEach(async () => {
     process.chdir(origPwd);
-    await fse.remove(testRoot);
+    // await fse.remove(testRoot);
   });
 
-  it('Deploy to OpenWhisk (for real)', async () => {
+  it('Deploy to Azure (for real)', async () => {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'simple'), testRoot);
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
@@ -41,6 +41,10 @@ describe.skip('OpenWhisk Integration Test', () => {
         '--build',
         '--verbose',
         '--deploy',
+        '--azure-app', 'deploy-helix',
+        '-p', 'FOO=bar',
+        '--package.params', 'HEY=ho',
+        '--update-package', 'true',
         '--test', '/foo',
         '--directory', testRoot,
         '--entryFile', 'index.js',
@@ -52,5 +56,5 @@ describe.skip('OpenWhisk Integration Test', () => {
     const out = builder._logger.output;
     assert.ok(out.indexOf(`ok: 200
 Hello, world.`) > 0, out);
-  }).timeout(10000);
+  }).timeout(50000);
 });
