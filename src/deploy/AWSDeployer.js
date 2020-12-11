@@ -272,6 +272,7 @@ class AWSDeployer extends BaseDeployer {
 
   async updatePackage() {
     this.log.info('--: updating app (package) parameters …');
+    console.log(this._builder.packageParams);
 
     const commands = Object
       .entries(this._builder.packageParams)
