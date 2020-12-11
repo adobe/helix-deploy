@@ -34,6 +34,7 @@ class OpenWhiskDeployer extends BaseDeployer {
     Object.assign(this, {
       _packageName: '',
       _namespace: '',
+      _packageShared: false,
     });
   }
 
@@ -44,6 +45,11 @@ class OpenWhiskDeployer extends BaseDeployer {
 
   withNamespace(value) {
     this._namespace = value;
+    return this;
+  }
+
+  withPackageShared(value) {
+    this._packageShared = value;
     return this;
   }
 
@@ -146,7 +152,7 @@ class OpenWhiskDeployer extends BaseDeployer {
     let fn = openwhisk.packages.update.bind(openwhisk.packages);
     let verb = 'updated';
     try {
-      await openwhisk.packages.get(this._packageName);
+      await openwhisk.packages.get(this._builder.packageName);
     } catch (e) {
       if (e.statusCode === 404) {
         fn = openwhisk.packages.create.bind(openwhisk.packages);
@@ -157,12 +163,12 @@ class OpenWhiskDeployer extends BaseDeployer {
     }
 
     try {
-      const parameters = Object.keys(this._packageParams).map((key) => {
-        const value = this._packageParams[key];
+      const parameters = Object.keys(this._builder.packageParams).map((key) => {
+        const value = this._builder.packageParams[key];
         return { key, value };
       });
       const result = await fn({
-        name: this._packageName,
+        name: this._builder.packageName,
         package: {
           publish: this._packageShared,
           parameters,
@@ -170,7 +176,7 @@ class OpenWhiskDeployer extends BaseDeployer {
       });
       this.log.info(`${chalk.green('ok:')} ${verb} package ${chalk.whiteBright(`/${result.namespace}/${result.name}`)}`);
     } catch (e) {
-      this.log.error(`${chalk.red('error: failed processing package: ')} ${e.message}`);
+      this.log.error(`${chalk.red('error: failed processing package: ')} ${e.stack}`);
       throw Error('abort.');
     }
   }
