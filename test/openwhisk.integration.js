@@ -18,7 +18,7 @@ const path = require('path');
 const { createTestRoot, TestLogger } = require('./utils');
 const CLI = require('../src/cli.js');
 
-describe('OpenWhisk Integration Test', () => {
+describe.skip('OpenWhisk Integration Test', () => {
   let testRoot;
   let origPwd;
 
