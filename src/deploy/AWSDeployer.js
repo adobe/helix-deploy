@@ -69,7 +69,7 @@ class AWSDeployer extends BaseDeployer {
 
   async init() {
     this._bucket = `poly-func-maker-temp-${crypto.randomBytes(16).toString('hex')}`;
-    if (this.region) {
+    if (this._region) {
       this._s3 = new S3Client({
         region: this._region,
       });
