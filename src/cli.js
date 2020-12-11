@@ -37,9 +37,9 @@ class CLI {
         default: '.',
       })
       .option('deploy', {
-        description: 'Automatically deploy to OpenWhisk',
-        type: 'boolean',
-        default: false,
+        description: 'Automatically deploy to specified targets (wsk,aws,azure,google,all)',
+        type: 'string',
+        array: true,
       })
       .option('test', {
         description: 'Invoke action after deployment. Can be relative url.',
@@ -143,6 +143,7 @@ class CLI {
         type: 'number',
         default: (new Date().getTime()),
       })
+      .group(['aws-region', 'aws-role'], 'AWS Deployment Options')
       .option('aws-region', {
         description: 'the AWS region to deploy lambda functions to',
         type: 'string',
@@ -159,8 +160,9 @@ class CLI {
         default: '',
       })
       .group([
-        'name', 'node-version', 'params', 'params-file', 'web-secure',
-        'namespace', 'timeout', 'updated-by', 'updated-at'], 'OpenWhisk Action Options')
+        'name', 'node-version', 'params', 'params-file', 'updated-by', 'updated-at'], 'General Action Options')
+      .group([
+        'web-secure', 'namespace', 'timeout'], 'OpenWhisk Action Options')
 
       .option('update-package', {
         description: 'Create or update wsk package.',

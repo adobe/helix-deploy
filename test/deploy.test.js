@@ -56,7 +56,7 @@ describe('Deploy Test', () => {
         '--directory', testRoot,
       ]);
     // hack to invalidate the wsk props, if any
-    builder._deployers.openwhisk.init = () => {};
+    builder._deployers.wsk.init = () => {};
 
     await assert.rejects(builder.run(), /No applicable deployers found/);
   });

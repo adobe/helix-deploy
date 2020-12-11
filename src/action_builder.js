@@ -200,7 +200,7 @@ module.exports = class ActionBuilder {
       _updatedAt: null,
       _updatedBy: null,
       _deployers: {
-        openwhisk: new OpenWhiskDeployer(this),
+        wsk: new OpenWhiskDeployer(this),
         aws: new AWSDeployer(this),
         azure: new AzureDeployer(this),
       },
@@ -588,7 +588,6 @@ module.exports = class ActionBuilder {
     // create dist dir
     await fse.ensureDir(this._distDir);
 
-    console.log('init all');
     // init openwhisk props
     await Promise.all(Object.values(this._deployers)
       .filter((deployer) => !deployer.ready())
@@ -812,9 +811,12 @@ module.exports = class ActionBuilder {
   }
 
   async deploy() {
-    const results = await Promise.all(Object.values(this._deployers)
-      .filter((deployer) => deployer.ready())
-      .map(async (deployer) => {
+    const results = await Promise.all(Object.entries(this._deployers)
+      .filter(([name]) => this._deploy.length === 0
+        || this._deploy.indexOf('all') >= 0
+        || this._deploy.indexOf(name) >= 0)
+      .filter(([, deployer]) => deployer.ready())
+      .map(async ([, deployer]) => {
         try {
           return deployer.deploy();
         } catch (e) {
@@ -897,8 +899,8 @@ module.exports = class ActionBuilder {
     await this.updateLinks();
 
     return {
-      name: `openwhisk;host=${this._deployers.openwhisk.host}`,
-      url: this._deployers.openwhisk.fullFunctionName,
+      name: `openwhisk;host=${this._deployers.wsk.host}`,
+      url: this._deployers.wsk.fullFunctionName,
     };
   }
 };
