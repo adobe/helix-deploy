@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/adobe/helix-deploy/compare/v1.0.0...v1.0.1) (2020-12-11)
+
+
+### Bug Fixes
+
+* **aws:** deployer doesn't work ([b06ea26](https://github.com/adobe/helix-deploy/commit/b06ea264eeeeeccd77de8ee8b9fd8faa55d7178f))
+
 # 1.0.0 (2020-12-10)
 
 
