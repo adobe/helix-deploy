@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/adobe/helix-deploy/compare/v1.2.0...v1.3.0) (2020-12-12)
+
+
+### Features
+
+* **aws:** reuse existing api and integration ([8ee9e10](https://github.com/adobe/helix-deploy/commit/8ee9e10a2c8598fe41d4856b45eb00b4b29b8993)), closes [#4](https://github.com/adobe/helix-deploy/issues/4)
+
 # [1.2.0](https://github.com/adobe/helix-deploy/compare/v1.1.0...v1.2.0) (2020-12-11)
 
 
