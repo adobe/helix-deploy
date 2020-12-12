@@ -455,6 +455,12 @@ module.exports = class ActionBuilder {
     return this;
   }
 
+  withAWSApi(value) {
+    // propagate AWS api
+    this._deployers.aws.withAWSApi(value);
+    return this;
+  }
+
   withAzureApp(value) {
     this._deployers.azure.withAzureApp(value);
     return this;
