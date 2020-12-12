@@ -31,6 +31,10 @@ const {
 } = require('@aws-sdk/client-lambda');
 const {
   ApiGatewayV2Client,
+  GetApisCommand,
+  GetApiCommand,
+  GetStagesCommand,
+  GetIntegrationsCommand,
   CreateApiCommand,
   CreateStageCommand,
   CreateIntegrationCommand,
@@ -62,8 +66,13 @@ class AWSDeployer extends BaseDeployer {
     return this;
   }
 
+  withAWSApi(value) {
+    this._apiId = value;
+    return this;
+  }
+
   ready() {
-    const res = !!this._region && !!this._s3 && !!this._role && !!this._lambda;
+    const res = !!this._region && !!this._s3 && !!this._role && !!this._lambda && !!this._apiId;
     return res;
   }
 
@@ -211,39 +220,72 @@ class AWSDeployer extends BaseDeployer {
   }
 
   async createAPI() {
-    this.log.info('Creating API from scratch');
-    let res = await this._api.send(new CreateApiCommand({
-      Name: 'API managed by Poly-Func',
-      ProtocolType: 'HTTP',
-    }));
+    let res;
+    if (!this._apiId) {
+      throw new Error('--aws-api is required');
+    } else if (this._apiId === 'create') {
+      this.log.info('Creating API from scratch');
+      res = await this._api.send(new CreateApiCommand({
+        Name: 'API managed by Poly-Func',
+        ProtocolType: 'HTTP',
+      }));
+      this.log.info(`Using new API "${res.ApiId}"`);
+    } else if (this._apiId === 'auto') {
+      res = await this._api.send(new GetApisCommand({ }));
+      // todo: find API with appropriate tag. eg `helix-deploy:<namespace`.
+      res = res.Items.find((a) => a.Name === 'API managed by Poly-Func');
+      if (!res) {
+        throw Error('--aws-api=auto didn\'t find an appropriate api.');
+      }
+      this.log.info(`Using existing API "${res.ApiId}"`);
+    } else {
+      res = await this._api.send(new GetApiCommand({
+        ApiId: this._apiId,
+      }));
+      this.log.info(`Using existing API "${res.ApiId}"`);
+    }
 
     const { ApiId, ApiEndpoint } = res;
-
+    this._apiId = ApiId;
     this._functionURL = ApiEndpoint;
 
-    res = await this._api.send(new CreateStageCommand({
-      StageName: '$default',
-      AutoDeploy: true,
+    // check for stage
+    res = await this._api.send(new GetStagesCommand({
+      ApiId: this._apiId,
+    }));
+    const stage = res.Items.find((s) => s.StageName === '$default');
+    if (!stage) {
+      res = await this._api.send(new CreateStageCommand({
+        StageName: '$default',
+        AutoDeploy: true,
+        ApiId,
+      }));
+    }
+
+    // find integration
+    res = await this._api.send(new GetIntegrationsCommand({
       ApiId,
     }));
-
-    res = await this._api.send(new CreateIntegrationCommand({
-      ApiId,
-      IntegrationMethod: 'POST',
-      IntegrationType: 'AWS_PROXY',
-      IntegrationUri: this._functionARN,
-      PayloadFormatVersion: '2.0',
-      TimeoutInMillis: Math.min(this._builder.timeout, 30000),
-    }));
-
-    const { IntegrationId } = res;
-
-    res = await this._api.send(new CreateRouteCommand({
-      ApiId,
-      RouteKey: `ANY /${this._builder.actionName.replace('@', '_')}`,
-      Target: `integrations/${IntegrationId}`,
-    }));
-
+    let integration = res.Items.find((i) => i.IntegrationUri === this._functionARN);
+    if (integration) {
+      this.log.info(`Using existing integration "${integration.IntegrationId}" for "${this._functionARN}"`);
+    } else {
+      integration = await this._api.send(new CreateIntegrationCommand({
+        ApiId,
+        IntegrationMethod: 'POST',
+        IntegrationType: 'AWS_PROXY',
+        IntegrationUri: this._functionARN,
+        PayloadFormatVersion: '2.0',
+        TimeoutInMillis: Math.min(this._builder.timeout, 30000),
+      }));
+      this.log.info(`Created new integration "${integration.IntegrationId}" for "${this._functionARN}"`);
+      const { IntegrationId } = integration;
+      res = await this._api.send(new CreateRouteCommand({
+        ApiId,
+        RouteKey: `ANY /${this._builder.actionName.replace('@', '_')}`,
+        Target: `integrations/${IntegrationId}`,
+      }));
+    }
     const sourceArn = `arn:aws:execute-api:${this._region}:${this._functionARN.split(':')[4]}:${ApiId}/*/*/${this._builder.actionName.replace('@', '_')}`;
 
     res = await this._lambda.send(new AddPermissionCommand({

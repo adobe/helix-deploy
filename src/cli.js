@@ -154,6 +154,11 @@ class CLI {
         type: 'string',
         default: '',
       })
+      .option('aws-api', {
+        description: 'the AWS API Gateway name. (id, "auto" or "create")',
+        type: 'string',
+        default: 'auto',
+      })
       .option('azure-app', {
         description: 'the Azure function app to deploy to',
         type: 'string',
@@ -255,6 +260,7 @@ class CLI {
       .withLinksPackage(argv.linksPackage)
       .withAWSRegion(argv.awsRegion)
       .withAWSRole(argv.awsRole)
+      .withAWSApi(argv.awsApi)
       .withAzureApp(argv.azureApp)
       .withPackageShared(argv.package.shared);
   }
