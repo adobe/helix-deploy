@@ -1,3 +1,18 @@
+# [1.3.0](https://github.com/adobe/helix-deploy/compare/v1.2.0...v1.3.0) (2020-12-12)
+
+
+### Features
+
+* **aws:** reuse existing api and integration ([8ee9e10](https://github.com/adobe/helix-deploy/commit/8ee9e10a2c8598fe41d4856b45eb00b4b29b8993)), closes [#4](https://github.com/adobe/helix-deploy/issues/4)
+
+# [1.2.0](https://github.com/adobe/helix-deploy/compare/v1.1.0...v1.2.0) (2020-12-11)
+
+
+### Features
+
+* **azure:** deploy to azure and set package params ([39d8e9a](https://github.com/adobe/helix-deploy/commit/39d8e9adf90e5718b5b7abd851222aca26cf1573))
+* **azure:** enable setting function parameters ([61d2f53](https://github.com/adobe/helix-deploy/commit/61d2f53abbb4ab358b2e89d02d086a4ae645bdb8))
+
 # [1.1.0](https://github.com/adobe/helix-deploy/compare/v1.0.1...v1.1.0) (2020-12-11)
 
 
