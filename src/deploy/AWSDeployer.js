@@ -141,7 +141,9 @@ class AWSDeployer extends BaseDeployer {
       // todo: cram annotations into description?
       Tags: {
         pkgVersion: this._builder.version,
-        dependencies: this._builder.dependencies.main.map((dep) => `${dep.name}:${dep.version}`).join(','),
+        // AWS tags have a size limit of 256. currently disabling
+        // dependencies: this._builder.dependencies.main
+        //   .map((dep) => `${dep.name}:${dep.version}`).join(','),
         repository: encodeURIComponent(this._builder.gitUrl).replace(/%/g, '@'),
         git: encodeURIComponent(`${this._builder.gitOrigin}#${this._builder.gitRef}`).replace(/%/g, '@'),
         updated: `${this._builder.updatedAt}`,
@@ -149,7 +151,6 @@ class AWSDeployer extends BaseDeployer {
       Description: this._builder.pkgJson.description,
       MemorySize: this._builder.memory,
       Timeout: Math.floor(this._builder.timeout / 1000),
-      // todo: what about package params?
       Environment: {
         Variables: this._builder.params,
       },
