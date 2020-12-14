@@ -76,7 +76,12 @@ class AWSDeployer extends BaseDeployer {
   }
 
   ready() {
-    const res = !!this._region && !!this._s3 && !!this._role && !!this._lambda && !!this._ssm && !!this._apiId;
+    const res = !!this._region
+    && !!this._s3
+    && !!this._role
+    && !!this._lambda
+    && !!this._ssm
+    && !!this._apiId;
     return res;
   }
 
