@@ -306,6 +306,13 @@ class AWSDeployer extends BaseDeployer {
     }
   }
 
+  async test() {
+    return this.testRequest({
+      url: this._functionURL,
+      idHeader: 'apigw-requestid',
+    });
+  }
+
   async deploy() {
     try {
       await this.createS3Bucket();

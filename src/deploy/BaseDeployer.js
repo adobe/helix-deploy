@@ -10,6 +10,15 @@
  * governing permissions and limitations under the License.
  */
 const path = require('path');
+const chalk = require('chalk');
+const fetchAPI = require('@adobe/helix-fetch');
+
+const { fetch } = process.env.HELIX_FETCH_FORCE_HTTP1
+  ? fetchAPI.context({
+    httpProtocol: 'http1',
+    httpsProtocols: ['http1'],
+  })
+  : fetchAPI;
 
 class BaseDeployer {
   constructor(builder) {
@@ -26,6 +35,33 @@ class BaseDeployer {
 
   get relZip() {
     return path.relative(process.cwd(), this._builder.zipFile);
+  }
+
+  async testRequest({
+    url,
+    headers = {},
+    idHeader,
+  }) {
+    const testUrl = `${url}${this._builder.testPath || ''}`;
+    this.log.info(`--: requesting: ${chalk.blueBright(testUrl)} ...`);
+    const ret = await fetch(testUrl, {
+      headers,
+    });
+    const body = await ret.text();
+    const id = idHeader ? ret.headers.get(idHeader) : 'n/a';
+    if (ret.ok) {
+      this.log.info(`id: ${chalk.grey(id)}`);
+      this.log.info(`${chalk.green('ok:')} ${ret.status}`);
+      this.log.debug(chalk.grey(body));
+    } else {
+      this.log.info(`id: ${chalk.grey(id)}`);
+      if (ret.status === 302 || ret.status === 301) {
+        this.log.info(`${chalk.green('ok:')} ${ret.status}`);
+        this.log.debug(chalk.grey(`Location: ${ret.headers.get('location')}`));
+      } else {
+        throw new Error(`test failed: ${ret.status} ${body}`);
+      }
+    }
   }
 }
 
