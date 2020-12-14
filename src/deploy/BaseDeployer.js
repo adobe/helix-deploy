@@ -27,6 +27,23 @@ class BaseDeployer {
   get relZip() {
     return path.relative(process.cwd(), this._builder.zipFile);
   }
+
+  get host() {
+    if (this._functionURL) {
+      return new URL(this._functionURL).hostname;
+    }
+    return null;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  get basePath() {
+    return '';
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  get customVCL() {
+    return '';
+  }
 }
 
 module.exports = BaseDeployer;

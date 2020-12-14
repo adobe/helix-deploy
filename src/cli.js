@@ -164,6 +164,16 @@ class CLI {
         type: 'string',
         default: '',
       })
+      .option('fastly-service-id', {
+        description: 'the Fastly Service to use as a gateway',
+        type: 'string',
+        default: '',
+      })
+      .option('fastly-auth', {
+        description: 'the Fastly token',
+        type: 'string',
+        default: '',
+      })
       .group([
         'name', 'node-version', 'params', 'params-file', 'updated-by', 'updated-at'], 'General Action Options')
       .group([
@@ -262,6 +272,8 @@ class CLI {
       .withAWSRole(argv.awsRole)
       .withAWSApi(argv.awsApi)
       .withAzureApp(argv.azureApp)
+      .withFastlyServiceID(argv.fastlyServiceId)
+      .withFastlyAuth(argv.fastlyAuth)
       .withPackageShared(argv.package.shared);
   }
 

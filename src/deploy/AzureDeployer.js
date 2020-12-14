@@ -37,6 +37,21 @@ class AzureDeployer extends BaseDeployer {
     return this;
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  get basePath() {
+    return '/api';
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  get customVCL() {
+    // fix azure's blob handling
+    // todo: more compre
+    return `if (req.http.content-type != "" && req.http.content-type ~ "^(image)/.*") {
+      set req.http.x-backup-content-type = req.http.content-type;
+      set req.http.content-type = "application/octet-stream";
+    }`;
+  }
+
   async init() {
     const clientId = process.env.AZURE_CLIENT_ID;
     const secret = process.env.AZURE_CLIENT_SECRET;

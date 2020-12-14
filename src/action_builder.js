@@ -22,6 +22,7 @@ const { version } = require('../package.json');
 const OpenWhiskDeployer = require('./deploy/OpenWhiskDeployer');
 const AWSDeployer = require('./deploy/AWSDeployer');
 const AzureDeployer = require('./deploy/AzureDeployer');
+const FastlyGateway = require('./gateway/FastlyGateway');
 
 require('dotenv').config();
 
@@ -202,6 +203,9 @@ module.exports = class ActionBuilder {
         wsk: new OpenWhiskDeployer(this),
         aws: new AWSDeployer(this),
         azure: new AzureDeployer(this),
+      },
+      _gateways: {
+        fastly: new FastlyGateway(this),
       },
     });
   }
@@ -463,6 +467,16 @@ module.exports = class ActionBuilder {
 
   withAzureApp(value) {
     this._deployers.azure.withAzureApp(value);
+    return this;
+  }
+
+  withFastlyServiceID(value) {
+    this._gateways.fastly.withServiceID(value);
+    return this;
+  }
+
+  withFastlyAuth(value) {
+    this._gateways.fastly.withAuth(value);
     return this;
   }
 
