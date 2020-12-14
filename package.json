@@ -1,6 +1,6 @@
 {
   "name": "@adobe/helix-deploy",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Library and Commandline Tools to build and deploy OpenWhisk Actions",
   "license": "Apache-2.0",
   "repository": {
@@ -29,6 +29,7 @@
     "@aws-sdk/client-apigatewayv2": "^1.0.0-rc.8",
     "@aws-sdk/client-lambda": "^1.0.0-rc.8",
     "@aws-sdk/client-s3": "^1.0.0-rc.8",
+    "@aws-sdk/client-ssm": "^1.0.0-rc.8",
     "@azure/arm-appservice": "^6.1.0",
     "@azure/ms-rest-nodeauth": "^3.0.6",
     "archiver": "^5.0.0",

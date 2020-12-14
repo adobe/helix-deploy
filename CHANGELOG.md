@@ -1,3 +1,12 @@
+# [1.4.0](https://github.com/adobe/helix-deploy/compare/v1.3.0...v1.4.0) (2020-12-14)
+
+
+### Features
+
+* **aws:** add package parameters to ssm ([d8b2cb7](https://github.com/adobe/helix-deploy/commit/d8b2cb71642bef10d7553b8c51c28af0bfcbc765))
+* **aws:** add secrets from secret store at runtime ([6310ba8](https://github.com/adobe/helix-deploy/commit/6310ba887638d8ee417a7508ebb3f8629c2e558a))
+* **aws:** set package parameters using SSM ([d76b59b](https://github.com/adobe/helix-deploy/commit/d76b59bc2a4e8dee6ed119cc3735ba6cc332be80))
+
 # [1.3.0](https://github.com/adobe/helix-deploy/compare/v1.2.0...v1.3.0) (2020-12-12)
 
 
