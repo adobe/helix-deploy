@@ -281,7 +281,13 @@ class AWSDeployer extends BaseDeployer {
       }));
       this.log.info(`Created new integration "${integration.IntegrationId}" for "${this._functionARN}"`);
       const { IntegrationId } = integration;
-      res = await this._api.send(new CreateRouteCommand({
+      // need to create 2 routes. one for the exact path, and one with suffix
+      await this._api.send(new CreateRouteCommand({
+        ApiId,
+        RouteKey: `ANY /${this._builder.actionName.replace('@', '_')}/{path+}`,
+        Target: `integrations/${IntegrationId}`,
+      }));
+      await this._api.send(new CreateRouteCommand({
         ApiId,
         RouteKey: `ANY /${this._builder.actionName.replace('@', '_')}`,
         Target: `integrations/${IntegrationId}`,
@@ -307,6 +313,9 @@ class AWSDeployer extends BaseDeployer {
   }
 
   async test() {
+    if (!this._functionURL) {
+      return '';
+    }
     return this.testRequest({
       url: this._functionURL,
       idHeader: 'apigw-requestid',

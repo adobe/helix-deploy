@@ -15,7 +15,7 @@ module.exports = {
   externals: [
     'express',
     'body-parser',
-    'cls-hooked',
+    // 'cls-hooked',
     'request',
     'request-promise',
     /^openwhisk(\/.*)?$/,
