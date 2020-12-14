@@ -40,6 +40,10 @@ const {
   CreateIntegrationCommand,
   CreateRouteCommand,
 } = require('@aws-sdk/client-apigatewayv2');
+const {
+  SSMClient,
+  PutParameterCommand,
+} = require('@aws-sdk/client-ssm');
 const path = require('path');
 const fse = require('fs-extra');
 const crypto = require('crypto');
@@ -72,7 +76,12 @@ class AWSDeployer extends BaseDeployer {
   }
 
   ready() {
-    const res = !!this._region && !!this._s3 && !!this._role && !!this._lambda && !!this._apiId;
+    const res = !!this._region
+    && !!this._s3
+    && !!this._role
+    && !!this._lambda
+    && !!this._ssm
+    && !!this._apiId;
     return res;
   }
 
@@ -86,6 +95,9 @@ class AWSDeployer extends BaseDeployer {
         region: this._region,
       });
       this._api = new ApiGatewayV2Client({
+        region: this._region,
+      });
+      this._ssm = new SSMClient({
         region: this._region,
       });
     }
@@ -303,6 +315,25 @@ class AWSDeployer extends BaseDeployer {
       this.log.info('\nYou can verify the action with:');
       this.log.info(chalk`{grey $ curl${opts} "${this._functionURL}"}`);
     }
+  }
+
+  async updatePackage() {
+    this.log.info('--: updating app (package) parameters …');
+    console.log(this._builder.packageParams);
+
+    const commands = Object
+      .entries(this._builder.packageParams)
+      .map(([key, value]) => this._ssm.send(new PutParameterCommand({
+        Name: `/helix-deploy/${this._builder.packageName}/${key}`,
+        Value: value,
+        Type: 'SecureString',
+        DataType: 'text',
+        Overwrite: true,
+      })));
+
+    await Promise.all(commands);
+
+    this.log.info('parameters updated');
   }
 
   async deploy() {

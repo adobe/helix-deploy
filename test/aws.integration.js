@@ -43,6 +43,8 @@ describe('AWS Integration Test', () => {
         '--deploy',
         '--aws-region', 'us-east-1',
         '--aws-role', 'arn:aws:iam::320028119408:role/lambda-role',
+        '--package.params', 'HEY=ho',
+        '--update-package', 'true',
         '-p', 'FOO=bar',
         '--test', '/foo',
         '--directory', testRoot,
