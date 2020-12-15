@@ -113,7 +113,7 @@ class AWSDeployer extends BaseDeployer {
   async uploadZIP() {
     const relZip = path.relative(process.cwd(), this._builder.zipFile);
 
-    this.log.info(`--: uploading ${relZip} to S3 bucket ${this._bucket} …`);
+    this.log.info(`--: uploading ${relZip} to S3 bucket ${this._bucket} ...`);
     const uploadParams = {
       Bucket: this._bucket,
       Key: relZip,
@@ -153,7 +153,9 @@ class AWSDeployer extends BaseDeployer {
       // todo: cram annotations into description?
       Tags: {
         pkgVersion: this._builder.version,
-        dependencies: this._builder.dependencies.main.map((dep) => `${dep.name}:${dep.version}`).join(','),
+        // AWS tags have a size limit of 256. currently disabling
+        // dependencies: this._builder.dependencies.main
+        //   .map((dep) => `${dep.name}:${dep.version}`).join(','),
         repository: encodeURIComponent(this._builder.gitUrl).replace(/%/g, '@'),
         git: encodeURIComponent(`${this._builder.gitOrigin}#${this._builder.gitRef}`).replace(/%/g, '@'),
         updated: `${this._builder.updatedAt}`,
@@ -161,7 +163,6 @@ class AWSDeployer extends BaseDeployer {
       Description: this._builder.pkgJson.description,
       MemorySize: this._builder.memory,
       Timeout: Math.floor(this._builder.timeout / 1000),
-      // todo: what about package params?
       Environment: {
         Variables: this._builder.params,
       },
@@ -292,7 +293,13 @@ class AWSDeployer extends BaseDeployer {
       }));
       this.log.info(`Created new integration "${integration.IntegrationId}" for "${this._functionARN}"`);
       const { IntegrationId } = integration;
-      res = await this._api.send(new CreateRouteCommand({
+      // need to create 2 routes. one for the exact path, and one with suffix
+      await this._api.send(new CreateRouteCommand({
+        ApiId,
+        RouteKey: `ANY /${this._builder.actionName.replace('@', '_')}/{path+}`,
+        Target: `integrations/${IntegrationId}`,
+      }));
+      await this._api.send(new CreateRouteCommand({
         ApiId,
         RouteKey: `ANY /${this._builder.actionName.replace('@', '_')}`,
         Target: `integrations/${IntegrationId}`,
@@ -317,10 +324,18 @@ class AWSDeployer extends BaseDeployer {
     }
   }
 
-  async updatePackage() {
-    this.log.info('--: updating app (package) parameters …');
-    console.log(this._builder.packageParams);
+  async test() {
+    if (!this._functionURL) {
+      return '';
+    }
+    return this.testRequest({
+      url: this._functionURL,
+      idHeader: 'apigw-requestid',
+    });
+  }
 
+  async updatePackage() {
+    this.log.info('--: updating app (package) parameters ...');
     const commands = Object
       .entries(this._builder.packageParams)
       .map(([key, value]) => this._ssm.send(new PutParameterCommand({
