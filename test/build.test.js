@@ -88,10 +88,10 @@ describe('Build Test', () => {
     const res = await builder.run();
     assert.deepEqual(res, {
       name: 'openwhisk;host=https://example.com',
-      url: '/foobar/simple-package/simple-name@1.44',
+      url: '/foobar/simple-package/simple-name@1.45',
     });
 
-    await assertZipEntries(path.resolve(testRoot, 'dist', 'simple-package', 'simple-name@1.44.zip'), [
+    await assertZipEntries(path.resolve(testRoot, 'dist', 'simple-package', 'simple-name@1.45.zip'), [
       'main.js',
       'index.js',
       'package.json',
@@ -102,7 +102,7 @@ describe('Build Test', () => {
     ]);
 
     // unzip action again
-    const zipFile = path.resolve(testRoot, 'dist', 'simple-package', 'simple-name@1.44.zip');
+    const zipFile = path.resolve(testRoot, 'dist', 'simple-package', 'simple-name@1.45.zip');
     const zipDir = path.resolve(testRoot, 'dist', 'extracted');
     await new Promise((resolve, reject) => {
       yauzl.open(zipFile, { lazyEntries: true }, (err, zipfile) => {
