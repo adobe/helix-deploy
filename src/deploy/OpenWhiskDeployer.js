@@ -61,7 +61,7 @@ class OpenWhiskDeployer extends BaseDeployer {
   }
 
   get host() {
-    return this._wskApiHost;
+    return this._wskApiHost.replace('https://', '');
   }
 
   get fullFunctionName() {
