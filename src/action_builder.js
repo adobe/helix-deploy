@@ -862,7 +862,6 @@ module.exports = class ActionBuilder {
   }
 
   async updatePackage() {
-    console.log('updating all packages');
     await Promise.all(await Object.values(this._deployers)
       .filter((deployer) => deployer.ready())
       .filter((deployer) => typeof deployer.updatePackage === 'function')
@@ -925,6 +924,10 @@ module.exports = class ActionBuilder {
     }
 
     await this.updateLinks();
+
+    if (this._gateways.fastly && this._gateways.fastly.ready()) {
+      await this._gateways.fastly.deploy();
+    }
 
     return {
       name: `openwhisk;host=${this._deployers.wsk.host}`,

@@ -79,6 +79,8 @@ class FastlyGateway {
   }
 
   async deploy() {
+    this.log.info('Set up Fastly Gateway');
+
     await this._fastly.transact(async (newversion) => {
       // set up health checks
       await Promise.all(this._deployers
