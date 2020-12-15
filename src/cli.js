@@ -177,6 +177,11 @@ class CLI {
         type: 'string',
         default: '',
       })
+      .option('checkpath', {
+        description: 'the path to check as part of the Fastly health check',
+        type: 'string',
+        default: '',
+      })
       .group([
         'name', 'node-version', 'params', 'params-file', 'updated-by', 'updated-at'], 'General Action Options')
       .group([
@@ -277,6 +282,7 @@ class CLI {
       .withAzureApp(argv.azureApp)
       .withFastlyServiceID(argv.fastlyServiceId)
       .withFastlyAuth(argv.fastlyAuth)
+      .withCheckpath(argv.checkpath)
       .withPackageShared(argv.package.shared);
   }
 

@@ -18,10 +18,11 @@ class FastlyGateway {
     this._auth = undefined;
     this._fastly = null;
     this._deployers = [];
+    this._checkpath = '';
   }
 
   ready() {
-    return !!this._service && !!this._auth;
+    return !!this._service && !!this._auth && this._checkpath;
   }
 
   init() {
@@ -41,7 +42,12 @@ class FastlyGateway {
   }
 
   withDeployer(value) {
-    this.deployers.push(value);
+    this._deployers.push(value);
+    return this;
+  }
+
+  withCheckpath(value) {
+    this._checkpath = value;
     return this;
   }
 
@@ -53,7 +59,7 @@ class FastlyGateway {
       if (1 == 0) {}`;
 
     const middle = this._deployers.map((deployer, i) => `if(var.i <= ${i} && backend.F_${deployer.constructor.name.replace('Deployer', '')}.healthy) {
-      set req.backend = F_F_${deployer.constructor.name.replace('Deployer', '')};
+      set req.backend = F_${deployer.constructor.name.replace('Deployer', '')};
     }`);
 
     const fallback = `{
@@ -74,6 +80,23 @@ class FastlyGateway {
 
   async deploy() {
     await this._fastly.transact(async (newversion) => {
+      // set up health checks
+      await Promise.all(this._deployers
+        .map((deployer) => ({
+          check_interval: 60000,
+          expected_response: 200,
+          host: deployer.host,
+          http_version: '1.1',
+          initial: 1,
+          name: deployer.constructor.name.replace('Deployer', 'Check'),
+          path: deployer.baseURL + this._checkpath,
+          threshold: 1,
+          timeout: 5000,
+          window: 2,
+        }))
+        .map((healthcheck) => this._fastly
+          .writeHealthcheck(newversion, healthcheck.name, healthcheck)));
+
       // set up backends
       await Promise.all(this._deployers
         .map((deployer) => ({
@@ -82,6 +105,7 @@ class FastlyGateway {
           ssl_sni_hostname: deployer.host,
           address: deployer.host,
           name: deployer.constructor.name.replace('Deployer', ''),
+          healthcheck: deployer.constructor.name.replace('Deployer', 'Check'),
           error_threshold: 0,
           first_byte_timeout: 60000,
           weight: 100,
@@ -92,8 +116,8 @@ class FastlyGateway {
           max_conn: 200,
           use_ssl: true,
         }))
-        .map((backend) => this._fastly.writeBackend(newversion, backend.name, backend)));
-      // todo: set up health checks
+        .map((backend) => this._fastly
+          .writeBackend(newversion, backend.name, backend)));
 
       await this._fastly.writeSnippet(newversion, {
         name: 'Select Backend',

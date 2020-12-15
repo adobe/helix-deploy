@@ -480,6 +480,11 @@ module.exports = class ActionBuilder {
     return this;
   }
 
+  withCheckpath(value) {
+    this._gateways.fastly.withCheckpath(value);
+    return this;
+  }
+
   get testPath() {
     return this._test;
   }
