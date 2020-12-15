@@ -51,10 +51,17 @@ async function getAWSSecrets(functionName) {
   const ssm = new AWS.SSM();
   ssm.getParametersByPath = promisify(ssm.getParametersByPath.bind(ssm));
 
-  const params = await ssm.getParametersByPath({
-    Path: `/helix-deploy/${functionName.replace(/--.*/, '')}/`,
-    WithDecryption: true,
-  });
+  let params = [];
+  try {
+    const res = await ssm.getParametersByPath({
+      Path: `/helix-deploy/${functionName.replace(/--.*/, '')}/`,
+      WithDecryption: true,
+    });
+    params = res.Parameters;
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error('unable to get parameters', e);
+  }
 
   return params.reduce((p, param) => {
     p[param.Name.replace(/.*\//, '')] = param.Value;
