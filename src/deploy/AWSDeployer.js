@@ -85,6 +85,10 @@ class AWSDeployer extends BaseDeployer {
     return res;
   }
 
+  get host() {
+    return `${this._apiId}.execute-api.${this._region}.amazonaws.com`;
+  }
+
   async init() {
     this._bucket = `poly-func-maker-temp-${crypto.randomBytes(16).toString('hex')}`;
     if (this._region) {
