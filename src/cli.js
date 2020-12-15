@@ -17,10 +17,13 @@ const chalk = require('chalk');
 
 const defaultConfig = require('./config/adobeioruntime-node10.js');
 
+require('dotenv').config();
+
 class CLI {
   constructor() {
     this._yargs = yargs()
       .pkgConf('wsk')
+      .env('HLX')
       .option('verbose', {
         alias: 'v',
         type: 'boolean',

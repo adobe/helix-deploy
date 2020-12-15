@@ -51,10 +51,17 @@ async function getAWSSecrets(functionName) {
   const ssm = new AWS.SSM();
   ssm.getParametersByPath = promisify(ssm.getParametersByPath.bind(ssm));
 
-  const params = await ssm.getParametersByPath({
-    Path: `/helix-deploy/${functionName.replace(/--.*/, '')}/`,
-    WithDecryption: true,
-  });
+  let params = [];
+  try {
+    const res = await ssm.getParametersByPath({
+      Path: `/helix-deploy/${functionName.replace(/--.*/, '')}/`,
+      WithDecryption: true,
+    });
+    params = res.Parameters;
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error('unable to get parameters', e);
+  }
 
   return params.reduce((p, param) => {
     p[param.Name.replace(/.*\//, '')] = param.Value;
@@ -85,6 +92,9 @@ module.exports = async function azure(context, req) {
     });
 
     const con = {
+      pathInfo: {
+        suffix: '', // TODO!
+      },
       runtime: {
         name: 'azure-functions',
         region: process.env.Location,
@@ -146,6 +156,7 @@ module.exports.main = async function openwhisk(params = {}) {
     });
 
     const [namespace, ...names] = (process.env.__OW_ACTION_NAME || 'default/test').split('/');
+    const suffix = params.__ow_path || '';
 
     delete params.__ow_method;
     delete params.__ow_query;
@@ -154,6 +165,9 @@ module.exports.main = async function openwhisk(params = {}) {
     delete params.__ow_path;
 
     const context = {
+      pathInfo: {
+        suffix,
+      },
       runtime: {
         name: 'apache-openwhisk',
         region: process.env.__OW_REGION,
@@ -205,6 +219,9 @@ module.exports.google = async (req, res) => {
     const [country, region, ...servicename] = subdomain.split('-');
 
     const context = {
+      pathInfo: {
+        suffix: '', // TODO!
+      },
       runtime: {
         name: 'googlecloud-functions',
         region: `${country}${region}`,
@@ -238,6 +255,9 @@ module.exports.lambda = async function lambda(event, context) {
       body: event.isBase64Encoded ? Buffer.from(event.body, 'base64') : event.body,
     });
     const con = {
+      pathInfo: {
+        suffix: event.pathParameters && event.pathParameters.path ? `/${event.pathParameters.path}` : '',
+      },
       runtime: {
         name: 'aws-lambda',
         region: process.env.AWS_REGION,

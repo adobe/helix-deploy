@@ -11,7 +11,6 @@
  */
 const ow = require('openwhisk');
 const semver = require('semver');
-const fetchAPI = require('@adobe/helix-fetch');
 const os = require('os');
 const fse = require('fs-extra');
 const path = require('path');
@@ -19,13 +18,6 @@ const chalk = require('chalk');
 const dotenv = require('dotenv');
 
 const BaseDeployer = require('./BaseDeployer');
-
-const { fetch } = process.env.HELIX_FETCH_FORCE_HTTP1
-  ? fetchAPI.context({
-    httpProtocol: 'http1',
-    httpsProtocols: ['http1'],
-  })
-  : fetchAPI;
 
 class OpenWhiskDeployer extends BaseDeployer {
   constructor(builder) {
@@ -97,7 +89,7 @@ class OpenWhiskDeployer extends BaseDeployer {
   async deploy() {
     const openwhisk = this.getOpenwhiskClient();
     const relZip = path.relative(process.cwd(), this._builder.zipFile);
-    this.log.info(`--: deploying ${relZip} as ${this._builder.actionName} …`);
+    this.log.info(`--: deploying ${relZip} as ${this._builder.actionName} ...`);
     const actionoptions = {
       name: this._builder.actionName,
       action: await fse.readFile(this._builder.zipFile),
@@ -186,36 +178,17 @@ class OpenWhiskDeployer extends BaseDeployer {
   }
 
   async test() {
-    return this.testRequest();
-  }
-
-  async testRequest() {
-    const url = `${this._wskApiHost}/api/v1/web${this.fullFunctionName}${this._builder.testPath || ''}`;
-    this.log.info(`--: requesting: ${chalk.blueBright(url)} ...`);
     const headers = {};
     if (this._builder.webSecure === true) {
       headers.authorization = `Basic ${Buffer.from(this._wskAuth).toString('base64')}`;
     } else if (this._builder.webSecure) {
       headers['x-require-whisk-auth'] = this._webSecure;
     }
-    const ret = await fetch(url, {
+    return this.testRequest({
+      url: `${this._wskApiHost}/api/v1/web${this.fullFunctionName}`,
       headers,
+      idHeader: 'x-openwhisk-activation-id',
     });
-    const body = await ret.text();
-    const id = ret.headers.get('x-openwhisk-activation-id');
-    if (ret.ok) {
-      this.log.info(`id: ${chalk.grey(id)}`);
-      this.log.info(`${chalk.green('ok:')} ${ret.status}`);
-      this.log.debug(chalk.grey(body));
-    } else {
-      this.log.info(`id: ${chalk.grey(id)}`);
-      if (ret.status === 302 || ret.status === 301) {
-        this.log.info(`${chalk.green('ok:')} ${ret.status}`);
-        this.log.debug(chalk.grey(`Location: ${ret.headers.get('location')}`));
-      } else {
-        throw new Error(`test failed: ${ret.status} ${body}`);
-      }
-    }
   }
 
   async showDeployHints() {
