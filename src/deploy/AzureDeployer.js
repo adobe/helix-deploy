@@ -45,7 +45,7 @@ class AzureDeployer extends BaseDeployer {
   // eslint-disable-next-line class-methods-use-this
   get customVCL() {
     // fix azure's blob handling
-    // todo: more compre
+    // todo: more comprehensive regex of commonly uploaded mime types
     return `if (req.http.content-type != "" && req.http.content-type ~ "^(image)/.*") {
       set req.http.x-backup-content-type = req.http.content-type;
       set req.http.content-type = "application/octet-stream";
