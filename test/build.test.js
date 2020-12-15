@@ -92,7 +92,6 @@ describe('Build Test', () => {
     });
 
     await assertZipEntries(path.resolve(testRoot, 'dist', 'simple-package', 'simple-name@1.45.zip'), [
-      'main.js',
       'index.js',
       'package.json',
       'files/hello.txt',

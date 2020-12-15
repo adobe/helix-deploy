@@ -665,7 +665,7 @@ module.exports = class ActionBuilder {
   }
 
   async updateArchive(archive, packageJson) {
-    archive.file(this._bundle, { name: 'main.js' });
+    archive.file(this._bundle, { name: 'index.js' });
     this._statics.forEach(([src, name]) => {
       if (fse.lstatSync(src).isDirectory()) {
         archive.directory(src, name);
@@ -677,11 +677,8 @@ module.exports = class ActionBuilder {
       archive.directory(path.resolve(this._cwd, `node_modules/${mod}`), `node_modules/${mod}`);
     });
 
-    archive.directory(path.resolve(__dirname, '../node_modules/node-fetch'), 'node_modules/node-fetch');
-
     archive.append(JSON.stringify(packageJson, null, '  '), { name: 'package.json' });
-    // universal serverless wrapper
-    archive.file(path.resolve(__dirname, 'template', 'index.js'), { name: 'index.js' });
+    // azure functions manifest
     archive.file(path.resolve(__dirname, 'template', 'function.json'), { name: 'function.json' });
   }
 
@@ -689,7 +686,8 @@ module.exports = class ActionBuilder {
     return {
       target: 'node',
       mode: 'development',
-      entry: this._file,
+      // the universal adapter is the entry point
+      entry: path.resolve(__dirname, 'template', 'index.js'),
       output: {
         path: this._cwd,
         filename: path.relative(this._cwd, this._bundle),
@@ -697,7 +695,17 @@ module.exports = class ActionBuilder {
         libraryTarget: 'umd',
       },
       devtool: false,
-      externals: this._externals,
+      externals: [
+        ...this._externals,
+        // the following are imported by the universal adapter and are assumed to be available
+        './params.json',
+        'aws-sdk',
+      ].reduce((cfg, ext) => {
+        // this makes webpack to ignore the module and just leave it as normal require.
+        // eslint-disable-next-line no-param-reassign
+        cfg[ext] = `commonjs2 ${ext}`;
+        return cfg;
+      }, {}),
       module: {
         rules: [{
           test: /\.mjs$/,
@@ -707,6 +715,10 @@ module.exports = class ActionBuilder {
       resolve: {
         mainFields: ['main', 'module'],
         extensions: ['.wasm', '.js', '.mjs', '.json'],
+        alias: {
+          // the main.js is imported in the universal adapter and is _the_ action entry point
+          './main.js': this._file,
+        },
       },
       node: {
         __dirname: true,
