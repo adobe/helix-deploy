@@ -113,7 +113,7 @@ class AWSDeployer extends BaseDeployer {
   async uploadZIP() {
     const relZip = path.relative(process.cwd(), this._builder.zipFile);
 
-    this.log.info(`--: uploading ${relZip} to S3 bucket ${this._bucket} …`);
+    this.log.info(`--: uploading ${relZip} to S3 bucket ${this._bucket} ...`);
     const uploadParams = {
       Bucket: this._bucket,
       Key: relZip,
@@ -335,7 +335,7 @@ class AWSDeployer extends BaseDeployer {
   }
 
   async updatePackage() {
-    this.log.info('--: updating app (package) parameters …');
+    this.log.info('--: updating app (package) parameters ...');
     console.log(this._builder.packageParams);
 
     const commands = Object

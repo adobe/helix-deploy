@@ -86,7 +86,7 @@ class AzureDeployer extends BaseDeployer {
         this._pubcreds.publishingPassword}`,
     ).toString('base64')}`;
 
-    this.log.info(`--: uploading ${this.relZip} to Azure bucket ${url} …`);
+    this.log.info(`--: uploading ${this.relZip} to Azure bucket ${url} ...`);
 
     const resp = await fetch(url, {
       method: 'PUT',
@@ -105,7 +105,7 @@ class AzureDeployer extends BaseDeployer {
   }
 
   async updateParams() {
-    this.log.info('--: updating function parameters …');
+    this.log.info('--: updating function parameters ...');
     const funcname = this._builder.actionName.replace('/', '--').replace('@', '_').replace('.', '_');
     const url = new URL(
       `${this._pubcreds.scmUri}/api/vfs/site/wwwroot/${funcname}/params.json`,
@@ -155,7 +155,7 @@ class AzureDeployer extends BaseDeployer {
   }
 
   async updatePackage() {
-    this.log.info('--: updating app (package) parameters …');
+    this.log.info('--: updating app (package) parameters ...');
     const url = new URL(
       `${this._pubcreds.scmUri}/api/settings`,
     ).href.replace(/https:\/\/.*?@/, 'https://');
