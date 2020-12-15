@@ -1,3 +1,17 @@
+# [1.5.0](https://github.com/adobe/helix-deploy/compare/v1.4.0...v1.5.0) (2020-12-15)
+
+
+### Bug Fixes
+
+* **aws:** add route for requests with suffix ([a3240ac](https://github.com/adobe/helix-deploy/commit/a3240ac3d930aef392cdb7111b256f37ec52019f)), closes [#13](https://github.com/adobe/helix-deploy/issues/13)
+* **aws:** dependency list not valid tag value ([03172a2](https://github.com/adobe/helix-deploy/commit/03172a2e0d593e6b89a7aafc02b8b4d370761f17)), closes [#12](https://github.com/adobe/helix-deploy/issues/12)
+* **deploy:** allow each deployer to specify test ([b004fe4](https://github.com/adobe/helix-deploy/commit/b004fe422ae586582e8bdb4a0291531e83b5fb8d)), closes [#10](https://github.com/adobe/helix-deploy/issues/10)
+
+
+### Features
+
+* **adapter:** include suffix / __ow_path in context ([21e4e2c](https://github.com/adobe/helix-deploy/commit/21e4e2c6e439942a18c88dee735561e2a57d0f31)), closes [#17](https://github.com/adobe/helix-deploy/issues/17)
+
 # [1.4.0](https://github.com/adobe/helix-deploy/compare/v1.3.0...v1.4.0) (2020-12-14)
 
 
