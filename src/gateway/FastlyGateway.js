@@ -72,7 +72,7 @@ class FastlyGateway {
 
   setURLVCL() {
     return this._deployers.map((deployer) => `
-      if (req.backend == F_${deployer.constructor.name.replace('Deployer', '')}) {
+      if (req.backend == F_${deployer.name}) {
         set bereq.url = "${deployer.baseURL}" + req.url;
       }
       `).join('\n');
