@@ -98,8 +98,10 @@ describe('Deploy Test', () => {
 
     const res = await builder.run();
     assert.deepEqual(res, {
-      name: 'openwhisk;host=https://example.com',
-      url: '/foobar/default/simple-project',
+      wsk: {
+        name: 'openwhisk;host=https://example.com',
+        url: '/foobar/default/simple-project',
+      },
     });
 
     const out = builder._logger.output;
@@ -126,8 +128,10 @@ describe('Deploy Test', () => {
 
     const res = await builder.run();
     assert.deepEqual(res, {
-      name: 'openwhisk;host=https://example.com',
-      url: '/foobar/default/simple-project',
+      wsk: {
+        name: 'openwhisk;host=https://example.com',
+        url: '/foobar/default/simple-project',
+      },
     });
 
     const out = builder._logger.output;
@@ -156,8 +160,10 @@ describe('Deploy Test', () => {
 
     const res = await builder.run();
     assert.deepEqual(res, {
-      name: 'openwhisk;host=https://example.com',
-      url: '/foobar/test-package/simple-project',
+      wsk: {
+        name: 'openwhisk;host=https://example.com',
+        url: '/foobar/test-package/simple-project',
+      },
     });
 
     const out = builder._logger.output;
@@ -193,8 +199,10 @@ describe('Deploy Test', () => {
 
     const res = await builder.run();
     assert.deepEqual(res, {
-      name: 'openwhisk;host=https://example.com',
-      url: '/foobar/default/simple-project',
+      wsk: {
+        name: 'openwhisk;host=https://example.com',
+        url: '/foobar/default/simple-project',
+      },
     });
 
     const out = builder._logger.output;
@@ -222,8 +230,10 @@ describe('Deploy Test', () => {
 
     const res = await builder.run();
     assert.deepEqual(res, {
-      name: 'openwhisk;host=https://example.com',
-      url: '/foobar/test-package/simple-project',
+      wsk: {
+        name: 'openwhisk;host=https://example.com',
+        url: '/foobar/default/simple-project',
+      },
     });
 
     const out = builder._logger.output;

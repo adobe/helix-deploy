@@ -33,6 +33,12 @@ class BaseDeployer {
     return this._builder && false;
   }
 
+  validate() {
+    if (!this.ready()) {
+      throw Error(`${this.name} target not valid.`);
+    }
+  }
+
   get relZip() {
     return path.relative(process.cwd(), this._builder.zipFile);
   }

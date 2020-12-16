@@ -54,6 +54,7 @@ class AWSDeployer extends BaseDeployer {
     super(builder);
 
     Object.assign(this, {
+      name: 'AWS',
       _region: '',
       _role: '',
       _functionARN: '',
@@ -83,6 +84,12 @@ class AWSDeployer extends BaseDeployer {
     && !!this._ssm
     && !!this._apiId;
     return res;
+  }
+
+  validate() {
+    if (!this._role || !this._region) {
+      throw Error('AWS target needs --aws-region and --aws-role');
+    }
   }
 
   async init() {
@@ -260,7 +267,7 @@ class AWSDeployer extends BaseDeployer {
 
     const { ApiId, ApiEndpoint } = res;
     this._apiId = ApiId;
-    this._functionURL = ApiEndpoint;
+    this._functionURL = `${ApiEndpoint}/${this._builder.actionName.replace('@', '_')}`;
 
     // check for stage
     res = await this._api.send(new GetStagesCommand({
@@ -315,8 +322,6 @@ class AWSDeployer extends BaseDeployer {
       StatementId: crypto.randomBytes(16).toString('hex'),
     }));
 
-    this._functionURL += `/${this._builder.actionName.replace('@', '_')}`;
-
     if (this._builder.showHints) {
       const opts = '';
       this.log.info('\nYou can verify the action with:');
@@ -332,6 +337,10 @@ class AWSDeployer extends BaseDeployer {
       url: this._functionURL,
       idHeader: 'apigw-requestid',
     });
+  }
+
+  get fullFunctionName() {
+    return this._functionURL;
   }
 
   async updatePackage() {
