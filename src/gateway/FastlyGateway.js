@@ -63,7 +63,7 @@ class FastlyGateway {
     }`);
 
     const fallback = `{
-      set req.backend = F_${this._deployers[0].constructor.name.replace('Deployer', '')};
+      set req.backend = F_${this._deployers[0].name};
       ${this._deployers[0].customVCL}
     }`;
 
