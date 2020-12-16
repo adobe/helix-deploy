@@ -61,6 +61,11 @@ class BaseDeployer {
   }
 
   // eslint-disable-next-line class-methods-use-this
+  get urlVCL() {
+    return 'req.url';
+  }
+
+  // eslint-disable-next-line class-methods-use-this
   get customVCL() {
     return '';
   }

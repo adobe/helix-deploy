@@ -60,9 +60,9 @@ class FastlyGateway {
       declare local var.i INTEGER;
       set var.i = randomint(0, ${this._deployers.length - 1});
 
-      if (1 == 0) {}`;
+      if (false) {}`;
 
-    const middle = this._deployers.map((deployer, i) => `if(var.i <= ${i} && backend.F_${deployer.constructor.name.replace('Deployer', '')}.healthy) {
+    const middle = this._deployers.map((deployer, i) => `if(var.i <= ${i} && backend.F_${deployer.name}.healthy) {
       set req.backend = F_${deployer.name};
     }`);
 
@@ -77,7 +77,7 @@ class FastlyGateway {
   setURLVCL() {
     return this._deployers.map((deployer) => `
       if (req.backend == F_${deployer.name}) {
-        set bereq.url = "${deployer.baseURL}" + req.url;
+        set bereq.url = ${deployer.urlVCL};
       }
       `).join('\n');
   }
@@ -88,9 +88,7 @@ class FastlyGateway {
     await this._fastly.transact(async (newversion) => {
       // set up health checks
       await Promise.all(this._deployers
-        .map((deployer) => {
-          console.log('my deployer', deployer.name, deployer._functionURL, deployer.host, deployer.basePath);
-          return {
+        .map((deployer) => ({
           check_interval: 60000,
           expected_response: 200,
           host: deployer.host,
@@ -102,23 +100,18 @@ class FastlyGateway {
           threshold: 1,
           timeout: 5000,
           window: 2,
-        }})
-        .map((h) => {
-          console.log(h);
-          return h;
-        })
+        }))
         .map((healthcheck) => this._fastly
           .writeHealthcheck(newversion, healthcheck.name, healthcheck)));
 
       // set up backends
       await Promise.all(this._deployers
-        .map((deployer) => {
-          //console.log(deployer);
-          return {
+        .map((deployer) => ({
           hostname: deployer.host,
           ssl_cert_hostname: deployer.host,
           ssl_sni_hostname: deployer.host,
           address: deployer.host,
+          override_host: deployer.host,
           name: deployer.name,
           healthcheck: `${deployer.name}Check`,
           error_threshold: 0,
@@ -127,42 +120,49 @@ class FastlyGateway {
           connect_timeout: 5000,
           port: 443,
           between_bytes_timeout: 10000,
-          shield: 'bwi-va-us',
+          shield: '', // 'bwi-va-us',
           max_conn: 200,
           use_ssl: true,
-        }})
-        .map((h) => {
-          // console.log(h);
-          return h;
-        })
+        }))
         .map(async (backend) => {
           try {
             return await this._fastly.createBackend(newversion, backend);
           } catch (e) {
-            console.log('Unable to create backend, trying to create a new backend', e);
-            return await this._fastly.updateBackend(newversion, backend.name, backend);
+            return this._fastly.updateBackend(newversion, backend.name, backend);
           }
         }));
 
-      await this._fastly.writeSnippet(newversion, 'Select Backend', {
-        name: 'Select Backend',
+      await this._fastly.writeSnippet(newversion, 'backend', {
+        name: 'backend',
         priority: 10,
+        dynamic: 0,
         type: 'recv',
         content: this.selectBackendVCL(),
       });
 
-      await this._fastly.writeSnippet(newversion, 'Set URL in MISS', {
-        name: 'Set URL in MISS',
+      await this._fastly.writeSnippet(newversion, 'missurl', {
+        name: 'missurl',
         priority: 10,
+        dynamic: 0,
         type: 'miss',
         content: this.setURLVCL(),
       });
 
-      await this._fastly.writeSnippet(newversion, 'Set URL in PASS', {
-        name: 'Set URL in PASS',
+      await this._fastly.writeSnippet(newversion, 'passurl', {
+        name: 'passurl',
         priority: 10,
+        dynamic: 0,
         type: 'miss',
         content: this.setURLVCL(),
+      });
+
+      await this._fastly.writeSnippet(newversion, 'logurl', {
+        name: 'logurl',
+        priority: 10,
+        dynamic: 0,
+        type: 'fetch',
+        content: `set beresp.http.X-Backend-URL = bereq.url;
+        set beresp.http.X-Backend-Name = req.backend;`,
       });
     }, true);
   }

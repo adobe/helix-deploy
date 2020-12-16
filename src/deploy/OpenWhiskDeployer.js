@@ -65,6 +65,11 @@ class OpenWhiskDeployer extends BaseDeployer {
     return `/api/v1/web${this.fullFunctionName}`;
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  get urlVCL() {
+    return `"/api/v1/web/${this._wskNamespace}/${this._builder.packageName}" + req.url`;
+  }
+
   get fullFunctionName() {
     return `/${this._wskNamespace}/${this._builder.packageName}/${this._builder.name}`;
   }

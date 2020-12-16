@@ -40,7 +40,7 @@ describe('Gateway Integration Test', () => {
       .prepare([
         '--build',
         '--verbose',
-        '--deploy',
+        '--target', 'wsk',
         '--aws-region', 'us-east-1',
         '--aws-api', '2k3mydk3bl',
         '--aws-role', 'arn:aws:iam::320028119408:role/lambda-role',
