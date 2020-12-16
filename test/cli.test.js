@@ -22,7 +22,8 @@ describe('CLI Test', () => {
   it('has correct defaults with no arguments', () => {
     const builder = new CLI().prepare();
     assert.equal(builder._verbose, false);
-    assert.equal(builder._deploy, undefined);
+    assert.equal(builder._deploy, false);
+    assert.deepEqual(builder._target, ['auto']);
     assert.equal(builder._build, true);
     assert.equal(builder._test, undefined);
     assert.equal(builder._showHints, true);
@@ -50,13 +51,19 @@ describe('CLI Test', () => {
   it('sets deploy flag', () => {
     const builder = new CLI()
       .prepare(['--deploy']);
-    assert.deepEqual(builder._deploy, []);
+    assert.deepEqual(builder._deploy, true);
   });
 
-  it('sets deploy targets', () => {
+  it('sets targets', () => {
     const builder = new CLI()
-      .prepare(['--deploy=aws', '--deploy=wsk']);
-    assert.deepEqual(builder._deploy, ['aws', 'wsk']);
+      .prepare(['--target=aws', '--target=wsk']);
+    assert.deepEqual(builder._target, ['aws', 'wsk']);
+  });
+
+  it('sets targets with csv', () => {
+    const builder = new CLI()
+      .prepare(['--target=aws,wsk']);
+    assert.deepEqual(builder._target, ['aws', 'wsk']);
   });
 
   it('clears build flag', () => {

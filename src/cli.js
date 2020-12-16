@@ -39,10 +39,16 @@ class CLI {
         type: 'string',
         default: '.',
       })
-      .option('deploy', {
-        description: 'Automatically deploy to specified targets (wsk,aws,azure,google,all)',
+      .option('target', {
+        description: 'Select target(s) for test, deploy, update-package actions (wsk,aws,azure,google,auto)',
         type: 'string',
+        default: ['auto'],
         array: true,
+      })
+      .option('deploy', {
+        description: 'Automatically deploy to specified targets',
+        type: 'boolean',
+        default: false,
       })
       .option('test', {
         description: 'Invoke action after deployment. Can be relative url.',
@@ -233,6 +239,7 @@ class CLI {
     return this.createBuilder()
       .verbose(argv.verbose)
       .withDirectory(argv.directory)
+      .withTarget(argv.target)
       .withBuild(argv.build)
       .withDelete(argv.delete)
       .withDeploy(argv.deploy)

@@ -24,6 +24,7 @@ class OpenWhiskDeployer extends BaseDeployer {
     super(builder);
 
     Object.assign(this, {
+      name: 'Openwhisk',
       _packageName: '',
       _namespace: '',
       _packageShared: false,
@@ -66,6 +67,12 @@ class OpenWhiskDeployer extends BaseDeployer {
 
   ready() {
     return !!this._wskApiHost && !!this._wskAuth && !!this._wskNamespace;
+  }
+
+  validate() {
+    if (!this.ready()) {
+      throw Error('Openwhisk target needs --wsk-host, --wsk-auth and --wsk-namespace');
+    }
   }
 
   getOpenwhiskClient() {
