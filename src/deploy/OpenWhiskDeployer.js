@@ -46,10 +46,6 @@ class OpenWhiskDeployer extends BaseDeployer {
     return this;
   }
 
-  get basePath() {
-    return `/api/v1/web/${this._namespace}/${this._packageName ? this._packageName : 'default'}`;
-  }
-
   async init() {
     const wskPropsFile = process.env.WSK_CONFIG_FILE || path.resolve(os.homedir(), '.wskprops');
     let wskProps = {};
@@ -62,7 +58,11 @@ class OpenWhiskDeployer extends BaseDeployer {
   }
 
   get host() {
-    return this._wskApiHost.replace('https://', '');
+    return this._wskApiHost.replace('https://', '').replace('/', '');
+  }
+
+  get basePath() {
+    return `/api/v1/web${this.fullFunctionName}`;
   }
 
   get fullFunctionName() {

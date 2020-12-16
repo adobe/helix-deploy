@@ -88,24 +88,33 @@ class FastlyGateway {
     await this._fastly.transact(async (newversion) => {
       // set up health checks
       await Promise.all(this._deployers
-        .map((deployer) => ({
+        .map((deployer) => {
+          console.log('my deployer', deployer.name, deployer._functionURL, deployer.host, deployer.basePath);
+          return {
           check_interval: 60000,
           expected_response: 200,
           host: deployer.host,
           http_version: '1.1',
+          method: 'GET',
           initial: 1,
           name: `${deployer.name}Check`,
-          path: deployer.baseURL + this._checkpath,
+          path: deployer.basePath + this._checkpath,
           threshold: 1,
           timeout: 5000,
           window: 2,
-        }))
+        }})
+        .map((h) => {
+          console.log(h);
+          return h;
+        })
         .map((healthcheck) => this._fastly
           .writeHealthcheck(newversion, healthcheck.name, healthcheck)));
 
       // set up backends
       await Promise.all(this._deployers
-        .map((deployer) => ({
+        .map((deployer) => {
+          //console.log(deployer);
+          return {
           hostname: deployer.host,
           ssl_cert_hostname: deployer.host,
           ssl_sni_hostname: deployer.host,
@@ -121,25 +130,35 @@ class FastlyGateway {
           shield: 'bwi-va-us',
           max_conn: 200,
           use_ssl: true,
-        }))
-        .map((backend) => this._fastly
-          .writeBackend(newversion, backend.name, backend)));
+        }})
+        .map((h) => {
+          // console.log(h);
+          return h;
+        })
+        .map(async (backend) => {
+          try {
+            return await this._fastly.createBackend(newversion, backend);
+          } catch (e) {
+            console.log('Unable to create backend, trying to create a new backend', e);
+            return await this._fastly.updateBackend(newversion, backend.name, backend);
+          }
+        }));
 
-      await this._fastly.writeSnippet(newversion, {
+      await this._fastly.writeSnippet(newversion, 'Select Backend', {
         name: 'Select Backend',
         priority: 10,
         type: 'recv',
         content: this.selectBackendVCL(),
       });
 
-      await this._fastly.writeSnippet(newversion, {
+      await this._fastly.writeSnippet(newversion, 'Set URL in MISS', {
         name: 'Set URL in MISS',
         priority: 10,
         type: 'miss',
         content: this.setURLVCL(),
       });
 
-      await this._fastly.writeSnippet(newversion, {
+      await this._fastly.writeSnippet(newversion, 'Set URL in PASS', {
         name: 'Set URL in PASS',
         priority: 10,
         type: 'miss',

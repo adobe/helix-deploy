@@ -54,6 +54,9 @@ class BaseDeployer {
 
   // eslint-disable-next-line class-methods-use-this
   get basePath() {
+    if (this._functionURL) {
+      return new URL(this._functionURL).pathname;
+    }
     return '';
   }
 
