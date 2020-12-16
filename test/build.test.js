@@ -76,10 +76,12 @@ describe('Build Test', () => {
   it('generates the bundle', async () => {
     // need to change .cwd() for yargs to pickup `wsk` in package.json
     process.chdir(testRoot);
+    process.env.WSK_AUTH = 'foobar';
     process.env.WSK_NAMESPACE = 'foobar';
     process.env.WSK_APIHOST = 'https://example.com';
     const builder = new CLI()
       .prepare([
+        '--target', 'wsk',
         '--verbose',
         '--directory', testRoot,
         '--entryFile', 'index.js',
@@ -87,12 +89,13 @@ describe('Build Test', () => {
 
     const res = await builder.run();
     assert.deepEqual(res, {
-      name: 'openwhisk;host=https://example.com',
-      url: '/foobar/simple-package/simple-name@1.45',
+      wsk: {
+        name: 'openwhisk;host=https://example.com',
+        url: '/foobar/simple-package/simple-name@1.45',
+      },
     });
 
     await assertZipEntries(path.resolve(testRoot, 'dist', 'simple-package', 'simple-name@1.45.zip'), [
-      'main.js',
       'index.js',
       'package.json',
       'files/hello.txt',

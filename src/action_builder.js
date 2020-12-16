@@ -199,6 +199,7 @@ module.exports = class ActionBuilder {
       _gitRef: '',
       _updatedAt: null,
       _updatedBy: null,
+      _target: [],
       _deployers: {
         wsk: new OpenWhiskDeployer(this),
         aws: new AWSDeployer(this),
@@ -232,6 +233,16 @@ module.exports = class ActionBuilder {
 
   withDirectory(value) {
     this._cwd = value === '.' ? process.cwd() : value;
+    return this;
+  }
+
+  withTarget(value) {
+    this._target = [];
+    value.forEach((v) => {
+      v.split(',').forEach((t) => {
+        this._target.push(t.trim());
+      });
+    });
     return this;
   }
 
@@ -616,7 +627,7 @@ module.exports = class ActionBuilder {
     // create dist dir
     await fse.ensureDir(this._distDir);
 
-    // init openwhisk props
+    // init deployers
     await Promise.all(Object.values(this._deployers)
       .filter((deployer) => !deployer.ready())
       .filter((deployer) => typeof deployer.init === 'function')
@@ -639,6 +650,33 @@ module.exports = class ActionBuilder {
       this._build = false;
       this._showHints = false;
       this._links = [];
+    }
+
+    // init deployers
+    const targets = { };
+    this._target.forEach((t) => {
+      if (t === 'auto') {
+        // get all deployers that are ready();
+        Object.entries(this._deployers).forEach(([name, deployer]) => {
+          if (deployer.ready()) {
+            targets[name] = deployer;
+          }
+        });
+      } else {
+        // deployer must be ready
+        const deployer = this._deployers[t];
+        if (!deployer) {
+          throw Error(`'No such target: ${t}`);
+        }
+        deployer.validate();
+        targets[t] = deployer;
+      }
+    });
+    this._deployers = targets;
+    if (Object.keys(targets).length === 0) {
+      if (this._deploy || this._test || this._delete || this._updatePackage) {
+        throw new Error('No applicable deployers found');
+      }
     }
   }
 
@@ -684,7 +722,7 @@ module.exports = class ActionBuilder {
   }
 
   async updateArchive(archive, packageJson) {
-    archive.file(this._bundle, { name: 'main.js' });
+    archive.file(this._bundle, { name: 'index.js' });
     this._statics.forEach(([src, name]) => {
       if (fse.lstatSync(src).isDirectory()) {
         archive.directory(src, name);
@@ -696,11 +734,8 @@ module.exports = class ActionBuilder {
       archive.directory(path.resolve(this._cwd, `node_modules/${mod}`), `node_modules/${mod}`);
     });
 
-    archive.directory(path.resolve(__dirname, '../node_modules/node-fetch'), 'node_modules/node-fetch');
-
     archive.append(JSON.stringify(packageJson, null, '  '), { name: 'package.json' });
-    // universal serverless wrapper
-    archive.file(path.resolve(__dirname, 'template', 'index.js'), { name: 'index.js' });
+    // azure functions manifest
     archive.file(path.resolve(__dirname, 'template', 'function.json'), { name: 'function.json' });
   }
 
@@ -708,7 +743,8 @@ module.exports = class ActionBuilder {
     return {
       target: 'node',
       mode: 'development',
-      entry: this._file,
+      // the universal adapter is the entry point
+      entry: path.resolve(__dirname, 'template', 'index.js'),
       output: {
         path: this._cwd,
         filename: path.relative(this._cwd, this._bundle),
@@ -716,7 +752,17 @@ module.exports = class ActionBuilder {
         libraryTarget: 'umd',
       },
       devtool: false,
-      externals: this._externals,
+      externals: [
+        ...this._externals,
+        // the following are imported by the universal adapter and are assumed to be available
+        './params.json',
+        'aws-sdk',
+      ].reduce((cfg, ext) => {
+        // this makes webpack to ignore the module and just leave it as normal require.
+        // eslint-disable-next-line no-param-reassign
+        cfg[ext] = `commonjs2 ${ext}`;
+        return cfg;
+      }, {}),
       module: {
         rules: [{
           test: /\.mjs$/,
@@ -726,6 +772,10 @@ module.exports = class ActionBuilder {
       resolve: {
         mainFields: ['main', 'module'],
         extensions: ['.wasm', '.js', '.mjs', '.json'],
+        alias: {
+          // the main.js is imported in the universal adapter and is _the_ action entry point
+          './main.js': this._file,
+        },
       },
       node: {
         __dirname: true,
@@ -838,66 +888,46 @@ module.exports = class ActionBuilder {
     this.log.info(chalk`{green ok:} bundle can be loaded and has a {gray main()} function.`);
   }
 
-  async deploy() {
-    const results = await Promise.all(Object.entries(this._deployers)
-      .filter(([name]) => this._deploy.length === 0
-        || this._deploy.indexOf('all') >= 0
-        || this._deploy.indexOf(name) >= 0)
-      .filter(([, deployer]) => deployer.ready())
-      .map(async ([, deployer]) => {
-        try {
-          return deployer.deploy();
-        } catch (e) {
-          return e;
-        }
-      }));
+  async execute(fnName, msg) {
+    const deps = Object.values(this._deployers)
+      .filter((deployer) => typeof deployer[fnName] === 'function');
+    // eslint-disable-next-line no-restricted-syntax
+    for (const dep of deps) {
+      this.log.info(chalk`--: ${msg}{yellow ${dep.name}} ...`);
+      // eslint-disable-next-line no-await-in-loop
+      await dep[fnName]();
+    }
+  }
 
-    const errors = results.filter((result) => result instanceof Error);
-    if (errors.length) {
-      throw errors[0];
-    }
-    if (!results.length) {
-      throw Error('No applicable deployers found');
-    }
+  async deploy() {
+    return this.execute('deploy', 'deploying action to ');
   }
 
   async updatePackage() {
-    await Promise.all(await Object.values(this._deployers)
-      .filter((deployer) => deployer.ready())
-      .filter((deployer) => typeof deployer.updatePackage === 'function')
-      .map(async (deployer) => deployer.updatePackage()));
+    return this.execute('updatePackage', 'updating package on ');
   }
 
   async showDeployHints() {
-    await Promise.all(await Object.values(this._deployers)
-      .filter((deployer) => typeof deployer.showDeployHints === 'function')
-      .map(async (deployer) => deployer.showDeployHints()));
+    return this.execute('showDeployHints', 'hints for ');
   }
 
   async delete() {
-    await Promise.all(await Object.values(this._deployers)
-      .filter((deployer) => deployer.ready())
-      .filter((deployer) => typeof deployer.delete === 'function')
-      .map(async (deployer) => deployer.delete()));
+    return this.execute('delete', 'deleting action on ');
   }
 
   async test() {
-    await Promise.all(Object.values(this._deployers)
-      .filter((deployer) => deployer.ready())
-      .filter((deployer) => typeof deployer.test === 'function')
-      .map(async (deployer) => deployer.test()));
+    return this.execute('test', 'testing action on ');
   }
 
   async updateLinks() {
-    await Promise.all(await Object.values(this._deployers)
-      .filter((deployer) => deployer.ready())
-      .filter((deployer) => typeof deployer.updateLinks === 'function')
-      .map(async (deployer) => deployer.updateLinks()));
+    return this.execute('updateLinks', 'updating links on ');
   }
 
   async run() {
     this.log.info(chalk`{grey openwhisk-action-builder v${version}}`);
     await this.validate();
+    this.log.info(chalk`selected targets: {yellow ${Object.values(this._deployers).map((d) => d.name).join(', ')}}`);
+
     if (this._build) {
       await this.createPackage();
       await this.createArchive();
@@ -929,9 +959,13 @@ module.exports = class ActionBuilder {
       await this._gateways.fastly.deploy();
     }
 
-    return {
-      name: `openwhisk;host=${this._deployers.wsk.host}`,
-      url: this._deployers.wsk.fullFunctionName,
-    };
+    return Object.entries(this._deployers).reduce((p, [name, dep]) => {
+      // eslint-disable-next-line no-param-reassign
+      p[name] = {
+        name: `${dep.name.toLowerCase()};host=${dep.host}`,
+        url: dep.fullFunctionName,
+      };
+      return p;
+    }, {});
   }
 };

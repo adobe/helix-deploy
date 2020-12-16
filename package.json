@@ -1,6 +1,6 @@
 {
   "name": "@adobe/helix-deploy",
-  "version": "1.5.0",
+  "version": "1.7.0",
   "description": "Library and Commandline Tools to build and deploy OpenWhisk Actions",
   "license": "Apache-2.0",
   "repository": {
@@ -41,7 +41,7 @@
     "node-fetch": "^2.6.1",
     "openwhisk": "^3.17.0",
     "semver": "^7.0.0",
-    "webpack": "^4.39.2",
+    "webpack": "5.10.2",
     "yargs": "^16.0.0"
   },
   "devDependencies": {

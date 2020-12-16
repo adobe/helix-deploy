@@ -1,3 +1,17 @@
+# [1.7.0](https://github.com/adobe/helix-deploy/compare/v1.6.0...v1.7.0) (2020-12-16)
+
+
+### Features
+
+* **cli:** improve deployer selection ([7ff6d76](https://github.com/adobe/helix-deploy/commit/7ff6d760769e3cdb150e12eb89143d49178a15f6)), closes [#18](https://github.com/adobe/helix-deploy/issues/18)
+
+# [1.6.0](https://github.com/adobe/helix-deploy/compare/v1.5.0...v1.6.0) (2020-12-16)
+
+
+### Features
+
+* **build:** combine wrapper and action into 1 bundle ([#21](https://github.com/adobe/helix-deploy/issues/21)) ([c3b4258](https://github.com/adobe/helix-deploy/commit/c3b4258f28cfd11652f95cc60932ee9646676f8c))
+
 # [1.5.0](https://github.com/adobe/helix-deploy/compare/v1.4.0...v1.5.0) (2020-12-15)
 
 

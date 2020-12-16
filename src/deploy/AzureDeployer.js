@@ -22,6 +22,7 @@ class AzureDeployer extends BaseDeployer {
     super(builder);
 
     Object.assign(this, {
+      name: 'Azure',
       _appName: '',
       _auth: null,
       _pubcreds: null,
@@ -30,6 +31,12 @@ class AzureDeployer extends BaseDeployer {
 
   ready() {
     return !!this._appName && !!this._auth;
+  }
+
+  validate() {
+    if (!this.ready()) {
+      throw Error('Azure target needs --azure-app');
+    }
   }
 
   withAzureApp(value) {
