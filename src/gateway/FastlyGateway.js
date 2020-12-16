@@ -90,7 +90,7 @@ class FastlyGateway {
           host: deployer.host,
           http_version: '1.1',
           initial: 1,
-          name: deployer.constructor.name.replace('Deployer', 'Check'),
+          name: deployer.name +  'Check',
           path: deployer.baseURL + this._checkpath,
           threshold: 1,
           timeout: 5000,
