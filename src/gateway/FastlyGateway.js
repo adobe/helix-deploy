@@ -59,7 +59,7 @@ class FastlyGateway {
       if (1 == 0) {}`;
 
     const middle = this._deployers.map((deployer, i) => `if(var.i <= ${i} && backend.F_${deployer.constructor.name.replace('Deployer', '')}.healthy) {
-      set req.backend = F_${deployer.constructor.name.replace('Deployer', '')};
+      set req.backend = F_${deployer.name};
     }`);
 
     const fallback = `{
