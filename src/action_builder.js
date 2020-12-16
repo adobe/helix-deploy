@@ -956,6 +956,7 @@ module.exports = class ActionBuilder {
     await this.updateLinks();
 
     if (this._gateways.fastly && this._gateways.fastly.ready()) {
+      this._gateways.fastly.init();
       await this._gateways.fastly.deploy();
     }
 

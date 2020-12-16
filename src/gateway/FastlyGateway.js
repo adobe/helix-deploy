@@ -22,12 +22,12 @@ class FastlyGateway {
   }
 
   ready() {
-    return !!this._service && !!this._auth && this._checkpath;
+    return !!this._service && !!this._auth && !!this._checkpath;
   }
 
   init() {
     if (this.ready() && !this._fastly) {
-      this._fastly = new Fastly(this._auth, this._service);
+      this._fastly = Fastly(this._auth, this._service);
     }
   }
 
@@ -49,6 +49,10 @@ class FastlyGateway {
   withCheckpath(value) {
     this._checkpath = value;
     return this;
+  }
+
+  get log() {
+    return this._builder.log;
   }
 
   selectBackendVCL() {
