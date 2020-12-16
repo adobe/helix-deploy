@@ -76,10 +76,12 @@ describe('Build Test', () => {
   it('generates the bundle', async () => {
     // need to change .cwd() for yargs to pickup `wsk` in package.json
     process.chdir(testRoot);
+    process.env.WSK_AUTH = 'foobar';
     process.env.WSK_NAMESPACE = 'foobar';
     process.env.WSK_APIHOST = 'https://example.com';
     const builder = new CLI()
       .prepare([
+        '--target', 'wsk',
         '--verbose',
         '--directory', testRoot,
         '--entryFile', 'index.js',
