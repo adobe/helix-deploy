@@ -63,11 +63,11 @@ class FastlyGateway {
       if (1 == 0) {}`;
 
     const middle = this._deployers.map((deployer, i) => `if(var.i <= ${i} && backend.F_${deployer.constructor.name.replace('Deployer', '')}.healthy) {
-      set req.backend = F_${deployer.constructor.name.replace('Deployer', '')};
+      set req.backend = F_${deployer.name};
     }`);
 
     const fallback = `{
-      set req.backend = F_${this._deployers[0].constructor.name.replace('Deployer', '')};
+      set req.backend = F_${this._deployers[0].name};
       ${this._deployers[0].customVCL}
     }`;
 
@@ -76,7 +76,7 @@ class FastlyGateway {
 
   setURLVCL() {
     return this._deployers.map((deployer) => `
-      if (req.backend == F_${deployer.constructor.name.replace('Deployer', '')}) {
+      if (req.backend == F_${deployer.name}) {
         set bereq.url = "${deployer.baseURL}" + req.url;
       }
       `).join('\n');
@@ -94,7 +94,7 @@ class FastlyGateway {
           host: deployer.host,
           http_version: '1.1',
           initial: 1,
-          name: deployer.constructor.name.replace('Deployer', 'Check'),
+          name: deployer.name +  'Check',
           path: deployer.baseURL + this._checkpath,
           threshold: 1,
           timeout: 5000,
@@ -110,8 +110,8 @@ class FastlyGateway {
           ssl_cert_hostname: deployer.host,
           ssl_sni_hostname: deployer.host,
           address: deployer.host,
-          name: deployer.constructor.name.replace('Deployer', ''),
-          healthcheck: deployer.constructor.name.replace('Deployer', 'Check'),
+          name: deployer.name,
+          healthcheck: deployer.name + 'Check',
           error_threshold: 0,
           first_byte_timeout: 60000,
           weight: 100,
