@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/adobe/helix-deploy/compare/v1.7.0...v1.7.1) (2020-12-17)
+
+
+### Bug Fixes
+
+* **aws:** use hash function to generate consistent statement ids ([62ebf23](https://github.com/adobe/helix-deploy/commit/62ebf23d0523dae63ba13f98f8e60fc7f7ee95c8)), closes [#24](https://github.com/adobe/helix-deploy/issues/24)
+
 # [1.7.0](https://github.com/adobe/helix-deploy/compare/v1.6.0...v1.7.0) (2020-12-16)
 
 
