@@ -40,6 +40,7 @@ describe('Gateway Integration Test', () => {
       .prepare([
         '--build',
         '--verbose',
+        '--deploy',
         '--target', 'wsk',
         '--target', 'aws',
         '--aws-region', 'us-east-1',
@@ -60,5 +61,5 @@ describe('Gateway Integration Test', () => {
     const out = builder._logger.output;
     assert.ok(out.indexOf(`ok: 200
 Hello, world.`) > 0, out);
-  }).timeout(50000);
+  }).timeout(150000);
 });
