@@ -60,6 +60,8 @@ class FastlyGateway {
       declare local var.i INTEGER;
       set var.i = randomint(0, ${this._deployers.length - 1});
 
+      set req.http.X-Backend-Health = ${this._deployers.map((deployer) => `backend.F_${deployer.name}.healthy`).join(' + " " + ')};
+
       if (false) {}`;
 
     const middle = this._deployers.map((deployer, i) => `if(var.i <= ${i} && backend.F_${deployer.name}.healthy) {
@@ -87,14 +89,12 @@ class FastlyGateway {
 
     await this._fastly.transact(async (newversion) => {
       // create condition
-      console.log('condition');
       await this._fastly.writeCondition(newversion, 'false', {
         name: 'false',
         statement: 'false',
         type: 'request',
       });
 
-      console.log('checks');
       // set up health checks
       await Promise.all(this._deployers
         .map((deployer) => ({
@@ -172,7 +172,9 @@ class FastlyGateway {
         dynamic: 0,
         type: 'fetch',
         content: `set beresp.http.X-Backend-URL = bereq.url;
-        set beresp.http.X-Backend-Name = req.backend;`,
+set beresp.http.X-Backend-Name = req.backend;
+set beresp.http.X-Backend-Health = req.http.X-Backend-Health;
+set beresp.cacheable = false;`,
       });
     }, true);
   }
