@@ -86,6 +86,13 @@ class FastlyGateway {
     this.log.info('Set up Fastly Gateway');
 
     await this._fastly.transact(async (newversion) => {
+      // create condition
+      await this._fastly.writeCondition(newversion, 'false', {
+        name: 'false',
+        statement: 'false',
+        type: 'request',
+      });
+
       // set up health checks
       await Promise.all(this._deployers
         .map((deployer) => ({
@@ -123,6 +130,7 @@ class FastlyGateway {
           shield: '', // 'bwi-va-us',
           max_conn: 200,
           use_ssl: true,
+          request_condition: 'false',
         }))
         .map(async (backend) => {
           try {
