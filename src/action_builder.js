@@ -967,7 +967,7 @@ module.exports = class ActionBuilder {
     return Object.entries(this._deployers).reduce((p, [name, dep]) => {
       // eslint-disable-next-line no-param-reassign
       p[name] = {
-        name: `${dep.name.toLowerCase()};host=${dep.host}`,
+        name: `${dep.name.toLowerCase()};host=https://${dep.host}`,
         url: dep.fullFunctionName,
       };
       return p;
