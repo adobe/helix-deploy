@@ -90,6 +90,10 @@ class AWSDeployer extends BaseDeployer {
     return `${this._apiId}.execute-api.${this._region}.amazonaws.com`;
   }
 
+  get urlVCL() {
+    return `"/${this._builder.packageName}" + regsub(req.url, "@", "_")`;
+  }
+
   validate() {
     if (!this._role || !this._region) {
       throw Error('AWS target needs --aws-region and --aws-role');
