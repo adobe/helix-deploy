@@ -12,6 +12,8 @@
 /* eslint-disable no-param-reassign, no-underscore-dangle, import/no-extraneous-dependencies */
 const { Request } = require('node-fetch');
 const { promisify } = require('util');
+const { epsagon } = require('@adobe/helix-epsagon');
+
 // eslint-disable-next-line  import/no-unresolved
 const { main } = require('./main.js');
 /*
@@ -70,7 +72,7 @@ async function getAWSSecrets(functionName) {
 }
 
 // Azure
-module.exports = async function azure(context, req) {
+async function azure(context, req) {
   context.log('JavaScript HTTP trigger function processed a request.');
   // eslint-disable-next-line global-require, import/no-unresolved
   const params = require('./params.json');
@@ -137,10 +139,10 @@ module.exports = async function azure(context, req) {
       body: e.message,
     };
   }
-};
+}
 
 // OW
-module.exports.main = async function openwhisk(params = {}) {
+async function openwhisk(params = {}) {
   try {
     let body;
     if (!/^(GET|HEAD)$/i.test(params.__ow_method)) {
@@ -203,10 +205,10 @@ module.exports.main = async function openwhisk(params = {}) {
       body: `${e.message}\n${e.stack}`,
     };
   }
-};
+}
 
 // Google
-module.exports.google = async (req, res) => {
+async function google(req, res) {
   try {
     const request = new Request(`https://${req.hostname}/${process.env.K_SERVICE}${req.originalUrl}`, {
       method: req.method,
@@ -244,10 +246,10 @@ module.exports.google = async (req, res) => {
   } catch (e) {
     res.status(500).send(e.message);
   }
-};
+}
 
 // AWS
-module.exports.lambda = async function lambda(event, context) {
+async function lambda(event, context) {
   try {
     const request = new Request(`https://${event.requestContext.domainName}${event.rawPath}${event.rawQueryString ? '?' : ''}${event.rawQueryString}`, {
       method: event.requestContext.http.method,
@@ -297,4 +299,11 @@ module.exports.lambda = async function lambda(event, context) {
       body: e.message,
     };
   }
-};
+}
+
+// exports
+module.exports = Object.assign(azure, {
+  main: epsagon(openwhisk),
+  lambda,
+  google,
+});

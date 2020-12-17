@@ -1,3 +1,17 @@
+# [1.8.0](https://github.com/adobe/helix-deploy/compare/v1.7.1...v1.8.0) (2020-12-17)
+
+
+### Features
+
+* **adapter:** instrument epsagon ([#26](https://github.com/adobe/helix-deploy/issues/26)) ([ef9cfb2](https://github.com/adobe/helix-deploy/commit/ef9cfb2bbc2c7025f0a7cac633ed6898eb00be69))
+
+## [1.7.1](https://github.com/adobe/helix-deploy/compare/v1.7.0...v1.7.1) (2020-12-17)
+
+
+### Bug Fixes
+
+* **aws:** use hash function to generate consistent statement ids ([62ebf23](https://github.com/adobe/helix-deploy/commit/62ebf23d0523dae63ba13f98f8e60fc7f7ee95c8)), closes [#24](https://github.com/adobe/helix-deploy/issues/24)
+
 # [1.7.0](https://github.com/adobe/helix-deploy/compare/v1.6.0...v1.7.0) (2020-12-16)
 
 
