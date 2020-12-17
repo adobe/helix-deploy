@@ -32,7 +32,7 @@ describe('Gateway Integration Test', () => {
     await fse.remove(testRoot);
   });
 
-  it('Deploy to AWS (for real)', async () => {
+  it('Deploy to AWS and OpenWhisk (for real)', async () => {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'simple'), testRoot);
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
@@ -41,6 +41,7 @@ describe('Gateway Integration Test', () => {
         '--build',
         '--verbose',
         '--target', 'wsk',
+        '--target', 'aws',
         '--aws-region', 'us-east-1',
         '--aws-api', '2k3mydk3bl',
         '--aws-role', 'arn:aws:iam::320028119408:role/lambda-role',
