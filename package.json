@@ -20,7 +20,7 @@
   "scripts": {
     "lint": "./node_modules/.bin/eslint .",
     "test": "nyc --reporter=text --reporter=lcov --check-coverage --branches 50 --statements 50 --lines 50 mocha -i -g Integration",
-    "test-ci": "npm run lint && nyc --reporter=text --reporter=lcov --check-coverage --branches 50 --statements 75 --lines 75 mocha -R xunit -O output=junit/test-results.xml -i -g Integration && codecov",
+    "test-ci": "npm run lint && nyc --reporter=text --reporter=lcov --check-coverage --branches 50 --statements 60 --lines 60 mocha -R xunit -O output=junit/test-results.xml -i -g Integration && codecov",
     "integration-ci": "nyc --reporter=lcov mocha -R xunit -O output=junit/integration-results.xml -g Integration && codecov",
     "semantic-release": "semantic-release"
   },
