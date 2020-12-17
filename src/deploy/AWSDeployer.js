@@ -314,13 +314,17 @@ class AWSDeployer extends BaseDeployer {
     }
     const sourceArn = `arn:aws:execute-api:${this._region}:${this._functionARN.split(':')[4]}:${ApiId}/*/*/${this._builder.actionName.replace('@', '_')}`;
 
-    res = await this._lambda.send(new AddPermissionCommand({
-      FunctionName: this._functionARN,
-      Action: 'lambda:InvokeFunction',
-      SourceArn: sourceArn,
-      Principal: 'apigateway.amazonaws.com',
-      StatementId: crypto.randomBytes(16).toString('hex'),
-    }));
+    try {
+      res = await this._lambda.send(new AddPermissionCommand({
+        FunctionName: this._functionARN,
+        Action: 'lambda:InvokeFunction',
+        SourceArn: sourceArn,
+        Principal: 'apigateway.amazonaws.com',
+        StatementId: crypto.createHash('md5').update(this._functionARN + sourceArn).digest('hex'),
+      }));
+    } catch (e) {
+      // ignore, most likely the permission already exists
+    }
 
     if (this._builder.showHints) {
       const opts = '';
