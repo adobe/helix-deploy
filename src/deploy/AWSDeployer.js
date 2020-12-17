@@ -54,7 +54,7 @@ class AWSDeployer extends BaseDeployer {
     super(builder);
 
     Object.assign(this, {
-      name: 'AWS',
+      name: 'AmazonWebServices',
       _region: '',
       _role: '',
       _functionARN: '',
