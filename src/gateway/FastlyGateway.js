@@ -98,7 +98,7 @@ class FastlyGateway {
         });
       } catch (e) {
         console.log('update condition', e, e.stack);
-        await this._fastly.updateCondition(newversion, {
+        await this._fastly.updateCondition(newversion, 'false', {
           name: 'false',
           statement: 'false',
           type: 'request',
