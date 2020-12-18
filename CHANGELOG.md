@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/adobe/helix-deploy/compare/v1.8.0...v1.8.1) (2020-12-18)
+
+
+### Bug Fixes
+
+* **aws:** use different role for integration tests ([9741376](https://github.com/adobe/helix-deploy/commit/97413761b78c63386c386a2cd0ff32de928d3f6a))
+
 # [1.8.0](https://github.com/adobe/helix-deploy/compare/v1.7.1...v1.8.0) (2020-12-17)
 
 
