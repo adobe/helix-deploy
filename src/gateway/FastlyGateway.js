@@ -101,7 +101,6 @@ class FastlyGateway {
         await this._fastly.updateCondition(newversion, 'false', {
           name: 'false',
           statement: 'false',
-          type: 'request',
         });
       }
 
