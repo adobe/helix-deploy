@@ -200,8 +200,8 @@ module.exports = class ActionBuilder {
       _updatedBy: null,
       _target: [],
       _deployers: {
-        wsk: new OpenWhiskDeployer(this),
         aws: new AWSDeployer(this),
+        wsk: new OpenWhiskDeployer(this),
         azure: new AzureDeployer(this),
       },
     });
