@@ -91,13 +91,13 @@ class FastlyGateway {
       // create condition
       try {
         console.log('create condition');
-        await this._fastly.createCondition(newversion, 'false', {
+        await this._fastly.writeCondition(newversion, 'false', {
           name: 'false',
           statement: 'false',
           type: 'request',
         });
       } catch (e) {
-        console.log('update condition');
+        console.log('update condition', e, e.stack);
         await this._fastly.updateCondition(newversion, {
           name: 'false',
           statement: 'false',
