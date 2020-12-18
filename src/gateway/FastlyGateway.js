@@ -89,11 +89,19 @@ class FastlyGateway {
 
     await this._fastly.transact(async (newversion) => {
       // create condition
-      await this._fastly.writeCondition(newversion, 'false', {
-        name: 'false',
-        statement: 'false',
-        type: 'request',
-      });
+      try {
+        await this._fastly.createCondition(newversion, 'false', {
+          name: 'false',
+          statement: 'false',
+          type: 'request',
+        });
+      } catch (e) {
+        await this._fastly.updateCondition(newversion, {
+          name: 'false',
+          statement: 'false',
+          type: 'request',
+        });
+      }
 
       // set up health checks
       await Promise.all(this._deployers
