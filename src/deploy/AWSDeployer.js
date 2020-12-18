@@ -54,7 +54,7 @@ class AWSDeployer extends BaseDeployer {
     super(builder);
 
     Object.assign(this, {
-      name: 'AWS',
+      name: 'AmazonWebServices',
       _region: '',
       _role: '',
       _functionARN: '',
@@ -84,6 +84,14 @@ class AWSDeployer extends BaseDeployer {
     && !!this._ssm
     && !!this._apiId;
     return res;
+  }
+
+  get host() {
+    return `${this._apiId}.execute-api.${this._region}.amazonaws.com`;
+  }
+
+  get urlVCL() {
+    return `"/${this._builder.packageName}" + regsub(req.url, "@", "_")`;
   }
 
   validate() {

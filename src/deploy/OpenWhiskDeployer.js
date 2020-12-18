@@ -58,7 +58,16 @@ class OpenWhiskDeployer extends BaseDeployer {
   }
 
   get host() {
-    return this._wskApiHost;
+    return this._wskApiHost.replace('https://', '').replace('/', '');
+  }
+
+  get basePath() {
+    return `/api/v1/web${this.fullFunctionName}`;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  get urlVCL() {
+    return `"/api/v1/web/${this._wskNamespace}/${this._builder.packageName}" + req.url`;
   }
 
   get fullFunctionName() {
