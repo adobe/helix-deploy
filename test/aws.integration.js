@@ -43,7 +43,7 @@ describe('AWS Integration Test', () => {
         '--deploy',
         '--aws-region', 'us-east-1',
         '--aws-api', '2k3mydk3bl',
-        '--aws-role', 'arn:aws:iam::320028119408:role/lambda-role',
+        '--aws-role', 'arn:aws:iam::118435662149:role/helix-lambda-role',
         '--package.params', 'HEY=ho',
         '--update-package', 'true',
         '-p', 'FOO=bar',
