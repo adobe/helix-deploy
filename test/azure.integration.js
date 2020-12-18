@@ -41,6 +41,7 @@ describe('Azure Integration Test', () => {
         '--build',
         '--verbose',
         '--deploy',
+        '--target', 'azure',
         '--azure-app', 'deploy-helix',
         '-p', 'FOO=bar',
         '--package.params', 'HEY=ho',
