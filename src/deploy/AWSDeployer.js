@@ -274,8 +274,9 @@ class AWSDeployer extends BaseDeployer {
     }
 
     const { ApiId, ApiEndpoint } = res;
+    const functionQName = this._builder.actionName.replace('@', '_');
     this._apiId = ApiId;
-    this._functionURL = `${ApiEndpoint}/${this._builder.actionName.replace('@', '_')}`;
+    this._functionURL = `${ApiEndpoint}/${functionQName}`;
 
     // check for stage
     res = await this._api.send(new GetStagesCommand({
@@ -311,29 +312,36 @@ class AWSDeployer extends BaseDeployer {
       // need to create 2 routes. one for the exact path, and one with suffix
       await this._api.send(new CreateRouteCommand({
         ApiId,
-        RouteKey: `ANY /${this._builder.actionName.replace('@', '_')}/{path+}`,
+        RouteKey: `ANY /${functionQName}/{path+}`,
         Target: `integrations/${IntegrationId}`,
       }));
       await this._api.send(new CreateRouteCommand({
         ApiId,
-        RouteKey: `ANY /${this._builder.actionName.replace('@', '_')}`,
+        RouteKey: `ANY /${functionQName}`,
         Target: `integrations/${IntegrationId}`,
       }));
     }
-    const sourceArn = `arn:aws:execute-api:${this._region}:${this._functionARN.split(':')[4]}:${ApiId}/*/*/${this._builder.actionName.replace('@', '_')}`;
 
-    try {
-      res = await this._lambda.send(new AddPermissionCommand({
-        FunctionName: this._functionARN,
-        Action: 'lambda:InvokeFunction',
-        SourceArn: sourceArn,
-        Principal: 'apigateway.amazonaws.com',
-        StatementId: crypto.createHash('md5').update(this._functionARN + sourceArn).digest('hex'),
-      }));
-    } catch (e) {
-      // ignore, most likely the permission already exists
+    // setup permissions. TODO: there must be a way to get the source arn for a route<->integration
+    const sourceArn1 = `arn:aws:execute-api:${this._region}:${this._functionARN.split(':')[4]}:${ApiId}/*/*/${functionQName}`;
+    const sourceArn2 = `${sourceArn1}/{path+}`;
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const sourceArn of [sourceArn1, sourceArn2]) {
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        res = await this._lambda.send(new AddPermissionCommand({
+          FunctionName: this._functionARN,
+          Action: 'lambda:InvokeFunction',
+          SourceArn: sourceArn,
+          Principal: 'apigateway.amazonaws.com',
+          StatementId: crypto.createHash('md5').update(this._functionARN + sourceArn).digest('hex'),
+        }));
+        this.log.info(`Added invoke permissions for ${sourceArn}`);
+      } catch (e) {
+        // ignore, most likely the permission already exists
+      }
     }
-
     if (this._builder.showHints) {
       const opts = '';
       this.log.info('\nYou can verify the action with:');

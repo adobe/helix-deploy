@@ -41,6 +41,7 @@ describe.skip('OpenWhisk Integration Test', () => {
         '--build',
         '--verbose',
         '--deploy',
+        '--target', 'wsk',
         '--test', '/foo',
         '--directory', testRoot,
         '--entryFile', 'index.js',

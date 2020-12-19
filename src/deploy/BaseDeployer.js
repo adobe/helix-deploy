@@ -92,6 +92,7 @@ class BaseDeployer {
         this.log.info(`${chalk.green('ok:')} ${ret.status}`);
         this.log.debug(chalk.grey(`Location: ${ret.headers.get('location')}`));
       } else {
+        this.log.info(`${chalk.red('error:')} ${ret.status}`);
         throw new Error(`test failed: ${ret.status} ${body}`);
       }
     }
