@@ -1,3 +1,10 @@
+## [1.9.1](https://github.com/adobe/helix-deploy/compare/v1.9.0...v1.9.1) (2020-12-19)
+
+
+### Bug Fixes
+
+* **aws:** ensure invoke permissions for 2nd route ([2380b22](https://github.com/adobe/helix-deploy/commit/2380b22ce73ae9e0fff00f43cfcd6b2638832d74))
+
 # [1.9.0](https://github.com/adobe/helix-deploy/compare/v1.8.1...v1.9.0) (2020-12-18)
 
 
