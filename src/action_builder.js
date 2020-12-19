@@ -22,6 +22,7 @@ const { version } = require('../package.json');
 const OpenWhiskDeployer = require('./deploy/OpenWhiskDeployer');
 const AWSDeployer = require('./deploy/AWSDeployer');
 const AzureDeployer = require('./deploy/AzureDeployer');
+const FastlyGateway = require('./gateway/FastlyGateway');
 
 require('dotenv').config();
 
@@ -203,6 +204,9 @@ module.exports = class ActionBuilder {
         aws: new AWSDeployer(this),
         wsk: new OpenWhiskDeployer(this),
         azure: new AzureDeployer(this),
+      },
+      _gateways: {
+        fastly: new FastlyGateway(this),
       },
     });
   }
@@ -474,6 +478,21 @@ module.exports = class ActionBuilder {
 
   withAzureApp(value) {
     this._deployers.azure.withAzureApp(value);
+    return this;
+  }
+
+  withFastlyServiceID(value) {
+    this._gateways.fastly.withServiceID(value);
+    return this;
+  }
+
+  withFastlyAuth(value) {
+    this._gateways.fastly.withAuth(value);
+    return this;
+  }
+
+  withCheckpath(value) {
+    this._gateways.fastly.withCheckpath(value);
     return this;
   }
 
@@ -936,10 +955,19 @@ module.exports = class ActionBuilder {
 
     await this.updateLinks();
 
+    if (this._gateways.fastly && this._gateways.fastly.ready()) {
+      Object.values(this._deployers).forEach((d) => {
+        this._gateways.fastly.withDeployer(d);
+      });
+
+      this._gateways.fastly.init();
+      await this._gateways.fastly.deploy();
+    }
+
     return Object.entries(this._deployers).reduce((p, [name, dep]) => {
       // eslint-disable-next-line no-param-reassign
       p[name] = {
-        name: `${dep.name.toLowerCase()};host=${dep.host}`,
+        name: `${dep.name.toLowerCase()};host=https://${dep.host}`,
         url: dep.fullFunctionName,
       };
       return p;

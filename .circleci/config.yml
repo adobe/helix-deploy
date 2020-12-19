@@ -46,7 +46,7 @@ jobs:
             echo AUTH=$WSK_AUTH > ~/.wskprops
       - run:
           name: Integration Test and Code Coverage
-          command: npm run test-ci
+          command: npm run integration-ci
          
 
       - store_test_results:

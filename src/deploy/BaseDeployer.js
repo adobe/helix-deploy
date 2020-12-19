@@ -43,6 +43,33 @@ class BaseDeployer {
     return path.relative(process.cwd(), this._builder.zipFile);
   }
 
+  get host() {
+    // note: most derived classes can offer a better implementation,
+    // this is the lowest common denominator
+    if (this._functionURL) {
+      return new URL(this._functionURL).hostname;
+    }
+    return null;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  get basePath() {
+    if (this._functionURL) {
+      return new URL(this._functionURL).pathname;
+    }
+    return '';
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  get urlVCL() {
+    return 'req.url';
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  get customVCL() {
+    return '';
+  }
+
   async testRequest({
     url,
     headers = {},

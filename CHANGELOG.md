@@ -1,3 +1,30 @@
+# [1.9.0](https://github.com/adobe/helix-deploy/compare/v1.8.1...v1.9.0) (2020-12-18)
+
+
+### Bug Fixes
+
+* **aws:** rename to AmazonWebServices to avoid conflicts with Fastly ([e606a91](https://github.com/adobe/helix-deploy/commit/e606a914419944d355c8d52440745c88e93a71a9))
+* **aws:** use correct backend url ([c40e86b](https://github.com/adobe/helix-deploy/commit/c40e86b554cc6ab123a5a63fdff8dd75a71826ff))
+* **fastly:** bump client ([4b4c33c](https://github.com/adobe/helix-deploy/commit/4b4c33c537e713da69dff2a4692f11be87c431e9))
+* **fastly:** bump fastly client version ([4b67c66](https://github.com/adobe/helix-deploy/commit/4b67c6694fcbd2882ff8422da0e3622b7b9f38ad))
+* **fastly:** change method signature ([dff81dc](https://github.com/adobe/helix-deploy/commit/dff81dcb869bcafb03fe7c9a77932042061db669))
+* **fastly:** disable caching ([e373639](https://github.com/adobe/helix-deploy/commit/e373639b2802723cbbbd2b3569160e768800b5b6))
+* **fastly:** guard against duplicate condition ([169007d](https://github.com/adobe/helix-deploy/commit/169007db6309c36cc201c465494c064b5dc2c96d))
+* **fastly:** invoke fastly client ([2da4f6b](https://github.com/adobe/helix-deploy/commit/2da4f6ba3a71a2f6a3ef99644f35bc79219f32bc))
+* **fastly:** wip towards gateway deployment ([7a39a0a](https://github.com/adobe/helix-deploy/commit/7a39a0a3bbd32635a1a70e72ef796116aef16f05))
+* **index:** add scheme to returned host property ([bded43b](https://github.com/adobe/helix-deploy/commit/bded43b460ea72f9721ce2f26176fc609377650b))
+* **openwhisk:** guard against hostname with protocol ([d39ab0a](https://github.com/adobe/helix-deploy/commit/d39ab0af33b01faa2ce82e7ed17681f309d25c40))
+
+
+### Features
+
+* **aws:** resolve host name from command line parameters ([22cedb7](https://github.com/adobe/helix-deploy/commit/22cedb7d8fb5704b1b8b993fbb3368850e10f0ef))
+* **deploy:** invoke fastly client for gateway creation ([d761c75](https://github.com/adobe/helix-deploy/commit/d761c7514b1e692cfab619a61353d5f028d17fed))
+* **fastly:** add condition to all backends ([0d55e6a](https://github.com/adobe/helix-deploy/commit/0d55e6a4b4688e0cf15bd18d7daa578b668654e8))
+* **fastly:** create fastly gateway to rotate between runtimes ([2f0d3a2](https://github.com/adobe/helix-deploy/commit/2f0d3a2a09401b604b24d31326ffda91aa0606ef)), closes [#19](https://github.com/adobe/helix-deploy/issues/19)
+* **fastly:** set up fastly service and log backend url ([e8c1268](https://github.com/adobe/helix-deploy/commit/e8c12685a233f9325007ee5645bffae72b7bd7f3)), closes [#14](https://github.com/adobe/helix-deploy/issues/14) [#22](https://github.com/adobe/helix-deploy/issues/22)
+* **fastly:** set up health checks ([14ac57e](https://github.com/adobe/helix-deploy/commit/14ac57e9356df2b4884c8658fe6579fb498f011d))
+
 ## [1.8.1](https://github.com/adobe/helix-deploy/compare/v1.8.0...v1.8.1) (2020-12-18)
 
 
