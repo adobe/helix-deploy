@@ -1,3 +1,16 @@
+# [1.10.0](https://github.com/adobe/helix-deploy/compare/v1.9.1...v1.10.0) (2020-12-21)
+
+
+### Bug Fixes
+
+* **aws:** fetch all parameters ([#38](https://github.com/adobe/helix-deploy/issues/38)) ([a98f7d8](https://github.com/adobe/helix-deploy/commit/a98f7d8fd26e095c944226095547ca418fc114cd)), closes [#37](https://github.com/adobe/helix-deploy/issues/37) [#36](https://github.com/adobe/helix-deploy/issues/36)
+* **aws:** retry test for 404 ([#35](https://github.com/adobe/helix-deploy/issues/35)) ([7607c45](https://github.com/adobe/helix-deploy/commit/7607c45bf7e95f27c60aadb67b53a8888aa5f0d8)), closes [#32](https://github.com/adobe/helix-deploy/issues/32)
+
+
+### Features
+
+* **aws:** add command to delete stray buckets ([#34](https://github.com/adobe/helix-deploy/issues/34)) ([f6b1fa1](https://github.com/adobe/helix-deploy/commit/f6b1fa17ae2fbe29be4ab84e89f7a4bc25dcd4c7)), closes [#33](https://github.com/adobe/helix-deploy/issues/33)
+
 ## [1.9.1](https://github.com/adobe/helix-deploy/compare/v1.9.0...v1.9.1) (2020-12-19)
 
 
