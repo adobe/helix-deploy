@@ -9,6 +9,8 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+/* eslint-disable no-underscore-dangle */
+
 const ow = require('openwhisk');
 const semver = require('semver');
 const os = require('os');
@@ -25,15 +27,9 @@ class OpenWhiskDeployer extends BaseDeployer {
 
     Object.assign(this, {
       name: 'Openwhisk',
-      _packageName: '',
       _namespace: '',
       _packageShared: false,
     });
-  }
-
-  withPackageName(value) {
-    this._packageName = value;
-    return this;
   }
 
   withNamespace(value) {
@@ -151,8 +147,8 @@ class OpenWhiskDeployer extends BaseDeployer {
   async delete() {
     const openwhisk = this.getOpenwhiskClient();
     this.log.info('--: deleting action ...');
-    await openwhisk.actions.delete(this._actionName);
-    this.log.info(chalk`{green ok:} deleted action {yellow ${`/${this._wskNamespace}/${this._packageName}/${this._name}`}}`);
+    await openwhisk.actions.delete(this._builder._actionName);
+    this.log.info(chalk`{green ok:} deleted action {yellow ${`/${this._wskNamespace}/${this._builder._packageName}/${this._builder._name}`}}`);
   }
 
   async updatePackage() {
@@ -204,22 +200,25 @@ class OpenWhiskDeployer extends BaseDeployer {
   }
 
   async updateLinks() {
-    const idx = this._name.lastIndexOf('@');
+    // eslint-disable-next-line no-underscore-dangle
+    const name = this._builder._name;
+    const idx = name.lastIndexOf('@');
     if (idx < 0) {
       this.log.warn(`${chalk.yellow('warn:')} unable to create version sequence. unsupported action name format. should be: "name@version"`);
       return;
     }
     // using `default` as package name doesn't work with sequences...
-    const pkgPrefix = this._linksPackage === 'default' ? '' : `${this._linksPackage}/`;
-    const prefix = `${pkgPrefix}${this._name.substring(0, idx + 1)}`;
-    const s = semver.parse(this._version);
-    const pkgName = this._packageName === 'default' ? '' : `${this._packageName}/`;
-    const fqn = `/${this._wskNamespace}/${pkgName}${this._name}`;
+    const pkgPrefix = this._builder._linksPackage === 'default' ? '' : `${this._builder._linksPackage}/`;
+    const prefix = `${pkgPrefix}${name.substring(0, idx + 1)}`;
+    const s = semver.parse(this._builder._version);
+    const pkgName = this._builder._packageName === 'default' ? '' : `${this._builder._packageName}/`;
+    const fqn = `/${this._wskNamespace}/${pkgName}${name}`;
     const sfx = [];
-    this._links.forEach((link) => {
+    // eslint-disable-next-line no-underscore-dangle
+    this._builder._links.forEach((link) => {
       if (link === 'major' || link === 'minor') {
         if (!s) {
-          this.log.warn(`${chalk.yellow('warn:')} unable to create version sequences. error while parsing version: ${this._version}`);
+          this.log.warn(`${chalk.yellow('warn:')} unable to create version sequences. error while parsing version: ${this._builder._version}`);
           return;
         }
         if (link === 'major') {
@@ -236,13 +235,13 @@ class OpenWhiskDeployer extends BaseDeployer {
 
     const annotations = [
       { key: 'exec', value: 'sequence' },
-      { key: 'web-export', value: this._webAction },
-      { key: 'raw-http', value: this._rawHttp },
+      { key: 'web-export', value: true },
+      { key: 'raw-http', value: true },
       { key: 'final', value: true },
-      { key: 'updated', value: this._updatedAt },
+      { key: 'updated', value: this._builder._updatedAt },
     ];
-    if (this._webSecure) {
-      annotations.push({ key: 'require-whisk-auth', value: this._webSecure });
+    if (this._builder._webSecure) {
+      annotations.push({ key: 'require-whisk-auth', value: this._builder._webSecure });
     }
     if (this._updatedBy) {
       annotations.push({ key: 'updatedBy', value: this._updatedBy });

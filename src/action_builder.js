@@ -414,12 +414,6 @@ module.exports = class ActionBuilder {
 
   withPackageName(value) {
     this._packageName = value;
-    // propagate package name
-    Object.values(this._deployers)
-      .filter((deployer) => typeof deployer.withPackageName === 'function')
-      .forEach(async (deployer) => {
-        deployer.withPackageName(value);
-      });
     return this;
   }
 
