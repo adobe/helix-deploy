@@ -87,13 +87,7 @@ describe('Build Test', () => {
         '--entryFile', 'index.js',
       ]);
 
-    const res = await builder.run();
-    assert.deepEqual(res, {
-      wsk: {
-        name: 'openwhisk;host=https://example.com',
-        url: '/foobar/simple-package/simple-name@1.45',
-      },
-    });
+    await builder.run();
 
     await assertZipEntries(path.resolve(testRoot, 'dist', 'simple-package', 'simple-name@1.45.zip'), [
       'index.js',

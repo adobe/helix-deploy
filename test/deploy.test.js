@@ -51,6 +51,7 @@ describe('Deploy Test', () => {
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
       .prepare([
+        '--target', 'wsk',
         '--verbose',
         '--deploy',
         '--directory', testRoot,
@@ -58,7 +59,7 @@ describe('Deploy Test', () => {
     // hack to invalidate the wsk props, if any
     builder._deployers.wsk.init = () => {};
 
-    await assert.rejects(builder.run(), /No applicable deployers found/);
+    await assert.rejects(builder.run(), /Openwhisk target needs --wsk-host, --wsk-auth and --wsk-namespace/);
   });
 
   it('reports error configured namespace does not match wsk namespace', async () => {
@@ -66,6 +67,7 @@ describe('Deploy Test', () => {
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
       .prepare([
+        '--target', 'wsk',
         '--verbose',
         '--deploy',
         '--namespace', 'baz',
@@ -89,6 +91,7 @@ describe('Deploy Test', () => {
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
       .prepare([
+        '--target', 'wsk',
         '--verbose',
         '--deploy',
         '--test', '/foo',
@@ -119,6 +122,7 @@ describe('Deploy Test', () => {
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
       .prepare([
+        '--target', 'wsk',
         '--verbose',
         '--no-build',
         '--test', '/foo',
@@ -126,14 +130,7 @@ describe('Deploy Test', () => {
       ]);
     builder._logger = new TestLogger();
 
-    const res = await builder.run();
-    assert.deepEqual(res, {
-      wsk: {
-        name: 'openwhisk;host=https://example.com',
-        url: '/foobar/default/simple-project',
-      },
-    });
-
+    await builder.run();
     const out = builder._logger.output;
     assert.ok(out.indexOf('requesting: https://example.com/api/v1/web/foobar/default/simple-project/foo') > 0);
     assert.ok(out.indexOf('Location: https://www.example.com/') > 0);
@@ -152,6 +149,7 @@ describe('Deploy Test', () => {
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
       .prepare([
+        '--target', 'wsk',
         '--verbose',
         '--deploy',
         '--directory', testRoot,

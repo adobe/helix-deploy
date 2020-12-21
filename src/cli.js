@@ -152,7 +152,7 @@ class CLI {
         type: 'number',
         default: (new Date().getTime()),
       })
-      .group(['aws-region', 'aws-role'], 'AWS Deployment Options')
+      .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets'], 'AWS Deployment Options')
       .option('aws-region', {
         description: 'the AWS region to deploy lambda functions to',
         type: 'string',
@@ -168,6 +168,12 @@ class CLI {
         type: 'string',
         default: 'auto',
       })
+      .option('aws-cleanup-buckets', {
+        description: 'Cleans up stray temporary S3 buckets',
+        type: 'boolean',
+        default: false,
+      })
+      .group(['azure-app'], 'Azure Deployment Options')
       .option('azure-app', {
         description: 'the Azure function app to deploy to',
         type: 'string',
@@ -286,6 +292,7 @@ class CLI {
       .withAWSRegion(argv.awsRegion)
       .withAWSRole(argv.awsRole)
       .withAWSApi(argv.awsApi)
+      .withAWSCleanUpBuckets(argv.awsCleanupBuckets)
       .withAzureApp(argv.azureApp)
       .withFastlyServiceID(argv.fastlyServiceId)
       .withFastlyAuth(argv.fastlyAuth)
@@ -296,7 +303,9 @@ class CLI {
   async run(args) {
     try {
       const res = await this.prepare(args).run();
-      console.log(JSON.stringify(res, null, 2));
+      if (res) {
+        console.log(JSON.stringify(res, null, 2));
+      }
     } catch (err) {
       console.log(`${chalk.red('error:')} ${err.message}`);
       process.exitCode = 1;

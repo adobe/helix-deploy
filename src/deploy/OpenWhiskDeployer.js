@@ -203,17 +203,7 @@ class OpenWhiskDeployer extends BaseDeployer {
     });
   }
 
-  async showDeployHints() {
-    const relZip = path.relative(process.cwd(), this._builder.zipFile);
-    this.log.info('Deploy to openwhisk the following command or specify --deploy on the commandline:');
-    this.log.info(chalk.grey(`$ wsk action update ${this._builder.actionName} --kind nodejs:${this._builder.nodeVersion} --web raw ${relZip}`));
-  }
-
   async updateLinks() {
-    // TODO: build
-    if (!this._links || this._links.length === 0) {
-      return;
-    }
     const idx = this._name.lastIndexOf('@');
     if (idx < 0) {
       this.log.warn(`${chalk.yellow('warn:')} unable to create version sequence. unsupported action name format. should be: "name@version"`);

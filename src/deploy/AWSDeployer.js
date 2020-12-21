@@ -13,9 +13,12 @@ const chalk = require('chalk');
 const {
   S3Client,
   CreateBucketCommand,
+  ListBucketsCommand,
+  ListObjectsV2Command,
   PutObjectCommand,
   DeleteBucketCommand,
   DeleteObjectCommand,
+  DeleteObjectsCommand,
 } = require('@aws-sdk/client-s3');
 const {
   LambdaClient,
@@ -58,6 +61,7 @@ class AWSDeployer extends BaseDeployer {
       _region: '',
       _role: '',
       _functionARN: '',
+      _cleanUpBuckets: false,
     });
   }
 
@@ -73,6 +77,12 @@ class AWSDeployer extends BaseDeployer {
 
   withAWSApi(value) {
     this._apiId = value;
+    return this;
+  }
+
+  withAWSCleanUpBuckets(value) {
+    // propagate to aws deployer
+    this._cleanUpBuckets = value;
     return this;
   }
 
@@ -378,6 +388,43 @@ class AWSDeployer extends BaseDeployer {
     await Promise.all(commands);
 
     this.log.info('parameters updated');
+  }
+
+  async cleanUpBuckets() {
+    this.log.info('--: cleaning up stray temporary S3 buckets ...');
+    let res = await this._s3.send(new ListBucketsCommand({}));
+    const helixBuckets = res.Buckets.filter((b) => b.Name.startsWith('poly-func-maker-temp-'));
+    if (helixBuckets.length === 0) {
+      this.log.info(chalk`{green ok}: no stray buckets found.`);
+    } else {
+      await Promise.all(helixBuckets.map(async (b) => {
+        // get all objects
+        res = await this._s3.send(new ListObjectsV2Command({
+          Bucket: b.Name,
+        }));
+        const keys = (res.Contents || []).map((c) => ({
+          Key: c.Key,
+        }));
+        if (keys.length) {
+          await this._s3.send(new DeleteObjectsCommand({
+            Bucket: b.Name,
+            Delete: {
+              Objects: keys,
+            },
+          }));
+        }
+        await this._s3.send(new DeleteBucketCommand({
+          Bucket: b.Name,
+        }));
+        this.log.info(chalk`{green ok}: deleted temporary bucket: ${b.Name}.`);
+      }));
+    }
+  }
+
+  async runAdditionalTasks() {
+    if (this._cleanUpBuckets) {
+      await this.cleanUpBuckets();
+    }
   }
 
   async deploy() {
