@@ -1,3 +1,10 @@
+## [1.10.1](https://github.com/adobe/helix-deploy/compare/v1.10.0...v1.10.1) (2020-12-21)
+
+
+### Bug Fixes
+
+* openwhisk update links no longer works ([#39](https://github.com/adobe/helix-deploy/issues/39)) ([0f0b2b6](https://github.com/adobe/helix-deploy/commit/0f0b2b685d6fa7603b5cce65a7e0705af82f544b))
+
 # [1.10.0](https://github.com/adobe/helix-deploy/compare/v1.9.1...v1.10.0) (2020-12-21)
 
 
