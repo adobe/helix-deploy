@@ -13,11 +13,11 @@
 module.exports = {
   // modules that are provided by the runtime container
   externals: [
-    'express',
-    'body-parser',
+    // 'express',
+    // 'body-parser',
     // 'cls-hooked',
-    'request',
-    'request-promise',
+    // 'request',
+    // 'request-promise',
     /^openwhisk(\/.*)?$/,
   ],
 };
