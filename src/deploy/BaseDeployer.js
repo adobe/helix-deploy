@@ -74,23 +74,37 @@ class BaseDeployer {
     url,
     headers = {},
     idHeader,
+    retry404 = 0,
   }) {
-    const testUrl = `${url}${this._builder.testPath || ''}`;
-    this.log.info(`--: requesting: ${chalk.blueBright(testUrl)} ...`);
-    const ret = await fetch(testUrl, {
-      headers,
-    });
-    const body = await ret.text();
-    const id = idHeader ? ret.headers.get(idHeader) : 'n/a';
-    if (ret.ok) {
-      this.log.info(`id: ${chalk.grey(id)}`);
-      this.log.info(`${chalk.green('ok:')} ${ret.status}`);
-      this.log.debug(chalk.grey(body));
-    } else {
-      this.log.info(`id: ${chalk.grey(id)}`);
+    while (retry404 >= 0) {
+      // eslint-disable-next-line no-param-reassign
+      const testUrl = `${url}${this._builder.testPath || ''}`;
+      this.log.info(`--: requesting: ${chalk.blueBright(testUrl)} ...`);
+      // eslint-disable-next-line no-await-in-loop
+      const ret = await fetch(testUrl, {
+        headers,
+      });
+      // eslint-disable-next-line no-await-in-loop
+      const body = await ret.text();
+      const id = idHeader ? ret.headers.get(idHeader) : 'n/a';
+      if (ret.ok) {
+        this.log.info(`id: ${chalk.grey(id)}`);
+        this.log.info(`${chalk.green('ok:')} ${ret.status}`);
+        this.log.debug(chalk.grey(body));
+        return;
+      }
       if (ret.status === 302 || ret.status === 301) {
         this.log.info(`${chalk.green('ok:')} ${ret.status}`);
         this.log.debug(chalk.grey(`Location: ${ret.headers.get('location')}`));
+        return;
+      }
+      this.log.info(`id: ${chalk.grey(id)}`);
+      if (ret.status === 404 && retry404) {
+        this.log.info(`${chalk.yellow('warn:')} ${ret.status} (retry)`);
+        // eslint-disable-next-line no-param-reassign
+        retry404 -= 1;
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       } else {
         this.log.info(`${chalk.red('error:')} ${ret.status}`);
         throw new Error(`test failed: ${ret.status} ${body}`);

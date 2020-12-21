@@ -356,6 +356,7 @@ class AWSDeployer extends BaseDeployer {
     return this.testRequest({
       url: this._functionURL,
       idHeader: 'apigw-requestid',
+      retry404: 5,
     });
   }
 

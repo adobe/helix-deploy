@@ -22,6 +22,7 @@ const { createTestRoot, TestLogger } = require('./utils');
 process.env.HELIX_FETCH_FORCE_HTTP1 = 'true';
 
 const CLI = require('../src/cli.js');
+const BaseDeployer = require('../src/deploy/BaseDeployer');
 
 describe('Deploy Test', () => {
   let testRoot;
@@ -138,6 +139,60 @@ describe('Deploy Test', () => {
     assert.ok(out.indexOf('requesting: https://example.com/api/v1/web/foobar/default/simple-project/foo') > 0);
     assert.ok(out.indexOf('Location: https://www.example.com/') > 0);
   });
+
+  it('test can retry with 404', async () => {
+    nock('https://www.example.com')
+      .get('/action/404/foo')
+      .reply(404)
+      .get('/action/404/foo')
+      .reply(200);
+    const builder = new CLI()
+      .prepare([
+        '--target', 'wsk',
+        '--verbose',
+        '--no-build',
+        '--test', '/foo',
+        '--directory', testRoot,
+      ]);
+    builder._logger = new TestLogger();
+    const deployer = new BaseDeployer(builder);
+    await deployer.testRequest({
+      url: 'https://www.example.com/action/404',
+      retry404: 1,
+    });
+    const out = builder._logger.output;
+
+    assert.ok(out.indexOf('warn: 404 (retry)') > 0);
+    assert.ok(out.indexOf('ok: 200') > 0);
+  }).timeout(3000);
+
+  it('test can retry with 404 but fails', async () => {
+    nock('https://www.example.com')
+      .get('/action/404/foo')
+      .twice()
+      .reply(404);
+    const builder = new CLI()
+      .prepare([
+        '--target', 'wsk',
+        '--verbose',
+        '--no-build',
+        '--test', '/foo',
+        '--directory', testRoot,
+      ]);
+    builder._logger = new TestLogger();
+    const deployer = new BaseDeployer(builder);
+    await assert.rejects(
+      deployer.testRequest({
+        url: 'https://www.example.com/action/404',
+        retry404: 1,
+      }),
+      Error('test failed: 404 '),
+    );
+    const out = builder._logger.output;
+
+    assert.ok(out.indexOf('warn: 404 (retry)') > 0);
+    assert.ok(out.indexOf('error: 404') > 0);
+  }).timeout(3000);
 
   it('deploys a web action with package', async () => {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'web-action-with-package'), testRoot);
