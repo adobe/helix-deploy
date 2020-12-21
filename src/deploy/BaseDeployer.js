@@ -97,6 +97,13 @@ class BaseDeployer {
       }
     }
   }
+
+  /**
+   * Can be used by deployers to run additional tasks, eg. custom commands.
+   */
+  // eslint-disable-next-line class-methods-use-this,no-empty-function
+  async runAdditionalTasks() {
+  }
 }
 
 module.exports = BaseDeployer;

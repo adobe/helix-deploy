@@ -476,6 +476,12 @@ module.exports = class ActionBuilder {
     return this;
   }
 
+  withAWSCleanUpBuckets(value) {
+    // propagate to aws deployer
+    this._deployers.aws.withAWSCleanUpBuckets(value);
+    return this;
+  }
+
   withAzureApp(value) {
     this._deployers.azure.withAzureApp(value);
     return this;
@@ -893,7 +899,9 @@ module.exports = class ActionBuilder {
       .filter((deployer) => typeof deployer[fnName] === 'function');
     // eslint-disable-next-line no-restricted-syntax
     for (const dep of deps) {
-      this.log.info(chalk`--: ${msg}{yellow ${dep.name}} ...`);
+      if (msg) {
+        this.log.info(chalk`--: ${msg}{yellow ${dep.name}} ...`);
+      }
       // eslint-disable-next-line no-await-in-loop
       await dep[fnName]();
     }
@@ -907,10 +915,6 @@ module.exports = class ActionBuilder {
     return this.execute('updatePackage', 'updating package on ');
   }
 
-  async showDeployHints() {
-    return this.execute('showDeployHints', 'hints for ');
-  }
-
   async delete() {
     return this.execute('delete', 'deleting action on ');
   }
@@ -921,6 +925,10 @@ module.exports = class ActionBuilder {
 
   async updateLinks() {
     return this.execute('updateLinks', 'updating links on ');
+  }
+
+  async runAdditionalTasks() {
+    return this.execute('runAdditionalTasks', '');
   }
 
   async run() {
@@ -941,8 +949,6 @@ module.exports = class ActionBuilder {
     }
     if (this._deploy) {
       await this.deploy();
-    } else if (this._showHints) {
-      await this.showDeployHints();
     }
 
     if (this._delete) {
@@ -953,7 +959,9 @@ module.exports = class ActionBuilder {
       await this.test();
     }
 
-    await this.updateLinks();
+    if (this._links && this._links.length) {
+      await this.updateLinks();
+    }
 
     if (this._gateways.fastly && this._gateways.fastly.ready()) {
       Object.values(this._deployers).forEach((d) => {
@@ -964,13 +972,18 @@ module.exports = class ActionBuilder {
       await this._gateways.fastly.deploy();
     }
 
-    return Object.entries(this._deployers).reduce((p, [name, dep]) => {
-      // eslint-disable-next-line no-param-reassign
-      p[name] = {
-        name: `${dep.name.toLowerCase()};host=https://${dep.host}`,
-        url: dep.fullFunctionName,
-      };
-      return p;
-    }, {});
+    await this.runAdditionalTasks();
+
+    if (this._deploy) {
+      return Object.entries(this._deployers).reduce((p, [name, dep]) => {
+        // eslint-disable-next-line no-param-reassign
+        p[name] = {
+          name: `${dep.name.toLowerCase()};host=https://${dep.host}`,
+          url: dep.fullFunctionName,
+        };
+        return p;
+      }, {});
+    }
+    return '';
   }
 };
