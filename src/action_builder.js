@@ -169,6 +169,7 @@ module.exports = class ActionBuilder {
       _version: null,
       _file: null,
       _zipFile: null,
+      _minify: false,
       _bundle: null,
       _env: null,
       _verbose: false,
@@ -253,6 +254,11 @@ module.exports = class ActionBuilder {
 
   withBuild(enable) {
     this._build = enable;
+    return this;
+  }
+
+  withMinify(enable) {
+    this._minify = enable;
     return this;
   }
 
@@ -740,7 +746,7 @@ module.exports = class ActionBuilder {
   }
 
   async getWebpackConfig() {
-    return {
+    const opts = {
       target: 'node',
       mode: 'development',
       // the universal adapter is the entry point
@@ -782,10 +788,17 @@ module.exports = class ActionBuilder {
         __filename: false,
       },
     };
+    if (this._minify) {
+      opts.optimization = {
+        minimize: this._minify,
+      };
+    }
+    return opts;
   }
 
   async createPackage() {
-    this.log.info('--: creating bundle ...');
+    const m = this._minify ? 'minified ' : '';
+    this.log.info(`--: creating ${m}bundle ...`);
     const config = await this.getWebpackConfig();
     const compiler = webpack(config);
     const stats = await new Promise((resolve, reject) => {

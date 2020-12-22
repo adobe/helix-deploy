@@ -34,6 +34,11 @@ class CLI {
         type: 'boolean',
         default: true,
       })
+      .option('minify', {
+        description: 'Minify the final bundle',
+        type: 'boolean',
+        default: false,
+      })
       .option('directory', {
         description: 'Project directory',
         type: 'string',
@@ -93,7 +98,7 @@ class CLI {
       })
       .option('node-version', {
         description: 'Specifies the node.js version to use in the serverless runtime',
-        default: '10',
+        default: '12',
       })
       .option('web-secure', {
         description: 'Annotates the action with require-whisk-auth. leave empty to generate random token.',
@@ -262,6 +267,7 @@ class CLI {
       .withDirectory(argv.directory)
       .withTarget(argv.target)
       .withBuild(argv.build)
+      .withMinify(argv.minify)
       .withDelete(argv.delete)
       .withDeploy(argv.deploy)
       .withTest(argv.test)
