@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/adobe/helix-deploy/compare/v1.10.1...v1.11.0) (2020-12-22)
+
+
+### Features
+
+* add option to minify bundle and default node version to 12 ([#40](https://github.com/adobe/helix-deploy/issues/40)) ([298a0b0](https://github.com/adobe/helix-deploy/commit/298a0b07d33b036b7e206fe22b673029e78bccfb))
+
 ## [1.10.1](https://github.com/adobe/helix-deploy/compare/v1.10.0...v1.10.1) (2020-12-21)
 
 
