@@ -25,9 +25,10 @@ describe('CLI Test', () => {
     assert.equal(builder._deploy, false);
     assert.deepEqual(builder._target, ['auto']);
     assert.equal(builder._build, true);
+    assert.equal(builder._minify, false);
     assert.equal(builder._test, undefined);
     assert.equal(builder._showHints, true);
-    assert.equal(builder._nodeVersion, '10');
+    assert.equal(builder._nodeVersion, '12');
     assert.equal(builder._docker, null);
     assert.deepEqual(builder._modules, []);
     assert.equal(JSON.stringify([...builder._statics]).toString(), '[]');
@@ -70,6 +71,12 @@ describe('CLI Test', () => {
     const builder = new CLI()
       .prepare(['--no-build']);
     assert.equal(builder._build, false);
+  });
+
+  it('sets minify flag', () => {
+    const builder = new CLI()
+      .prepare(['--minify']);
+    assert.equal(builder._minify, true);
   });
 
   it('sets test flag', () => {
