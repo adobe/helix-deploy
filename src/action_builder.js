@@ -901,7 +901,7 @@ module.exports = class ActionBuilder {
     this.log.info(chalk`{green ok:} bundle can be loaded and has a {gray main()} function.`);
   }
 
-  async execute(fnName, msg) {
+  async execute(fnName, msg, ...args) {
     const deps = Object.values(this._deployers)
       .filter((deployer) => typeof deployer[fnName] === 'function');
     // eslint-disable-next-line no-restricted-syntax
@@ -910,7 +910,7 @@ module.exports = class ActionBuilder {
         this.log.info(chalk`--: ${msg}{yellow ${dep.name}} ...`);
       }
       // eslint-disable-next-line no-await-in-loop
-      await dep[fnName]();
+      await dep[fnName](...args);
     }
   }
 
@@ -931,7 +931,15 @@ module.exports = class ActionBuilder {
   }
 
   async updateLinks() {
-    return this.execute('updateLinks', 'updating links on ');
+    // eslint-disable-next-line no-underscore-dangle
+    const name = this._name;
+    const idx = name.lastIndexOf('@');
+    if (idx < 0) {
+      this.log.warn(`${chalk.yellow('warn:')} unable to create version links. unsupported action name format. should be: "name@version"`);
+      return false;
+    }
+    const namePrefix = name.substring(0, idx);
+    return this.execute('updateLinks', 'updating links on ', namePrefix);
   }
 
   async runAdditionalTasks() {

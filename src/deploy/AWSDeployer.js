@@ -9,6 +9,7 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+/* eslint-disable no-await-in-loop,no-restricted-syntax */
 const chalk = require('chalk');
 const {
   S3Client,
@@ -42,6 +43,8 @@ const {
   CreateStageCommand,
   CreateIntegrationCommand,
   CreateRouteCommand,
+  GetRoutesCommand,
+  UpdateRouteCommand,
 } = require('@aws-sdk/client-apigatewayv2');
 const {
   SSMClient,
@@ -132,7 +135,7 @@ class AWSDeployer extends BaseDeployer {
     const data = await this._s3.send(new CreateBucketCommand({
       Bucket: this._bucket,
     }));
-    this.log.info(`Bucket ${data.Location} created`);
+    this.log.info(chalk`{green ok:} bucket ${data.Location} created`);
   }
 
   async uploadZIP() {
@@ -148,7 +151,7 @@ class AWSDeployer extends BaseDeployer {
     await this._s3.send(new PutObjectCommand(uploadParams));
 
     this._key = relZip;
-    this.log.info('File uploaded ');
+    this.log.info(chalk`{green ok:} file uploaded`);
   }
 
   async deleteS3Bucket() {
@@ -159,7 +162,7 @@ class AWSDeployer extends BaseDeployer {
     await this._s3.send(new DeleteBucketCommand({
       Bucket: this._bucket,
     }));
-    this.log.info(`Bucket ${this._bucket} emptied and deleted`);
+    this.log.info(chalk`{green ok:} bucket ${this._bucket} emptied and deleted`);
   }
 
   async createLambda() {
@@ -195,7 +198,7 @@ class AWSDeployer extends BaseDeployer {
     };
 
     try {
-      this.log.info(`Updating existing Lambda function ${functionName}`);
+      this.log.info(`--: updating existing Lambda function ${functionName}`);
       await this._lambda.send(new GetFunctionCommand({
         FunctionName: functionName,
       }));
@@ -212,7 +215,7 @@ class AWSDeployer extends BaseDeployer {
       await updatecode;
     } catch (e) {
       if (e.name === 'ResourceNotFoundException') {
-        this.log.info(`Creating new Lambda function ${functionName}`);
+        this.log.info(`--: creating new Lambda function ${functionName}`);
         await this._lambda.send(new CreateFunctionCommand(functionConfig));
       } else {
         this.log.error(`Unable to verify existence of Lambda function ${functionName}`);
@@ -233,7 +236,7 @@ class AWSDeployer extends BaseDeployer {
         Name: functionVersion,
       }));
 
-      this.log.info(`Updating existing alias ${functionName}:${functionVersion} to v${versionNum}`);
+      this.log.info(`--: updating existing alias ${functionName}:${functionVersion} to v${versionNum}`);
       const updatedata = await this._lambda.send(new UpdateAliasCommand({
         FunctionName: functionName,
         Name: functionVersion,
@@ -243,7 +246,7 @@ class AWSDeployer extends BaseDeployer {
       this._functionARN = updatedata.AliasArn;
     } catch (e) {
       if (e.name === 'ResourceNotFoundException') {
-        this.log.info(`Creating new alias ${functionName}:${functionVersion} at v${versionNum}`);
+        this.log.info(`--: creating new alias ${functionName}:${functionVersion} at v${versionNum}`);
         const createdata = await this._lambda.send(new CreateAliasCommand({
           FunctionName: functionName,
           Name: functionVersion,
@@ -257,12 +260,12 @@ class AWSDeployer extends BaseDeployer {
     }
   }
 
-  async createAPI() {
+  async initApiId() {
     let res;
     if (!this._apiId) {
       throw new Error('--aws-api is required');
     } else if (this._apiId === 'create') {
-      this.log.info('Creating API from scratch');
+      this.log.info('--: creating API from scratch');
       res = await this._api.send(new CreateApiCommand({
         Name: 'API managed by Poly-Func',
         ProtocolType: 'HTTP',
@@ -275,21 +278,42 @@ class AWSDeployer extends BaseDeployer {
       if (!res) {
         throw Error('--aws-api=auto didn\'t find an appropriate api.');
       }
-      this.log.info(`Using existing API "${res.ApiId}"`);
+      this.log.info(`--: using existing API "${res.ApiId}"`);
     } else {
       res = await this._api.send(new GetApiCommand({
         ApiId: this._apiId,
       }));
-      this.log.info(`Using existing API "${res.ApiId}"`);
+      this.log.info(`--: using existing API "${res.ApiId}"`);
     }
-
     const { ApiId, ApiEndpoint } = res;
-    const functionQName = this._builder.actionName.replace('@', '_');
     this._apiId = ApiId;
+    this._apiEndpoint = ApiEndpoint;
+    return { ApiId, ApiEndpoint };
+  }
+
+  async findIntegration(ApiId, IntegrationUri) {
+    let nextToken;
+    do {
+      const res = await this._api.send(new GetIntegrationsCommand({
+        ApiId,
+        NextToken: nextToken,
+      }));
+      const integration = res.Items.find((i) => i.IntegrationUri === IntegrationUri);
+      if (integration) {
+        return integration;
+      }
+      nextToken = res.NextToken;
+    } while (nextToken);
+    return null;
+  }
+
+  async createAPI() {
+    const { ApiId, ApiEndpoint } = await this.initApiId();
+    const functionQName = this._builder.actionName.replace('@', '_');
     this._functionURL = `${ApiEndpoint}/${functionQName}`;
 
     // check for stage
-    res = await this._api.send(new GetStagesCommand({
+    let res = await this._api.send(new GetStagesCommand({
       ApiId: this._apiId,
     }));
     const stage = res.Items.find((s) => s.StageName === '$default');
@@ -302,12 +326,9 @@ class AWSDeployer extends BaseDeployer {
     }
 
     // find integration
-    res = await this._api.send(new GetIntegrationsCommand({
-      ApiId,
-    }));
-    let integration = res.Items.find((i) => i.IntegrationUri === this._functionARN);
+    let integration = await this.findIntegration(ApiId, this._functionARN);
     if (integration) {
-      this.log.info(`Using existing integration "${integration.IntegrationId}" for "${this._functionARN}"`);
+      this.log.info(`--: using existing integration "${integration.IntegrationId}" for "${this._functionARN}"`);
     } else {
       integration = await this._api.send(new CreateIntegrationCommand({
         ApiId,
@@ -317,41 +338,31 @@ class AWSDeployer extends BaseDeployer {
         PayloadFormatVersion: '2.0',
         TimeoutInMillis: Math.min(this._builder.timeout, 30000),
       }));
-      this.log.info(`Created new integration "${integration.IntegrationId}" for "${this._functionARN}"`);
+      this.log.info(chalk`{green ok:} created new integration "${integration.IntegrationId}" for "${this._functionARN}"`);
       const { IntegrationId } = integration;
       // need to create 2 routes. one for the exact path, and one with suffix
-      await this._api.send(new CreateRouteCommand({
-        ApiId,
-        RouteKey: `ANY /${functionQName}/{path+}`,
-        Target: `integrations/${IntegrationId}`,
-      }));
-      await this._api.send(new CreateRouteCommand({
-        ApiId,
-        RouteKey: `ANY /${functionQName}`,
-        Target: `integrations/${IntegrationId}`,
-      }));
+      await this.createOrUpdateRoute([], ApiId, IntegrationId, `ANY /${functionQName}/{path+}`);
+      await this.createOrUpdateRoute([], ApiId, IntegrationId, `ANY /${functionQName}`);
     }
 
-    // setup permissions. TODO: there must be a way to get the source arn for a route<->integration
-    const sourceArn1 = `arn:aws:execute-api:${this._region}:${this._functionARN.split(':')[4]}:${ApiId}/*/*/${functionQName}`;
-    const sourceArn2 = `${sourceArn1}/{path+}`;
-
-    // eslint-disable-next-line no-restricted-syntax
-    for (const sourceArn of [sourceArn1, sourceArn2]) {
-      try {
-        // eslint-disable-next-line no-await-in-loop
-        res = await this._lambda.send(new AddPermissionCommand({
-          FunctionName: this._functionARN,
-          Action: 'lambda:InvokeFunction',
-          SourceArn: sourceArn,
-          Principal: 'apigateway.amazonaws.com',
-          StatementId: crypto.createHash('md5').update(this._functionARN + sourceArn).digest('hex'),
-        }));
-        this.log.info(`Added invoke permissions for ${sourceArn}`);
-      } catch (e) {
-        // ignore, most likely the permission already exists
-      }
+    // setup permissions for entire package.
+    // this way we don't need to setup more permissions for link routes
+    // eslint-disable-next-line no-underscore-dangle
+    const sourceArn = `arn:aws:execute-api:${this._region}:${this._functionARN.split(':')[4]}:${ApiId}/*/*/${this._builder._packageName}/*`;
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      await this._lambda.send(new AddPermissionCommand({
+        FunctionName: this._functionARN,
+        Action: 'lambda:InvokeFunction',
+        SourceArn: sourceArn,
+        Principal: 'apigateway.amazonaws.com',
+        StatementId: crypto.createHash('md5').update(this._functionARN + sourceArn).digest('hex'),
+      }));
+      this.log.info(chalk`{green ok:} added invoke permissions for ${sourceArn}`);
+    } catch (e) {
+      // ignore, most likely the permission already exists
     }
+
     if (this._builder.showHints) {
       const opts = '';
       this.log.info('\nYou can verify the action with:');
@@ -419,6 +430,78 @@ class AWSDeployer extends BaseDeployer {
         }));
         this.log.info(chalk`{green ok}: deleted temporary bucket: ${b.Name}.`);
       }));
+    }
+  }
+
+  async createOrUpdateRoute(routes, ApiId, IntegrationId, RouteKey) {
+    const existing = routes.find((r) => r.RouteKey === RouteKey);
+    if (existing) {
+      const res = await this._api.send(new UpdateRouteCommand({
+        ApiId,
+        RouteId: existing.RouteId,
+        RouteKey,
+        Target: `integrations/${IntegrationId}`,
+      }));
+      this.log.info(chalk`{green ok}: updated route for: ${res.RouteKey}`);
+    } else {
+      const res = await this._api.send(new CreateRouteCommand({
+        ApiId,
+        RouteKey,
+        Target: `integrations/${IntegrationId}`,
+      }));
+      this.log.info(chalk`{green ok}: created route for: ${res.RouteKey}`);
+    }
+  }
+
+  async updateLinks(namePrefix) {
+    const { ApiId } = await this.initApiId();
+
+    const functionName = `${this._builder.packageName}--${this._builder.name.replace(/@.*/g, '')}`;
+    const functionVersion = this._builder.name.replace(/.*@/g, '').replace(/\./g, '_');
+
+    // get function alias
+    let res;
+    let aliasArn;
+    try {
+      this.log.info(chalk`--: fetching alias ...`);
+      res = await this._lambda.send(new GetAliasCommand({
+        FunctionName: functionName,
+        Name: functionVersion,
+      }));
+      aliasArn = res.AliasArn;
+      this.log.info(chalk`{green ok}: ${aliasArn}`);
+    } catch (e) {
+      this.log.error(chalk`{red error}: Unable to create link to function ${functionName}`);
+      throw e;
+    }
+
+    // find integration
+    const integration = await this.findIntegration(ApiId, aliasArn);
+    if (!integration) {
+      throw new Error('Unable to create link. integration does not exist yet.');
+    }
+    const { IntegrationId } = integration;
+
+    // get all the routes
+    this.log.info(chalk`--: patching routes ...`);
+    let nextToken;
+    const routes = [];
+    do {
+      res = await this._api.send(new GetRoutesCommand({
+        ApiId,
+        NextToken: nextToken,
+      }));
+      routes.push(...res.Items);
+      nextToken = res.NextToken;
+    } while (nextToken);
+
+    // create routes for each symlink
+    const sfx = this.getLinkVersions();
+
+    for (const suffix of sfx) {
+      // check if route already exists
+      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${this._builder.packageName}/${namePrefix}_${suffix}`);
+      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${this._builder.packageName}/${namePrefix}_${suffix}/{path+}`);
     }
   }
 
