@@ -12,7 +12,6 @@
 /* eslint-disable no-underscore-dangle */
 
 const ow = require('openwhisk');
-const semver = require('semver');
 const os = require('os');
 const fse = require('fs-extra');
 const path = require('path');
@@ -199,37 +198,14 @@ class OpenWhiskDeployer extends BaseDeployer {
     });
   }
 
-  async updateLinks() {
+  async updateLinks(namePrefix) {
     // eslint-disable-next-line no-underscore-dangle
     const name = this._builder._name;
-    const idx = name.lastIndexOf('@');
-    if (idx < 0) {
-      this.log.warn(`${chalk.yellow('warn:')} unable to create version sequence. unsupported action name format. should be: "name@version"`);
-      return;
-    }
     // using `default` as package name doesn't work with sequences...
     const pkgPrefix = this._builder._linksPackage === 'default' ? '' : `${this._builder._linksPackage}/`;
-    const prefix = `${pkgPrefix}${name.substring(0, idx + 1)}`;
-    const s = semver.parse(this._builder._version);
+    const prefix = `${pkgPrefix}${namePrefix}`;
     const pkgName = this._builder._packageName === 'default' ? '' : `${this._builder._packageName}/`;
     const fqn = `/${this._wskNamespace}/${pkgName}${name}`;
-    const sfx = [];
-    // eslint-disable-next-line no-underscore-dangle
-    this._builder._links.forEach((link) => {
-      if (link === 'major' || link === 'minor') {
-        if (!s) {
-          this.log.warn(`${chalk.yellow('warn:')} unable to create version sequences. error while parsing version: ${this._builder._version}`);
-          return;
-        }
-        if (link === 'major') {
-          sfx.push(`v${s.major}`);
-        } else {
-          sfx.push(`v${s.major}.${s.minor}`);
-        }
-      } else {
-        sfx.push(link);
-      }
-    });
 
     const openwhisk = this.getOpenwhiskClient();
 
@@ -247,13 +223,14 @@ class OpenWhiskDeployer extends BaseDeployer {
       annotations.push({ key: 'updatedBy', value: this._updatedBy });
     }
 
+    const sfx = this.getLinkVersions();
     let hasErrors = false;
     await Promise.all(sfx.map(async (sf) => {
       const options = {
-        name: `${prefix}${sf}`,
+        name: `${prefix}@${sf}`,
         action: {
           namespace: this._wskNamespace,
-          name: `${prefix}${sf}`,
+          name: `${prefix}@${sf}`,
           exec: {
             kind: 'sequence',
             components: [fqn],

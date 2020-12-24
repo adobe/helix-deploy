@@ -11,6 +11,7 @@
  */
 const path = require('path');
 const chalk = require('chalk');
+const semver = require('semver');
 const fetchAPI = require('@adobe/helix-fetch');
 
 const { fetch } = process.env.HELIX_FETCH_FORCE_HTTP1
@@ -117,6 +118,33 @@ class BaseDeployer {
    */
   // eslint-disable-next-line class-methods-use-this,no-empty-function
   async runAdditionalTasks() {
+  }
+
+  /**
+   * Returns the link versions based on the configruation. eg ['v8', 'ci']
+   */
+  getLinkVersions() {
+    const sfx = [];
+    // eslint-disable-next-line no-underscore-dangle
+    const s = semver.parse(this._builder._version);
+    // eslint-disable-next-line no-underscore-dangle
+    this._builder._links.forEach((link) => {
+      if (link === 'major' || link === 'minor') {
+        if (!s) {
+          // eslint-disable-next-line no-underscore-dangle
+          this.log.warn(`${chalk.yellow('warn:')} unable to create version sequences. error while parsing version: ${this._builder._version}`);
+          return;
+        }
+        if (link === 'major') {
+          sfx.push(`v${s.major}`);
+        } else {
+          sfx.push(`v${s.major}.${s.minor}`);
+        }
+      } else {
+        sfx.push(link);
+      }
+    });
+    return sfx;
   }
 }
 
