@@ -54,79 +54,59 @@ const path = require('path');
 const fse = require('fs-extra');
 const crypto = require('crypto');
 const BaseDeployer = require('./BaseDeployer');
+const AWSConfig = require('./AWSConfig.js');
 
 class AWSDeployer extends BaseDeployer {
-  constructor(builder) {
-    super(builder);
+  constructor(baseConfig, config) {
+    super(baseConfig);
 
     Object.assign(this, {
+      id: 'aws',
       name: 'AmazonWebServices',
-      _region: '',
-      _role: '',
+      _cfg: config,
       _functionARN: '',
-      _cleanUpBuckets: false,
+      _aliasARN: '',
     });
   }
 
-  withAWSRegion(value) {
-    this._region = value;
-    return this;
-  }
-
-  withAWSRole(value) {
-    this._role = value;
-    return this;
-  }
-
-  withAWSApi(value) {
-    this._apiId = value;
-    return this;
-  }
-
-  withAWSCleanUpBuckets(value) {
-    // propagate to aws deployer
-    this._cleanUpBuckets = value;
-    return this;
-  }
-
   ready() {
-    const res = !!this._region
-    && !!this._s3
-    && !!this._role
-    && !!this._lambda
-    && !!this._ssm
-    && !!this._apiId;
-    return res;
+    return !!this._cfg.region
+      && !!this._cfg.apiId
+      && !!this._cfg.role
+      && !!this._s3
+      && !!this._lambda
+      && !!this._ssm;
   }
 
   get host() {
-    return `${this._apiId}.execute-api.${this._region}.amazonaws.com`;
+    return `${this._cfg.apiId}.execute-api.${this._cfg.region}.amazonaws.com`;
   }
 
   get urlVCL() {
-    return `"/${this._builder.packageName}" + regsub(req.url, "@", "_")`;
+    const { cfg } = this;
+    return `"/${cfg.packageName}" + regsub(req.url, "@", "_")`;
   }
 
   validate() {
-    if (!this._role || !this._region) {
+    if (!this._cfg.role || !this._cfg.region) {
       throw Error('AWS target needs --aws-region and --aws-role');
     }
   }
 
   async init() {
     this._bucket = `poly-func-maker-temp-${crypto.randomBytes(16).toString('hex')}`;
-    if (this._region) {
+    if (this._cfg.region) {
       this._s3 = new S3Client({
-        region: this._region,
+        region: this._cfg.region,
       });
       this._lambda = new LambdaClient({
-        region: this._region,
+        region: this._cfg.region,
       });
       this._api = new ApiGatewayV2Client({
-        region: this._region,
+        region: this._cfg.region,
       });
       this._ssm = new SSMClient({
-        region: this._region,
+        region: this._cfg.region,
       });
     }
   }
@@ -139,13 +119,14 @@ class AWSDeployer extends BaseDeployer {
   }
 
   async uploadZIP() {
-    const relZip = path.relative(process.cwd(), this._builder.zipFile);
+    const { cfg } = this;
+    const relZip = path.relative(process.cwd(), cfg.zipFile);
 
     this.log.info(`--: uploading ${relZip} to S3 bucket ${this._bucket} ...`);
     const uploadParams = {
       Bucket: this._bucket,
       Key: relZip,
-      Body: await fse.readFile(this._builder.zipFile),
+      Body: await fse.readFile(cfg.zipFile),
     };
 
     await this._s3.send(new PutObjectCommand(uploadParams));
@@ -166,8 +147,9 @@ class AWSDeployer extends BaseDeployer {
   }
 
   async createLambda() {
-    const functionName = `${this._builder.packageName}--${this._builder.name.replace(/@.*/g, '')}`;
-    const functionVersion = this._builder.name.replace(/.*@/g, '').replace(/\./g, '_');
+    const { cfg } = this;
+    const functionName = `${cfg.packageName}--${cfg.name.replace(/@.*/g, '')}`;
+    const functionVersion = cfg.name.replace(/.*@/g, '').replace(/\./g, '_');
 
     const functionConfig = {
       Code: {
@@ -176,23 +158,23 @@ class AWSDeployer extends BaseDeployer {
       },
       // todo: package name
       FunctionName: functionName,
-      Role: this._role,
-      Runtime: `nodejs${this._builder.nodeVersion}.x`,
+      Role: this._cfg.role,
+      Runtime: `nodejs${cfg.nodeVersion}.x`,
       // todo: cram annotations into description?
       Tags: {
-        pkgVersion: this._builder.version,
+        pkgVersion: cfg.version,
         // AWS tags have a size limit of 256. currently disabling
-        // dependencies: this._builder.dependencies.main
+        // dependencies: cfg.dependencies.main
         //   .map((dep) => `${dep.name}:${dep.version}`).join(','),
-        repository: encodeURIComponent(this._builder.gitUrl).replace(/%/g, '@'),
-        git: encodeURIComponent(`${this._builder.gitOrigin}#${this._builder.gitRef}`).replace(/%/g, '@'),
-        updated: `${this._builder.updatedAt}`,
+        repository: encodeURIComponent(cfg.gitUrl).replace(/%/g, '@'),
+        git: encodeURIComponent(`${cfg.gitOrigin}#${cfg.gitRef}`).replace(/%/g, '@'),
+        updated: `${cfg.updatedAt}`,
       },
-      Description: this._builder.pkgJson.description,
-      MemorySize: this._builder.memory,
-      Timeout: Math.floor(this._builder.timeout / 1000),
+      Description: cfg.pkgJson.description,
+      MemorySize: cfg.memory,
+      Timeout: Math.floor(cfg.timeout / 1000),
       Environment: {
-        Variables: this._builder.params,
+        Variables: cfg.params,
       },
       Handler: 'index.lambda',
     };
@@ -243,7 +225,7 @@ class AWSDeployer extends BaseDeployer {
         FunctionVersion: versionNum,
       }));
 
-      this._functionARN = updatedata.AliasArn;
+      this._aliasARN = updatedata.AliasArn;
     } catch (e) {
       if (e.name === 'ResourceNotFoundException') {
         this.log.info(`--: creating new alias ${functionName}:${functionVersion} at v${versionNum}`);
@@ -252,7 +234,7 @@ class AWSDeployer extends BaseDeployer {
           Name: functionVersion,
           FunctionVersion: versionNum,
         }));
-        this._functionARN = createdata.AliasArn;
+        this._aliasARN = createdata.AliasArn;
       } else {
         this.log.error(`Unable to verify existence of Lambda alias ${functionName}:${functionVersion}`);
         throw e;
@@ -262,16 +244,16 @@ class AWSDeployer extends BaseDeployer {
 
   async initApiId() {
     let res;
-    if (!this._apiId) {
+    if (!this._cfg.apiId) {
       throw new Error('--aws-api is required');
-    } else if (this._apiId === 'create') {
+    } else if (this._cfg.apiId === 'create') {
       this.log.info('--: creating API from scratch');
       res = await this._api.send(new CreateApiCommand({
         Name: 'API managed by Poly-Func',
         ProtocolType: 'HTTP',
       }));
       this.log.info(`Using new API "${res.ApiId}"`);
-    } else if (this._apiId === 'auto') {
+    } else if (this._cfg.apiId === 'auto') {
       res = await this._api.send(new GetApisCommand({ }));
       // todo: find API with appropriate tag. eg `helix-deploy:<namespace`.
       res = res.Items.find((a) => a.Name === 'API managed by Poly-Func');
@@ -281,12 +263,12 @@ class AWSDeployer extends BaseDeployer {
       this.log.info(`--: using existing API "${res.ApiId}"`);
     } else {
       res = await this._api.send(new GetApiCommand({
-        ApiId: this._apiId,
+        ApiId: this._cfg.apiId,
       }));
       this.log.info(`--: using existing API "${res.ApiId}"`);
     }
     const { ApiId, ApiEndpoint } = res;
-    this._apiId = ApiId;
+    this._cfg.apiId = ApiId;
     this._apiEndpoint = ApiEndpoint;
     return { ApiId, ApiEndpoint };
   }
@@ -308,13 +290,14 @@ class AWSDeployer extends BaseDeployer {
   }
 
   async createAPI() {
+    const { cfg } = this;
     const { ApiId, ApiEndpoint } = await this.initApiId();
-    const functionQName = this._builder.actionName.replace('@', '_');
+    const functionQName = cfg.actionName.replace('@', '_');
     this._functionURL = `${ApiEndpoint}/${functionQName}`;
 
     // check for stage
     let res = await this._api.send(new GetStagesCommand({
-      ApiId: this._apiId,
+      ApiId: this._cfg.apiId,
     }));
     const stage = res.Items.find((s) => s.StageName === '$default');
     if (!stage) {
@@ -326,19 +309,19 @@ class AWSDeployer extends BaseDeployer {
     }
 
     // find integration
-    let integration = await this.findIntegration(ApiId, this._functionARN);
+    let integration = await this.findIntegration(ApiId, this._aliasARN);
     if (integration) {
-      this.log.info(`--: using existing integration "${integration.IntegrationId}" for "${this._functionARN}"`);
+      this.log.info(`--: using existing integration "${integration.IntegrationId}" for "${this._aliasARN}"`);
     } else {
       integration = await this._api.send(new CreateIntegrationCommand({
         ApiId,
         IntegrationMethod: 'POST',
         IntegrationType: 'AWS_PROXY',
-        IntegrationUri: this._functionARN,
+        IntegrationUri: this._aliasARN,
         PayloadFormatVersion: '2.0',
-        TimeoutInMillis: Math.min(this._builder.timeout, 30000),
+        TimeoutInMillis: Math.min(cfg.timeout, 30000),
       }));
-      this.log.info(chalk`{green ok:} created new integration "${integration.IntegrationId}" for "${this._functionARN}"`);
+      this.log.info(chalk`{green ok:} created new integration "${integration.IntegrationId}" for "${this._aliasARN}"`);
       const { IntegrationId } = integration;
       // need to create 2 routes. one for the exact path, and one with suffix
       await this.createOrUpdateRoute([], ApiId, IntegrationId, `ANY /${functionQName}/{path+}`);
@@ -348,22 +331,22 @@ class AWSDeployer extends BaseDeployer {
     // setup permissions for entire package.
     // this way we don't need to setup more permissions for link routes
     // eslint-disable-next-line no-underscore-dangle
-    const sourceArn = `arn:aws:execute-api:${this._region}:${this._functionARN.split(':')[4]}:${ApiId}/*/*/${this._builder._packageName}/*`;
+    const sourceArn = `arn:aws:execute-api:${this._cfg.region}:${this._aliasARN.split(':')[4]}:${ApiId}/*/*/${cfg.packageName}/*`;
     try {
       // eslint-disable-next-line no-await-in-loop
       await this._lambda.send(new AddPermissionCommand({
-        FunctionName: this._functionARN,
+        FunctionName: this._aliasARN,
         Action: 'lambda:InvokeFunction',
         SourceArn: sourceArn,
         Principal: 'apigateway.amazonaws.com',
-        StatementId: crypto.createHash('md5').update(this._functionARN + sourceArn).digest('hex'),
+        StatementId: crypto.createHash('md5').update(this._aliasARN + sourceArn).digest('hex'),
       }));
       this.log.info(chalk`{green ok:} added invoke permissions for ${sourceArn}`);
     } catch (e) {
       // ignore, most likely the permission already exists
     }
 
-    if (this._builder.showHints) {
+    if (cfg.showHints) {
       const opts = '';
       this.log.info('\nYou can verify the action with:');
       this.log.info(chalk`{grey $ curl${opts} "${this._functionURL}"}`);
@@ -386,11 +369,12 @@ class AWSDeployer extends BaseDeployer {
   }
 
   async updatePackage() {
+    const { cfg } = this;
     this.log.info('--: updating app (package) parameters ...');
     const commands = Object
-      .entries(this._builder.packageParams)
+      .entries(cfg.packageParams)
       .map(([key, value]) => this._ssm.send(new PutParameterCommand({
-        Name: `/helix-deploy/${this._builder.packageName}/${key}`,
+        Name: `/helix-deploy/${cfg.packageName}/${key}`,
         Value: value,
         Type: 'SecureString',
         DataType: 'text',
@@ -454,10 +438,11 @@ class AWSDeployer extends BaseDeployer {
   }
 
   async updateLinks(namePrefix) {
+    const { cfg } = this;
     const { ApiId } = await this.initApiId();
 
-    const functionName = `${this._builder.packageName}--${this._builder.name.replace(/@.*/g, '')}`;
-    const functionVersion = this._builder.name.replace(/.*@/g, '').replace(/\./g, '_');
+    const functionName = `${cfg.packageName}--${cfg.name.replace(/@.*/g, '')}`;
+    const functionVersion = cfg.name.replace(/.*@/g, '').replace(/\./g, '_');
 
     // get function alias
     let res;
@@ -500,13 +485,13 @@ class AWSDeployer extends BaseDeployer {
 
     for (const suffix of sfx) {
       // check if route already exists
-      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${this._builder.packageName}/${namePrefix}_${suffix}`);
-      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${this._builder.packageName}/${namePrefix}_${suffix}/{path+}`);
+      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${cfg.packageName}/${namePrefix}_${suffix}`);
+      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${cfg.packageName}/${namePrefix}_${suffix}/{path+}`);
     }
   }
 
   async runAdditionalTasks() {
-    if (this._cleanUpBuckets) {
+    if (this._cfg.cleanUpBuckets) {
       await this.cleanUpBuckets();
     }
   }
@@ -525,4 +510,5 @@ class AWSDeployer extends BaseDeployer {
   }
 }
 
+AWSDeployer.Config = AWSConfig;
 module.exports = AWSDeployer;

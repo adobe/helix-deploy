@@ -18,7 +18,7 @@ const path = require('path');
 const { createTestRoot, TestLogger } = require('./utils');
 const CLI = require('../src/cli.js');
 
-describe.skip('OpenWhisk Integration Test', () => {
+describe('OpenWhisk Integration Test', () => {
   let testRoot;
   let origPwd;
 
@@ -46,11 +46,11 @@ describe.skip('OpenWhisk Integration Test', () => {
         '--directory', testRoot,
         '--entryFile', 'index.js',
       ]);
-    builder._logger = new TestLogger();
+    builder.cfg._logger = new TestLogger();
 
     const res = await builder.run();
     assert.ok(res);
-    const out = builder._logger.output;
+    const out = builder.cfg._logger.output;
     assert.ok(out.indexOf(`ok: 200
 Hello, world.`) > 0, out);
   }).timeout(10000);

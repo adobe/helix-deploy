@@ -1,3 +1,4 @@
 test/tmp
 dist
 src/index.js
+node_modules

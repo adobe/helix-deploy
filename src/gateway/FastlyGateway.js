@@ -10,35 +10,28 @@
  * governing permissions and limitations under the License.
  */
 const Fastly = require('@adobe/fastly-native-promises');
+const FastlyConfig = require('./FastlyConfig.js');
 
 class FastlyGateway {
-  constructor(builder) {
-    this._builder = builder;
-    this._service = undefined;
-    this._auth = undefined;
-    this._fastly = null;
-    this._deployers = [];
-    this._checkpath = '';
+  constructor(baseConfig, config) {
+    Object.assign(this, {
+      cfg: baseConfig,
+      _cfg: config,
+      isGateway: true,
+      id: 'fastly',
+      _fastly: null,
+      _deployers: [],
+    });
   }
 
   ready() {
-    return !!this._service && !!this._auth && !!this._checkpath;
+    return !!this._cfg.service && !!this._cfg.auth && !!this._cfg.checkpath;
   }
 
   init() {
     if (this.ready() && !this._fastly) {
-      this._fastly = Fastly(this._auth, this._service);
+      this._fastly = Fastly(this._cfg.auth, this._cfg.service);
     }
-  }
-
-  withAuth(value) {
-    this._auth = value;
-    return this;
-  }
-
-  withServiceID(value) {
-    this._service = value;
-    return this;
   }
 
   withDeployer(value) {
@@ -46,13 +39,8 @@ class FastlyGateway {
     return this;
   }
 
-  withCheckpath(value) {
-    this._checkpath = value;
-    return this;
-  }
-
   get log() {
-    return this._builder.log;
+    return this.cfg.log;
   }
 
   selectBackendVCL() {
@@ -90,14 +78,14 @@ class FastlyGateway {
     await this._fastly.transact(async (newversion) => {
       // create condition
       try {
-        console.log('create condition');
+        this.log.info('create condition');
         await this._fastly.writeCondition(newversion, 'false', {
           name: 'false',
           statement: 'false',
           type: 'request',
         });
       } catch (e) {
-        console.log('update condition', e, e.stack);
+        this.log.info('update condition', e, e.stack);
         await this._fastly.updateCondition(newversion, 'false', {
           name: 'false',
           statement: 'false',
@@ -114,7 +102,7 @@ class FastlyGateway {
           method: 'GET',
           initial: 1,
           name: `${deployer.name}Check`,
-          path: deployer.basePath + this._checkpath,
+          path: deployer.basePath + this._cfg.checkpath,
           threshold: 1,
           timeout: 5000,
           window: 2,
@@ -189,4 +177,5 @@ set beresp.cacheable = false;`,
   }
 }
 
+FastlyGateway.Config = FastlyConfig;
 module.exports = FastlyGateway;
