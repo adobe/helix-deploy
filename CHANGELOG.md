@@ -1,3 +1,10 @@
+# [1.12.0](https://github.com/adobe/helix-deploy/compare/v1.11.0...v1.12.0) (2020-12-24)
+
+
+### Features
+
+* **aws:** adding routes for symlinks ([9ec6e92](https://github.com/adobe/helix-deploy/commit/9ec6e922085da651e3eed40d285c506545069258)), closes [#41](https://github.com/adobe/helix-deploy/issues/41)
+
 # [1.11.0](https://github.com/adobe/helix-deploy/compare/v1.10.1...v1.11.0) (2020-12-22)
 
 
