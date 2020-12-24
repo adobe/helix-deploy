@@ -9,7 +9,7 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-const ActionBuilder = require('./src/action_builder.js');
+const ActionBuilder = require('./src/ActionBuilder.js');
 const CLI = require('./src/cli.js');
 const DevelopmentServer = require('./src/DevelopmentServer.js');
 
