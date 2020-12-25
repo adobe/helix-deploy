@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/adobe/helix-deploy/compare/v1.12.0...v1.13.0) (2020-12-25)
+
+
+### Features
+
+* refactoring ([5f877a3](https://github.com/adobe/helix-deploy/commit/5f877a3adc0ac3b6c8763c71ea74f34501b568ce))
+
 # [1.12.0](https://github.com/adobe/helix-deploy/compare/v1.11.0...v1.12.0) (2020-12-24)
 
 
