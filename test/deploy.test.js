@@ -98,7 +98,7 @@ describe('Deploy Test', () => {
         '--test', '/foo',
         '--directory', testRoot,
       ]);
-    builder._logger = new TestLogger();
+    builder.cfg._logger = new TestLogger();
 
     const res = await builder.run();
     assert.deepEqual(res, {
@@ -108,7 +108,7 @@ describe('Deploy Test', () => {
       },
     });
 
-    const out = builder._logger.output;
+    const out = builder.cfg.log.output;
     assert.ok(out.indexOf('$ curl "https://example.com/api/v1/web/foobar/default/simple-project"') > 0);
   });
 
@@ -129,10 +129,10 @@ describe('Deploy Test', () => {
         '--test', '/foo',
         '--directory', testRoot,
       ]);
-    builder._logger = new TestLogger();
+    builder.cfg._logger = new TestLogger();
 
     await builder.run();
-    const out = builder._logger.output;
+    const out = builder.cfg.log.output;
     assert.ok(out.indexOf('requesting: https://example.com/api/v1/web/foobar/default/simple-project/foo') > 0);
     assert.ok(out.indexOf('Location: https://www.example.com/') > 0);
   });
@@ -151,13 +151,13 @@ describe('Deploy Test', () => {
         '--test', '/foo',
         '--directory', testRoot,
       ]);
-    builder._logger = new TestLogger();
-    const deployer = new BaseDeployer(builder);
+    builder.cfg._logger = new TestLogger();
+    const deployer = new BaseDeployer(builder.cfg);
     await deployer.testRequest({
       url: 'https://www.example.com/action/404',
       retry404: 1,
     });
-    const out = builder._logger.output;
+    const out = builder.cfg.log.output;
 
     assert.ok(out.indexOf('warn: 404 (retry)') > 0);
     assert.ok(out.indexOf('ok: 200') > 0);
@@ -176,8 +176,8 @@ describe('Deploy Test', () => {
         '--test', '/foo',
         '--directory', testRoot,
       ]);
-    builder._logger = new TestLogger();
-    const deployer = new BaseDeployer(builder);
+    builder.cfg._logger = new TestLogger();
+    const deployer = new BaseDeployer(builder.cfg);
     await assert.rejects(
       deployer.testRequest({
         url: 'https://www.example.com/action/404',
@@ -185,7 +185,7 @@ describe('Deploy Test', () => {
       }),
       Error('test failed: 404 '),
     );
-    const out = builder._logger.output;
+    const out = builder.cfg.log.output;
 
     assert.ok(out.indexOf('warn: 404 (retry)') > 0);
     assert.ok(out.indexOf('error: 404') > 0);
@@ -209,7 +209,7 @@ describe('Deploy Test', () => {
         '--deploy',
         '--directory', testRoot,
       ]);
-    builder._logger = new TestLogger();
+    builder.cfg._logger = new TestLogger();
 
     const res = await builder.run();
     assert.deepEqual(res, {
@@ -219,7 +219,7 @@ describe('Deploy Test', () => {
       },
     });
 
-    const out = builder._logger.output;
+    const out = builder.cfg.log.output;
     assert.ok(out.indexOf('$ curl "https://example.com/api/v1/web/foobar/test-package/simple-project"') > 0);
   });
 
@@ -248,7 +248,7 @@ describe('Deploy Test', () => {
         '--test-params', 'foo=bar',
         '--directory', testRoot,
       ]);
-    builder._logger = new TestLogger();
+    builder.cfg._logger = new TestLogger();
 
     const res = await builder.run();
     assert.deepEqual(res, {
@@ -258,7 +258,7 @@ describe('Deploy Test', () => {
       },
     });
 
-    const out = builder._logger.output;
+    const out = builder.cfg.log.output;
     assert.ok(out.indexOf('$ wsk action invoke -r /foobar/default/simple-project') > 0);
   });
 
@@ -279,7 +279,7 @@ describe('Deploy Test', () => {
         '--deploy',
         '--directory', testRoot,
       ]);
-    builder._logger = new TestLogger();
+    builder.cfg._logger = new TestLogger();
 
     const res = await builder.run();
     assert.deepEqual(res, {
@@ -289,7 +289,7 @@ describe('Deploy Test', () => {
       },
     });
 
-    const out = builder._logger.output;
+    const out = builder.cfg.log.output;
     assert.ok(out.indexOf('$ wsk action invoke -r /foobar/test-package/simple-project') > 0);
   });
 });

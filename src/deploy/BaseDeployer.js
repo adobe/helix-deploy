@@ -14,24 +14,27 @@ const chalk = require('chalk');
 const semver = require('semver');
 const fetchAPI = require('@adobe/helix-fetch');
 
-const { fetch } = process.env.HELIX_FETCH_FORCE_HTTP1
-  ? fetchAPI.context({
-    httpProtocol: 'http1',
-    httpsProtocols: ['http1'],
-  })
-  : fetchAPI;
+function fetchContext() {
+  return process.env.HELIX_FETCH_FORCE_HTTP1
+    ? fetchAPI.context({
+      httpProtocol: 'http1',
+      httpsProtocols: ['http1'],
+    })
+    : fetchAPI;
+}
 
 class BaseDeployer {
-  constructor(builder) {
-    this._builder = builder;
+  constructor(cfg) {
+    this.isDeployer = true;
+    this.cfg = cfg;
   }
 
   get log() {
-    return this._builder.log;
+    return this.cfg.log;
   }
 
   ready() {
-    return this._builder && false;
+    return this.cfg && false;
   }
 
   validate() {
@@ -41,22 +44,22 @@ class BaseDeployer {
   }
 
   get relZip() {
-    return path.relative(process.cwd(), this._builder.zipFile);
+    return path.relative(process.cwd(), this.cfg.zipFile);
   }
 
   get host() {
     // note: most derived classes can offer a better implementation,
     // this is the lowest common denominator
-    if (this._functionURL) {
-      return new URL(this._functionURL).hostname;
+    if (this.cfg.functionURL) {
+      return new URL(this.cfg.functionURL).hostname;
     }
     return null;
   }
 
   // eslint-disable-next-line class-methods-use-this
   get basePath() {
-    if (this._functionURL) {
-      return new URL(this._functionURL).pathname;
+    if (this.cfg.functionURL) {
+      return new URL(this.cfg.functionURL).pathname;
     }
     return '';
   }
@@ -77,9 +80,10 @@ class BaseDeployer {
     idHeader,
     retry404 = 0,
   }) {
+    const { fetch } = fetchContext();
     while (retry404 >= 0) {
       // eslint-disable-next-line no-param-reassign
-      const testUrl = `${url}${this._builder.testPath || ''}`;
+      const testUrl = `${url}${this.cfg.testPath || ''}`;
       this.log.info(`--: requesting: ${chalk.blueBright(testUrl)} ...`);
       // eslint-disable-next-line no-await-in-loop
       const ret = await fetch(testUrl, {
@@ -105,7 +109,7 @@ class BaseDeployer {
         // eslint-disable-next-line no-param-reassign
         retry404 -= 1;
         // eslint-disable-next-line no-await-in-loop
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1500));
       } else {
         this.log.info(`${chalk.red('error:')} ${ret.status}`);
         throw new Error(`test failed: ${ret.status} ${body}`);
@@ -126,13 +130,13 @@ class BaseDeployer {
   getLinkVersions() {
     const sfx = [];
     // eslint-disable-next-line no-underscore-dangle
-    const s = semver.parse(this._builder._version);
+    const s = semver.parse(this.cfg.version);
     // eslint-disable-next-line no-underscore-dangle
-    this._builder._links.forEach((link) => {
+    this.cfg.links.forEach((link) => {
       if (link === 'major' || link === 'minor') {
         if (!s) {
           // eslint-disable-next-line no-underscore-dangle
-          this.log.warn(`${chalk.yellow('warn:')} unable to create version sequences. error while parsing version: ${this._builder._version}`);
+          this.log.warn(`${chalk.yellow('warn:')} unable to create version sequences. error while parsing version: ${this.cfg.version}`);
           return;
         }
         if (link === 'major') {

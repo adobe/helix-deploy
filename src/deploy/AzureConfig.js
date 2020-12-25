@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Adobe. All rights reserved.
+ * Copyright 2020 Adobe. All rights reserved.
  * This file is licensed to you under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License. You may obtain a copy
  * of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -9,12 +9,32 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-const ActionBuilder = require('./src/ActionBuilder.js');
-const CLI = require('./src/cli.js');
-const DevelopmentServer = require('./src/DevelopmentServer.js');
+class AzureConfig {
+  constructor() {
+    Object.assign(this, {
+      appName: '',
+    });
+  }
 
-module.exports = {
-  ActionBuilder,
-  CLI,
-  DevelopmentServer,
-};
+  configure(argv) {
+    return this
+      .withAzureApp(argv.azureApp);
+  }
+
+  withAzureApp(value) {
+    this.appName = value;
+    return this;
+  }
+
+  static yarg(yargs) {
+    return yargs
+      .group(['azure-app'], 'Azure Deployment Options')
+      .option('azure-app', {
+        description: 'the Azure function app to deploy to',
+        type: 'string',
+        default: '',
+      });
+  }
+}
+
+module.exports = AzureConfig;

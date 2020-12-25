@@ -50,11 +50,11 @@ describe('Azure Integration Test', () => {
         '--directory', testRoot,
         '--entryFile', 'index.js',
       ]);
-    builder._logger = new TestLogger();
+    builder.cfg._logger = new TestLogger();
 
     const res = await builder.run();
     assert.ok(res);
-    const out = builder._logger.output;
+    const out = builder.cfg._logger.output;
     assert.ok(out.indexOf(`ok: 200
 Hello, world.`) > 0, out);
   }).timeout(50000);

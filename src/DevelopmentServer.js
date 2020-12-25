@@ -12,7 +12,10 @@
 /* eslint-disable no-underscore-dangle */
 const fse = require('fs-extra');
 const path = require('path');
-const ActionBuilder = require('./action_builder.js');
+const ActionBuilder = require('./ActionBuilder');
+const BaseConfig = require('./BaseConfig.js');
+const OpenWhiskConfig = require('./deploy/OpenWhiskConfig.js');
+const OpenWhiskDeployer = require('./deploy/OpenWhiskDeployer.js');
 
 /**
  * Development server to use with a expressified openwhisk app.
@@ -65,27 +68,28 @@ module.exports = class DevelopmentServer {
     } catch (e) {
       // ignore
     }
-    const builder = new ActionBuilder();
+    const config = new BaseConfig();
     if (pkgJson.wsk && pkgJson.wsk['params-file']) {
-      builder.withParamsFile(pkgJson.wsk['params-file']);
+      config.withParamsFile(pkgJson.wsk['params-file']);
     }
     if (pkgJson.wsk && pkgJson.wsk.package && pkgJson.wsk.package['params-file']) {
-      builder.withParamsFile(pkgJson.wsk.package['params-file']);
+      config.withParamsFile(pkgJson.wsk.package['params-file']);
     }
     if (pkgJson.wsk && pkgJson.wsk['dev-params-file']) {
       const file = pkgJson.wsk['dev-params-file'];
       if (await fse.exists(file)) {
-        builder.withParamsFile(file);
+        config.withParamsFile(file);
       }
     }
-    await builder._deployers.wsk.init();
+    const wsk = new OpenWhiskDeployer(config, new OpenWhiskConfig());
+    await wsk.init();
 
-    const params = await ActionBuilder.resolveParams(builder._params);
+    const params = await ActionBuilder.resolveParams(config.params);
 
     // set openwhisk coordinates for transparent ow client usage.
-    process.env.__OW_API_KEY = builder._deployers.wsk._wskAuth;
-    process.env.__OW_API_HOST = builder._deployers.wsk._wskApiHost;
-    process.env.__OW_NAMESPACE = builder._deployers.wsk._wskNamespace;
+    process.env.__OW_API_KEY = wsk._cfg.auth;
+    process.env.__OW_API_HOST = wsk._cfg.apiHost;
+    process.env.__OW_NAMESPACE = wsk._cfg.namespace;
 
     this.params = params;
     return this;

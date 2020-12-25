@@ -16,32 +16,28 @@ const { fetch } = require('@adobe/helix-fetch').context({
 });
 const fs = require('fs');
 const BaseDeployer = require('./BaseDeployer');
+const AzureConfig = require('./AzureConfig.js');
 
 class AzureDeployer extends BaseDeployer {
-  constructor(builder) {
-    super(builder);
-
+  constructor(baseConfig, config) {
+    super(baseConfig);
     Object.assign(this, {
+      id: 'azure',
       name: 'Azure',
-      _appName: '',
+      _cfg: config,
       _auth: null,
       _pubcreds: null,
     });
   }
 
   ready() {
-    return !!this._appName && !!this._auth;
+    return !!this._cfg.appName && !!this._auth;
   }
 
   validate() {
     if (!this.ready()) {
       throw Error('Azure target needs --azure-app');
     }
-  }
-
-  withAzureApp(value) {
-    this._appName = value;
-    return this;
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -64,7 +60,7 @@ class AzureDeployer extends BaseDeployer {
     const secret = process.env.AZURE_CLIENT_SECRET;
     const tenantId = process.env.AZURE_TENANT_ID;
 
-    if (!!clientId && !!secret && !!tenantId && !!this._appName) {
+    if (!!clientId && !!secret && !!tenantId && !!this._cfg.appName) {
       try {
         const res = await msRestNodeAuth.loginWithServicePrincipalSecretWithAuthResponse(
           clientId,
@@ -80,13 +76,13 @@ class AzureDeployer extends BaseDeployer {
           subscription,
         );
         const [apps] = (await this._client.webApps.list()).filter(
-          (app) => app.name === this._appName,
+          (app) => app.name === this._cfg.appName,
         );
         this._app = apps;
 
         this._pubcreds = await this._client.webApps.listPublishingCredentials(
           this._app.resourceGroup,
-          this._appName,
+          this._cfg.appName,
         );
       } catch (e) {
         this.log.error(`Unable to authenticate with Azure:${e.message}`);
@@ -96,12 +92,13 @@ class AzureDeployer extends BaseDeployer {
   }
 
   async uploadFunctionZIP() {
-    const funcname = this._builder.actionName.replace('/', '--').replace('@', '_').replace('.', '_');
+    const { cfg } = this;
+    const funcname = cfg.actionName.replace('/', '--').replace('@', '_').replace('.', '_');
     const url = new URL(
       `${this._pubcreds.scmUri}/api/zip/site/wwwroot/${funcname}/`,
     ).href.replace(/https:\/\/.*?@/, 'https://');
     // const url = new URL(this._pubcreds.scmUri + `/api/zip/site/wwwroot/${'newfunc'.replace('/', '--')}/`).href.replace(/https:\/\/.*?@/, 'https://');
-    const body = fs.createReadStream(this._builder.zipFile);
+    const body = fs.createReadStream(cfg.zipFile);
     const authorization = `Basic ${Buffer.from(
       `${this._pubcreds.publishingUserName
       }:${
@@ -127,8 +124,9 @@ class AzureDeployer extends BaseDeployer {
   }
 
   async updateParams() {
+    const { cfg } = this;
     this.log.info('--: updating function parameters ...');
-    const funcname = this._builder.actionName.replace('/', '--').replace('@', '_').replace('.', '_');
+    const funcname = cfg.actionName.replace('/', '--').replace('@', '_').replace('.', '_');
     const url = new URL(
       `${this._pubcreds.scmUri}/api/vfs/site/wwwroot/${funcname}/params.json`,
     ).href.replace(/https:\/\/.*?@/, 'https://');
@@ -157,7 +155,7 @@ class AzureDeployer extends BaseDeployer {
     const resp = await fetch(url, {
       method: 'PUT',
       body: JSON.stringify({
-        ...this._builder.params,
+        ...cfg.params,
         ...params,
       }),
       headers: {
@@ -177,6 +175,7 @@ class AzureDeployer extends BaseDeployer {
   }
 
   async updatePackage() {
+    const { cfg } = this;
     this.log.info('--: updating app (package) parameters ...');
     const url = new URL(
       `${this._pubcreds.scmUri}/api/settings`,
@@ -190,14 +189,14 @@ class AzureDeployer extends BaseDeployer {
 
     const resp = await fetch(url, {
       method: 'POST',
-      body: JSON.stringify(this._builder.packageParams),
+      body: JSON.stringify(cfg.packageParams),
       headers: {
         authorization,
         'Content-Type': 'application/json',
       },
     });
 
-    console.log(resp.status, await resp.text());
+    this.log.info(resp.status, await resp.text());
   }
 
   async deploy() {
@@ -211,4 +210,5 @@ class AzureDeployer extends BaseDeployer {
   }
 }
 
+AzureDeployer.Config = AzureConfig;
 module.exports = AzureDeployer;

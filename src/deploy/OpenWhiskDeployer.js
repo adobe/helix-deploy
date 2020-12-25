@@ -19,26 +19,17 @@ const chalk = require('chalk');
 const dotenv = require('dotenv');
 
 const BaseDeployer = require('./BaseDeployer');
+const OpenWhiskConfig = require('./OpenWhiskConfig.js');
 
 class OpenWhiskDeployer extends BaseDeployer {
-  constructor(builder) {
-    super(builder);
+  constructor(baseConfig, config) {
+    super(baseConfig);
 
     Object.assign(this, {
+      id: 'wsk',
       name: 'Openwhisk',
-      _namespace: '',
-      _packageShared: false,
+      _cfg: config,
     });
-  }
-
-  withNamespace(value) {
-    this._namespace = value;
-    return this;
-  }
-
-  withPackageShared(value) {
-    this._packageShared = value;
-    return this;
   }
 
   async init() {
@@ -47,13 +38,17 @@ class OpenWhiskDeployer extends BaseDeployer {
     if (await fse.pathExists(wskPropsFile)) {
       wskProps = dotenv.parse(await fse.readFile(wskPropsFile));
     }
-    this._wskNamespace = this._wskNamespace || process.env.WSK_NAMESPACE || wskProps.NAMESPACE;
-    this._wskAuth = this._wskAuth || process.env.WSK_AUTH || wskProps.AUTH;
-    this._wskApiHost = this._wskApiHost || process.env.WSK_APIHOST || wskProps.APIHOST || 'https://adobeioruntime.net';
+    const wskNamespace = process.env.WSK_NAMESPACE || wskProps.NAMESPACE;
+    if (this._cfg.namespace && this._cfg.namespace !== wskNamespace) {
+      throw Error(chalk`Openhwhisk namespace {grey '${wskNamespace}'} doesn't match configured namespace {grey '${this._cfg.namespace}'}.\nThis is a security measure to prevent accidental deployment dues to wrong .wskprops.`);
+    }
+    this._cfg.namespace = wskNamespace;
+    this._cfg.auth = process.env.WSK_AUTH || wskProps.AUTH;
+    this._cfg.apiHost = process.env.WSK_APIHOST || wskProps.APIHOST || 'https://adobeioruntime.net';
   }
 
   get host() {
-    return this._wskApiHost.replace('https://', '').replace('/', '');
+    return this._cfg.apiHost.replace('https://', '').replace('/', '');
   }
 
   get basePath() {
@@ -62,15 +57,15 @@ class OpenWhiskDeployer extends BaseDeployer {
 
   // eslint-disable-next-line class-methods-use-this
   get urlVCL() {
-    return `"/api/v1/web/${this._wskNamespace}/${this._builder.packageName}" + req.url`;
+    return `"/api/v1/web/${this._cfg.namespace}/${this.cfg.packageName}" + req.url`;
   }
 
   get fullFunctionName() {
-    return `/${this._wskNamespace}/${this._builder.packageName}/${this._builder.name}`;
+    return `/${this._cfg.namespace}/${this.cfg.packageName}/${this.cfg.name}`;
   }
 
   ready() {
-    return !!this._wskApiHost && !!this._wskAuth && !!this._wskNamespace;
+    return !!this._cfg.apiHost && !!this._cfg.auth && !!this._cfg.namespace;
   }
 
   validate() {
@@ -80,82 +75,82 @@ class OpenWhiskDeployer extends BaseDeployer {
   }
 
   getOpenwhiskClient() {
-    if (!this._wskApiHost || !this._wskAuth || !this._wskNamespace) {
+    if (!this._cfg.apiHost || !this._cfg.auth || !this._cfg.namespace) {
       throw Error(chalk`\nMissing OpenWhisk credentials. Make sure you have a {grey .wskprops} in your home directory.\nYou can also set {grey WSK_NAMESPACE}, {gray WSK_AUTH} and {gray WSK_API_HOST} environment variables.`);
     }
-    if (this._namespace && this._namespace !== this._wskNamespace) {
-      throw Error(chalk`Openhwhisk namespace {grey '${this._wskNamespace}'} doesn't match configured namespace {grey '${this._namespace}'}.\nThis is a security measure to prevent accidental deployment dues to wrong .wskprops.`);
-    }
     return ow({
-      apihost: this._wskApiHost,
-      api_key: this._wskAuth,
-      namespace: this._wskNamespace,
+      apihost: this._cfg.apiHost,
+      api_key: this._cfg.auth,
+      namespace: this._cfg.namespace,
     });
   }
 
   async deploy() {
+    const { cfg } = this;
     const openwhisk = this.getOpenwhiskClient();
-    const relZip = path.relative(process.cwd(), this._builder.zipFile);
-    this.log.info(`--: deploying ${relZip} as ${this._builder.actionName} ...`);
+    const relZip = path.relative(process.cwd(), cfg.zipFile);
+    this.log.info(`--: deploying ${relZip} as ${cfg.actionName} ...`);
     const actionoptions = {
-      name: this._builder.actionName,
-      action: await fse.readFile(this._builder.zipFile),
-      kind: `nodejs:${this._builder.nodeVersion}`,
+      name: cfg.actionName,
+      action: await fse.readFile(cfg.zipFile),
+      kind: `nodejs:${cfg.nodeVersion}`,
       annotations: {
         'web-export': true,
         'raw-http': true,
-        description: this._builder.pkgJson.description,
-        pkgVersion: this._builder.version,
-        dependencies: this._builder.dependencies.main.map((dep) => `${dep.name}:${dep.version}`).join(','),
-        repository: this._builder.gitUrl,
-        git: `${this._builder.gitOrigin}#${this._builder.gitRef}`,
-        updated: this._builder.updatedAt,
+        description: cfg.pkgJson.description,
+        pkgVersion: cfg.version,
+        dependencies: cfg.dependencies.main.map((dep) => `${dep.name}:${dep.version}`).join(','),
+        repository: cfg.gitUrl,
+        git: `${cfg.gitOrigin}#${cfg.gitRef}`,
+        updated: cfg.updatedAt,
       },
-      params: this._builder.params,
+      params: cfg.params,
       limits: {
-        timeout: this._builder.timeout,
+        timeout: cfg.timeout,
       },
     };
-    if (this._builder.webSecure) {
-      actionoptions.annotations['require-whisk-auth'] = this._builder.webSecure;
+    if (cfg.webSecure) {
+      actionoptions.annotations['require-whisk-auth'] = cfg.webSecure;
     }
-    if (this._builder.updatedBy) {
-      actionoptions.annotations.updatedBy = this._builder.updatedBy;
+    if (cfg.updatedBy) {
+      actionoptions.annotations.updatedBy = cfg.updatedBy;
     }
-    if (this._builder.memory) {
-      actionoptions.limits.memory = this._builder.memory;
+    if (cfg.memory) {
+      actionoptions.limits.memory = cfg.memory;
     }
-    if (this._builder.concurrency) {
-      actionoptions.limits.concurrency = this._builder.concurrency;
+    if (cfg.concurrency) {
+      actionoptions.limits.concurrency = cfg.concurrency;
     }
 
     await openwhisk.actions.update(actionoptions);
-    this.log.info(chalk`{green ok:} updated action {yellow ${`/${this._wskNamespace}/${this._builder.packageName}/${this._builder.name}`}}`);
-    if (this._builder.showHints) {
+    this.log.info(chalk`{green ok:} updated action {yellow ${`/${this._cfg.namespace}/${cfg.packageName}/${cfg.name}`}}`);
+    if (cfg.showHints) {
       this.log.info('\nYou can verify the action with:');
       let opts = '';
-      if (this._builder.webSecure === true) {
+      if (cfg.webSecure === true) {
         opts = ' -u "$WSK_AUTH"';
-      } else if (this._builder.webSecure) {
-        opts = ` -H "x-require-whisk-auth: ${this._builder.webSecure}"`;
+      } else if (cfg.webSecure) {
+        opts = ` -H "x-require-whisk-auth: ${cfg.webSecure}"`;
       }
-      this.log.info(chalk`{grey $ curl${opts} "${this._wskApiHost}/api/v1/web${this.fullFunctionName}"}`);
+      this.log.info(chalk`{grey $ curl${opts} "${this._cfg.apiHost}/api/v1/web${this.fullFunctionName}"}`);
     }
   }
 
   async delete() {
+    const { cfg } = this;
     const openwhisk = this.getOpenwhiskClient();
     this.log.info('--: deleting action ...');
-    await openwhisk.actions.delete(this._builder._actionName);
-    this.log.info(chalk`{green ok:} deleted action {yellow ${`/${this._wskNamespace}/${this._builder._packageName}/${this._builder._name}`}}`);
+    await openwhisk.actions.delete(cfg.actionName);
+    this.log.info(chalk`{green ok:} deleted action {yellow ${`/${this._cfg.namespace}/${cfg.packageName}/${cfg.name}`}}`);
   }
 
   async updatePackage() {
+    const { cfg } = this;
     const openwhisk = this.getOpenwhiskClient();
     let fn = openwhisk.packages.update.bind(openwhisk.packages);
     let verb = 'updated';
     try {
-      await openwhisk.packages.get(this._builder.packageName);
+      await openwhisk.packages.get(cfg.packageName);
     } catch (e) {
       if (e.statusCode === 404) {
         fn = openwhisk.packages.create.bind(openwhisk.packages);
@@ -166,14 +161,14 @@ class OpenWhiskDeployer extends BaseDeployer {
     }
 
     try {
-      const parameters = Object.keys(this._builder.packageParams).map((key) => {
-        const value = this._builder.packageParams[key];
+      const parameters = Object.keys(cfg.packageParams).map((key) => {
+        const value = cfg.packageParams[key];
         return { key, value };
       });
       const result = await fn({
-        name: this._builder.packageName,
+        name: cfg.packageName,
         package: {
-          publish: this._packageShared,
+          publish: this._cfg.packageShared,
           parameters,
         },
       });
@@ -185,27 +180,28 @@ class OpenWhiskDeployer extends BaseDeployer {
   }
 
   async test() {
+    const { cfg } = this;
     const headers = {};
-    if (this._builder.webSecure === true) {
-      headers.authorization = `Basic ${Buffer.from(this._wskAuth).toString('base64')}`;
-    } else if (this._builder.webSecure) {
-      headers['x-require-whisk-auth'] = this._webSecure;
+    if (cfg.webSecure === true) {
+      headers.authorization = `Basic ${Buffer.from(this._cfg.auth).toString('base64')}`;
+    } else if (cfg.webSecure) {
+      headers['x-require-whisk-auth'] = cfg.webSecure;
     }
     return this.testRequest({
-      url: `${this._wskApiHost}/api/v1/web${this.fullFunctionName}`,
+      url: `${this._cfg.apiHost}/api/v1/web${this.fullFunctionName}`,
       headers,
       idHeader: 'x-openwhisk-activation-id',
     });
   }
 
   async updateLinks(namePrefix) {
-    // eslint-disable-next-line no-underscore-dangle
-    const name = this._builder._name;
+    const { cfg } = this;
+    const { name } = cfg;
     // using `default` as package name doesn't work with sequences...
-    const pkgPrefix = this._builder._linksPackage === 'default' ? '' : `${this._builder._linksPackage}/`;
+    const pkgPrefix = cfg.linksPackage === 'default' ? '' : `${cfg.linksPackage}/`;
     const prefix = `${pkgPrefix}${namePrefix}`;
-    const pkgName = this._builder._packageName === 'default' ? '' : `${this._builder._packageName}/`;
-    const fqn = `/${this._wskNamespace}/${pkgName}${name}`;
+    const pkgName = cfg.packageName === 'default' ? '' : `${cfg.packageName}/`;
+    const fqn = `/${this._cfg.namespace}/${pkgName}${name}`;
 
     const openwhisk = this.getOpenwhiskClient();
 
@@ -214,13 +210,13 @@ class OpenWhiskDeployer extends BaseDeployer {
       { key: 'web-export', value: true },
       { key: 'raw-http', value: true },
       { key: 'final', value: true },
-      { key: 'updated', value: this._builder._updatedAt },
+      { key: 'updated', value: cfg.updatedAt },
     ];
-    if (this._builder._webSecure) {
-      annotations.push({ key: 'require-whisk-auth', value: this._builder._webSecure });
+    if (cfg.webSecure) {
+      annotations.push({ key: 'require-whisk-auth', value: cfg.webSecure });
     }
-    if (this._updatedBy) {
-      annotations.push({ key: 'updatedBy', value: this._updatedBy });
+    if (this.updatedBy) {
+      annotations.push({ key: 'updatedBy', value: this.updatedBy });
     }
 
     const sfx = this.getLinkVersions();
@@ -229,7 +225,7 @@ class OpenWhiskDeployer extends BaseDeployer {
       const options = {
         name: `${prefix}@${sf}`,
         action: {
-          namespace: this._wskNamespace,
+          namespace: this._cfg.namespace,
           name: `${prefix}@${sf}`,
           exec: {
             kind: 'sequence',
@@ -255,4 +251,5 @@ class OpenWhiskDeployer extends BaseDeployer {
   }
 }
 
+OpenWhiskDeployer.Config = OpenWhiskConfig;
 module.exports = OpenWhiskDeployer;
