@@ -437,7 +437,7 @@ class AWSDeployer extends BaseDeployer {
     }
   }
 
-  async updateLinks(namePrefix) {
+  async updateLinks() {
     const { cfg } = this;
     const { ApiId } = await this.initApiId();
 
@@ -485,8 +485,8 @@ class AWSDeployer extends BaseDeployer {
 
     for (const suffix of sfx) {
       // check if route already exists
-      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${cfg.packageName}/${namePrefix}_${suffix}`);
-      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${cfg.packageName}/${namePrefix}_${suffix}/{path+}`);
+      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${cfg.packageName}/${cfg.baseName}_${suffix}`);
+      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${cfg.packageName}/${cfg.baseName}_${suffix}/{path+}`);
     }
   }
 

@@ -9,10 +9,16 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+/**
+ * @field {string} namespace Openwhisk namespace.
+ * @field {string} actionName Action as it would be deployed (package + name)
+ * @field {boolean} packageShared If package is shared.
+ */
 class OpenWhiskConfig {
   constructor() {
     Object.assign(this, {
       namespace: '',
+      actionName: '',
       packageShared: false,
     });
   }

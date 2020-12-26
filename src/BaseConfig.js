@@ -15,12 +15,16 @@ const fse = require('fs-extra');
 const chalk = require('chalk');
 const dotenv = require('dotenv');
 
+/**
+ * @field name Name of function including the version. eg `my-action@1.2.3`
+ * @field baseName Name of the function w/o the version. eg `my-action`
+ * @field packageName Name of the function package. eg `my-package`
+ */
 class BaseConfig {
   constructor() {
     Object.assign(this, {
       cwd: process.cwd(),
       distDir: null,
-      name: null,
       version: null,
       file: null,
       zipFile: null,
@@ -41,8 +45,8 @@ class BaseConfig {
       build: true,
       delete: false,
       updatePackage: false,
-      namespace: '',
-      actionName: '',
+      name: null,
+      baseName: null,
       packageName: '',
       packageParams: {},
       timeout: 60000,
