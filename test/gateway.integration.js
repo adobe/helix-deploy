@@ -44,7 +44,7 @@ describe('Gateway Integration Test', () => {
         '--target', 'wsk',
         '--target', 'aws',
         '--aws-region', 'us-east-1',
-        '--aws-api', 'pfbv1wwqyd',
+        '--aws-api', 'lqmig3v5eb',
         '--aws-role', 'arn:aws:iam::118435662149:role/helix-lambda-role',
         '--package.params', 'HEY=ho',
         '--update-package', 'true',
