@@ -43,7 +43,7 @@ describe('AWS Integration Test', () => {
         '--deploy',
         '--target', 'aws',
         '--aws-region', 'us-east-1',
-        '--aws-api', 'pfbv1wwqyd',
+        '--aws-api', 'lqmig3v5eb',
         '--aws-role', 'arn:aws:iam::118435662149:role/service-role/helix-service-role-ogu32wiz',
         '--package.params', 'HEY=ho',
         '--update-package', 'true',
