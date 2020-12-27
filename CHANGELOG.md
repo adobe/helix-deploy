@@ -1,3 +1,11 @@
+# [1.14.0](https://github.com/adobe/helix-deploy/compare/v1.13.0...v1.14.0) (2020-12-27)
+
+
+### Features
+
+* harmonize use of actionName; introduce baseName ([2bc33d4](https://github.com/adobe/helix-deploy/commit/2bc33d4e0b17781255fc6ea9c48cc4bb3b39dd18))
+* **AWS:** routes should have version as path ([7af1e6d](https://github.com/adobe/helix-deploy/commit/7af1e6dd21199311c11a77645f1f7a0a5f35c409)), closes [#44](https://github.com/adobe/helix-deploy/issues/44)
+
 # [1.13.0](https://github.com/adobe/helix-deploy/compare/v1.12.0...v1.13.0) (2020-12-25)
 
 
