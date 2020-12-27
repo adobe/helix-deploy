@@ -89,7 +89,7 @@ describe('Build Test', () => {
 
     await builder.run();
 
-    await assertZipEntries(path.resolve(testRoot, 'dist', 'simple-package', 'simple-name@1.45.zip'), [
+    await assertZipEntries(path.resolve(testRoot, 'dist', 'simple-package', 'simple-name@1.45.0.zip'), [
       'index.js',
       'package.json',
       'files/hello.txt',
@@ -99,7 +99,7 @@ describe('Build Test', () => {
     ]);
 
     // unzip action again
-    const zipFile = path.resolve(testRoot, 'dist', 'simple-package', 'simple-name@1.45.zip');
+    const zipFile = path.resolve(testRoot, 'dist', 'simple-package', 'simple-name@1.45.0.zip');
     const zipDir = path.resolve(testRoot, 'dist', 'extracted');
     await new Promise((resolve, reject) => {
       yauzl.open(zipFile, { lazyEntries: true }, (err, zipfile) => {

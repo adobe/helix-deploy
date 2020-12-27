@@ -88,6 +88,7 @@ class BaseDeployer {
       // eslint-disable-next-line no-await-in-loop
       const ret = await fetch(testUrl, {
         headers,
+        redirect: 'manual',
       });
       // eslint-disable-next-line no-await-in-loop
       const body = await ret.text();
