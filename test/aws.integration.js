@@ -15,8 +15,14 @@
 const assert = require('assert');
 const fse = require('fs-extra');
 const path = require('path');
+const fetchAPI = require('@adobe/helix-fetch');
 const { createTestRoot, TestLogger } = require('./utils');
 const CLI = require('../src/cli.js');
+
+const { fetch } = fetchAPI.context({
+  httpProtocol: 'http1',
+  httpsProtocols: ['http1'],
+});
 
 describe('AWS Integration Test', () => {
   let testRoot;
@@ -43,7 +49,7 @@ describe('AWS Integration Test', () => {
         '--deploy',
         '--target', 'aws',
         '--aws-region', 'us-east-1',
-        '--aws-api', 'pfbv1wwqyd',
+        '--aws-api', 'lqmig3v5eb',
         '--aws-role', 'arn:aws:iam::118435662149:role/service-role/helix-service-role-ogu32wiz',
         '--package.params', 'HEY=ho',
         '--update-package', 'true',
@@ -57,7 +63,33 @@ describe('AWS Integration Test', () => {
     const res = await builder.run();
     assert.ok(res);
     const out = builder.cfg._logger.output;
-    assert.ok(out.indexOf(`ok: 200
-Hello, world.`) > 0, out);
+    assert.ok(out.indexOf('ok: 200\nHello, world.') > 0, out);
+  }).timeout(50000);
+
+  it('Update links to AWS (for real)', async () => {
+    await fse.copy(path.resolve(__dirname, 'fixtures', 'simple'), testRoot);
+
+    process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
+    const builder = new CLI()
+      .prepare([
+        '--no-build',
+        '--verbose',
+        '-l', 'major',
+        '--target', 'aws',
+        '--aws-region', 'us-east-1',
+        '--aws-api', 'lqmig3v5eb',
+        '--aws-role', 'arn:aws:iam::118435662149:role/service-role/helix-service-role-ogu32wiz',
+        '--directory', testRoot,
+      ]);
+    builder.cfg._logger = new TestLogger();
+
+    const res = await builder.run();
+    assert.equal(res, '');
+
+    const ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo');
+    assert.ok(ret.ok);
+    assert.equal(ret.status, 200);
+    const text = await ret.text();
+    assert.equal(text.trim(), 'Hello, world.');
   }).timeout(50000);
 });

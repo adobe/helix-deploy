@@ -66,6 +66,7 @@ class AWSDeployer extends BaseDeployer {
       _cfg: config,
       _functionARN: '',
       _aliasARN: '',
+      _accountId: '',
     });
   }
 
@@ -84,7 +85,7 @@ class AWSDeployer extends BaseDeployer {
 
   get urlVCL() {
     const { cfg } = this;
-    return `"/${cfg.packageName}" + regsub(req.url, "@", "_")`;
+    return `"/${cfg.packageName}" + regsub(req.url, "@", "/")`;
   }
 
   validate() {
@@ -148,8 +149,8 @@ class AWSDeployer extends BaseDeployer {
 
   async createLambda() {
     const { cfg } = this;
-    const functionName = `${cfg.packageName}--${cfg.name.replace(/@.*/g, '')}`;
-    const functionVersion = cfg.name.replace(/.*@/g, '').replace(/\./g, '_');
+    const functionName = `${cfg.packageName}--${cfg.baseName}`;
+    const functionVersion = cfg.version.replace(/\./g, '_');
 
     const functionConfig = {
       Code: {
@@ -184,17 +185,11 @@ class AWSDeployer extends BaseDeployer {
       await this._lambda.send(new GetFunctionCommand({
         FunctionName: functionName,
       }));
-
-      const updatecode = this._lambda.send(new UpdateFunctionCodeCommand({
+      await this._lambda.send(new UpdateFunctionConfigurationCommand(functionConfig));
+      await this._lambda.send(new UpdateFunctionCodeCommand({
         FunctionName: functionName,
         ...functionConfig.Code,
       }));
-      const updateconfig = this._lambda.send(
-        new UpdateFunctionConfigurationCommand(functionConfig),
-      );
-
-      await updateconfig;
-      await updatecode;
     } catch (e) {
       if (e.name === 'ResourceNotFoundException') {
         this.log.info(`--: creating new Lambda function ${functionName}`);
@@ -209,7 +204,9 @@ class AWSDeployer extends BaseDeployer {
       FunctionName: functionName,
     }));
 
-    this._functionARN = versiondata.functionArn;
+    this._functionARN = versiondata.FunctionArn;
+    // eslint-disable-next-line prefer-destructuring
+    this._accountId = this._functionARN.split(':')[4];
 
     const versionNum = versiondata.Version;
     try {
@@ -292,16 +289,15 @@ class AWSDeployer extends BaseDeployer {
   async createAPI() {
     const { cfg } = this;
     const { ApiId, ApiEndpoint } = await this.initApiId();
-    const functionQName = cfg.actionName.replace('@', '_');
-    this._functionURL = `${ApiEndpoint}/${functionQName}`;
+    this._functionURL = `${ApiEndpoint}/${cfg.packageName}/${cfg.baseName}/${cfg.version}`;
 
     // check for stage
-    let res = await this._api.send(new GetStagesCommand({
+    const res = await this._api.send(new GetStagesCommand({
       ApiId: this._cfg.apiId,
     }));
     const stage = res.Items.find((s) => s.StageName === '$default');
     if (!stage) {
-      res = await this._api.send(new CreateStageCommand({
+      await this._api.send(new CreateStageCommand({
         StageName: '$default',
         AutoDeploy: true,
         ApiId,
@@ -324,14 +320,14 @@ class AWSDeployer extends BaseDeployer {
       this.log.info(chalk`{green ok:} created new integration "${integration.IntegrationId}" for "${this._aliasARN}"`);
       const { IntegrationId } = integration;
       // need to create 2 routes. one for the exact path, and one with suffix
-      await this.createOrUpdateRoute([], ApiId, IntegrationId, `ANY /${functionQName}/{path+}`);
-      await this.createOrUpdateRoute([], ApiId, IntegrationId, `ANY /${functionQName}`);
+      await this.createOrUpdateRoute([], ApiId, IntegrationId, `ANY /${cfg.packageName}/${cfg.baseName}/${cfg.version}/{path+}`);
+      await this.createOrUpdateRoute([], ApiId, IntegrationId, `ANY /${cfg.packageName}/${cfg.baseName}/${cfg.version}`);
     }
 
     // setup permissions for entire package.
     // this way we don't need to setup more permissions for link routes
     // eslint-disable-next-line no-underscore-dangle
-    const sourceArn = `arn:aws:execute-api:${this._cfg.region}:${this._aliasARN.split(':')[4]}:${ApiId}/*/*/${cfg.packageName}/*`;
+    const sourceArn = `arn:aws:execute-api:${this._cfg.region}:${this._accountId}:${ApiId}/*/*/${cfg.packageName}/*`;
     try {
       // eslint-disable-next-line no-await-in-loop
       await this._lambda.send(new AddPermissionCommand({
@@ -437,12 +433,12 @@ class AWSDeployer extends BaseDeployer {
     }
   }
 
-  async updateLinks(namePrefix) {
+  async updateLinks() {
     const { cfg } = this;
     const { ApiId } = await this.initApiId();
 
-    const functionName = `${cfg.packageName}--${cfg.name.replace(/@.*/g, '')}`;
-    const functionVersion = cfg.name.replace(/.*@/g, '').replace(/\./g, '_');
+    const functionName = `${cfg.packageName}--${cfg.baseName}`;
+    const functionVersion = cfg.version.replace(/\./g, '_');
 
     // get function alias
     let res;
@@ -485,8 +481,8 @@ class AWSDeployer extends BaseDeployer {
 
     for (const suffix of sfx) {
       // check if route already exists
-      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${cfg.packageName}/${namePrefix}_${suffix}`);
-      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${cfg.packageName}/${namePrefix}_${suffix}/{path+}`);
+      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}`);
+      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}/{path+}`);
     }
   }
 

@@ -93,7 +93,7 @@ class AzureDeployer extends BaseDeployer {
 
   async uploadFunctionZIP() {
     const { cfg } = this;
-    const funcname = cfg.actionName.replace('/', '--').replace('@', '_').replace('.', '_');
+    const funcname = `${cfg.packageName}--${cfg.name}`.replace('@', '_').replace('.', '_');
     const url = new URL(
       `${this._pubcreds.scmUri}/api/zip/site/wwwroot/${funcname}/`,
     ).href.replace(/https:\/\/.*?@/, 'https://');
@@ -126,7 +126,7 @@ class AzureDeployer extends BaseDeployer {
   async updateParams() {
     const { cfg } = this;
     this.log.info('--: updating function parameters ...');
-    const funcname = cfg.actionName.replace('/', '--').replace('@', '_').replace('.', '_');
+    const funcname = `${cfg.packageName}--${cfg.name}`.replace('@', '_').replace('.', '_');
     const url = new URL(
       `${this._pubcreds.scmUri}/api/vfs/site/wwwroot/${funcname}/params.json`,
     ).href.replace(/https:\/\/.*?@/, 'https://');

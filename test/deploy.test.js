@@ -118,7 +118,7 @@ describe('Deploy Test', () => {
     nock(process.env.WSK_APIHOST)
       .get('/api/v1/web/foobar/default/simple-project/foo')
       .reply(302, 'ok', {
-        location: 'https://www.example.com/',
+        location: 'https://example.com/',
       });
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
@@ -134,7 +134,7 @@ describe('Deploy Test', () => {
     await builder.run();
     const out = builder.cfg.log.output;
     assert.ok(out.indexOf('requesting: https://example.com/api/v1/web/foobar/default/simple-project/foo') > 0);
-    assert.ok(out.indexOf('Location: https://www.example.com/') > 0);
+    assert.ok(out.indexOf('Location: https://example.com/') > 0);
   });
 
   it('test can retry with 404', async () => {

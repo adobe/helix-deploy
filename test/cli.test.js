@@ -303,7 +303,6 @@ describe('CLI Test', () => {
       .prepare(['--name', 'foo/bar']);
     await builder.validate();
     assert.equal(builder.cfg.name, 'bar');
-    assert.equal(builder.cfg.actionName, 'foo/bar');
     assert.equal(builder.cfg.packageName, 'foo');
   });
 });

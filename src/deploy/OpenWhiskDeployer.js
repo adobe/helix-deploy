@@ -45,6 +45,10 @@ class OpenWhiskDeployer extends BaseDeployer {
     this._cfg.namespace = wskNamespace;
     this._cfg.auth = process.env.WSK_AUTH || wskProps.AUTH;
     this._cfg.apiHost = process.env.WSK_APIHOST || wskProps.APIHOST || 'https://adobeioruntime.net';
+
+    this._cfg.actionName = this.cfg.packageName === 'default'
+      ? this.cfg.name
+      : `${this.cfg.packageName}/${this.cfg.name}`;
   }
 
   get host() {
@@ -89,9 +93,9 @@ class OpenWhiskDeployer extends BaseDeployer {
     const { cfg } = this;
     const openwhisk = this.getOpenwhiskClient();
     const relZip = path.relative(process.cwd(), cfg.zipFile);
-    this.log.info(`--: deploying ${relZip} as ${cfg.actionName} ...`);
+    this.log.info(`--: deploying ${relZip} as ${this._cfg.actionName} ...`);
     const actionoptions = {
-      name: cfg.actionName,
+      name: this._cfg.actionName,
       action: await fse.readFile(cfg.zipFile),
       kind: `nodejs:${cfg.nodeVersion}`,
       annotations: {
@@ -140,7 +144,7 @@ class OpenWhiskDeployer extends BaseDeployer {
     const { cfg } = this;
     const openwhisk = this.getOpenwhiskClient();
     this.log.info('--: deleting action ...');
-    await openwhisk.actions.delete(cfg.actionName);
+    await openwhisk.actions.delete(this._cfg.actionName);
     this.log.info(chalk`{green ok:} deleted action {yellow ${`/${this._cfg.namespace}/${cfg.packageName}/${cfg.name}`}}`);
   }
 
@@ -194,12 +198,12 @@ class OpenWhiskDeployer extends BaseDeployer {
     });
   }
 
-  async updateLinks(namePrefix) {
+  async updateLinks() {
     const { cfg } = this;
     const { name } = cfg;
     // using `default` as package name doesn't work with sequences...
     const pkgPrefix = cfg.linksPackage === 'default' ? '' : `${cfg.linksPackage}/`;
-    const prefix = `${pkgPrefix}${namePrefix}`;
+    const prefix = `${pkgPrefix}${cfg.baseName}`;
     const pkgName = cfg.packageName === 'default' ? '' : `${cfg.packageName}/`;
     const fqn = `/${this._cfg.namespace}/${pkgName}${name}`;
 

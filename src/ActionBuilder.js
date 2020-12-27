@@ -154,11 +154,17 @@ module.exports = class ActionBuilder {
     if (segs.length > 0 && !cfg.packageName) {
       cfg.packageName = segs.pop();
     }
-    cfg.actionName = `${cfg.packageName}/${cfg.name}`;
     if (!cfg.packageName) {
       cfg.packageName = 'default';
-      cfg.actionName = cfg.name;
     }
+
+    const idx = cfg.name.lastIndexOf('@');
+    if (idx < 0) {
+      cfg.baseName = cfg.name;
+    } else {
+      cfg.baseName = cfg.name.substring(0, idx);
+    }
+
     if (!cfg.linksPackage) {
       cfg.linksPackage = cfg.packageName;
     }
@@ -254,7 +260,7 @@ module.exports = class ActionBuilder {
       });
 
       const packageJson = {
-        name: cfg.actionName,
+        name: cfg.baseName,
         version: cfg.version,
         description: `OpenWhisk Action of ${cfg.name}`,
         main: 'index.js',
@@ -480,14 +486,11 @@ module.exports = class ActionBuilder {
 
   async updateLinks() {
     const { cfg } = this;
-    const { name } = cfg;
-    const idx = name.lastIndexOf('@');
-    if (idx < 0) {
+    if (cfg.baseName === cfg.name) {
       cfg.log.warn(`${chalk.yellow('warn:')} unable to create version links. unsupported action name format. should be: "name@version"`);
       return false;
     }
-    const namePrefix = name.substring(0, idx);
-    return this.execute('updateLinks', 'updating links on ', namePrefix);
+    return this.execute('updateLinks', 'updating links on ');
   }
 
   async runAdditionalTasks() {
