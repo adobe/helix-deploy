@@ -13,6 +13,12 @@
 const { Request } = require('node-fetch');
 const { promisify } = require('util');
 const { epsagon } = require('@adobe/helix-epsagon');
+const {
+  AWSResolver,
+  OpenwhiskResolver,
+  GoogleResolver,
+  AzureResolver,
+} = require('./resolver.js');
 
 // eslint-disable-next-line  import/no-unresolved
 const { main } = require('./main.js');
@@ -103,6 +109,7 @@ async function azure(context, req) {
     });
 
     const con = {
+      resolver: new AzureResolver(context, req),
       pathInfo: {
         suffix: '', // TODO!
       },
@@ -176,6 +183,7 @@ async function openwhisk(params = {}) {
     delete params.__ow_path;
 
     const context = {
+      resolver: new OpenwhiskResolver(params),
       pathInfo: {
         suffix,
       },
@@ -230,6 +238,7 @@ async function google(req, res) {
     const [country, region, ...servicename] = subdomain.split('-');
 
     const context = {
+      resolver: new GoogleResolver(req),
       pathInfo: {
         suffix: '', // TODO!
       },
@@ -266,6 +275,7 @@ async function lambda(event, context) {
       body: event.isBase64Encoded ? Buffer.from(event.body, 'base64') : event.body,
     });
     const con = {
+      resolver: new AWSResolver(event),
       pathInfo: {
         suffix: event.pathParameters && event.pathParameters.path ? `/${event.pathParameters.path}` : '',
       },
