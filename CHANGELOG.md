@@ -1,3 +1,10 @@
+# [1.15.0](https://github.com/adobe/helix-deploy/compare/v1.14.0...v1.15.0) (2020-12-28)
+
+
+### Features
+
+* **universal:** add resolver for function names ([01d6efb](https://github.com/adobe/helix-deploy/commit/01d6efbe2f2fa00c101fe467d8a4f3812f501dda))
+
 # [1.14.0](https://github.com/adobe/helix-deploy/compare/v1.13.0...v1.14.0) (2020-12-27)
 
 
