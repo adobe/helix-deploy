@@ -59,7 +59,8 @@ describe('Gateway Integration Test', () => {
     const res = await builder.run();
     assert.ok(res);
     const out = builder.cfg._logger.output;
+    const { namespace } = builder._deployers.wsk._cfg;
     assert.ok(out.indexOf(`ok: 200
-Hello, world.`) > 0, out);
+{"url":"https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0/foo","file":"Hello, world.\\n"}`) > 0, out);
   }).timeout(150000);
 });

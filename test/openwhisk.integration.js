@@ -61,12 +61,13 @@ describe('OpenWhisk Integration Test', () => {
     const res = await builder.run();
     assert.ok(res);
     const out = builder.cfg._logger.output;
+    const { auth, namespace } = builder._deployers.wsk._cfg;
     assert.ok(out.indexOf(`ok: 200
-{"url":"https://adobeioruntime.net/api/v1/web/tripod/simple-package/simple-name@1.45.0/foo","file":"Hello, world.\\n"}`) > 0, out);
+{"url":"https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0/foo","file":"Hello, world.\\n"}`) > 0, out);
 
     // try to invoke via openwhisk api
     const { fetch } = fetchContext();
-    const auth = Buffer.from(builder._deployers.wsk._cfg.auth).toString('base64');
+    const auth64 = Buffer.from(auth).toString('base64');
     const resp = await fetch('https://adobeioruntime.net/api/v1/namespaces/_/actions/simple-package/simple-name@1.45.0?blocking=true&result=true', {
       method: 'POST',
       body: JSON.stringify({
@@ -77,7 +78,7 @@ describe('OpenWhisk Integration Test', () => {
       }),
       headers: {
         'content-type': 'application/json',
-        authorization: `Basic ${auth}`,
+        authorization: `Basic ${auth64}`,
       },
     });
     const ret = await resp.json();
@@ -85,7 +86,7 @@ describe('OpenWhisk Integration Test', () => {
     assert.deepEqual(ret, {
       body: {
         file: 'Hello, world.\n',
-        url: 'https://adobeioruntime.net/api/v1/web/tripod/simple-package/simple-name@1.45.0?foo=bar',
+        url: `https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0?foo=bar`,
       },
       headers: {
         'content-type': 'text/plain;charset=UTF-8',
