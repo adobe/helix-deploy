@@ -14,5 +14,9 @@ const reader = require('./helper/read.js');
 
 // eslint-disable-next-line no-unused-vars
 module.exports.main = function main(req, context) {
-  return new Response(reader());
+  const resp = JSON.stringify({
+    url: req.url,
+    file: reader(),
+  });
+  return new Response(resp);
 };

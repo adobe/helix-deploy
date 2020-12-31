@@ -135,7 +135,7 @@ describe('Build Test', () => {
     // eslint-disable-next-line global-require,import/no-dynamic-require
     const { main } = require(path.resolve(zipDir, 'index.js'));
     const ret = await main({});
-    assert.deepEqual(await ret.body, 'Hello, world.\n');
+    assert.deepEqual(await ret.body, '{"url":"https://localhost/api/v1/webundefined","file":"Hello, world.\\n"}');
   })
     .timeout(5000);
 });

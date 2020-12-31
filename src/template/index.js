@@ -10,8 +10,9 @@
  * governing permissions and limitations under the License.
  */
 /* eslint-disable no-param-reassign, no-underscore-dangle, import/no-extraneous-dependencies */
-const { Request } = require('node-fetch');
+const querystring = require('querystring');
 const { promisify } = require('util');
+const { Request } = require('node-fetch');
 const { epsagon } = require('@adobe/helix-epsagon');
 const {
   AWSResolver,
@@ -160,27 +161,49 @@ async function azure(context, req) {
 // OW
 async function openwhisk(params = {}) {
   try {
+    const {
+      __ow_method: method = 'GET',
+      __ow_headers: headers = {},
+      __ow_path: suffix = '',
+      __ow_body: rawBody = '',
+      __ow_query: query = '',
+      ...rest
+    } = params;
+
     let body;
-    if (!/^(GET|HEAD)$/i.test(params.__ow_method)) {
-      body = params.__ow_headers && isBinary(params.__ow_headers['content-type']) ? Buffer.from(params.__ow_body, 'base64') : params.__ow_body;
+    if (!/^(GET|HEAD)$/i.test(method)) {
+      body = isBinary(headers['content-type']) ? Buffer.from(rawBody, 'base64') : rawBody;
     }
 
     const env = { ...process.env };
     delete env.__OW_API_KEY;
-    const request = new Request(`https://${params.__ow_headers && typeof params.__ow_headers['x-forwarded-host'] === 'string' ? params.__ow_headers['x-forwarded-host'].split(',')[0] : 'localhost'}/api/v1/web${process.env.__OW_ACTION_NAME}${params.__ow_path}${params.__ow_query ? '?' : ''}${params.__ow_query}`, {
-      method: params.__ow_method,
-      headers: params.__ow_headers,
+    let host = env.__OW_API_HOST || 'https://localhost';
+    if (typeof headers['x-forwarded-host'] === 'string') {
+      host = `https://${headers['x-forwarded-host'].split(',')[0].trim()}`;
+    }
+    const url = new URL(`${host}/api/v1/web${process.env.__OW_ACTION_NAME}${suffix}`);
+
+    // add query to params
+    if (query) {
+      Object.entries(querystring.parse(query)).forEach(([key, value]) => {
+        url.searchParams.append(key, value);
+      });
+    }
+    // add additional params for actions invoked via wsk
+    Object.entries(rest).forEach(([key, value]) => {
+      if (key.match(/^[A-Z0-9_]+$/)) {
+        env[key] = value;
+      } else {
+        url.searchParams.append(key, value);
+      }
+    });
+    const request = new Request(url.toString(), {
+      method,
+      headers,
       body,
     });
 
     const [namespace, ...names] = (process.env.__OW_ACTION_NAME || 'default/test').split('/');
-    const suffix = params.__ow_path || '';
-
-    delete params.__ow_method;
-    delete params.__ow_query;
-    delete params.__ow_body;
-    delete params.__ow_headers;
-    delete params.__ow_path;
 
     const context = {
       resolver: new OpenwhiskResolver(params),
@@ -200,7 +223,7 @@ async function openwhisk(params = {}) {
         id: process.env.__OW_ACTIVATION_ID,
         deadline: Number.parseInt(process.env.__OW_DEADLINE, 10),
       },
-      env: { ...params, ...process.env },
+      env,
     };
 
     const response = await main(request, context);
@@ -214,12 +237,14 @@ async function openwhisk(params = {}) {
       body: isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()).toString('base64') : await response.text(),
     };
   } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error('error while invoking function', e);
     return {
       statusCode: 500,
       headers: {
         'Content-Type': 'text/plain',
       },
-      body: `${e.message}\n${e.stack}`,
+      body: 'Internal Server Error',
     };
   }
 }
