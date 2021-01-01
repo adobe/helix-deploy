@@ -1,3 +1,10 @@
+## [1.15.1](https://github.com/adobe/helix-deploy/compare/v1.15.0...v1.15.1) (2021-01-01)
+
+
+### Bug Fixes
+
+* **wsk:** invoke via API doesn't propagate params ([97d884a](https://github.com/adobe/helix-deploy/commit/97d884a9ca072ba7d16d81501fd8fb66255e9f1a)), closes [#48](https://github.com/adobe/helix-deploy/issues/48)
+
 # [1.15.0](https://github.com/adobe/helix-deploy/compare/v1.14.0...v1.15.0) (2020-12-28)
 
 
