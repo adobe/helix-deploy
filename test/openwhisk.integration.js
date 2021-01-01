@@ -15,8 +15,18 @@
 const assert = require('assert');
 const fse = require('fs-extra');
 const path = require('path');
+const fetchAPI = require('@adobe/helix-fetch');
 const { createTestRoot, TestLogger } = require('./utils');
 const CLI = require('../src/cli.js');
+
+function fetchContext() {
+  return process.env.HELIX_FETCH_FORCE_HTTP1
+    ? fetchAPI.context({
+      httpProtocol: 'http1',
+      httpsProtocols: ['http1'],
+    })
+    : fetchAPI;
+}
 
 describe('OpenWhisk Integration Test', () => {
   let testRoot;
@@ -51,7 +61,37 @@ describe('OpenWhisk Integration Test', () => {
     const res = await builder.run();
     assert.ok(res);
     const out = builder.cfg._logger.output;
+    const { auth, namespace } = builder._deployers.wsk._cfg;
     assert.ok(out.indexOf(`ok: 200
-Hello, world.`) > 0, out);
-  }).timeout(10000);
+{"url":"https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0/foo","file":"Hello, world.\\n"}`) > 0, out);
+
+    // try to invoke via openwhisk api
+    const { fetch } = fetchContext();
+    const auth64 = Buffer.from(auth).toString('base64');
+    const resp = await fetch('https://adobeioruntime.net/api/v1/namespaces/_/actions/simple-package/simple-name@1.45.0?blocking=true&result=true', {
+      method: 'POST',
+      body: JSON.stringify({
+        foo: 'bar',
+        __ow_headers: {
+          'x-forwarded-host': 'adobeioruntime.net',
+        },
+      }),
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Basic ${auth64}`,
+      },
+    });
+    const ret = await resp.json();
+    ret.body = JSON.parse(ret.body);
+    assert.deepEqual(ret, {
+      body: {
+        file: 'Hello, world.\n',
+        url: `https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0?foo=bar`,
+      },
+      headers: {
+        'content-type': 'text/plain;charset=UTF-8',
+      },
+      statusCode: 200,
+    });
+  }).timeout(20000);
 });

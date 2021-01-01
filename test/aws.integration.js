@@ -63,7 +63,7 @@ describe('AWS Integration Test', () => {
     const res = await builder.run();
     assert.ok(res);
     const out = builder.cfg._logger.output;
-    assert.ok(out.indexOf('ok: 200\nHello, world.') > 0, out);
+    assert.ok(out.indexOf('{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/1.45.0/foo","file":"Hello, world.\\n"}') > 0, out);
   }).timeout(50000);
 
   it('Update links to AWS (for real)', async () => {
@@ -90,6 +90,6 @@ describe('AWS Integration Test', () => {
     assert.ok(ret.ok);
     assert.equal(ret.status, 200);
     const text = await ret.text();
-    assert.equal(text.trim(), 'Hello, world.');
+    assert.equal(text.trim(), '{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo","file":"Hello, world.\\n"}');
   }).timeout(50000);
 });
