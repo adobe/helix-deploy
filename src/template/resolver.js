@@ -70,13 +70,10 @@ class Resolver {
     const {
       name,
       package: packageName = '',
-      version,
+      version = '',
     } = opts;
     if (!name) {
       throw Error('action name missing.');
-    }
-    if (!version) {
-      throw Error('action version missing.');
     }
     const lockedVersion = this._locks[name] || version;
     if (lockedVersion !== version) {
@@ -100,7 +97,8 @@ class OpenwhiskResolver extends Resolver {
   }
 
   _createActionURL(packageName, actionName, version) {
-    return new URL(path.join(this._apiHost, '/api/v1/web', this._namespace, packageName, `${actionName}@${version}`));
+    const name = version ? `${actionName}@${version}` : actionName;
+    return new URL(path.join(this._apiHost, '/api/v1/web', this._namespace, packageName, name));
   }
 }
 
