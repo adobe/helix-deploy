@@ -1,3 +1,10 @@
+## [1.15.2](https://github.com/adobe/helix-deploy/compare/v1.15.1...v1.15.2) (2021-01-02)
+
+
+### Bug Fixes
+
+* **adapter:** resolver should work with no version (for html actions) ([#51](https://github.com/adobe/helix-deploy/issues/51)) ([a843508](https://github.com/adobe/helix-deploy/commit/a84350893b1da0126c5a30a3bdb72779f15b95e5))
+
 ## [1.15.1](https://github.com/adobe/helix-deploy/compare/v1.15.0...v1.15.1) (2021-01-01)
 
 
