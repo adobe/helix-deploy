@@ -94,9 +94,14 @@ describe('Resolver Tests', () => {
     assert.throws(() => resolver.createURL({ version: 'v1' }), new Error('action name missing.'));
   });
 
-  it('requires version', async () => {
-    const resolver = new Resolver({});
-    assert.throws(() => resolver.createURL({ name: 'foo' }), new Error('action version missing.'));
+  it('can create url with no version', async () => {
+    const resolver = new Resolver({
+      host: 'foo.com',
+    });
+    assert.equal(
+      resolver.createURL({ package: 'bar', name: 'foo' }).href,
+      'urn:/bar/foo',
+    );
   });
 });
 
@@ -136,6 +141,14 @@ describe('Openwhisk Resolver Tests', () => {
       'https://test.apihost.com/api/v1/web/test-namespace/foo@v2',
     );
   });
+
+  it('can create url with no version', async () => {
+    const resolver = new OpenwhiskResolver({});
+    assert.equal(
+      resolver.createURL({ package: 'bar', name: 'foo' }).href,
+      'https://adobeioruntime.net/api/v1/web/test-namespace/bar/foo',
+    );
+  });
 });
 
 describe('AWS Resolver Tests', () => {
@@ -154,6 +167,21 @@ describe('AWS Resolver Tests', () => {
       'https://abc.execute-api.us-east-1.amazonaws.com/bar/foo/v2',
     );
   });
+
+  it('can create url with no version', async () => {
+    const resolver = new AWSResolver({
+      headers: {
+        host: 'foo.com',
+      },
+      requestContext: {
+        domainName: 'abc.execute-api.us-east-1.amazonaws.com',
+      },
+    });
+    assert.equal(
+      resolver.createURL({ package: 'bar', name: 'foo' }).href,
+      'https://abc.execute-api.us-east-1.amazonaws.com/bar/foo',
+    );
+  });
 });
 
 describe('Azure Resolver Tests', () => {
@@ -169,6 +197,18 @@ describe('Azure Resolver Tests', () => {
       'azure:/bar/foo/v2',
     );
   });
+
+  it('can create url with no version', async () => {
+    const resolver = new AzureResolver({}, {
+      headers: {
+        host: 'foo.com',
+      },
+    });
+    assert.equal(
+      resolver.createURL({ package: 'bar', name: 'foo' }).href,
+      'azure:/bar/foo',
+    );
+  });
 });
 
 describe('Google Resolver Tests', () => {
@@ -182,6 +222,18 @@ describe('Google Resolver Tests', () => {
     assert.equal(
       resolver.createURL({ package: 'bar', name: 'foo', version: 'v1' }).href,
       'google:/bar/foo/v2',
+    );
+  });
+
+  it('can create url with no version', async () => {
+    const resolver = new GoogleResolver({
+      headers: {
+        host: 'foo.com',
+      },
+    });
+    assert.equal(
+      resolver.createURL({ package: 'bar', name: 'foo' }).href,
+      'google:/bar/foo',
     );
   });
 });
