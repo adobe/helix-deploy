@@ -1,3 +1,10 @@
+# [1.16.0](https://github.com/adobe/helix-deploy/compare/v1.15.4...v1.16.0) (2021-01-05)
+
+
+### Features
+
+* **adapter:** add charset=utf-8 if missing ([#60](https://github.com/adobe/helix-deploy/issues/60)) ([60f71f7](https://github.com/adobe/helix-deploy/commit/60f71f72ce7c57d9ca2ea45c3da4787dea1ac278)), closes [#59](https://github.com/adobe/helix-deploy/issues/59)
+
 ## [1.15.4](https://github.com/adobe/helix-deploy/compare/v1.15.3...v1.15.4) (2021-01-05)
 
 
