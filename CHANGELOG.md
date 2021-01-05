@@ -1,3 +1,11 @@
+## [1.15.3](https://github.com/adobe/helix-deploy/compare/v1.15.2...v1.15.3) (2021-01-05)
+
+
+### Bug Fixes
+
+* execute all steps and abort later ([f427f42](https://github.com/adobe/helix-deploy/commit/f427f42238e795f0ac92c132ac8d05af33ac2014)), closes [#55](https://github.com/adobe/helix-deploy/issues/55)
+* record dependencies for deploy w/o build ([6c8dd15](https://github.com/adobe/helix-deploy/commit/6c8dd156e4c6b73b8096b67d6f92ca525e11049e)), closes [#54](https://github.com/adobe/helix-deploy/issues/54)
+
 ## [1.15.2](https://github.com/adobe/helix-deploy/compare/v1.15.1...v1.15.2) (2021-01-02)
 
 
