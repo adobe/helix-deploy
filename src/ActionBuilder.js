@@ -175,6 +175,7 @@ module.exports = class ActionBuilder {
     if (!cfg.bundle) {
       cfg.bundle = path.resolve(cfg.distDir, cfg.packageName, `${cfg.name}-bundle.js`);
     }
+    cfg.depFile = path.resolve(cfg.distDir, cfg.packageName, `${cfg.name}-dependencies.json`);
 
     // create dist dir
     await fse.ensureDir(cfg.distDir);
@@ -366,6 +367,8 @@ module.exports = class ActionBuilder {
     }));
 
     await this.resolveDependencyInfos(stats);
+    // write dependencies info file
+    await fse.writeJson(cfg.depFile, cfg.dependencies, { spaces: 2 });
     cfg.log.info(chalk`{green ok:} created bundle {yellow ${config.output.filename}}`);
   }
 
@@ -514,7 +517,14 @@ module.exports = class ActionBuilder {
     if (cfg.updatePackage) {
       await this.updatePackage();
     }
+
     if (cfg.deploy) {
+      if (!cfg.build) {
+        const relZip = path.relative(process.cwd(), cfg.zipFile);
+        cfg.log.info(chalk`{green ok:} using: {yellow ${relZip}}.`);
+        cfg.dependencies = await fse.readJson(cfg.depFile);
+        await this.validateBundle();
+      }
       await this.deploy();
     }
 
