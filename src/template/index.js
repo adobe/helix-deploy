@@ -14,6 +14,7 @@ const querystring = require('querystring');
 const { promisify } = require('util');
 const { Request } = require('node-fetch');
 const { epsagon } = require('@adobe/helix-epsagon');
+const { isBinary, ensureUTF8Charset } = require('./utils.js');
 const {
   AWSResolver,
   OpenwhiskResolver,
@@ -23,30 +24,10 @@ const {
 
 // eslint-disable-next-line  import/no-unresolved
 const { main } = require('./main.js');
+
 /*
  * Universal Wrapper for serverless functions
  */
-
-/**
- * Checks if the content type is binary.
- * @param {string} type - content type
- * @returns {boolean} {@code true} if content type is binary.
- */
-function isBinary(type) {
-  if (/text\/.*/.test(type)) {
-    return false;
-  }
-  if (/.*\/javascript/.test(type)) {
-    return false;
-  }
-  if (/.*\/.*json/.test(type)) {
-    return false;
-  }
-  if (/.*\/.*xml/.test(type)) {
-    return /svg/.test(type); // openwhisk treats SVG as binary
-  }
-  return true;
-}
 
 async function getAWSSecrets(functionName) {
   // delay the import so that other runtimes do not have to care
@@ -137,6 +118,7 @@ async function azure(context, req) {
     };
 
     const response = await main(request, con);
+    ensureUTF8Charset(response);
 
     context.res = {
       status: response.status,
@@ -227,6 +209,7 @@ async function openwhisk(params = {}) {
     };
 
     const response = await main(request, context);
+    ensureUTF8Charset(response);
 
     return {
       statusCode: response.status,
@@ -284,6 +267,7 @@ async function google(req, res) {
     };
 
     const response = await main(request, context);
+    ensureUTF8Charset(response);
 
     Array.from(response.headers.entries()).reduce((r, [header, value]) => r.set(header, value), res.status(response.status)).send(isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()) : await response.text());
   } catch (e) {
@@ -324,6 +308,7 @@ async function lambda(event, context) {
     };
 
     const response = await main(request, con);
+    ensureUTF8Charset(response);
 
     return {
       statusCode: response.status,
