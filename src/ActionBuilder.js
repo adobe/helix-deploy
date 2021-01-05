@@ -175,6 +175,7 @@ module.exports = class ActionBuilder {
     if (!cfg.bundle) {
       cfg.bundle = path.resolve(cfg.distDir, cfg.packageName, `${cfg.name}-bundle.js`);
     }
+    cfg.depFile = path.resolve(cfg.distDir, cfg.packageName, `${cfg.name}-dependencies.json`);
 
     // create dist dir
     await fse.ensureDir(cfg.distDir);
@@ -366,6 +367,8 @@ module.exports = class ActionBuilder {
     }));
 
     await this.resolveDependencyInfos(stats);
+    // write dependencies info file
+    await fse.writeJson(cfg.depFile, cfg.dependencies, { spaces: 2 });
     cfg.log.info(chalk`{green ok:} created bundle {yellow ${config.output.filename}}`);
   }
 
@@ -458,13 +461,22 @@ module.exports = class ActionBuilder {
     const { cfg } = this;
     const deps = Object.values(this._deployers)
       .filter((deployer) => typeof deployer[fnName] === 'function');
+    const errors = [];
     // eslint-disable-next-line no-restricted-syntax
     for (const dep of deps) {
       if (msg) {
         cfg.log.info(chalk`--: ${msg}{yellow ${dep.name}} ...`);
       }
-      // eslint-disable-next-line no-await-in-loop
-      await dep[fnName](...args);
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await dep[fnName](...args);
+      } catch (e) {
+        cfg.log.error(`${chalk.red('error:')} ${dep.name} - ${e.message}`);
+        errors.push(e);
+      }
+    }
+    if (errors.length) {
+      throw new Error(`aborted due to errors during ${fnName}`);
     }
   }
 
@@ -514,7 +526,14 @@ module.exports = class ActionBuilder {
     if (cfg.updatePackage) {
       await this.updatePackage();
     }
+
     if (cfg.deploy) {
+      if (!cfg.build) {
+        const relZip = path.relative(process.cwd(), cfg.zipFile);
+        cfg.log.info(chalk`{green ok:} using: {yellow ${relZip}}.`);
+        cfg.dependencies = await fse.readJson(cfg.depFile);
+        await this.validateBundle();
+      }
       await this.deploy();
     }
 

@@ -112,7 +112,7 @@ class BaseDeployer {
         // eslint-disable-next-line no-await-in-loop
         await new Promise((resolve) => setTimeout(resolve, 1500));
       } else {
-        this.log.info(`${chalk.red('error:')} ${ret.status}`);
+        // this.log.info(`${chalk.red('error:')} test failed: ${ret.status} ${body}`);
         throw new Error(`test failed: ${ret.status} ${body}`);
       }
     }
