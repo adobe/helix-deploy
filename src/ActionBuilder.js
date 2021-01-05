@@ -461,13 +461,22 @@ module.exports = class ActionBuilder {
     const { cfg } = this;
     const deps = Object.values(this._deployers)
       .filter((deployer) => typeof deployer[fnName] === 'function');
+    const errors = [];
     // eslint-disable-next-line no-restricted-syntax
     for (const dep of deps) {
       if (msg) {
         cfg.log.info(chalk`--: ${msg}{yellow ${dep.name}} ...`);
       }
-      // eslint-disable-next-line no-await-in-loop
-      await dep[fnName](...args);
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await dep[fnName](...args);
+      } catch (e) {
+        cfg.log.error(`${chalk.red('error:')} ${dep.name} - ${e.message}`);
+        errors.push(e);
+      }
+    }
+    if (errors.length) {
+      throw new Error(`aborted due to errors during ${fnName}`);
     }
   }
 

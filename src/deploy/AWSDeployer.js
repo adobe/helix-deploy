@@ -350,11 +350,13 @@ class AWSDeployer extends BaseDeployer {
   }
 
   async test() {
-    if (!this._functionURL) {
-      return '';
+    const { cfg } = this;
+    let url = this._functionURL;
+    if (!url) {
+      url = `https://${this._cfg.apiId}.execute-api.${this._cfg.region}.amazonaws.com/${cfg.packageName}/${cfg.baseName}/${cfg.version}`;
     }
     return this.testRequest({
-      url: this._functionURL,
+      url,
       idHeader: 'apigw-requestid',
       retry404: 5,
     });
