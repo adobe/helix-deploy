@@ -188,7 +188,6 @@ describe('Deploy Test', () => {
     const out = builder.cfg.log.output;
 
     assert.ok(out.indexOf('warn: 404 (retry)') > 0);
-    assert.ok(out.indexOf('error: 404') > 0);
   }).timeout(3000);
 
   it('deploys a web action with package', async () => {
