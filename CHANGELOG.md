@@ -1,3 +1,10 @@
+## [1.17.2](https://github.com/adobe/helix-deploy/compare/v1.17.1...v1.17.2) (2021-01-06)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/fastly-native-promises to v1.19.4 ([89bb646](https://github.com/adobe/helix-deploy/commit/89bb646872a9a371555b5d06cf6d216952ed5658))
+
 ## [1.17.1](https://github.com/adobe/helix-deploy/compare/v1.17.0...v1.17.1) (2021-01-06)
 
 
