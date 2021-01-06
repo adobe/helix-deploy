@@ -62,6 +62,8 @@ class BaseConfig {
       updatedBy: null,
       targets: [],
       functionURL: '',
+      format: {},
+      properties: {},
       _logger: null,
     });
   }
@@ -153,7 +155,9 @@ class BaseConfig {
       .withMemory(argv.memory)
       .withConcurrency(argv.concurrency)
       .withLinks(argv.versionLink)
-      .withLinksPackage(argv.linksPackage);
+      .withLinksPackage(argv.linksPackage)
+      .withFormat(argv.format)
+      .withProperties(argv.property);
   }
 
   withVerbose(enable) {
@@ -381,6 +385,16 @@ class BaseConfig {
     return this;
   }
 
+  withFormat(value) {
+    this.format = value;
+    return this;
+  }
+
+  withProperties(value) {
+    this.properties = value;
+    return this;
+  }
+
   get log() {
     if (!this._logger) {
       // poor men's logging...
@@ -507,6 +521,19 @@ class BaseConfig {
         description: 'OpenWhisk package params file.',
         type: 'array',
         default: [],
+      })
+      .option('format', {
+        description: 'Action formats',
+        type: 'object',
+        default: {
+          // eslint-disable-next-line no-template-curly-in-string
+          aws: '/${packageName}/${baseName}/${version}',
+        },
+      })
+      .option('property', {
+        description: 'Additional properties that can be used in formats.',
+        type: 'object',
+        default: {},
       })
 
       .group([

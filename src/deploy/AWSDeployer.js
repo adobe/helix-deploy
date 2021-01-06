@@ -54,6 +54,7 @@ const path = require('path');
 const fse = require('fs-extra');
 const crypto = require('crypto');
 const BaseDeployer = require('./BaseDeployer');
+const ActionBuilder = require('../ActionBuilder.js');
 const AWSConfig = require('./AWSConfig.js');
 
 class AWSDeployer extends BaseDeployer {
@@ -86,6 +87,22 @@ class AWSDeployer extends BaseDeployer {
   get urlVCL() {
     const { cfg } = this;
     return `"/${cfg.packageName}" + regsub(req.url, "@", "/")`;
+  }
+
+  get functionPath() {
+    if (!this._functionPath) {
+      const { cfg } = this;
+      this._functionPath = ActionBuilder.substitute(cfg.format.aws, { ...cfg, ...cfg.properties });
+    }
+    return this._functionPath;
+  }
+
+  get functionName() {
+    if (!this._functionName) {
+      const { cfg } = this;
+      this._functionName = `${cfg.packageName.replace(/\./g, '_')}--${cfg.baseName.replace(/\./g, '_')}`;
+    }
+    return this._functionName;
   }
 
   validate() {
@@ -148,8 +165,7 @@ class AWSDeployer extends BaseDeployer {
   }
 
   async createLambda() {
-    const { cfg } = this;
-    const functionName = `${cfg.packageName}--${cfg.baseName}`;
+    const { cfg, functionName } = this;
     const functionVersion = cfg.version.replace(/\./g, '_');
 
     const functionConfig = {
@@ -286,10 +302,24 @@ class AWSDeployer extends BaseDeployer {
     return null;
   }
 
+  async fetchRoutes(ApiId) {
+    let nextToken;
+    const routes = [];
+    do {
+      const res = await this._api.send(new GetRoutesCommand({
+        ApiId,
+        NextToken: nextToken,
+      }));
+      routes.push(...res.Items);
+      nextToken = res.NextToken;
+    } while (nextToken);
+    return routes;
+  }
+
   async createAPI() {
     const { cfg } = this;
     const { ApiId, ApiEndpoint } = await this.initApiId();
-    this._functionURL = `${ApiEndpoint}/${cfg.packageName}/${cfg.baseName}/${cfg.version}`;
+    this._functionURL = `${ApiEndpoint}${this.functionPath}`;
 
     // check for stage
     const res = await this._api.send(new GetStagesCommand({
@@ -318,11 +348,13 @@ class AWSDeployer extends BaseDeployer {
         TimeoutInMillis: Math.min(cfg.timeout, 30000),
       }));
       this.log.info(chalk`{green ok:} created new integration "${integration.IntegrationId}" for "${this._aliasARN}"`);
-      const { IntegrationId } = integration;
-      // need to create 2 routes. one for the exact path, and one with suffix
-      await this.createOrUpdateRoute([], ApiId, IntegrationId, `ANY /${cfg.packageName}/${cfg.baseName}/${cfg.version}/{path+}`);
-      await this.createOrUpdateRoute([], ApiId, IntegrationId, `ANY /${cfg.packageName}/${cfg.baseName}/${cfg.version}`);
     }
+    // need to create 2 routes. one for the exact path, and one with suffix
+    const { IntegrationId } = integration;
+    this.log.info('--: fetching existing routes...');
+    const routes = await this.fetchRoutes(ApiId);
+    await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY ${this.functionPath}/{path+}`);
+    await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY ${this.functionPath}`);
 
     // setup permissions for entire package.
     // this way we don't need to setup more permissions for link routes
@@ -350,10 +382,9 @@ class AWSDeployer extends BaseDeployer {
   }
 
   async test() {
-    const { cfg } = this;
     let url = this._functionURL;
     if (!url) {
-      url = `https://${this._cfg.apiId}.execute-api.${this._cfg.region}.amazonaws.com/${cfg.packageName}/${cfg.baseName}/${cfg.version}`;
+      url = `https://${this._cfg.apiId}.execute-api.${this._cfg.region}.amazonaws.com${this.functionPath}`;
     }
     return this.testRequest({
       url,
@@ -436,10 +467,8 @@ class AWSDeployer extends BaseDeployer {
   }
 
   async updateLinks() {
-    const { cfg } = this;
+    const { cfg, functionName } = this;
     const { ApiId } = await this.initApiId();
-
-    const functionName = `${cfg.packageName}--${cfg.baseName}`;
     const functionVersion = cfg.version.replace(/\./g, '_');
 
     // get function alias
@@ -467,16 +496,7 @@ class AWSDeployer extends BaseDeployer {
 
     // get all the routes
     this.log.info(chalk`--: patching routes ...`);
-    let nextToken;
-    const routes = [];
-    do {
-      res = await this._api.send(new GetRoutesCommand({
-        ApiId,
-        NextToken: nextToken,
-      }));
-      routes.push(...res.Items);
-      nextToken = res.NextToken;
-    } while (nextToken);
+    const routes = await this.fetchRoutes(ApiId);
 
     // create routes for each symlink
     const sfx = this.getLinkVersions();

@@ -82,6 +82,8 @@ describe('Deploy Test', () => {
 
     nock(process.env.WSK_APIHOST)
       // .log(console.log)
+      .get('/api/v1/namespaces/foobar/packages/default')
+      .reply(200)
       .put('/api/v1/namespaces/foobar/actions/simple-project?overwrite=true')
       .reply(201, {
         namespace: process.env.WSK_NAMESPACE,
@@ -116,6 +118,8 @@ describe('Deploy Test', () => {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'web-action'), testRoot);
 
     nock(process.env.WSK_APIHOST)
+      .get('/api/v1/namespaces/foobar/packages/default')
+      .reply(200)
       .get('/api/v1/web/foobar/default/simple-project/foo')
       .reply(302, 'ok', {
         location: 'https://example.com/',
@@ -194,6 +198,8 @@ describe('Deploy Test', () => {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'web-action-with-package'), testRoot);
 
     nock(process.env.WSK_APIHOST)
+      .get('/api/v1/namespaces/foobar/packages/test-package')
+      .reply(200)
       .put('/api/v1/namespaces/foobar/actions/test-package/simple-project?overwrite=true')
       .reply(201, {
         // openwhisk returns the package in the namespace property!

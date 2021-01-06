@@ -94,6 +94,25 @@ class OpenWhiskDeployer extends BaseDeployer {
     const openwhisk = this.getOpenwhiskClient();
     const relZip = path.relative(process.cwd(), cfg.zipFile);
     this.log.info(`--: deploying ${relZip} as ${this._cfg.actionName} ...`);
+
+    // ensure package
+    try {
+      await openwhisk.packages.get(cfg.packageName);
+    } catch (e) {
+      if (e.statusCode === 404) {
+        this.log.info(`--: creating missing package ${cfg.packageName} ...`);
+        const res = await openwhisk.packages.create({
+          name: cfg.packageName,
+          package: {
+            publish: this._cfg.packageShared,
+          },
+        });
+        this.log.info(chalk`{green ok:} package created. ${res.namespace}/${res.name}`);
+      } else {
+        this.log.error(`${chalk.red('error: ')} ${e.message}`);
+      }
+    }
+
     const actionoptions = {
       name: this._cfg.actionName,
       action: await fse.readFile(cfg.zipFile),
