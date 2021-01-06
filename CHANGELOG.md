@@ -1,3 +1,10 @@
+# [1.17.0](https://github.com/adobe/helix-deploy/compare/v1.16.0...v1.17.0) (2021-01-06)
+
+
+### Features
+
+* **builder:** add support for formats and properties  ([19a7355](https://github.com/adobe/helix-deploy/commit/19a7355d22cfd277a58879577f520f5146f91378)), closes [#58](https://github.com/adobe/helix-deploy/issues/58) [#64](https://github.com/adobe/helix-deploy/issues/64)
+
 # [1.16.0](https://github.com/adobe/helix-deploy/compare/v1.15.4...v1.16.0) (2021-01-05)
 
 
