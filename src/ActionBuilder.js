@@ -100,6 +100,18 @@ module.exports = class ActionBuilder {
     return str;
   }
 
+  /**
+   * Simple string substitute. Replaces all `${key}` occurrences from the given object.
+   * @param {string} str string to substitute
+   * @param {object} props properties
+   */
+  static substitute(str, props) {
+    return Object.entries(props).reduce((p, [key, value]) => {
+      const r = new RegExp(`\\$\\{${key}\\}`, 'g');
+      return p.replace(r, value);
+    }, str);
+  }
+
   constructor() {
     Object.assign(this, {
       cfg: {},
@@ -145,9 +157,10 @@ module.exports = class ActionBuilder {
     if (!cfg.version) {
       cfg.version = cfg.pkgJson.version || '0.0.0';
     }
-    // do some very simple variable substitution
-    // eslint-disable-next-line no-template-curly-in-string
-    cfg.name = cfg.name.replace('${version}', cfg.version);
+
+    // replace action name
+    // todo: probably not the best solution anymore. better rely on formats for all deployers
+    cfg.name = ActionBuilder.substitute(cfg.name, { ...cfg, ...cfg.properties });
 
     const segs = cfg.name.split('/');
     cfg.name = segs.pop();
