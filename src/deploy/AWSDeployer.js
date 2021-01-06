@@ -496,7 +496,7 @@ class AWSDeployer extends BaseDeployer {
 
     // get all the routes
     this.log.info(chalk`--: patching routes ...`);
-    const routes = this.fetchRoutes(ApiId);
+    const routes = await this.fetchRoutes(ApiId);
 
     // create routes for each symlink
     const sfx = this.getLinkVersions();
