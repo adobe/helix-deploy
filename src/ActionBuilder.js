@@ -524,7 +524,7 @@ module.exports = class ActionBuilder {
 
   async run() {
     const { cfg } = this;
-    cfg.log.info(chalk`{grey openwhisk-action-builder v${version}}`);
+    cfg.log.info(chalk`{grey universal-action-builder v${version}}`);
     await this.validate();
     cfg.log.info(chalk`selected targets: {yellow ${Object.values(this._deployers).map((d) => d.name).join(', ')}}`);
 

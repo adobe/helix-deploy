@@ -97,6 +97,14 @@ class AWSDeployer extends BaseDeployer {
     return this._functionPath;
   }
 
+  get functionName() {
+    if (!this._functionName) {
+      const { cfg } = this;
+      this._functionName = `${cfg.packageName.replace(/\./g, '_')}--${cfg.baseName.replace(/\./g, '_')}`;
+    }
+    return this._functionName;
+  }
+
   validate() {
     if (!this._cfg.role || !this._cfg.region) {
       throw Error('AWS target needs --aws-region and --aws-role');
@@ -157,8 +165,7 @@ class AWSDeployer extends BaseDeployer {
   }
 
   async createLambda() {
-    const { cfg } = this;
-    const functionName = `${cfg.packageName}--${cfg.baseName}`;
+    const { cfg, functionName } = this;
     const functionVersion = cfg.version.replace(/\./g, '_');
 
     const functionConfig = {
@@ -460,10 +467,8 @@ class AWSDeployer extends BaseDeployer {
   }
 
   async updateLinks() {
-    const { cfg } = this;
+    const { cfg, functionName } = this;
     const { ApiId } = await this.initApiId();
-
-    const functionName = `${cfg.packageName}--${cfg.baseName}`;
     const functionVersion = cfg.version.replace(/\./g, '_');
 
     // get function alias
