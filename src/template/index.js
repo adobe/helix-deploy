@@ -13,7 +13,7 @@
 const querystring = require('querystring');
 const { promisify } = require('util');
 const { Request } = require('node-fetch');
-const { epsagon } = require('@adobe/helix-epsagon');
+// const { epsagon } = require('@adobe/helix-epsagon');
 const { isBinary, ensureUTF8Charset } = require('./utils.js');
 const {
   AWSResolver,
@@ -332,7 +332,8 @@ async function lambda(event, context) {
 
 // exports
 module.exports = Object.assign(azure, {
-  main: epsagon(openwhisk),
+  // main: epsagon(openwhisk),
+  main: openwhisk,
   lambda,
   google,
 });
