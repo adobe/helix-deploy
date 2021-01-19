@@ -106,7 +106,7 @@ class AWSDeployer extends BaseDeployer {
   }
 
   get basePath() {
-    return `${this.functionName}`;
+    return `${this.functionPath}`;
   }
 
   validate() {
