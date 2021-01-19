@@ -1,3 +1,18 @@
+# [1.18.0](https://github.com/adobe/helix-deploy/compare/v1.17.3...v1.18.0) (2021-01-19)
+
+
+### Bug Fixes
+
+* **aws:** fix base path ([9d1233a](https://github.com/adobe/helix-deploy/commit/9d1233a6f91cc0ddbe78fa7b475e2abc9e5e7bf1))
+* **aws:** use function path for base path ([39e84c3](https://github.com/adobe/helix-deploy/commit/39e84c3f44c2b4703f329302304ac5cbb33def1b))
+* **deps:** bump fastly client version ([7c4141a](https://github.com/adobe/helix-deploy/commit/7c4141a37c331bc6cb5089c82b21ddc277d6c66f))
+* **gateway:** do not allow random selection if version lock specifies environment ([29240c1](https://github.com/adobe/helix-deploy/commit/29240c11ed0e616cd5d5f3e06c9b6c9fc0c75dff))
+
+
+### Features
+
+* **gateway:** allow specifying a cloud environment using the version-lock header ([7fa1c69](https://github.com/adobe/helix-deploy/commit/7fa1c69f55faffcbe9812d0b9cdd5e8285d8a0cf))
+
 ## [1.17.3](https://github.com/adobe/helix-deploy/compare/v1.17.2...v1.17.3) (2021-01-11)
 
 
