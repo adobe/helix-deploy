@@ -15,8 +15,18 @@
 const assert = require('assert');
 const fse = require('fs-extra');
 const path = require('path');
+const fetchAPI = require('@adobe/helix-fetch');
 const { createTestRoot, TestLogger } = require('./utils');
 const CLI = require('../src/cli.js');
+
+function fetchContext() {
+  return process.env.HELIX_FETCH_FORCE_HTTP1
+    ? fetchAPI.context({
+      httpProtocol: 'http1',
+      httpsProtocols: ['http1'],
+    })
+    : fetchAPI;
+}
 
 describe('Gateway Integration Test', () => {
   let testRoot;
@@ -61,6 +71,36 @@ describe('Gateway Integration Test', () => {
     const out = builder.cfg._logger.output;
     const { namespace } = builder._deployers.wsk._cfg;
     assert.ok(out.indexOf(`ok: 200
-{"url":"https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0/foo","file":"Hello, world.\\n"}`) > 0, out);
+{"url":"https://azure.adobe-runtime.com/api/v1/web/${namespace}/simple-package/simple-name@1.45.0/foo","file":"Hello, world.\\n"}`) > 0, out);
+
+    const { fetch } = fetchContext();
+    const respRandom = await fetch('https://deploy-test.anywhere.run/simple-name@1.45.0/foo');
+    const respOW = await fetch('https://deploy-test.anywhere.run/simple-name@1.45.0/foo', {
+      headers: {
+        'x-ow-version-lock': 'env=openwhisk',
+      },
+    });
+    const respAWS = await fetch('https://deploy-test.anywhere.run/simple-name@1.45.0/foo', {
+      headers: {
+        'x-ow-version-lock': 'env=amazonwebservices',
+      },
+    });
+
+    assert.ok(respRandom.ok, 'Randomly assigned request is OK');
+    assert.ok(respOW.ok, 'OW request is not OK');
+    assert.ok(respAWS.ok, 'AWS request is not OK');
+
+    await respRandom.text();
+    await respOW.text();
+    await respAWS.text();
+
+    assert.ok(respOW.headers.get('X-Backend-Name'), 'OW: X-Backend-Name Header is missing');
+    assert.ok(respAWS.headers.get('X-Backend-Name'), 'AWS: X-Backend-Name Header is missing');
+
+    assert.ok(respOW.headers.get('X-Backend-Name').indexOf('Openwhisk') > 0,
+      `OW: X-Backend-Name Header is wrong:${respOW.headers.get('X-Backend-Name')}`);
+
+    assert.ok(respAWS.headers.get('X-Backend-Name').indexOf('AmazonWebServices') > 0,
+      `AWS: X-Backend-Name Header is wrong:${respOW.headers.get('X-Backend-Name')}`);
   }).timeout(150000);
 });

@@ -105,6 +105,10 @@ class AWSDeployer extends BaseDeployer {
     return this._functionName;
   }
 
+  get basePath() {
+    return `${this.functionPath}`;
+  }
+
   validate() {
     if (!this._cfg.role || !this._cfg.region) {
       throw Error('AWS target needs --aws-region and --aws-role');

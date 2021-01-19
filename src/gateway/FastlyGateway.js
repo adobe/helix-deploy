@@ -52,7 +52,7 @@ class FastlyGateway {
 
       if (false) {}`;
 
-    const middle = this._deployers.map((deployer, i) => `if(var.i <= ${i} && backend.F_${deployer.name}.healthy) {
+    const middle = this._deployers.map((deployer, i) => `if((var.i <= ${i} && backend.F_${deployer.name}.healthy) && subfield(req.http.x-ow-version-lock, "env", "&") !~ ".?" || subfield(req.http.x-ow-version-lock, "env", "&") == "${deployer.name.toLowerCase()}") {
       set req.backend = F_${deployer.name};
     }`);
 
@@ -76,21 +76,12 @@ class FastlyGateway {
     this.log.info('Set up Fastly Gateway');
 
     await this._fastly.transact(async (newversion) => {
-      // create condition
-      try {
-        this.log.info('create condition');
-        await this._fastly.writeCondition(newversion, 'false', {
-          name: 'false',
-          statement: 'false',
-          type: 'request',
-        });
-      } catch (e) {
-        this.log.info('update condition', e, e.stack);
-        await this._fastly.updateCondition(newversion, 'false', {
-          name: 'false',
-          statement: 'false',
-        });
-      }
+      this.log.info('create condition');
+      await this._fastly.writeCondition(newversion, 'false', {
+        name: 'false',
+        statement: 'false',
+        type: 'request',
+      });
 
       // set up health checks
       await Promise.all(this._deployers

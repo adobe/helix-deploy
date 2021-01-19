@@ -57,14 +57,6 @@ class BaseDeployer {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  get basePath() {
-    if (this.cfg.functionURL) {
-      return new URL(this.cfg.functionURL).pathname;
-    }
-    return '';
-  }
-
-  // eslint-disable-next-line class-methods-use-this
   get urlVCL() {
     return 'req.url';
   }
