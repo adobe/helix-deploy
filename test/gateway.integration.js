@@ -92,5 +92,11 @@ describe('Gateway Integration Test', () => {
 
     assert.ok(respOW.headers.get('X-Backend-Name'), 'OW: X-Backend-Name Header is missing');
     assert.ok(respAWS.headers.get('X-Backend-Name'), 'AWS: X-Backend-Name Header is missing');
+
+    assert.ok(respOW.headers.get('X-Backend-Name').indexOf('Openwhisk') > 0,
+      `OW: X-Backend-Name Header is wrong:${respOW.headers.get('X-Backend-Name')}`);
+
+    assert.ok(respAWS.headers.get('X-Backend-Name').indexOf('AmazonWebServices') > 0,
+      `AWS: X-Backend-Name Header is wrong:${respOW.headers.get('X-Backend-Name')}`);
   }).timeout(150000);
 });
