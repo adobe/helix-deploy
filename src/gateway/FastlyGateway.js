@@ -52,7 +52,7 @@ class FastlyGateway {
 
       if (false) {}`;
 
-    const middle = this._deployers.map((deployer, i) => `if(var.i <= ${i} && backend.F_${deployer.name}.healthy) {
+    const middle = this._deployers.map((deployer, i) => `if((var.i <= ${i} && backend.F_${deployer.name}.healthy) || subfield(req.http.x-ow-version-lock, "env", "&") == "${deployer.name.toLowerCase()}") {
       set req.backend = F_${deployer.name};
     }`);
 
