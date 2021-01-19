@@ -76,21 +76,12 @@ class FastlyGateway {
     this.log.info('Set up Fastly Gateway');
 
     await this._fastly.transact(async (newversion) => {
-      // create condition
-      try {
-        this.log.info('create condition');
-        await this._fastly.writeCondition(newversion, 'false', {
-          name: 'false',
-          statement: 'false',
-          type: 'request',
-        });
-      } catch (e) {
-        this.log.info('update condition', e, e.stack);
-        await this._fastly.updateCondition(newversion, 'false', {
-          name: 'false',
-          statement: 'false',
-        });
-      }
+      this.log.info('create condition');
+      await this._fastly.writeCondition(newversion, 'false', {
+        name: 'false',
+        statement: 'false',
+        type: 'request',
+      });
 
       // set up health checks
       await Promise.all(this._deployers
