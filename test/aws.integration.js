@@ -63,7 +63,7 @@ describe('AWS Integration Test', () => {
     const res = await builder.run();
     assert.ok(res);
     const out = builder.cfg._logger.output;
-    assert.ok(out.indexOf('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/1.45.0/foo') > 0, `could not find deployed url in output: ${out}`);
+    assert.ok(out.indexOf('{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/1.45.0/foo","file":"Hello, world.\\n"}') > 0, out);
   }).timeout(50000);
 
   it('Update links to AWS (for real)', async () => {
