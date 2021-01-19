@@ -89,5 +89,8 @@ describe('Gateway Integration Test', () => {
     assert.ok(respRandom.ok, 'Randomly assigned request is OK');
     assert.ok(respOW.ok, 'OW request is not OK');
     assert.ok(respAWS.ok, 'AWS request is not OK');
+
+    assert.ok(respOW.headers.get('X-Backend-Name'), 'OW: X-Backend-Name Header is missing');
+    assert.ok(respAWS.headers.get('X-Backend-Name'), 'AWS: X-Backend-Name Header is missing');
   }).timeout(150000);
 });
