@@ -1,3 +1,11 @@
+## [1.18.2](https://github.com/adobe/helix-deploy/compare/v1.18.1...v1.18.2) (2021-01-21)
+
+
+### Bug Fixes
+
+* **aws:** disable route/integration generation by default ([a0887f6](https://github.com/adobe/helix-deploy/commit/a0887f6258dabd59dde0e7ed1ba5e871f1ea7354)), closes [#45](https://github.com/adobe/helix-deploy/issues/45)
+* **wsk:** ensure only recognized content type are considered non-binary ([e66bc6e](https://github.com/adobe/helix-deploy/commit/e66bc6e2e236d724748d69160659104fbbf5cc98)), closes [#74](https://github.com/adobe/helix-deploy/issues/74)
+
 ## [1.18.1](https://github.com/adobe/helix-deploy/compare/v1.18.0...v1.18.1) (2021-01-21)
 
 
