@@ -17,6 +17,7 @@ class AWSConfig {
       role: '',
       apiId: '',
       cleanUpBuckets: false,
+      createRoutes: false,
     });
   }
 
@@ -25,7 +26,8 @@ class AWSConfig {
       .withAWSRegion(argv.awsRegion)
       .withAWSRole(argv.awsRole)
       .withAWSApi(argv.awsApi)
-      .withAWSCleanUpBuckets(argv.awsCleanupBuckets);
+      .withAWSCleanUpBuckets(argv.awsCleanupBuckets)
+      .withAWSCreateRoutes(argv.awsCreateRoutes);
   }
 
   withAWSRegion(value) {
@@ -48,9 +50,14 @@ class AWSConfig {
     return this;
   }
 
+  withAWSCreateRoutes(value) {
+    this.createRoutes = value;
+    return this;
+  }
+
   static yarg(yargs) {
     return yargs
-      .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets'], 'AWS Deployment Options')
+      .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-create-routes'], 'AWS Deployment Options')
       .option('aws-region', {
         description: 'the AWS region to deploy lambda functions to',
         type: 'string',
@@ -65,6 +72,11 @@ class AWSConfig {
         description: 'the AWS API Gateway name. (id, "auto" or "create")',
         type: 'string',
         default: 'auto',
+      })
+      .option('aws-create-routes', {
+        description: 'Create routes for function (usually not needed due to proxy function).',
+        type: 'boolean',
+        default: false,
       })
       .option('aws-cleanup-buckets', {
         description: 'Cleans up stray temporary S3 buckets',
