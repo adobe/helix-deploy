@@ -56,9 +56,10 @@ describe('Adapter Utils Tests: isBinary', () => {
     assert.ok(isBinary('application/octet-stream'));
     assert.ok(isBinary('image/png'));
     assert.ok(!isBinary('text/html'));
-    assert.ok(!isBinary('text/javascript'));
+    assert.ok(!isBinary('application/javascript'));
     assert.ok(!isBinary('application/json'));
     assert.ok(!isBinary('text/xml'));
     assert.ok(isBinary('image/svg+xml'));
+    assert.ok(isBinary('text/yaml'));
   });
 });

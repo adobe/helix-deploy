@@ -16,19 +16,15 @@
  * @returns {boolean} {@code true} if content type is binary.
  */
 function isBinary(type) {
-  if (/text\/.*/.test(type)) {
-    return false;
+  if (!type) {
+    return true;
   }
-  if (/.*\/javascript/.test(type)) {
-    return false;
+  if (type.indexOf(';') > 0) {
+    // eslint-disable-next-line no-param-reassign
+    [type] = type.split(';');
   }
-  if (/.*\/.*json/.test(type)) {
-    return false;
-  }
-  if (/.*\/.*xml/.test(type)) {
-    return /svg/.test(type); // openwhisk treats SVG as binary
-  }
-  return true;
+  // eslint-disable-next-line no-use-before-define
+  return !textTypes.has(type);
 }
 
 /**
@@ -49,3 +45,72 @@ module.exports = {
   isBinary,
   ensureUTF8Charset,
 };
+
+/**
+ * content types that openwhisk treats as text
+ *
+ * @see https://doc.akka.io/api/akka-http/10.1.11/akka/http/scaladsl/model/MediaTypes$.html
+ */
+const textTypes = new Set([
+  'application/atom+xml',
+  'application/base64',
+  'application/javascript',
+  'application/json',
+  'application/json-patch+json',
+  'application/merge-patch+json',
+  'application/problem+json',
+  'application/problem+xml',
+  'application/rss+xml',
+  'application/soap+xml',
+  'application/vnd.api+json',
+  'application/vnd.google-earth.kml+xml',
+  'application/x-latex',
+  'application/x-vrml',
+  'application/x-www-form-urlencoded',
+  'application/xhtml+xml',
+  'application/xml',
+  'application/xml-dtd',
+  'text/asp',
+  'text/cache-manifest',
+  'text/calendar',
+  'text/css',
+  'text/csv',
+  'text/event-stream',
+  'text/html',
+  'text/markdown',
+  'text/mcf',
+  'text/plain',
+  'text/richtext',
+  'text/tab-separated-values',
+  'text/uri-list',
+  'text/vnd.wap.wml',
+  'text/vnd.wap.wmlscript',
+  'text/x-asm',
+  'text/x-c',
+  'text/x-component',
+  'text/x-h',
+  'text/x-java-source',
+  'text/x-pascal',
+  'text/x-script',
+  'text/x-scriptcsh',
+  'text/x-scriptelisp',
+  'text/x-scriptksh',
+  'text/x-scriptlisp',
+  'text/x-scriptperl',
+  'text/x-scriptperl-module',
+  'text/x-scriptphyton',
+  'text/x-scriptrexx',
+  'text/x-scriptscheme',
+  'text/x-scriptsh',
+  'text/x-scripttcl',
+  'text/x-scripttcsh',
+  'text/x-scriptzsh',
+  'text/x-server-parsed-html',
+  'text/x-setext',
+  'text/x-sgml',
+  'text/x-speech',
+  'text/x-uuencode',
+  'text/x-vcalendar',
+  'text/x-vcard',
+  'text/xml',
+]);
