@@ -51,6 +51,7 @@ describe('AWS Integration Test', () => {
         '--aws-region', 'us-east-1',
         '--aws-api', 'lqmig3v5eb',
         '--aws-role', 'arn:aws:iam::118435662149:role/service-role/helix-service-role-ogu32wiz',
+        '--aws-create-routes', 'true',
         '--package.params', 'HEY=ho',
         '--update-package', 'true',
         '-p', 'FOO=bar',

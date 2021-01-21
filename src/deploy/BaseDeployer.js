@@ -97,7 +97,7 @@ class BaseDeployer {
         return;
       }
       this.log.info(`id: ${chalk.grey(id)}`);
-      if (ret.status === 404 && retry404) {
+      if ((ret.status === 404 || ret.status === 500) && retry404) {
         this.log.info(`${chalk.yellow('warn:')} ${ret.status} (retry)`);
         // eslint-disable-next-line no-param-reassign
         retry404 -= 1;

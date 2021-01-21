@@ -338,44 +338,46 @@ class AWSDeployer extends BaseDeployer {
       }));
     }
 
-    // find integration
-    let integration = await this.findIntegration(ApiId, this._aliasARN);
-    if (integration) {
-      this.log.info(`--: using existing integration "${integration.IntegrationId}" for "${this._aliasARN}"`);
-    } else {
-      integration = await this._api.send(new CreateIntegrationCommand({
-        ApiId,
-        IntegrationMethod: 'POST',
-        IntegrationType: 'AWS_PROXY',
-        IntegrationUri: this._aliasARN,
-        PayloadFormatVersion: '2.0',
-        TimeoutInMillis: Math.min(cfg.timeout, 30000),
-      }));
-      this.log.info(chalk`{green ok:} created new integration "${integration.IntegrationId}" for "${this._aliasARN}"`);
-    }
-    // need to create 2 routes. one for the exact path, and one with suffix
-    const { IntegrationId } = integration;
-    this.log.info('--: fetching existing routes...');
-    const routes = await this.fetchRoutes(ApiId);
-    await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY ${this.functionPath}/{path+}`);
-    await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY ${this.functionPath}`);
+    if (this._cfg.createRoutes) {
+      // find integration
+      let integration = await this.findIntegration(ApiId, this._aliasARN);
+      if (integration) {
+        this.log.info(`--: using existing integration "${integration.IntegrationId}" for "${this._aliasARN}"`);
+      } else {
+        integration = await this._api.send(new CreateIntegrationCommand({
+          ApiId,
+          IntegrationMethod: 'POST',
+          IntegrationType: 'AWS_PROXY',
+          IntegrationUri: this._aliasARN,
+          PayloadFormatVersion: '2.0',
+          TimeoutInMillis: Math.min(cfg.timeout, 30000),
+        }));
+        this.log.info(chalk`{green ok:} created new integration "${integration.IntegrationId}" for "${this._aliasARN}"`);
+      }
+      // need to create 2 routes. one for the exact path, and one with suffix
+      const { IntegrationId } = integration;
+      this.log.info('--: fetching existing routes...');
+      const routes = await this.fetchRoutes(ApiId);
+      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY ${this.functionPath}/{path+}`);
+      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY ${this.functionPath}`);
 
-    // setup permissions for entire package.
-    // this way we don't need to setup more permissions for link routes
-    // eslint-disable-next-line no-underscore-dangle
-    const sourceArn = `arn:aws:execute-api:${this._cfg.region}:${this._accountId}:${ApiId}/*/*/${cfg.packageName}/*`;
-    try {
-      // eslint-disable-next-line no-await-in-loop
-      await this._lambda.send(new AddPermissionCommand({
-        FunctionName: this._aliasARN,
-        Action: 'lambda:InvokeFunction',
-        SourceArn: sourceArn,
-        Principal: 'apigateway.amazonaws.com',
-        StatementId: crypto.createHash('md5').update(this._aliasARN + sourceArn).digest('hex'),
-      }));
-      this.log.info(chalk`{green ok:} added invoke permissions for ${sourceArn}`);
-    } catch (e) {
-      // ignore, most likely the permission already exists
+      // setup permissions for entire package.
+      // this way we don't need to setup more permissions for link routes
+      // eslint-disable-next-line no-underscore-dangle
+      const sourceArn = `arn:aws:execute-api:${this._cfg.region}:${this._accountId}:${ApiId}/*/*/${cfg.packageName}/*`;
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await this._lambda.send(new AddPermissionCommand({
+          FunctionName: this._aliasARN,
+          Action: 'lambda:InvokeFunction',
+          SourceArn: sourceArn,
+          Principal: 'apigateway.amazonaws.com',
+          StatementId: crypto.createHash('md5').update(this._aliasARN + sourceArn).digest('hex'),
+        }));
+        this.log.info(chalk`{green ok:} added invoke permissions for ${sourceArn}`);
+      } catch (e) {
+        // ignore, most likely the permission already exists
+      }
     }
 
     if (cfg.showHints) {
@@ -453,6 +455,7 @@ class AWSDeployer extends BaseDeployer {
   async createOrUpdateRoute(routes, ApiId, IntegrationId, RouteKey) {
     const existing = routes.find((r) => r.RouteKey === RouteKey);
     if (existing) {
+      this.log.info(chalk`--: updating route for: ${existing.RouteKey}...`);
       const res = await this._api.send(new UpdateRouteCommand({
         ApiId,
         RouteId: existing.RouteId,
@@ -461,6 +464,7 @@ class AWSDeployer extends BaseDeployer {
       }));
       this.log.info(chalk`{green ok}: updated route for: ${res.RouteKey}`);
     } else {
+      this.log.info(chalk`--: creating route for: ${RouteKey}...`);
       const res = await this._api.send(new CreateRouteCommand({
         ApiId,
         RouteKey,
@@ -492,9 +496,19 @@ class AWSDeployer extends BaseDeployer {
     }
 
     // find integration
-    const integration = await this.findIntegration(ApiId, aliasArn);
-    if (!integration) {
-      throw new Error('Unable to create link. integration does not exist yet.');
+    let integration = await this.findIntegration(ApiId, aliasArn);
+    if (integration) {
+      this.log.info(`--: using existing integration "${integration.IntegrationId}" for "${aliasArn}"`);
+    } else {
+      integration = await this._api.send(new CreateIntegrationCommand({
+        ApiId,
+        IntegrationMethod: 'POST',
+        IntegrationType: 'AWS_PROXY',
+        IntegrationUri: aliasArn,
+        PayloadFormatVersion: '2.0',
+        TimeoutInMillis: Math.min(cfg.timeout, 30000),
+      }));
+      this.log.info(chalk`{green ok:} created new integration "${integration.IntegrationId}" for "${aliasArn}"`);
     }
     const { IntegrationId } = integration;
 
