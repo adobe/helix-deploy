@@ -65,7 +65,13 @@ class FastlyGateway {
   }
 
   setURLVCL() {
-    return this._deployers.map((deployer) => `
+    const pre = `
+declare local var.namespace STRING;
+declare local var.package STRING;
+declare local var.action STRING;
+declare local var.version STRING;
+`;
+    return pre + this._deployers.map((deployer) => `
       if (req.backend == F_${deployer.name}) {
         set bereq.url = ${deployer.urlVCL};
       }
