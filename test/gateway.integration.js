@@ -74,13 +74,13 @@ describe('Gateway Integration Test', () => {
 {"url":"https://azure.adobe-runtime.com/api/v1/web/${namespace}/simple-package/simple-name@1.45.0/foo","file":"Hello, world.\\n"}`) > 0, out);
 
     const { fetch } = fetchContext();
-    const respRandom = await fetch('https://deploy-test.anywhere.run/simple-name@1.45.0/foo');
-    const respOW = await fetch('https://deploy-test.anywhere.run/simple-name@1.45.0/foo', {
+    const respRandom = await fetch('https://deploy-test.anywhere.run/simple-package/simple-name@1.45.0/foo');
+    const respOW = await fetch('https://deploy-test.anywhere.run/simple-package/simple-name@1.45.0/foo', {
       headers: {
         'x-ow-version-lock': 'env=openwhisk',
       },
     });
-    const respAWS = await fetch('https://deploy-test.anywhere.run/simple-name@1.45.0/foo', {
+    const respAWS = await fetch('https://deploy-test.anywhere.run/simple-package/simple-name@1.45.0/foo', {
       headers: {
         'x-ow-version-lock': 'env=amazonwebservices',
       },
