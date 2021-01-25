@@ -107,7 +107,7 @@ describe('OpenWhisk Adapter Test', () => {
             url: req.url,
             secret: context.env.SECRET_TOKEN,
             method: req.method,
-            headers: req.headers.raw(),
+            headers: req.headers.plain(),
           });
           return new Response(ret);
         },
@@ -129,9 +129,7 @@ describe('OpenWhisk Adapter Test', () => {
     assert.deepEqual(resp, {
       body: {
         headers: {
-          'x-test-header': [
-            '42',
-          ],
+          'x-test-header': '42',
         },
         method: 'PUT',
         secret: 'xyz',
