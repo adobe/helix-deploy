@@ -176,7 +176,7 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)") {
         name: 'passurl',
         priority: 10,
         dynamic: 0,
-        type: 'miss',
+        type: 'pass',
         content: this.setURLVCL(),
       });
 
