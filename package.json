@@ -25,7 +25,7 @@
     "semantic-release": "semantic-release"
   },
   "dependencies": {
-    "@adobe/fastly-native-promises": "1.19.5",
+    "@adobe/fastly-native-promises": "1.19.6",
     "@adobe/helix-epsagon": "1.5.6",
     "@adobe/helix-fetch": "2.0.0",
     "@aws-sdk/client-apigatewayv2": "3.3.0",
