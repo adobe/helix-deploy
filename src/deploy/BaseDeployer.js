@@ -17,8 +17,7 @@ const fetchAPI = require('@adobe/helix-fetch');
 function fetchContext() {
   return process.env.HELIX_FETCH_FORCE_HTTP1
     ? fetchAPI.context({
-      httpProtocol: 'http1',
-      httpsProtocols: ['http1'],
+      alpnProtocols: [fetchAPI.ALPN_HTTP1_1],
     })
     : fetchAPI;
 }

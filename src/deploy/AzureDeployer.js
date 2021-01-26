@@ -11,12 +11,15 @@
  */
 const msRestNodeAuth = require('@azure/ms-rest-nodeauth');
 const { WebSiteManagementClient } = require('@azure/arm-appservice');
-const { fetch } = require('@adobe/helix-fetch').context({
-  httpsProtocols: ['http1'],
-});
+const { context, ALPN_HTTP1_1 } = require('@adobe/helix-fetch');
 const fs = require('fs');
 const BaseDeployer = require('./BaseDeployer');
 const AzureConfig = require('./AzureConfig.js');
+
+const { fetch } = context({
+  // TODO: why is HTTP/1.1 enforced?
+  alpnProtocols: [ALPN_HTTP1_1],
+});
 
 class AzureDeployer extends BaseDeployer {
   constructor(baseConfig, config) {

@@ -14,13 +14,13 @@
 /* eslint-disable no-underscore-dangle */
 
 const assert = require('assert');
-const { Response } = require('node-fetch');
+const { Response } = require('@adobe/helix-fetch');
 const { isBinary, ensureUTF8Charset } = require('../src/template/utils.js');
 
 describe('Adapter Utils Tests: ensureUTF8Encoding', () => {
-  it('ignores missing charset-type header', async () => {
+  it('defaults missing charset-type header to text/plain', async () => {
     const resp = ensureUTF8Charset(new Response());
-    assert.ok(!resp.headers.get('content-type'));
+    assert.equal(resp.headers.get('content-type'), 'text/plain;charset=UTF-8');
   });
 
   it('ignores missing charset in non text/html header', async () => {
@@ -38,7 +38,7 @@ describe('Adapter Utils Tests: ensureUTF8Encoding', () => {
         'content-type': 'text/html',
       },
     }));
-    assert.equal(resp.headers.get('content-type'), 'text/html; charset=UTF-8');
+    assert.equal(resp.headers.get('content-type'), 'text/html;charset=UTF-8');
   });
 
   it('does not change existing charset to text/html header', async () => {
