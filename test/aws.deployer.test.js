@@ -42,7 +42,9 @@ describe('AWS Deployer Test', () => {
 
   it('sets the default function path', async () => {
     const cfg = new BaseConfig()
-      .withName('/helix-services/static@4.3.1');
+      .withVersion('1.18.2')
+      // eslint-disable-next-line no-template-curly-in-string
+      .withName('/helix-services/static@${version}');
     const awsCfg = new AWSConfig();
     const builder = new ActionBuilder().withConfig(cfg);
     await builder.validate();
