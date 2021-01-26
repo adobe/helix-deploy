@@ -65,7 +65,33 @@ class FastlyGateway {
   }
 
   setURLVCL() {
-    return this._deployers.map((deployer) => `
+    const pre = `
+declare local var.package STRING;
+declare local var.action STRING;
+declare local var.version STRING;
+declare local var._version STRING;
+declare local var.atversion STRING;
+declare local var.slashversion STRING;
+declare local var.rest STRING;
+
+set var.version = "";
+set var.rest = "";
+
+if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)") {
+  log "match";
+  set var.package = re.group.1;
+  set var.action = re.group.2;
+  set var.version = re.group.3;
+
+  set var.rest = re.group.5;
+
+  // normalize version divider
+  set var._version = regsub(var.version, "[@_]", "_");
+  set var.atversion = regsub(var.version, "[@_]", "@");
+  set var.slashversion = regsub(var.version, "[@_]", "/");
+}
+`;
+    return pre + this._deployers.map((deployer) => `
       if (req.backend == F_${deployer.name}) {
         set bereq.url = ${deployer.urlVCL};
       }
@@ -150,7 +176,7 @@ class FastlyGateway {
         name: 'passurl',
         priority: 10,
         dynamic: 0,
-        type: 'miss',
+        type: 'pass',
         content: this.setURLVCL(),
       });
 

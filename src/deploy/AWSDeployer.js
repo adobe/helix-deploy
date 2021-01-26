@@ -84,9 +84,9 @@ class AWSDeployer extends BaseDeployer {
     return `${this._cfg.apiId}.execute-api.${this._cfg.region}.amazonaws.com`;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   get urlVCL() {
-    const { cfg } = this;
-    return `"/${cfg.packageName}" + regsub(req.url, "@", "/")`;
+    return '"/" + var.package + "/" + var.action + var.slashversion + var.rest';
   }
 
   get functionPath() {
