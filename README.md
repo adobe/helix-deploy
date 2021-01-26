@@ -1,4 +1,4 @@
-# Helix Deploy (WIP fork of Openwhisk Action Builder)
+# Helix Deploy
 > A multi-cloud deployment tool for serverless functions running on AWS Lambda, Adobe I/O Runtime, Azure Functions, and Google Cloud Functions. Write once, run everywhere.
 
 ## Status
