@@ -100,7 +100,7 @@ class AWSDeployer extends BaseDeployer {
   get functionName() {
     if (!this._functionName) {
       const { cfg } = this;
-      this._functionName = `${cfg.packageName.replace(/\./g, '_')}--${cfg.baseName.replace(/\./g, '_')}`;
+      this._functionName = ActionBuilder.substitute(this._cfg.lambdaFormat, { ...cfg, ...cfg.properties }).replace(/\./g, '_');
     }
     return this._functionName;
   }
