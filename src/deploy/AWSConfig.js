@@ -10,6 +10,9 @@
  * governing permissions and limitations under the License.
  */
 
+// eslint-disable-next-line no-template-curly-in-string
+const DEFAULT_LAMBDA_FORMAT = '${packageName}--${baseName}';
+
 class AWSConfig {
   constructor() {
     Object.assign(this, {
@@ -18,6 +21,7 @@ class AWSConfig {
       apiId: '',
       cleanUpBuckets: false,
       createRoutes: false,
+      lambdaFormat: DEFAULT_LAMBDA_FORMAT,
     });
   }
 
@@ -26,6 +30,7 @@ class AWSConfig {
       .withAWSRegion(argv.awsRegion)
       .withAWSRole(argv.awsRole)
       .withAWSApi(argv.awsApi)
+      .withAWSLambdaFormat(argv.awsLambdaFormat)
       .withAWSCleanUpBuckets(argv.awsCleanupBuckets)
       .withAWSCreateRoutes(argv.awsCreateRoutes);
   }
@@ -42,6 +47,11 @@ class AWSConfig {
 
   withAWSApi(value) {
     this.apiId = value;
+    return this;
+  }
+
+  withAWSLambdaFormat(value) {
+    this.lambdaFormat = value;
     return this;
   }
 
@@ -77,6 +87,11 @@ class AWSConfig {
         description: 'Create routes for function (usually not needed due to proxy function).',
         type: 'boolean',
         default: false,
+      })
+      .option('aws-lambda-format', {
+        description: 'Format to use to create lambda functions (note that all dots (\'.\') will be replaced with underscores.',
+        type: 'string',
+        default: DEFAULT_LAMBDA_FORMAT,
       })
       .option('aws-cleanup-buckets', {
         description: 'Cleans up stray temporary S3 buckets',
