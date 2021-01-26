@@ -1,3 +1,21 @@
+# [3.0.0](https://github.com/adobe/helix-deploy/compare/v2.0.0...v3.0.0) (2021-01-26)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-fetch to v2 ([#82](https://github.com/adobe/helix-deploy/issues/82)) ([4c91c73](https://github.com/adobe/helix-deploy/commit/4c91c732c2932e424a9b64f9fde5d8bcd1fd564b))
+* **test:** fix failing test ([7f13b39](https://github.com/adobe/helix-deploy/commit/7f13b3959b14ae210002b1225750f9a4c1e15be0))
+
+
+### Features
+
+* **aws:** add possibility to define lambda name format ([#84](https://github.com/adobe/helix-deploy/issues/84)) ([4404874](https://github.com/adobe/helix-deploy/commit/440487425ddc6a453bca04e7a8c417c89e8e5402)), closes [#78](https://github.com/adobe/helix-deploy/issues/78)
+
+
+### BREAKING CHANGES
+
+* **deps:** minimum node version is now 12
+
 # [2.0.0](https://github.com/adobe/helix-deploy/compare/v1.18.2...v2.0.0) (2021-01-26)
 
 
