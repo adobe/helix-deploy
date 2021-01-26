@@ -13,7 +13,7 @@
 /* eslint-env mocha */
 /* eslint-disable no-underscore-dangle */
 const assert = require('assert');
-const { Response } = require('node-fetch');
+const { Response } = require('@adobe/helix-fetch');
 const proxyquire = require('proxyquire');
 
 describe('OpenWhisk Adapter Test', () => {
@@ -34,7 +34,9 @@ describe('OpenWhisk Adapter Test', () => {
     const resp = await main({});
     assert.deepEqual(resp, {
       body: '',
-      headers: {},
+      headers: {
+        'content-type': 'text/plain;charset=UTF-8',
+      },
       statusCode: 200,
     });
   });
