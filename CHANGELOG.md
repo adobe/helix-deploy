@@ -1,3 +1,21 @@
+# [2.0.0](https://github.com/adobe/helix-deploy/compare/v1.18.2...v2.0.0) (2021-01-26)
+
+
+### Bug Fixes
+
+* **gateway:** extract package name from URL instead of config ([07235ed](https://github.com/adobe/helix-deploy/commit/07235edcbc4d3c2f9152bc8e9fe833e4a9010974))
+* **gateway:** url rewriting for pass should happen in `vcl_pass` ([0315ec7](https://github.com/adobe/helix-deploy/commit/0315ec77fd29fae3362c5d90d5321b5a9b8dca8f))
+
+
+### Features
+
+* **gateway:** extract common variables from path ([fc32873](https://github.com/adobe/helix-deploy/commit/fc328738377b0a349cc9a93d6b8e739f8e42bb9d)), closes [#80](https://github.com/adobe/helix-deploy/issues/80)
+
+
+### BREAKING CHANGES
+
+* **gateway:** fixes #80 and breaks all Gateway URLs
+
 ## [1.18.2](https://github.com/adobe/helix-deploy/compare/v1.18.1...v1.18.2) (2021-01-21)
 
 
