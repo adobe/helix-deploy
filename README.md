@@ -43,57 +43,108 @@ you can also use npx: `npx hedy` or install it globally `npm install -g helix-de
 
 ```console
 $ hedy --help
+General Options
+  -v, --verbose                                       [boolean] [default: false]
+      --directory  Project directory                     [string] [default: "."]
+      --version    Show version number                                 [boolean]
+
 Operation Options
-  --build              Build the deployment package    [boolean] [default: true]
-  --deploy             Automatically deploy to OpenWhisk
+      --help            Show help                                      [boolean]
+      --build           Build the deployment package   [boolean] [default: true]
+      --deploy          Automatically deploy to specified targets
                                                       [boolean] [default: false]
-  --test               Invoke action after deployment. Can be relative url.
+      --test            Invoke action after deployment. Can be relative url.
                                                                         [string]
-  --test-params        Invoke openwhisk action after deployment with the given
-                       params.                             [array] [default: []]
-  --hints, --no-hints  Show additional hints for deployment
+      --update-package  Create or update package with params.
+                                                      [boolean] [default: false]
+  -l, --version-link    Create symlinks (sequences) after deployment. "major"
+                        and "minor" will create respective version links [array]
+      --delete          Delete the action from OpenWhisk. Implies no-build
+                                                      [boolean] [default: false]
+
+Build Options
+      --minify     Minify the final bundle            [boolean] [default: false]
+  -s, --static     Includes a static file into the archive [array] [default: []]
+      --entryFile  Specifies the entry file.           [default: "src/index.js"]
+      --externals  Defines the externals for webpack.      [array] [default: []]
+  -m, --modules    Include a node_module as is.            [array] [default: []]
+
+Deploy Options
+      --target             Select target(s) for test, deploy, update-package
+                           actions (wsk,aws,azure,google,auto)
+                                                     [array] [default: ["auto"]]
+      --hints, --no-hints  Show additional hints for deployment
                                                        [boolean] [default: true]
-  --update-package     Create or update wsk package.  [boolean] [default: false]
-  --version-link, -l   Create symlinks (sequences) after deployment. "major" and
-                       "minor" will create respective version links      [array]
-  --linkPackage        Package name for version links                   [string]
+
+Test Options
+      --target       Select target(s) for test, deploy, update-package actions
+                     (wsk,aws,azure,google,auto)     [array] [default: ["auto"]]
+      --test-params  Invoke openwhisk action after deployment with the given
+                     params.                               [array] [default: []]
+
+Link Options
+      --target       Select target(s) for test, deploy, update-package actions
+                     (wsk,aws,azure,google,auto)     [array] [default: ["auto"]]
+      --linkPackage  Package name for version links                     [string]
+
+Update Package Options
+      --package.params       OpenWhisk package params.     [array] [default: []]
+      --package.params-file  OpenWhisk package params file.[array] [default: []]
+
+General Action Options
+      --name          Action name. Can be prefixed with package.
+      --package.name  Action package name.                              [string]
+      --node-version  Specifies the node.js version to use in the serverless
+                      runtime                                    [default: "12"]
+  -p, --params        Include the given action param. can be json or env.
+                                                           [array] [default: []]
+  -f, --params-file   Include the given action param from a file; can be json or
+                      env.                                 [array] [default: []]
+      --updated-by    user that updated the action or sequence.         [string]
+      --updated-at    unix timestamp when the action or sequence was updated
+                      (defaults to the current time).
+                                               [number] [default: 1611635868339]
+      --web-secure    Annotates the action with require-whisk-auth. leave empty
+                      to generate random token.                         [string]
+  -t, --timeout       the timeout limit in milliseconds after which the action
+                      is terminated                             [default: 60000]
+      --pkgVersion    Version use in the embedded package.json.
+      --memory        the maximum memory LIMIT in MB for the action
+      --concurrency   the maximum intra-container concurrent activation LIMIT
+                      for the action
 
 OpenWhisk Action Options
-  --name             OpenWhisk action name. Can be prefixed with package.
-  --kind             Specifies the action kind.           [default: "nodejs:10"]
-  --docker           Specifies a docker image.
-  --params, -p       Include the given action param. can be json or env.
-                                                           [array] [default: []]
-  --params-file, -f  Include the given action param from a file; can be json or
-                     env.                                  [array] [default: []]
-  --web-export       Annotates the action as web-action[boolean] [default: true]
-  --raw-http         Annotates the action as raw web-action (enforces
-                     web-export=true)                 [boolean] [default: false]
-  --web-secure       Annotates the action with require-whisk-auth. leave empty
-                     to generate random token.                          [string]
-  --timeout, -t      the timeout limit in milliseconds after which the action is
-                     terminated                                 [default: 60000]
+      --namespace       OpenWhisk namespace. Needs to match the namespace
+                        provided with the openwhisk credentials.
+      --package.shared  OpenWhisk package scope.      [boolean] [default: false]
 
-OpenWhisk Package Options
-  --package.name         OpenWhisk package name.                        [string]
-  --package.params       OpenWhisk package params.         [array] [default: []]
-  --package.params-file  OpenWhisk package params file.    [array] [default: []]
-  --package.shared       OpenWhisk package scope.     [boolean] [default: false]
+AWS Deployment Options
+      --aws-region           the AWS region to deploy lambda functions to
+                                                          [string] [default: ""]
+      --aws-api              the AWS API Gateway name. (id, "auto" or "create")
+                                                      [string] [default: "auto"]
+      --aws-role             the AWS role ARN to execute lambda functions with
+                                                          [string] [default: ""]
+      --aws-cleanup-buckets  Cleans up stray temporary S3 buckets
+                                                      [boolean] [default: false]
+      --aws-create-routes    Create routes for function (usually not needed due
+                             to proxy function).      [boolean] [default: false]
 
-Bundling Options
-  --static, -s  Includes a static file into the archive    [array] [default: []]
-  --entryFile   Specifies the entry file.              [default: "src/index.js"]
-  --externals   Defines the externals for webpack.         [array] [default: []]
+Azure Deployment Options
+      --azure-app  the Azure function app to deploy to    [string] [default: ""]
+
+Fastly Gateway Options
+      --fastly-service-id  the Fastly Service to use as a gateway
+                                                          [string] [default: ""]
+      --fastly-auth        the Fastly token               [string] [default: ""]
+      --checkpath          the path to check as part of the Fastly health check
+                                                          [string] [default: ""]
 
 Options:
-  --version      Show version number                                   [boolean]
-  --verbose, -v                                       [boolean] [default: false]
-  --directory    Project directory                       [string] [default: "."]
-  --namespace    OpenWhisk namespace. Needs to match the namespace provided with
-                 the openwhisk credentials.
-  --pkgVersion   Version use in the embedded package.json.
-  --modules, -m  Include a node_module as is.              [array] [default: []]
-  --help         Show help                                             [boolean]
+      --format    Action formats
+                     [default: {"aws":"/${packageName}/${baseName}/${version}"}]
+      --property  Additional properties that can be used in formats.
+                                                                   [default: {}]
 ```
 
 With no arguments,the `hedy` just bundles your code into the respective `action.zip`:
