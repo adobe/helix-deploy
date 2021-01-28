@@ -1,3 +1,10 @@
+## [3.0.4](https://github.com/adobe/helix-deploy/compare/v3.0.3...v3.0.4) (2021-01-28)
+
+
+### Bug Fixes
+
+* **gateway:** reduce check frequency by factor 10 ([a3e0257](https://github.com/adobe/helix-deploy/commit/a3e0257535383760f027c3074ba7680a10c5cb0e))
+
 ## [3.0.3](https://github.com/adobe/helix-deploy/compare/v3.0.2...v3.0.3) (2021-01-26)
 
 
