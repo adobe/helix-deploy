@@ -15,7 +15,7 @@ const AWS = require('aws-sdk');
 const { promisify } = require('util');
 
 /**
- * Proxy function that invokes the respective action based on the route parameters.
+ * Proxy function that invokes the respective function based on the route parameters.
  *
  * The following routes need to use this function:
  *
