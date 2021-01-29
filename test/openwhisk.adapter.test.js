@@ -35,7 +35,7 @@ describe('OpenWhisk Adapter Test', () => {
     assert.deepEqual(resp, {
       body: '',
       headers: {
-        'content-type': 'text/plain;charset=UTF-8',
+        'content-type': 'text/plain; charset=utf-8',
       },
       statusCode: 200,
     });

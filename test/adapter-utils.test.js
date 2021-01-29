@@ -20,7 +20,7 @@ const { isBinary, ensureUTF8Charset } = require('../src/template/utils.js');
 describe('Adapter Utils Tests: ensureUTF8Encoding', () => {
   it('defaults missing charset-type header to text/plain', async () => {
     const resp = ensureUTF8Charset(new Response());
-    assert.equal(resp.headers.get('content-type'), 'text/plain;charset=UTF-8');
+    assert.equal(resp.headers.get('content-type'), 'text/plain; charset=utf-8');
   });
 
   it('ignores missing charset in non text/html header', async () => {

@@ -45,7 +45,7 @@ function ensureUTF8Charset(resp) {
   }
   const type = resp.headers.get('content-type');
   if (!type) {
-    resp.headers.set('content-type', 'text/plain;charset=UTF-8');
+    resp.headers.set('content-type', 'text/plain; charset=utf-8');
   } else if (type === 'text/html') {
     resp.headers.set('content-type', 'text/html;charset=UTF-8');
   }
