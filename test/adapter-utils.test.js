@@ -49,6 +49,18 @@ describe('Adapter Utils Tests: ensureUTF8Encoding', () => {
     }));
     assert.equal(resp.headers.get('content-type'), 'text/html; charset=ISO-8891');
   });
+
+  it('errors if no response', () => {
+    assert.throws(() => ensureUTF8Charset(), Error('unexpected response: undefined'));
+  });
+
+  it('errors if no response headers', () => {
+    assert.throws(() => ensureUTF8Charset({}), Error('unexpected response: no headers'));
+  });
+
+  it('errors if plain response headers', () => {
+    assert.throws(() => ensureUTF8Charset({ headers: {} }), Error('response.headers has no method "get()"'));
+  });
 });
 
 describe('Adapter Utils Tests: isBinary', () => {
