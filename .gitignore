@@ -8,3 +8,4 @@ test-results.xml
 coverage
 test/tmp
 dist
+junit

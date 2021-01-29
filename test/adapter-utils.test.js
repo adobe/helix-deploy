@@ -20,7 +20,7 @@ const { isBinary, ensureUTF8Charset } = require('../src/template/utils.js');
 describe('Adapter Utils Tests: ensureUTF8Encoding', () => {
   it('defaults missing charset-type header to text/plain', async () => {
     const resp = ensureUTF8Charset(new Response());
-    assert.equal(resp.headers.get('content-type'), 'text/plain;charset=UTF-8');
+    assert.equal(resp.headers.get('content-type'), 'text/plain; charset=utf-8');
   });
 
   it('ignores missing charset in non text/html header', async () => {
@@ -48,6 +48,18 @@ describe('Adapter Utils Tests: ensureUTF8Encoding', () => {
       },
     }));
     assert.equal(resp.headers.get('content-type'), 'text/html; charset=ISO-8891');
+  });
+
+  it('errors if no response', () => {
+    assert.throws(() => ensureUTF8Charset(), Error('unexpected response: undefined'));
+  });
+
+  it('errors if no response headers', () => {
+    assert.throws(() => ensureUTF8Charset({}), Error('unexpected response: no headers'));
+  });
+
+  it('errors if plain response headers', () => {
+    assert.throws(() => ensureUTF8Charset({ headers: {} }), Error('response.headers has no method "get()"'));
   });
 });
 

@@ -34,9 +34,18 @@ function isBinary(type) {
  * @return {Response} the same response
  */
 function ensureUTF8Charset(resp) {
+  if (!resp) {
+    throw Error('unexpected response: undefined');
+  }
+  if (!resp.headers) {
+    throw Error('unexpected response: no headers');
+  }
+  if (typeof resp.headers.get !== 'function') {
+    throw Error('response.headers has no method "get()"');
+  }
   const type = resp.headers.get('content-type');
   if (!type) {
-    resp.headers.set('content-type', 'text/plain;charset=UTF-8');
+    resp.headers.set('content-type', 'text/plain; charset=utf-8');
   } else if (type === 'text/html') {
     resp.headers.set('content-type', 'text/html;charset=UTF-8');
   }

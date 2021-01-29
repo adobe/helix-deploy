@@ -88,7 +88,7 @@ describe('OpenWhisk Integration Test', () => {
         url: `https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0?foo=bar`,
       },
       headers: {
-        'content-type': 'text/plain;charset=UTF-8',
+        'content-type': 'text/plain; charset=utf-8',
       },
       statusCode: 200,
     });
