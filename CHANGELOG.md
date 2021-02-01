@@ -1,3 +1,10 @@
+## [3.0.8](https://github.com/adobe/helix-deploy/compare/v3.0.7...v3.0.8) (2021-02-01)
+
+
+### Bug Fixes
+
+* **aws:** ensure permissions are setup even if not creating routes ([#95](https://github.com/adobe/helix-deploy/issues/95)) ([a9e9e13](https://github.com/adobe/helix-deploy/commit/a9e9e134491ee2db6b50cd91392b304f85423459))
+
 ## [3.0.7](https://github.com/adobe/helix-deploy/compare/v3.0.6...v3.0.7) (2021-02-01)
 
 
