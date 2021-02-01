@@ -360,24 +360,24 @@ class AWSDeployer extends BaseDeployer {
       const routes = await this.fetchRoutes(ApiId);
       await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY ${this.functionPath}/{path+}`);
       await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY ${this.functionPath}`);
+    }
 
-      // setup permissions for entire package.
-      // this way we don't need to setup more permissions for link routes
-      // eslint-disable-next-line no-underscore-dangle
-      const sourceArn = `arn:aws:execute-api:${this._cfg.region}:${this._accountId}:${ApiId}/*/*/${cfg.packageName}/*`;
-      try {
-        // eslint-disable-next-line no-await-in-loop
-        await this._lambda.send(new AddPermissionCommand({
-          FunctionName: this._aliasARN,
-          Action: 'lambda:InvokeFunction',
-          SourceArn: sourceArn,
-          Principal: 'apigateway.amazonaws.com',
-          StatementId: crypto.createHash('md5').update(this._aliasARN + sourceArn).digest('hex'),
-        }));
-        this.log.info(chalk`{green ok:} added invoke permissions for ${sourceArn}`);
-      } catch (e) {
-        // ignore, most likely the permission already exists
-      }
+    // setup permissions for entire package.
+    // this way we don't need to setup more permissions for link routes
+    // eslint-disable-next-line no-underscore-dangle
+    const sourceArn = `arn:aws:execute-api:${this._cfg.region}:${this._accountId}:${ApiId}/*/*/${cfg.packageName}/*`;
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      await this._lambda.send(new AddPermissionCommand({
+        FunctionName: this._aliasARN,
+        Action: 'lambda:InvokeFunction',
+        SourceArn: sourceArn,
+        Principal: 'apigateway.amazonaws.com',
+        StatementId: crypto.createHash('md5').update(this._aliasARN + sourceArn).digest('hex'),
+      }));
+      this.log.info(chalk`{green ok:} added invoke permissions for ${sourceArn}`);
+    } catch (e) {
+      // ignore, most likely the permission already exists
     }
 
     if (cfg.showHints) {
