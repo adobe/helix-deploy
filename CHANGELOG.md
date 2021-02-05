@@ -1,3 +1,10 @@
+## [3.0.11](https://github.com/adobe/helix-deploy/compare/v3.0.10...v3.0.11) (2021-02-05)
+
+
+### Bug Fixes
+
+* use correct cache option ([#98](https://github.com/adobe/helix-deploy/issues/98)) ([08eee16](https://github.com/adobe/helix-deploy/commit/08eee161eaef40e4fd3e170469c7f0581db4da28))
+
 ## [3.0.10](https://github.com/adobe/helix-deploy/compare/v3.0.9...v3.0.10) (2021-02-04)
 
 
