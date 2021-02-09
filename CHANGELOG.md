@@ -1,3 +1,10 @@
+## [3.0.12](https://github.com/adobe/helix-deploy/compare/v3.0.11...v3.0.12) (2021-02-09)
+
+
+### Bug Fixes
+
+* **deps:** update to helix-epsagon 1.5.8 ([#100](https://github.com/adobe/helix-deploy/issues/100)) ([ca8e07e](https://github.com/adobe/helix-deploy/commit/ca8e07e40e02f515f24c20fc6c28be411cfcbb16))
+
 ## [3.0.11](https://github.com/adobe/helix-deploy/compare/v3.0.10...v3.0.11) (2021-02-05)
 
 
