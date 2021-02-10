@@ -202,7 +202,7 @@ set beresp.http.X-Surrogate-Control = beresp.http.Surrogate-Control;`,
       });
 
       await this._fastly.writeSnippet(newversion, 'restoresurrogates', {
-        name: 'stashsurrogates',
+        name: 'restoresurrogates',
         priority: 10,
         dynamic: 0,
         type: 'deliver',
