@@ -15,13 +15,12 @@
 const assert = require('assert');
 const fse = require('fs-extra');
 const path = require('path');
-const fetchAPI = require('@adobe/helix-fetch');
+const { context, ALPN_HTTP1_1 } = require('@adobe/helix-fetch');
 const { createTestRoot, TestLogger } = require('./utils');
 const CLI = require('../src/cli.js');
 
-const { fetch } = fetchAPI.context({
-  httpProtocol: 'http1',
-  httpsProtocols: ['http1'],
+const { fetch } = context({
+  alpnProtocols: [ALPN_HTTP1_1],
 });
 
 describe('AWS Integration Test', () => {

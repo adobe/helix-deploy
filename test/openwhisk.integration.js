@@ -22,8 +22,7 @@ const CLI = require('../src/cli.js');
 function fetchContext() {
   return process.env.HELIX_FETCH_FORCE_HTTP1
     ? fetchAPI.context({
-      httpProtocol: 'http1',
-      httpsProtocols: ['http1'],
+      alpnProtocols: [fetchAPI.ALPN_HTTP1_1],
     })
     : fetchAPI;
 }
@@ -89,7 +88,7 @@ describe('OpenWhisk Integration Test', () => {
         url: `https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0?foo=bar`,
       },
       headers: {
-        'content-type': 'text/plain;charset=UTF-8',
+        'content-type': 'text/plain; charset=utf-8',
       },
       statusCode: 200,
     });

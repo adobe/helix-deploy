@@ -6,7 +6,7 @@
   "license": "Apache-2.0",
   "main": "index.js",
   "dependencies": {
-    "node-fetch": "2.6.1"
+    "@adobe/helix-fetch": "2.0.0"
   },
   "wsk": {
     "name": "simple-package/simple-name@${version}",

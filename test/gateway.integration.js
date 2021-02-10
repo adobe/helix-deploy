@@ -22,8 +22,7 @@ const CLI = require('../src/cli.js');
 function fetchContext() {
   return process.env.HELIX_FETCH_FORCE_HTTP1
     ? fetchAPI.context({
-      httpProtocol: 'http1',
-      httpsProtocols: ['http1'],
+      alpnProtocols: [fetchAPI.ALPN_HTTP1_1],
     })
     : fetchAPI;
 }
@@ -74,13 +73,13 @@ describe('Gateway Integration Test', () => {
 {"url":"https://azure.adobe-runtime.com/api/v1/web/${namespace}/simple-package/simple-name@1.45.0/foo","file":"Hello, world.\\n"}`) > 0, out);
 
     const { fetch } = fetchContext();
-    const respRandom = await fetch('https://deploy-test.anywhere.run/simple-name@1.45.0/foo');
-    const respOW = await fetch('https://deploy-test.anywhere.run/simple-name@1.45.0/foo', {
+    const respRandom = await fetch('https://deploy-test.anywhere.run/simple-package/simple-name@1.45.0/foo');
+    const respOW = await fetch('https://deploy-test.anywhere.run/simple-package/simple-name@1.45.0/foo', {
       headers: {
         'x-ow-version-lock': 'env=openwhisk',
       },
     });
-    const respAWS = await fetch('https://deploy-test.anywhere.run/simple-name@1.45.0/foo', {
+    const respAWS = await fetch('https://deploy-test.anywhere.run/simple-package/simple-name@1.45.0/foo', {
       headers: {
         'x-ow-version-lock': 'env=amazonwebservices',
       },

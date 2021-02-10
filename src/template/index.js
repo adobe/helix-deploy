@@ -12,7 +12,7 @@
 /* eslint-disable no-param-reassign, no-underscore-dangle, import/no-extraneous-dependencies */
 const querystring = require('querystring');
 const { promisify } = require('util');
-const { Request } = require('node-fetch');
+const { Request } = require('@adobe/helix-fetch');
 const { epsagon } = require('@adobe/helix-epsagon');
 const { isBinary, ensureUTF8Charset } = require('./utils.js');
 const {

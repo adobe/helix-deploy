@@ -13,7 +13,7 @@
 /* eslint-env mocha */
 /* eslint-disable no-underscore-dangle */
 const assert = require('assert');
-const { Response } = require('node-fetch');
+const { Response } = require('@adobe/helix-fetch');
 const proxyquire = require('proxyquire');
 
 describe('OpenWhisk Adapter Test', () => {
@@ -34,7 +34,9 @@ describe('OpenWhisk Adapter Test', () => {
     const resp = await main({});
     assert.deepEqual(resp, {
       body: '',
-      headers: {},
+      headers: {
+        'content-type': 'text/plain; charset=utf-8',
+      },
       statusCode: 200,
     });
   });
@@ -61,7 +63,7 @@ describe('OpenWhisk Adapter Test', () => {
         url: 'https://test.com/api/v1/web/simple-package/simple-name?foo=bar&zoo=42',
       },
       headers: {
-        'content-type': 'text/plain;charset=UTF-8',
+        'content-type': 'text/plain; charset=utf-8',
       },
       statusCode: 200,
     });
@@ -93,7 +95,7 @@ describe('OpenWhisk Adapter Test', () => {
         secret: 'xyz',
       },
       headers: {
-        'content-type': 'text/plain;charset=UTF-8',
+        'content-type': 'text/plain; charset=utf-8',
       },
       statusCode: 200,
     });
@@ -107,7 +109,7 @@ describe('OpenWhisk Adapter Test', () => {
             url: req.url,
             secret: context.env.SECRET_TOKEN,
             method: req.method,
-            headers: req.headers.raw(),
+            headers: req.headers.plain(),
           });
           return new Response(ret);
         },
@@ -129,16 +131,14 @@ describe('OpenWhisk Adapter Test', () => {
     assert.deepEqual(resp, {
       body: {
         headers: {
-          'x-test-header': [
-            '42',
-          ],
+          'x-test-header': '42',
         },
         method: 'PUT',
         secret: 'xyz',
         url: 'https://test.com/api/v1/web/simple-package/simple-name/test-suffix?foo=bar&zoo=42&test=dummy',
       },
       headers: {
-        'content-type': 'text/plain;charset=UTF-8',
+        'content-type': 'text/plain; charset=utf-8',
         'x-last-activation-id': '1234',
       },
       statusCode: 200,
@@ -172,7 +172,7 @@ describe('OpenWhisk Adapter Test', () => {
         body: 'hello, world.',
       },
       headers: {
-        'content-type': 'text/plain;charset=UTF-8',
+        'content-type': 'text/plain; charset=utf-8',
         'x-last-activation-id': '1234',
       },
       statusCode: 200,
@@ -206,7 +206,7 @@ describe('OpenWhisk Adapter Test', () => {
         body: 'hello, world.',
       },
       headers: {
-        'content-type': 'text/plain;charset=UTF-8',
+        'content-type': 'text/plain; charset=utf-8',
         'x-last-activation-id': '1234',
       },
       statusCode: 200,
@@ -234,7 +234,7 @@ describe('OpenWhisk Adapter Test', () => {
         url: 'https://localhost/api/v1/web/simple-package/simple-name',
       },
       headers: {
-        'content-type': 'text/plain;charset=UTF-8',
+        'content-type': 'text/plain; charset=utf-8',
       },
       statusCode: 200,
     });
@@ -264,7 +264,7 @@ describe('OpenWhisk Adapter Test', () => {
         url: 'https://adobeioruntime.net/api/v1/web/simple-package/simple-name',
       },
       headers: {
-        'content-type': 'text/plain;charset=UTF-8',
+        'content-type': 'text/plain; charset=utf-8',
       },
       statusCode: 200,
     });

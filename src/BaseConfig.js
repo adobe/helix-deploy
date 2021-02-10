@@ -15,6 +15,9 @@ const fse = require('fs-extra');
 const chalk = require('chalk');
 const dotenv = require('dotenv');
 
+// eslint-disable-next-line no-template-curly-in-string
+const DEFAULT_ACTION_FORMAT = '/${packageName}/${baseName}/${version}';
+
 /**
  * @field name Name of function including the version. eg `my-action@1.2.3`
  * @field baseName Name of the function w/o the version. eg `my-action`
@@ -62,7 +65,9 @@ class BaseConfig {
       updatedBy: null,
       targets: [],
       functionURL: '',
-      format: {},
+      format: {
+        aws: DEFAULT_ACTION_FORMAT,
+      },
       properties: {},
       _logger: null,
     });
@@ -386,7 +391,7 @@ class BaseConfig {
   }
 
   withFormat(value) {
-    this.format = value;
+    Object.assign(this.format, value || {});
     return this;
   }
 
@@ -526,8 +531,7 @@ class BaseConfig {
         description: 'Action formats',
         type: 'object',
         default: {
-          // eslint-disable-next-line no-template-curly-in-string
-          aws: '/${packageName}/${baseName}/${version}',
+          aws: DEFAULT_ACTION_FORMAT,
         },
       })
       .option('property', {

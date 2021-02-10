@@ -1,3 +1,130 @@
+## [3.0.13](https://github.com/adobe/helix-deploy/compare/v3.0.12...v3.0.13) (2021-02-09)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-fetch to v2.1.3 ([ab96be4](https://github.com/adobe/helix-deploy/commit/ab96be49914b62173af89af8e009b23e81b1fb28))
+
+## [3.0.12](https://github.com/adobe/helix-deploy/compare/v3.0.11...v3.0.12) (2021-02-09)
+
+
+### Bug Fixes
+
+* **deps:** update to helix-epsagon 1.5.8 ([#100](https://github.com/adobe/helix-deploy/issues/100)) ([ca8e07e](https://github.com/adobe/helix-deploy/commit/ca8e07e40e02f515f24c20fc6c28be411cfcbb16))
+
+## [3.0.11](https://github.com/adobe/helix-deploy/compare/v3.0.10...v3.0.11) (2021-02-05)
+
+
+### Bug Fixes
+
+* use correct cache option ([#98](https://github.com/adobe/helix-deploy/issues/98)) ([08eee16](https://github.com/adobe/helix-deploy/commit/08eee161eaef40e4fd3e170469c7f0581db4da28))
+
+## [3.0.10](https://github.com/adobe/helix-deploy/compare/v3.0.9...v3.0.10) (2021-02-04)
+
+
+### Bug Fixes
+
+* **deps:** update [@adobe](https://github.com/adobe) ([75a4c77](https://github.com/adobe/helix-deploy/commit/75a4c77ecd306157d55a48c918bb857894bcfe51))
+
+## [3.0.9](https://github.com/adobe/helix-deploy/compare/v3.0.8...v3.0.9) (2021-02-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-fetch to v2.1.1 ([66b2fcf](https://github.com/adobe/helix-deploy/commit/66b2fcf73cbc2c317aae8a15f97f5011246a29d9))
+
+## [3.0.8](https://github.com/adobe/helix-deploy/compare/v3.0.7...v3.0.8) (2021-02-01)
+
+
+### Bug Fixes
+
+* **aws:** ensure permissions are setup even if not creating routes ([#95](https://github.com/adobe/helix-deploy/issues/95)) ([a9e9e13](https://github.com/adobe/helix-deploy/commit/a9e9e134491ee2db6b50cd91392b304f85423459))
+
+## [3.0.7](https://github.com/adobe/helix-deploy/compare/v3.0.6...v3.0.7) (2021-02-01)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-epsagon to v1.5.7 ([4ca0ca2](https://github.com/adobe/helix-deploy/commit/4ca0ca25b76dea837422692c9240abd953df2ae2))
+
+## [3.0.6](https://github.com/adobe/helix-deploy/compare/v3.0.5...v3.0.6) (2021-02-01)
+
+
+### Bug Fixes
+
+* **deps:** update external ([#93](https://github.com/adobe/helix-deploy/issues/93)) ([eb217d0](https://github.com/adobe/helix-deploy/commit/eb217d0e3ed98f46721638dc2370a5e383bd3270))
+
+## [3.0.5](https://github.com/adobe/helix-deploy/compare/v3.0.4...v3.0.5) (2021-01-29)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-fetch to v2.1.0 ([fe0c166](https://github.com/adobe/helix-deploy/commit/fe0c1669e41dfc80a31191d7d44336856c46da1e))
+
+## [3.0.4](https://github.com/adobe/helix-deploy/compare/v3.0.3...v3.0.4) (2021-01-28)
+
+
+### Bug Fixes
+
+* **gateway:** reduce check frequency by factor 10 ([a3e0257](https://github.com/adobe/helix-deploy/commit/a3e0257535383760f027c3074ba7680a10c5cb0e))
+
+## [3.0.3](https://github.com/adobe/helix-deploy/compare/v3.0.2...v3.0.3) (2021-01-26)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/fastly-native-promises to v1.19.7 ([e00e5ae](https://github.com/adobe/helix-deploy/commit/e00e5ae5cf40c10356b1803444641e1674cebbf2))
+
+## [3.0.2](https://github.com/adobe/helix-deploy/compare/v3.0.1...v3.0.2) (2021-01-26)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-fetch to v2.0.1 ([d60a7ae](https://github.com/adobe/helix-deploy/commit/d60a7aeeb3c9e1a5939b6d66b57eeaeba85ad542))
+
+## [3.0.1](https://github.com/adobe/helix-deploy/compare/v3.0.0...v3.0.1) (2021-01-26)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/fastly-native-promises to v1.19.6 ([3a20236](https://github.com/adobe/helix-deploy/commit/3a2023601466e122b8a48e62e1c0f0255c287628))
+
+# [3.0.0](https://github.com/adobe/helix-deploy/compare/v2.0.0...v3.0.0) (2021-01-26)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-fetch to v2 ([#82](https://github.com/adobe/helix-deploy/issues/82)) ([4c91c73](https://github.com/adobe/helix-deploy/commit/4c91c732c2932e424a9b64f9fde5d8bcd1fd564b))
+* **test:** fix failing test ([7f13b39](https://github.com/adobe/helix-deploy/commit/7f13b3959b14ae210002b1225750f9a4c1e15be0))
+
+
+### Features
+
+* **aws:** add possibility to define lambda name format ([#84](https://github.com/adobe/helix-deploy/issues/84)) ([4404874](https://github.com/adobe/helix-deploy/commit/440487425ddc6a453bca04e7a8c417c89e8e5402)), closes [#78](https://github.com/adobe/helix-deploy/issues/78)
+
+
+### BREAKING CHANGES
+
+* **deps:** minimum node version is now 12
+
+# [2.0.0](https://github.com/adobe/helix-deploy/compare/v1.18.2...v2.0.0) (2021-01-26)
+
+
+### Bug Fixes
+
+* **gateway:** extract package name from URL instead of config ([07235ed](https://github.com/adobe/helix-deploy/commit/07235edcbc4d3c2f9152bc8e9fe833e4a9010974))
+* **gateway:** url rewriting for pass should happen in `vcl_pass` ([0315ec7](https://github.com/adobe/helix-deploy/commit/0315ec77fd29fae3362c5d90d5321b5a9b8dca8f))
+
+
+### Features
+
+* **gateway:** extract common variables from path ([fc32873](https://github.com/adobe/helix-deploy/commit/fc328738377b0a349cc9a93d6b8e739f8e42bb9d)), closes [#80](https://github.com/adobe/helix-deploy/issues/80)
+
+
+### BREAKING CHANGES
+
+* **gateway:** fixes #80 and breaks all Gateway URLs
+
 ## [1.18.2](https://github.com/adobe/helix-deploy/compare/v1.18.1...v1.18.2) (2021-01-21)
 
 
