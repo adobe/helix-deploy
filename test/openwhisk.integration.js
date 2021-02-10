@@ -89,6 +89,7 @@ describe('OpenWhisk Integration Test', () => {
       },
       headers: {
         'content-type': 'text/plain; charset=utf-8',
+        'surrogate-key': 'simple',
       },
       statusCode: 200,
     });
