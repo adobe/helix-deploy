@@ -208,7 +208,7 @@ set beresp.http.X-Surrogate-Control = beresp.http.Surrogate-Control;`,
         type: 'deliver',
         content: `
 set resp.http.Surrogate-Key = resp.http.X-Surrogate-Key;
-set resp.http.Surrogate-Control = beresp.http.X-Surrogate-Control;`,
+set resp.http.Surrogate-Control = resp.http.X-Surrogate-Control;`,
       });
     }, true);
   }
