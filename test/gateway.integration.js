@@ -101,5 +101,8 @@ describe('Gateway Integration Test', () => {
 
     assert.ok(respAWS.headers.get('X-Backend-Name').indexOf('AmazonWebServices') > 0,
       `AWS: X-Backend-Name Header is wrong:${respOW.headers.get('X-Backend-Name')}`);
+
+    assert.equal(respAWS.headers.get('Surrogate-Key'), 'simple', 'AWS: Surrogate-Key not propagated');
+    assert.equal(respOW.headers.get('Surrogate-Key'), 'simple', 'OW: Surrogate-Key not propagated');
   }).timeout(150000);
 });

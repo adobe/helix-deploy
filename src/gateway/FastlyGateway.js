@@ -190,6 +190,26 @@ set beresp.http.X-Backend-Name = req.backend;
 set beresp.http.X-Backend-Health = req.http.X-Backend-Health;
 set beresp.cacheable = false;`,
       });
+
+      await this._fastly.writeSnippet(newversion, 'stashsurrogates', {
+        name: 'stashsurrogates',
+        priority: 10,
+        dynamic: 0,
+        type: 'fetch',
+        content: `
+set beresp.http.X-Surrogate-Key = beresp.http.Surrogate-Key;
+set beresp.http.X-Surrogate-Control = beresp.http.Surrogate-Control;`,
+      });
+
+      await this._fastly.writeSnippet(newversion, 'restoresurrogates', {
+        name: 'restoresurrogates',
+        priority: 10,
+        dynamic: 0,
+        type: 'deliver',
+        content: `
+set resp.http.Surrogate-Key = resp.http.X-Surrogate-Key;
+set resp.http.Surrogate-Control = resp.http.X-Surrogate-Control;`,
+      });
     }, true);
   }
 }
