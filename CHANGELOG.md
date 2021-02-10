@@ -1,3 +1,12 @@
+## [3.0.14](https://github.com/adobe/helix-deploy/compare/v3.0.13...v3.0.14) (2021-02-10)
+
+
+### Bug Fixes
+
+* **gateway:** fix snippet name ([ae3c043](https://github.com/adobe/helix-deploy/commit/ae3c04391fd0b201ae87375337b0a7a7a511f7c1))
+* **gateway:** stash and restore surrogate headers in fetch and deliver ([b153f16](https://github.com/adobe/helix-deploy/commit/b153f16537df3e3bd0b82b777cd831a0214c39ea)), closes [#105](https://github.com/adobe/helix-deploy/issues/105)
+* **gateway:** use surrogate key from response ([c48b8d4](https://github.com/adobe/helix-deploy/commit/c48b8d4e4c5442cb9d7f3686a50fd5a6c75b0605))
+
 ## [3.0.13](https://github.com/adobe/helix-deploy/compare/v3.0.12...v3.0.13) (2021-02-09)
 
 
