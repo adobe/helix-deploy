@@ -18,5 +18,8 @@ module.exports.main = function main(req, context) {
     url: req.url,
     file: reader(),
   });
-  return new Response(resp);
+
+  const response = new Response(resp);
+  response.headers.set('Surrogate-Key', 'simple');
+  return response;
 };
