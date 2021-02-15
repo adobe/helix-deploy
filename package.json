@@ -25,7 +25,7 @@
     "semantic-release": "semantic-release"
   },
   "dependencies": {
-    "@adobe/fastly-native-promises": "1.19.11",
+    "@adobe/fastly-native-promises": "1.19.12",
     "@adobe/helix-epsagon": "1.5.8",
     "@adobe/helix-fetch": "2.1.4",
     "@aws-sdk/client-apigatewayv2": "3.5.0",
@@ -41,7 +41,7 @@
     "isomorphic-git": "1.8.1",
     "openwhisk": "3.21.3",
     "semver": "7.3.4",
-    "webpack": "5.10.2",
+    "webpack": "5.22.0",
     "yargs": "16.2.0"
   },
   "devDependencies": {
