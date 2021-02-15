@@ -1,3 +1,10 @@
+## [3.0.17](https://github.com/adobe/helix-deploy/compare/v3.0.16...v3.0.17) (2021-02-15)
+
+
+### Bug Fixes
+
+* **deps:** bump deps ([45a1f6c](https://github.com/adobe/helix-deploy/commit/45a1f6c011bca8644b4a8ac285cd396ac4169a04))
+
 ## [3.0.16](https://github.com/adobe/helix-deploy/compare/v3.0.15...v3.0.16) (2021-02-15)
 
 
