@@ -45,8 +45,8 @@ class FastlyGateway {
 
   getLimit(i) {
     const sum = this._deployers.slice(0, i + 1)
-      .map(deployer => deployer.name)
-      .map(name => `table.lookup_integer(priorities, '${name}', ${Math.floor(100 / this._deployers.length * (i + 1))})`)
+      .map((deployer) => deployer.name)
+      .map((name) => `table.lookup_integer(priorities, '${name}', ${Math.floor((100 / this._deployers.length) * (i + 1))})`)
       .join(' + ');
     return `(${sum})`;
   }
@@ -60,7 +60,7 @@ class FastlyGateway {
 
       if (false) {}`;
 
-    const middle = this._deployers.map((deployer, i) => `if((var.i <= ${getLimit(i)} && backend.F_${deployer.name}.healthy) && subfield(req.http.x-ow-version-lock, "env", "&") !~ ".?" || subfield(req.http.x-ow-version-lock, "env", "&") == "${deployer.name.toLowerCase()}") {
+    const middle = this._deployers.map((deployer, i) => `if((var.i <= ${this.getLimit(i)} && backend.F_${deployer.name}.healthy) && subfield(req.http.x-ow-version-lock, "env", "&") !~ ".?" || subfield(req.http.x-ow-version-lock, "env", "&") == "${deployer.name.toLowerCase()}") {
       set req.backend = F_${deployer.name};
     }`);
 
