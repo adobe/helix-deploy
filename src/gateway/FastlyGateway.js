@@ -44,10 +44,13 @@ class FastlyGateway {
   }
 
   selectBackendVCL() {
+    // declare a local variable for each backend
     const init = this._deployers.map((deployer) => `declare local var.${deployer.name.toLowerCase()} INTEGER;`);
 
-    const set = this._deployers.map((deployer) => `set var.${deployer.name.toLowerCase()} = table.lookup_integer(priorities, "${deployer.name.toLowerCase()}", ${Math.floor((100 / this._deployers.length))})`);
+    // get the desired weight for each backend
+    const set = this._deployers.map((deployer) => `set var.${deployer.name.toLowerCase()} = std.atoi(table.lookup(priorities, "${deployer.name.toLowerCase()}", ${Math.floor((100 / this._deployers.length))}));`);
 
+    // for all but the first, sum up the weights
     const increment = this._deployers
       .slice(1)
       .map((deployer, i) => ([deployer.name, this._deployers[i].name]))
