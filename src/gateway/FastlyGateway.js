@@ -43,16 +43,24 @@ class FastlyGateway {
     return this.cfg.log;
   }
 
+  getLimit(i) {
+    const sum = this._deployers.slice(0, i + 1)
+      .map(deployer => deployer.name)
+      .map(name => `table.lookup_integer(priorities, '${name}', ${Math.floor(100 / this._deployers.length * (i + 1))})`)
+      .join(' + ');
+    return `(${sum})`;
+  }
+
   selectBackendVCL() {
     const vcl = `
       declare local var.i INTEGER;
-      set var.i = randomint(0, ${this._deployers.length - 1});
+      set var.i = randomint(0, 100);
 
-      set req.http.X-Backend-Health = ${this._deployers.map((deployer) => `backend.F_${deployer.name}.healthy`).join(' + " " + ')};
+      set req.http.X-Backend-Health = ${this._deployers.map((deployer) => `backend.F_${deployer.name.toLowerCase()}.healthy`).join(' + " " + ')};
 
       if (false) {}`;
 
-    const middle = this._deployers.map((deployer, i) => `if((var.i <= ${i} && backend.F_${deployer.name}.healthy) && subfield(req.http.x-ow-version-lock, "env", "&") !~ ".?" || subfield(req.http.x-ow-version-lock, "env", "&") == "${deployer.name.toLowerCase()}") {
+    const middle = this._deployers.map((deployer, i) => `if((var.i <= ${getLimit(i)} && backend.F_${deployer.name}.healthy) && subfield(req.http.x-ow-version-lock, "env", "&") !~ ".?" || subfield(req.http.x-ow-version-lock, "env", "&") == "${deployer.name.toLowerCase()}") {
       set req.backend = F_${deployer.name};
     }`);
 
