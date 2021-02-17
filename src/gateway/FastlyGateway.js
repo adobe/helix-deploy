@@ -48,7 +48,7 @@ class FastlyGateway {
     const init = this._deployers.map((deployer) => `declare local var.${deployer.name.toLowerCase()} INTEGER;`);
 
     // get the desired weight for each backend
-    const set = this._deployers.map((deployer) => `set var.${deployer.name.toLowerCase()} = std.atoi(table.lookup(priorities, "${deployer.name.toLowerCase()}", ${Math.floor((100 / this._deployers.length))}));`);
+    const set = this._deployers.map((deployer) => `set var.${deployer.name.toLowerCase()} = std.atoi(table.lookup(priorities, "${deployer.name.toLowerCase()}", "${Math.floor((100 / this._deployers.length))}"));`);
 
     // for all but the first, sum up the weights
     const increment = this._deployers
