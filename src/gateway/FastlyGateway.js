@@ -46,7 +46,7 @@ class FastlyGateway {
   getLimit(i) {
     const sum = this._deployers.slice(0, i + 1)
       .map((deployer) => deployer.name)
-      .map((name) => `table.lookup_integer(priorities, '${name}', ${Math.floor((100 / this._deployers.length) * (i + 1))})`)
+      .map((name) => `table.lookup_integer(priorities, '${name}', ${Math.floor((100 / this._deployers.length))})`)
       .join(' + ');
     return `(${sum})`;
   }
