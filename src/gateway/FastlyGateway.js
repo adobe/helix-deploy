@@ -60,7 +60,7 @@ class FastlyGateway {
       declare local var.i INTEGER;
       set var.i = randomint(0, 100);
 
-      set req.http.X-Backend-Health = ${this._deployers.map((deployer) => `backend.F_${deployer.name.toLowerCase()}.healthy`).join(' + " " + ')};
+      set req.http.X-Backend-Health = ${this._deployers.map((deployer) => `backend.F_${deployer.name}.healthy`).join(' + " " + ')};
 
       if (false) {}`;
 
