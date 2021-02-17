@@ -109,6 +109,11 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)") {
         type: 'request',
       });
 
+      await this._fastly.writeDictionary(newversion, 'priorities', {
+        name: 'priorities',
+        write_only: 'false',
+      });
+
       // set up health checks
       await Promise.all(this._deployers
         .map((deployer) => ({
