@@ -9,8 +9,9 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-const { CloudFunctionsServiceClient, CloudFunction } = require('@google-cloud/functions');
+const { CloudFunctionsServiceClient } = require('@google-cloud/functions');
 const path = require('path');
+const fs = require('fs');
 const { context } = require('@adobe/helix-fetch');
 const BaseDeployer = require('./BaseDeployer');
 const GoogleConfig = require('./GoogleConfig.js');
@@ -29,10 +30,7 @@ class GoogleDeployer extends BaseDeployer {
   }
 
   ready() {
-    return (!!this._cfg.projectID && !!this._cfg.keyFile && !!this._cfg.email)
-      || (!!this._cfg.keyFile && this._cfg.keyFile.endsWith('.json'))
-      || (!!this._cfg.keyFile && this._cfg.keyFile.endsWith('.p12') && !!this._cfg.email)
-      || (!!this._cfg.keyFile && this._cfg.keyFile.endsWith('.pem') && !!this._cfg.email);
+    return !!this._client;
   }
 
   validate() {
@@ -55,19 +53,23 @@ class GoogleDeployer extends BaseDeployer {
   }
 
   async uploadZIP() {
-    const targetURL = await this._client.generateUploadUrl({
-      parent: `projects/${this._cfg.projectId}/locations/helix-deploy`,
+    const [{ uploadUrl }] = await this._client.generateUploadUrl({
+      parent: `projects/${this._cfg.projectID}/locations/us-central1`,
     });
 
-    await fetch(targetURL, {
+    const body = fs.createReadStream(this.cfg.zipFile);
+
+    // upload
+    await fetch(uploadUrl, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/zip',
         'x-goog-content-length-range': '0,104857600',
       },
+      body,
     });
 
-    this._uploadURL = targetURL;
+    this._uploadURL = uploadUrl;
   }
 
   get fullFunctionName() {
@@ -75,24 +77,36 @@ class GoogleDeployer extends BaseDeployer {
   }
 
   async createFunction() {
-    const [existing] = await this._client.getFunction({
-      name: this.fullFunctionName(),
-    });
+    try {
+      const func = {
+        name: `projects/${this._cfg.projectID}/locations/us-central1/functions/${this.fullFunctionName}`,
+        serviceAccountEmail: this._cfg.email,
+        description: 'Just testing',
+        entryPoint: 'google',
+        runtime: 'nodejs12',
+        httpsTrigger: {},
+        sourceUploadUrl: this._uploadURL,
+      };
 
-    if (!existing) {
-      const op = await this._client.createFunction(`projects/${this._cfg.projectId}/locations/${this.fullFunctionName}`,
-        new CloudFunction({
-          // https://cloud.google.com/functions/docs/reference/rest/v1/projects.locations.functions#CloudFunction
-          description: 'Created by helix-deploy',
-          name: this.fullFunctionName,
-          entryPoint: 'google',
-          runtime: 'nodejs12', // TODO: configurable
-          sourceUploadUrl: this._uploadURL,
-        }));
-      const res = await this._client.checkCreateFunctionProgress(op);
-      this.log.info(op, res);
-    } else {
-      this.log.info('Function needs to be updated');
+      const [op] = await this._client.createFunction({
+        location: `projects/${this._cfg.projectID}/locations/us-central1`,
+        function: func,
+      });
+
+      this.log.info('creating function, please wait (Google deployments are slow).');
+
+      const [res] = await op.promise();
+
+      this._function = res;
+
+      this.log.info('function deployed');
+    } catch (err) {
+      this.log.error(err);
+      // eslint-disable-next-line max-len
+      // this.log.error('bad request:', err.metadata.internalRepr.get('google.rpc.badrequest-bin').toString());
+      // eslint-disable-next-line max-len
+      // this.log.error('details:', err.metadata.internalRepr.get('grpc-status-details-bin').toString());
+      throw err;
     }
   }
 

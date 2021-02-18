@@ -32,7 +32,7 @@ describe('Google Integration Test', () => {
     await fse.remove(testRoot);
   });
 
-  it('Deploy to Google (for real)', async () => {
+  it.only('Deploy to Google (for real)', async () => {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'simple'), testRoot);
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
@@ -43,6 +43,8 @@ describe('Google Integration Test', () => {
         '--deploy',
         '--target', 'google',
         '--google-key-file', '/Users/lars/Downloads/Helix-4755746bcc90.json',
+        '--google-email', 'cloud-functions-dev@helix-225321.iam.gserviceaccount.com',
+        '--google-project-id', 'helix-225321',
         '--package.params', 'HEY=ho',
         '--update-package', 'true',
         '-p', 'FOO=bar',
@@ -56,5 +58,5 @@ describe('Google Integration Test', () => {
     assert.ok(res);
     const out = builder.cfg._logger.output;
     assert.ok(out.indexOf('{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/1.45.0/foo","file":"Hello, world.\\n"}') > 0, out);
-  }).timeout(50000);
+  }).timeout(5000000);
 });
