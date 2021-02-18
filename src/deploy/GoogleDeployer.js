@@ -73,13 +73,27 @@ class GoogleDeployer extends BaseDeployer {
   }
 
   get fullFunctionName() {
-    return `${this.cfg.packageName}--${this.cfg.name}`;
+    return `${this.cfg.packageName}--${this.cfg.name}`
+      .replace(/\./g, '_')
+      .replace('@', '_');
   }
 
   async createFunction() {
+    const name = `projects/${this._cfg.projectID}/locations/us-central1/functions/${this.fullFunctionName}`;
+    let exists = false;
+
+    try {
+      await this._client.getFunction({
+        name,
+      });
+      exists = true;
+    } catch {
+      exists = false;
+    }
+
     try {
       const func = {
-        name: `projects/${this._cfg.projectID}/locations/us-central1/functions/${this.fullFunctionName}`,
+        name,
         serviceAccountEmail: this._cfg.email,
         description: 'Just testing',
         entryPoint: 'google',
@@ -88,18 +102,42 @@ class GoogleDeployer extends BaseDeployer {
         sourceUploadUrl: this._uploadURL,
       };
 
-      const [op] = await this._client.createFunction({
-        location: `projects/${this._cfg.projectID}/locations/us-central1`,
-        function: func,
+      if (exists) {
+        const [op] = await this._client.updateFunction({
+          // location: `projects/${this._cfg.projectID}/locations/us-central1`,
+          function: func,
+        });
+
+        this.log.info('updating existing function');
+        const [res] = await op.promise();
+        this._function = res;
+        this.log.info('function deployed');
+      } else {
+        const [op] = await this._client.createFunction({
+          location: `projects/${this._cfg.projectID}/locations/us-central1`,
+          function: func,
+        });
+
+        this.log.info('creating function, please wait (Google deployments are slow).');
+        const [res] = await op.promise();
+        this._function = res;
+        this.log.info('function deployed');
+      }
+
+      this.log.info('enabling unauthenticated requests');
+      await this._client.setIamPolicy({
+        resource: name,
+        policy: {
+          bindings: [
+            {
+              role: 'roles/cloudfunctions.invoker',
+              members: [
+                'allUsers',
+              ],
+            },
+          ],
+        },
       });
-
-      this.log.info('creating function, please wait (Google deployments are slow).');
-
-      const [res] = await op.promise();
-
-      this._function = res;
-
-      this.log.info('function deployed');
     } catch (err) {
       this.log.error(err);
       // eslint-disable-next-line max-len
@@ -108,6 +146,8 @@ class GoogleDeployer extends BaseDeployer {
       // this.log.error('details:', err.metadata.internalRepr.get('grpc-status-details-bin').toString());
       throw err;
     }
+
+    this._functionURL = this._function.httpsTrigger.url;
   }
 
   async deploy() {
