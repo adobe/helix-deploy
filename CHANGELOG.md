@@ -1,3 +1,18 @@
+# [3.1.0](https://github.com/adobe/helix-deploy/compare/v3.0.18...v3.1.0) (2021-02-18)
+
+
+### Bug Fixes
+
+* **gateway:** do not lowercase backend names ([b3ee254](https://github.com/adobe/helix-deploy/commit/b3ee254261ce8dd6aeb57b101bcc87b0ea62d830))
+* **gateway:** provide string default value for string dictionaries ([1f77bd5](https://github.com/adobe/helix-deploy/commit/1f77bd5ffbf3078a035254b6e5acc2981db522e4))
+* **gateway:** upper limit is not index-dependent ([7e6c1d2](https://github.com/adobe/helix-deploy/commit/7e6c1d28f7bf08fa6875854f511f895a160dee8c))
+
+
+### Features
+
+* **gateway:** create dictionary with runtime priorities ([fc2abb3](https://github.com/adobe/helix-deploy/commit/fc2abb335a1b9d1dbff1f5e131b21ecb8674c6de)), closes [#112](https://github.com/adobe/helix-deploy/issues/112)
+* **gateway:** read priorities from edge dictionary ([83dea75](https://github.com/adobe/helix-deploy/commit/83dea758dcf7fbb8317bda27a7111fad536f341c))
+
 ## [3.0.18](https://github.com/adobe/helix-deploy/compare/v3.0.17...v3.0.18) (2021-02-16)
 
 

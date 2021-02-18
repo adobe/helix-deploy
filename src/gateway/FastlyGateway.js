@@ -44,15 +44,27 @@ class FastlyGateway {
   }
 
   selectBackendVCL() {
+    // declare a local variable for each backend
+    const init = this._deployers.map((deployer) => `declare local var.${deployer.name.toLowerCase()} INTEGER;`);
+
+    // get the desired weight for each backend
+    const set = this._deployers.map((deployer) => `set var.${deployer.name.toLowerCase()} = std.atoi(table.lookup(priorities, "${deployer.name.toLowerCase()}", "${Math.floor((100 / this._deployers.length))}"));`);
+
+    // for all but the first, sum up the weights
+    const increment = this._deployers
+      .slice(1)
+      .map((deployer, i) => ([deployer.name, this._deployers[i].name]))
+      .map(([current, previous]) => `set var.${current.toLowerCase()} += var.${previous.toLowerCase()};`);
+
     const vcl = `
       declare local var.i INTEGER;
-      set var.i = randomint(0, ${this._deployers.length - 1});
+      set var.i = randomint(0, 100);
 
       set req.http.X-Backend-Health = ${this._deployers.map((deployer) => `backend.F_${deployer.name}.healthy`).join(' + " " + ')};
 
       if (false) {}`;
 
-    const middle = this._deployers.map((deployer, i) => `if((var.i <= ${i} && backend.F_${deployer.name}.healthy) && subfield(req.http.x-ow-version-lock, "env", "&") !~ ".?" || subfield(req.http.x-ow-version-lock, "env", "&") == "${deployer.name.toLowerCase()}") {
+    const middle = this._deployers.map((deployer) => `if((var.i <= var.${deployer.name.toLowerCase()} && backend.F_${deployer.name}.healthy) && subfield(req.http.x-ow-version-lock, "env", "&") !~ ".?" || subfield(req.http.x-ow-version-lock, "env", "&") == "${deployer.name.toLowerCase()}") {
       set req.backend = F_${deployer.name};
     }`);
 
@@ -61,7 +73,7 @@ class FastlyGateway {
       ${this._deployers[0].customVCL}
     }`;
 
-    return [vcl, ...middle, fallback].join(' else ');
+    return [...init, ...set, ...increment].join('\n') + [vcl, ...middle, fallback].join(' else ');
   }
 
   setURLVCL() {
@@ -107,6 +119,11 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)") {
         name: 'false',
         statement: 'false',
         type: 'request',
+      });
+
+      await this._fastly.writeDictionary(newversion, 'priorities', {
+        name: 'priorities',
+        write_only: 'false',
       });
 
       // set up health checks
