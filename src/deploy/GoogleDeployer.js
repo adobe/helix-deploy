@@ -159,6 +159,18 @@ class GoogleDeployer extends BaseDeployer {
       throw err;
     }
   }
+
+  async test() {
+    let url = this._functionURL;
+    if (!url) {
+      url = `https://us-central1-${this._cfg.projectID}..cloudfunctions.net/${this.fullFunctionName}`;
+    }
+    return this.testRequest({
+      url,
+      idHeader: 'X-Cloud-Trace-Context',
+      retry404: 1,
+    });
+  }
 }
 
 GoogleDeployer.Config = GoogleConfig;
