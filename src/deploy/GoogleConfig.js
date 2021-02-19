@@ -20,6 +20,7 @@ class GoogleConfig {
     return this
       .withProjectID(argv.googleProjectId)
       .withKeyFile(argv.googleKeyFile)
+      .withRegion(argv.googleRegion)
       .withEmail(argv.googleEmail);
   }
 
@@ -38,6 +39,11 @@ class GoogleConfig {
     return this;
   }
 
+  withRegion(value) {
+    this.region = value;
+    return this;
+  }
+
   static yarg(yargs) {
     return yargs
       .group(['google-project-id', 'google-key-file', 'google-email'], 'Google Deployment Options')
@@ -53,6 +59,11 @@ class GoogleConfig {
       })
       .option('google-project-id', {
         description: 'the Google Cloud project to deploy to. Optional when the key file is a JSON file',
+        type: 'string',
+        default: '',
+      })
+      .option('google-region', {
+        description: 'the Google Cloud region to deploy in',
         type: 'string',
         default: '',
       });

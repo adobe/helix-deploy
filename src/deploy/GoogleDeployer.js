@@ -54,7 +54,7 @@ class GoogleDeployer extends BaseDeployer {
 
   async uploadZIP() {
     const [{ uploadUrl }] = await this._client.generateUploadUrl({
-      parent: `projects/${this._cfg.projectID}/locations/us-central1`,
+      parent: `projects/${this._cfg.projectID}/locations/${this._cfg.region}`,
     });
 
     const body = fs.createReadStream(this.cfg.zipFile);
@@ -79,7 +79,7 @@ class GoogleDeployer extends BaseDeployer {
   }
 
   async createFunction() {
-    const name = `projects/${this._cfg.projectID}/locations/us-central1/functions/${this.fullFunctionName}`;
+    const name = `projects/${this._cfg.projectID}/locations/${this._cfg.region}/functions/${this.fullFunctionName}`;
     let exists = false;
 
     try {
@@ -104,7 +104,7 @@ class GoogleDeployer extends BaseDeployer {
 
       if (exists) {
         const [op] = await this._client.updateFunction({
-          // location: `projects/${this._cfg.projectID}/locations/us-central1`,
+          // location: `projects/${this._cfg.projectID}/locations/${this._cfg.region}`,
           function: func,
         });
 
@@ -114,7 +114,7 @@ class GoogleDeployer extends BaseDeployer {
         this.log.info('function deployed');
       } else {
         const [op] = await this._client.createFunction({
-          location: `projects/${this._cfg.projectID}/locations/us-central1`,
+          location: `projects/${this._cfg.projectID}/locations/${this._cfg.region}`,
           function: func,
         });
 
@@ -163,7 +163,7 @@ class GoogleDeployer extends BaseDeployer {
   async test() {
     let url = this._functionURL;
     if (!url) {
-      url = `https://us-central1-${this._cfg.projectID}.cloudfunctions.net/${this.fullFunctionName}`;
+      url = `https://${this._cfg.region}-${this._cfg.projectID}.cloudfunctions.net/${this.fullFunctionName}`;
     }
     return this.testRequest({
       url,

@@ -45,6 +45,7 @@ describe('Google Integration Test', () => {
         '--google-key-file', '/Users/lars/Downloads/Helix-4755746bcc90.json',
         '--google-email', 'cloud-functions-dev@helix-225321.iam.gserviceaccount.com',
         '--google-project-id', 'helix-225321',
+        '--google-region', 'us-central1',
         '--package.params', 'HEY=ho',
         '--update-package', 'true',
         '-p', 'FOO=bar',
