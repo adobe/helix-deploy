@@ -9,3 +9,6 @@ coverage
 test/tmp
 dist
 junit
+ints.json
+params.json
+routes.json
