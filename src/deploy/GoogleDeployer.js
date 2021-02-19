@@ -163,7 +163,7 @@ class GoogleDeployer extends BaseDeployer {
   async test() {
     let url = this._functionURL;
     if (!url) {
-      url = `https://us-central1-${this._cfg.projectID}..cloudfunctions.net/${this.fullFunctionName}`;
+      url = `https://us-central1-${this._cfg.projectID}.cloudfunctions.net/${this.fullFunctionName}`;
     }
     return this.testRequest({
       url,
