@@ -122,6 +122,7 @@ class GoogleDeployer extends BaseDeployer {
           // git: `${this.cfg.gitOrigin}#${this.cfg.gitRef}`,
           updated: `${this.cfg.updatedAt}`,
         },
+        environmentVariables: this.cfg.params,
         httpsTrigger: {},
         sourceUploadUrl: this._uploadURL,
       };
