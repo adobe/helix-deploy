@@ -30,21 +30,26 @@ const { main } = require('./main.js');
  */
 
 async function getGoogleSecrets(functionName, projectID) {
+  try {
   // delay the import so that other runtimes do not have to care
   // eslint-disable-next-line  import/no-unresolved, global-require
-  const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
+    const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
 
-  // hope that the credentials appear by magic
-  const client = new SecretManagerServiceClient();
+    // hope that the credentials appear by magic
+    const client = new SecretManagerServiceClient();
 
-  const parent = `projects/${projectID}`;
-  const package = functionName.replace(/--.*/, '');
+    const parent = `projects/${projectID}`;
+    const package = functionName.replace(/--.*/, '');
 
-  const [version] = await client.accessSecretVersion({
-    name: `${parent}/secrets/helix-deploy--${package}/versions/latest`,
-  });
+    const [version] = await client.accessSecretVersion({
+      name: `${parent}/secrets/helix-deploy--${package}/versions/latest`,
+    });
 
-  return JSON.parse(version.payload.data.toString());
+    return JSON.parse(version.payload.data.toString());
+  } catch (err) {
+    console.log(err);
+    return {};
+  }
 }
 
 async function getAWSSecrets(functionName) {
