@@ -95,9 +95,33 @@ class GoogleDeployer extends BaseDeployer {
       const func = {
         name,
         serviceAccountEmail: this._cfg.email,
-        description: 'Just testing',
+        description: this.cfg.pkgJson.description,
         entryPoint: 'google',
-        runtime: 'nodejs12',
+        runtime: `nodejs${this.cfg.nodeVersion}`,
+        // timeout: `${Math.floor(this.cfg.timeout / 1000)}s`,
+        availableMemoryMb: this.cfg.memory,
+        labels: {
+          /*
+           * Each resource can have multiple labels, up to a maximum of 64.
+           * - Each label must be a key-value pair.
+           * - Keys have a minimum length of 1 character and a maximum length of 63
+           *   characters, and cannot be empty. Values can be empty, and have a maximum
+           *   length of 63 characters.
+           * - Keys and values can contain only lowercase letters, numeric characters,
+           *   underscores, and dashes. All characters must use UTF-8 encoding, and
+           *   international characters are allowed.
+           * - The key portion of a label must be unique. However, you can use the same key
+           *   with multiple resources.
+           * - Keys must start with a lowercase letter or international character.
+           */
+          // not worth the effort, I think
+          pkgversion: `${encodeURIComponent(this.cfg.version.replace(/\./g, '_'))}`,
+          // dependencies: this.cfg.dependencies.main
+          //  .map((dep) => `${dep.name}:${dep.version}`).join(','),
+          // repository: encodeURIComponent(this.cfg.gitUrl).replace(/%/g, '_'),
+          // git: `${this.cfg.gitOrigin}#${this.cfg.gitRef}`,
+          updated: `${this.cfg.updatedAt}`,
+        },
         httpsTrigger: {},
         sourceUploadUrl: this._uploadURL,
       };
@@ -141,9 +165,9 @@ class GoogleDeployer extends BaseDeployer {
     } catch (err) {
       this.log.error(err);
       // eslint-disable-next-line max-len
-      // this.log.error('bad request:', err.metadata.internalRepr.get('google.rpc.badrequest-bin').toString());
+      this.log.error('bad request:', err.metadata.internalRepr.get('google.rpc.badrequest-bin').toString());
       // eslint-disable-next-line max-len
-      // this.log.error('details:', err.metadata.internalRepr.get('grpc-status-details-bin').toString());
+      this.log.error('details:', err.metadata.internalRepr.get('grpc-status-details-bin').toString());
       throw err;
     }
 
