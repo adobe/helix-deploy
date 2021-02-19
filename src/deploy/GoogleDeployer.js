@@ -10,6 +10,7 @@
  * governing permissions and limitations under the License.
  */
 const { CloudFunctionsServiceClient } = require('@google-cloud/functions');
+const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
 const path = require('path');
 const fs = require('fs');
 const { context } = require('@adobe/helix-fetch');
@@ -46,10 +47,61 @@ class GoogleDeployer extends BaseDeployer {
         keyFilename: path.resolve(process.cwd, this._cfg.keyFile),
         projectId: this._cfg.projectID,
       });
+      this._secretclient = new SecretManagerServiceClient({
+        email: this._cfg.email,
+        keyFilename: path.resolve(process.cwd, this._cfg.keyFile),
+        projectId: this._cfg.projectID,
+      });
     } catch (e) {
       this.log.error(`Unable to authenticate with Google: ${e.message}`);
       throw e;
     }
+  }
+
+  async updatePackage() {
+    this.log.info('--: updating app (package) parameters ...');
+    // Create the secret with automation replication.
+    const secretId = `helix-deploy--${this.cfg.packageName}`;
+    const parent = `projects/${this._cfg.projectID}`;
+    let secret;
+
+    try {
+      [secret] = await this._secretclient.createSecret({
+        parent,
+        secret: {
+          name: secretId,
+          replication: {
+            automatic: {},
+          },
+        },
+        secretId,
+      });
+      this.log.info(`Created secret ${secret.name}`);
+    } catch {
+      this.log.info('Using existing secret');
+      [secret] = await this._secretclient.getSecret({
+        name: `${parent}/secrets/${secretId}`,
+      });
+    }
+
+    // Add a version with a payload onto the secret.
+    const [version] = await this._secretclient.addSecretVersion({
+      parent: secret.name,
+      payload: {
+        data: Buffer.from(JSON.stringify(this.cfg.packageParams), 'utf8'),
+      },
+    });
+
+    this.log.info(`Added secret version ${version.name}`);
+
+    /*
+    const [retversion] = await this._secretclient.accessSecretVersion({
+      name: `${parent}/secrets/${secretId}/versions/latest`,
+    });
+    const payload = JSON.parse(retversion.payload.data.toString());
+
+    this.log.info(payload);
+    */
   }
 
   async uploadZIP() {
