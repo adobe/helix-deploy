@@ -27,6 +27,9 @@ commands:
       - run:
           name: prepare test git user
           command: git config --global user.email "circleci@example.com" && git config --global user.name "CircleCi Build"
+      - run:
+          name: Restore Google Credentials
+          command: echo $GOOGLE_CREDS | base64 -D | tee ~/.helix-google.json | jq -e .client_email
 
 jobs:
   build:
