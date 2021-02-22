@@ -32,7 +32,7 @@ describe('Azure Integration Test', () => {
     // await fse.remove(testRoot);
   });
 
-  it.skip('Deploy to Azure (for real)', async () => {
+  it('Deploy to Azure (for real)', async () => {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'simple'), testRoot);
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
