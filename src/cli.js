@@ -19,12 +19,14 @@ const BaseConfig = require('./BaseConfig.js');
 const OpenWhiskDeployer = require('./deploy/OpenWhiskDeployer');
 const AWSDeployer = require('./deploy/AWSDeployer');
 const AzureDeployer = require('./deploy/AzureDeployer');
+const GoogleDeployer = require('./deploy/GoogleDeployer');
 const FastlyGateway = require('./gateway/FastlyGateway');
 
 const PLUGINS = [
   OpenWhiskDeployer,
   AWSDeployer,
   AzureDeployer,
+  GoogleDeployer,
   FastlyGateway,
 ];
 
