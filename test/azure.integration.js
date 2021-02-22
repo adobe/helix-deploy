@@ -32,7 +32,7 @@ describe('Azure Integration Test', () => {
     // await fse.remove(testRoot);
   });
 
-  it('Deploy to Azure (for real)', async () => {
+  it.only('Deploy to Azure (for real)', async () => {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'simple'), testRoot);
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
@@ -57,5 +57,5 @@ describe('Azure Integration Test', () => {
     const out = builder.cfg._logger.output;
     assert.ok(out.indexOf(`ok: 200
 Hello, world.`) > 0, out);
-  }).timeout(50000);
+  }).timeout(150000);
 });
