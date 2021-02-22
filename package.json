@@ -1,6 +1,6 @@
 {
   "name": "@adobe/helix-deploy",
-  "version": "3.1.0",
+  "version": "3.1.2",
   "description": "Library and Commandline Tools to build and deploy OpenWhisk Actions",
   "license": "Apache-2.0",
   "repository": {
@@ -25,13 +25,13 @@
     "semantic-release": "semantic-release"
   },
   "dependencies": {
-    "@adobe/fastly-native-promises": "1.19.12",
+    "@adobe/fastly-native-promises": "1.19.13",
     "@adobe/helix-epsagon": "1.5.8",
     "@adobe/helix-fetch": "2.1.5",
-    "@aws-sdk/client-apigatewayv2": "3.5.0",
-    "@aws-sdk/client-lambda": "3.5.0",
-    "@aws-sdk/client-s3": "3.5.0",
-    "@aws-sdk/client-ssm": "3.5.0",
+    "@aws-sdk/client-apigatewayv2": "3.6.0",
+    "@aws-sdk/client-lambda": "3.6.0",
+    "@aws-sdk/client-s3": "3.6.0",
+    "@aws-sdk/client-ssm": "3.6.0",
     "@azure/arm-appservice": "6.1.0",
     "@azure/ms-rest-nodeauth": "3.0.6",
     "@google-cloud/functions": "^1.1.2",

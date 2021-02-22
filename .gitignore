@@ -10,3 +10,6 @@ test/tmp
 dist
 junit
 .vscode
+ints.json
+params.json
+routes.json
