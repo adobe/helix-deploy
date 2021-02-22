@@ -17,6 +17,7 @@ module.exports.main = function main(req, context) {
   const resp = JSON.stringify({
     url: req.url,
     file: reader(),
+    error: context.env.ERROR,
   });
 
   const response = new Response(resp);
