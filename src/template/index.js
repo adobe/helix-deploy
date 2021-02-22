@@ -29,6 +29,29 @@ const { main } = require('./main.js');
  * Universal Wrapper for serverless functions
  */
 
+async function getGoogleSecrets(functionName, projectID) {
+  const parent = `projects/${projectID}`;
+  const package = functionName.replace(/--.*/, '');
+  const name = `${parent}/secrets/helix-deploy--${package}/versions/latest`;
+  try {
+    // delay the import so that other runtimes do not have to care
+    // eslint-disable-next-line  import/no-unresolved, global-require
+    const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
+
+    // hope that the credentials appear by magic
+    const client = new SecretManagerServiceClient();
+
+    const [version] = await client.accessSecretVersion({
+      name,
+    });
+
+    return JSON.parse(version.payload.data.toString());
+  } catch (err) {
+    console.error(`Unable to load secrets from ${name}`, err);
+    return { };
+  }
+}
+
 async function getAWSSecrets(functionName) {
   // delay the import so that other runtimes do not have to care
   // eslint-disable-next-line  import/no-unresolved, global-require
@@ -252,7 +275,7 @@ async function google(req, res) {
       },
       runtime: {
         name: 'googlecloud-functions',
-        region: `${country}${region}`,
+        region: `${country}-${region}`,
       },
       func: {
         name: process.env.K_SERVICE,
@@ -263,7 +286,10 @@ async function google(req, res) {
         id: req.headers['function-execution-id'],
         deadline: Number.parseInt(req.headers['x-appengine-timeout-ms'], 10) + Date.now(),
       },
-      env: process.env,
+      env: {
+        ...process.env,
+        ...(await getGoogleSecrets(process.env.K_SERVICE, servicename.join('-'))),
+      },
     };
 
     const response = await main(request, context);

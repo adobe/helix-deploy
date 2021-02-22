@@ -17,7 +17,7 @@ const archiver = require('archiver');
 const webpack = require('webpack');
 const chalk = require('chalk');
 const git = require('isomorphic-git');
-const { version } = require('../package.json');
+const { version, dependencies } = require('../package.json');
 
 /**
  * Returns the `origin` remote url or `''` if none is defined.
@@ -276,9 +276,15 @@ module.exports = class ActionBuilder {
       const packageJson = {
         name: cfg.baseName,
         version: cfg.version,
-        description: `OpenWhisk Action of ${cfg.name}`,
+        description: `Universal Action of ${cfg.name}`,
         main: 'index.js',
         license: 'Apache-2.0',
+        dependencies: {
+          // google cloud installs these dependencies at deploy time
+          // all other environments ignore them – this allows us to
+          // avoid bundling something that only google needs
+          '@google-cloud/secret-manager': dependencies['@google-cloud/secret-manager'],
+        },
       };
 
       archive.pipe(output);
@@ -326,6 +332,7 @@ module.exports = class ActionBuilder {
         // the following are imported by the universal adapter and are assumed to be available
         './params.json',
         'aws-sdk',
+        '@google-cloud/secret-manager',
       ].reduce((obj, ext) => {
         // this makes webpack to ignore the module and just leave it as normal require.
         // eslint-disable-next-line no-param-reassign
