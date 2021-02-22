@@ -21,7 +21,7 @@
     "lint": "./node_modules/.bin/eslint .",
     "test": "nyc --reporter=text --reporter=lcov --check-coverage --branches 50 --statements 50 --lines 50 mocha -i -g Integration",
     "test-ci": "npm run lint && nyc --reporter=text --reporter=lcov --check-coverage --branches 50 --statements 50 --lines 50 mocha -R xunit -O output=junit/test-results.xml -i -g Integration && codecov",
-    "integration-ci": "nyc --reporter=lcov mocha -R xunit -O output=junit/integration-results.xml -g Integration && curl -s https://codecov.io/bash | bash",
+    "integration-ci": "nyc --reporter=lcov mocha -R xunit -O output=junit/integration-results.xml -g Integration && bash <(curl -s https://codecov.io/bash)",
     "semantic-release": "semantic-release"
   },
   "dependencies": {
