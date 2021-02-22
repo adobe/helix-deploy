@@ -44,12 +44,12 @@ class GoogleDeployer extends BaseDeployer {
     try {
       this._client = new CloudFunctionsServiceClient({
         email: this._cfg.email,
-        keyFilename: path.resolve(process.cwd, this._cfg.keyFile),
+        keyFilename: path.resolve(process.cwd(), this._cfg.keyFile),
         projectId: this._cfg.projectID,
       });
       this._secretclient = new SecretManagerServiceClient({
         email: this._cfg.email,
-        keyFilename: path.resolve(process.cwd, this._cfg.keyFile),
+        keyFilename: path.resolve(process.cwd(), this._cfg.keyFile),
         projectId: this._cfg.projectID,
       });
     } catch (e) {
