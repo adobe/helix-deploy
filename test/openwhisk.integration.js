@@ -86,6 +86,6 @@ describe('OpenWhisk Integration Test', () => {
       file: 'Hello, world.\n',
       url: `https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0?foo=bar`,
     });
-    assert.equal(ret.status, 200);
+    assert.equal(resp.status, 200);
   }).timeout(20000);
 });
