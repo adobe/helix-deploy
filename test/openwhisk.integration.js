@@ -82,16 +82,10 @@ describe('OpenWhisk Integration Test', () => {
     });
     const ret = await resp.json();
     ret.body = JSON.parse(ret.body);
-    assert.deepEqual(ret, {
-      body: {
-        file: 'Hello, world.\n',
-        url: `https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0?foo=bar`,
-      },
-      headers: {
-        'content-type': 'text/plain; charset=utf-8',
-        'surrogate-key': 'simple',
-      },
-      statusCode: 200,
+    assert.deepEqual(ret.body, {
+      file: 'Hello, world.\n',
+      url: `https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0?foo=bar`,
     });
+    assert.equal(ret.status, 200);
   }).timeout(20000);
 });
