@@ -326,6 +326,7 @@ module.exports = class ActionBuilder {
         // the following are imported by the universal adapter and are assumed to be available
         './params.json',
         'aws-sdk',
+        '@google-cloud/secret-manager',
       ].reduce((obj, ext) => {
         // this makes webpack to ignore the module and just leave it as normal require.
         // eslint-disable-next-line no-param-reassign
