@@ -1,3 +1,33 @@
+# [3.2.0](https://github.com/adobe/helix-deploy/compare/v3.1.2...v3.2.0) (2021-02-22)
+
+
+### Bug Fixes
+
+* **google:** catch runtime error (secret retrieval) ([f08ef6a](https://github.com/adobe/helix-deploy/commit/f08ef6aa200ef4d37f75655c2aafa49e4a7d9657))
+* **google:** exclude google secrets manager dependency from bundle ([f21cab8](https://github.com/adobe/helix-deploy/commit/f21cab8091f36647a991fbe43a6fe5a0b38ccb35))
+* **google:** install google secrets manager client through package.json ([1e73576](https://github.com/adobe/helix-deploy/commit/1e7357629f3602dc8debfd8b8fcc49d02438d191))
+* **google:** remove double dots ([05184c3](https://github.com/adobe/helix-deploy/commit/05184c3ae88cdb24d9fa98a2eadb54c9cf74f535))
+* **google:** use cwd as a function ([ef9405d](https://github.com/adobe/helix-deploy/commit/ef9405db95cb9128e7d6df265114e6b74038e08c))
+
+
+### Features
+
+* **cli:** add google plugin ([74e2bee](https://github.com/adobe/helix-deploy/commit/74e2bee0e8771bfe497b755cfddb580534e735a3))
+* **google:** add ability to select google region ([8800cd0](https://github.com/adobe/helix-deploy/commit/8800cd028774e511791a3bb40428b732eaa2ca86))
+* **google:** add labels, description, memory, runtime version to function ([1718531](https://github.com/adobe/helix-deploy/commit/1718531476e873473f6e99d7f692a05251c0b351))
+* **google:** allow updates and anonymous http requests ([b9e7150](https://github.com/adobe/helix-deploy/commit/b9e7150d3b5b4935f4e5e668dc65f3876989b01b))
+* **google:** deploy a function ([e50f546](https://github.com/adobe/helix-deploy/commit/e50f546c1793b27303ed298a30e9b34c64dac5e3))
+* **google:** enable self-test after deploy ([a01aaed](https://github.com/adobe/helix-deploy/commit/a01aaed35ac7fe8ce541faa7d35a9b58e803fa10))
+* **google:** initial draft of google functions deployment tool ([fef680b](https://github.com/adobe/helix-deploy/commit/fef680bcf29649154ecacf87b4b234b27eb0c91b))
+* **google:** retrieve package secrets at runtime ([18ef9a2](https://github.com/adobe/helix-deploy/commit/18ef9a2eb61eaecdfa79e237da242361dfc26fcf))
+* **google:** set environment variables ([8cd1760](https://github.com/adobe/helix-deploy/commit/8cd1760a256e02dd48d8e189a4a65d877c7746e3))
+* **google:** store secrets in google secrets manager ([966a861](https://github.com/adobe/helix-deploy/commit/966a861acc51881f1968ac6b29b28235b444d7ec))
+
+
+### Reverts
+
+* Revert "ci: use codecov bash uploader" ([2e348ac](https://github.com/adobe/helix-deploy/commit/2e348acb920c5b352ba1ca4dc8fb9d231b6c5801))
+
 ## [3.1.2](https://github.com/adobe/helix-deploy/compare/v3.1.1...v3.1.2) (2021-02-22)
 
 
