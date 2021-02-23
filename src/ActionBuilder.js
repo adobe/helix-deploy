@@ -294,6 +294,30 @@ module.exports = class ActionBuilder {
     });
   }
 
+  get functionJson() {
+    return {
+      bindings: [
+        {
+          authLevel: 'anonymous',
+          type: 'httpTrigger',
+          direction: 'in',
+          name: 'req',
+          route: `${this.cfg.packageName}/${this.cfg.name.replace('@', '/')}/{path1?}/{path2?}/{path3?}/{path4?}/{path5?}`,
+          methods: [
+            'get',
+            'post',
+            'put',
+          ],
+        },
+        {
+          type: 'http',
+          direction: 'out',
+          name: 'res',
+        },
+      ],
+    };
+  }
+
   async updateArchive(archive, packageJson) {
     const { cfg } = this;
     archive.file(cfg.bundle, { name: 'index.js' });
@@ -310,7 +334,7 @@ module.exports = class ActionBuilder {
 
     archive.append(JSON.stringify(packageJson, null, '  '), { name: 'package.json' });
     // azure functions manifest
-    archive.file(path.resolve(__dirname, 'template', 'function.json'), { name: 'function.json' });
+    archive.append(JSON.stringify(this.functionJson, null, '  '), { name: 'function.json' });
   }
 
   async getWebpackConfig() {
