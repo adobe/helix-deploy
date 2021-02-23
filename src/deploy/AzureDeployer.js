@@ -11,13 +11,10 @@
  */
 const msRestNodeAuth = require('@azure/ms-rest-nodeauth');
 const { WebSiteManagementClient } = require('@azure/arm-appservice');
-const { context } = require('@adobe/helix-fetch');
 const fs = require('fs');
-const fetch = require('node-fetch');
+const { fetch } = require('@adobe/helix-fetch');
 const BaseDeployer = require('./BaseDeployer');
 const AzureConfig = require('./AzureConfig.js');
-
-// const { fetch } = context();
 
 class AzureDeployer extends BaseDeployer {
   constructor(baseConfig, config) {
@@ -182,40 +179,22 @@ class AzureDeployer extends BaseDeployer {
   async updatePackage() {
     const { cfg } = this;
     this.log.info('--: updating app (package) parameters ...');
-    const url = new URL(
-      `${this._pubcreds.scmUri}/api/settings`,
-    ).href
-      .replace(/https:\/\/.*?@/, 'https://');
 
-    const authorization = `Basic ${Buffer.from(
-      `${this._pubcreds.publishingUserName
-      }:${
-        this._pubcreds.publishingPassword}`,
-    ).toString('base64')}`;
+    const result = await this._client.webApps.listApplicationSettings(this._app.resourceGroup,
+      this._cfg.appName);
 
-    const resp = await fetch(url, {
-      method: 'POST',
-      // body: { foo: 'bar' },
-      body: JSON.stringify(cfg.packageParams),
-      headers: {
-        authorization,
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        'accept-encoding': '', // must be null
-      },
-    });
-    if (!resp.ok) {
-      console.log(url, {
-        method: 'POST',
-        body: JSON.stringify(cfg.packageParams),
-        headers: {
-          authorization,
-          'Content-Type': 'application/json',
-        },
+    const update = {
+      ...cfg.packageParams,
+      ...result.properties,
+    };
+
+    await this._client.webApps.updateApplicationSettings(this._app.resourceGroup,
+      this._cfg.appName,
+      {
+        properties: update,
       });
-      throw new Error(`Package parameter update request failed (${resp.status}): ${await resp.text()}`);
-    }
-    this.log.info(resp.status, await resp.text());
+
+    this.log.info(`${Object.keys(update).length} package parameters have been updated.`);
   }
 
   async deploy() {
