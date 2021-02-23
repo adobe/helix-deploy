@@ -11,15 +11,13 @@
  */
 const msRestNodeAuth = require('@azure/ms-rest-nodeauth');
 const { WebSiteManagementClient } = require('@azure/arm-appservice');
-const { context, ALPN_HTTP1_1 } = require('@adobe/helix-fetch');
+const { context } = require('@adobe/helix-fetch');
 const fs = require('fs');
+const fetch = require('node-fetch');
 const BaseDeployer = require('./BaseDeployer');
 const AzureConfig = require('./AzureConfig.js');
 
-const { fetch } = context({
-  // TODO: why is HTTP/1.1 enforced?
-  alpnProtocols: [ALPN_HTTP1_1],
-});
+// const { fetch } = context();
 
 class AzureDeployer extends BaseDeployer {
   constructor(baseConfig, config) {
@@ -94,11 +92,16 @@ class AzureDeployer extends BaseDeployer {
     }
   }
 
+  get fullFunctionName() {
+    const { cfg } = this;
+    const funcname = `${cfg.packageName}--${cfg.name}`.replace('@', '_').replace(/\./g, '_');
+    return funcname;
+  }
+
   async uploadFunctionZIP() {
     const { cfg } = this;
-    const funcname = `${cfg.packageName}--${cfg.name}`.replace('@', '_').replace('.', '_');
     const url = new URL(
-      `${this._pubcreds.scmUri}/api/zip/site/wwwroot/${funcname}/`,
+      `${this._pubcreds.scmUri}/api/zip/site/wwwroot/${this.fullFunctionName}/`,
     ).href.replace(/https:\/\/.*?@/, 'https://');
     // const url = new URL(this._pubcreds.scmUri + `/api/zip/site/wwwroot/${'newfunc'.replace('/', '--')}/`).href.replace(/https:\/\/.*?@/, 'https://');
     const body = fs.createReadStream(cfg.zipFile);
@@ -129,9 +132,8 @@ class AzureDeployer extends BaseDeployer {
   async updateParams() {
     const { cfg } = this;
     this.log.info('--: updating function parameters ...');
-    const funcname = `${cfg.packageName}--${cfg.name}`.replace('@', '_').replace('.', '_');
     const url = new URL(
-      `${this._pubcreds.scmUri}/api/vfs/site/wwwroot/${funcname}/params.json`,
+      `${this._pubcreds.scmUri}/api/vfs/site/wwwroot/${this.fullFunctionName}/params.json`,
     ).href.replace(/https:\/\/.*?@/, 'https://');
 
     const authorization = `Basic ${Buffer.from(
@@ -182,7 +184,8 @@ class AzureDeployer extends BaseDeployer {
     this.log.info('--: updating app (package) parameters ...');
     const url = new URL(
       `${this._pubcreds.scmUri}/api/settings`,
-    ).href.replace(/https:\/\/.*?@/, 'https://');
+    ).href
+      .replace(/https:\/\/.*?@/, 'https://');
 
     const authorization = `Basic ${Buffer.from(
       `${this._pubcreds.publishingUserName
@@ -192,13 +195,26 @@ class AzureDeployer extends BaseDeployer {
 
     const resp = await fetch(url, {
       method: 'POST',
+      // body: { foo: 'bar' },
       body: JSON.stringify(cfg.packageParams),
       headers: {
         authorization,
         'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'accept-encoding': '', // must be null
       },
     });
-
+    if (!resp.ok) {
+      console.log(url, {
+        method: 'POST',
+        body: JSON.stringify(cfg.packageParams),
+        headers: {
+          authorization,
+          'Content-Type': 'application/json',
+        },
+      });
+      throw new Error(`Package parameter update request failed (${resp.status}): ${await resp.text()}`);
+    }
     this.log.info(resp.status, await resp.text());
   }
 
@@ -210,6 +226,15 @@ class AzureDeployer extends BaseDeployer {
       this.log.error(`Unable to update Azure function: ${err.message}`);
       throw err;
     }
+  }
+
+  async test() {
+    const url = `https://${this._app.hostNames[0]}/api/${this.cfg.packageName}/${this.cfg.name.replace('@', '/')}`;
+    return this.testRequest({
+      url,
+      // idHeader: 'X-Cloud-Trace-Context',
+      retry404: 1,
+    });
   }
 }
 

@@ -5,6 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
+      "route": "simple-package/simple-name/1.45.0/{path1?}/{path2?}/{path3?}/{path4?}/{path5?}",
       "methods": [
         "get",
         "post",
