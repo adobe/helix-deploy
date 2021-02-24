@@ -31,7 +31,7 @@ class GoogleDeployer extends BaseDeployer {
   }
 
   ready() {
-    return !!this._client;
+    return !!this._client && !!this._cfg.projectID;
   }
 
   validate() {
