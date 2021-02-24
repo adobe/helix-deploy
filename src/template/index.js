@@ -336,6 +336,10 @@ async function lambda(event, context) {
     const response = await main(request, con);
     ensureUTF8Charset(response);
 
+    // flush log if present
+    if (con.log && con.log.flush) {
+      await con.log.flush();
+    }
     return {
       statusCode: response.status,
       headers: Array.from(response.headers.entries()).reduce((h, [header, value]) => {
