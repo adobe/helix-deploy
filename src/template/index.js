@@ -124,7 +124,7 @@ async function azure(context, req) {
       },
       func: {
         name: context.executionContext.functionName,
-        version: req.url.split('/').slice(6, 7)[0],
+        version: req.url.split('/')[6],
         app: process.env.WEBSITE_SITE_NAME,
       },
       invocation: {
