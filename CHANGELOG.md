@@ -1,3 +1,17 @@
+# [[secure]](https://github.com/adobe/helix-deploy/compare/v3.3.0...v[secure]) (2021-02-24)
+
+
+### Bug Fixes
+
+* **azure:** allow paths in azure function URLs ([19c8f02](https://github.com/adobe/helix-deploy/commit/19c8f028568cf6d2ae0724f68aa70cf0d05b55ce))
+* **azure:** make azure integration test pass again ([6f6d903](https://github.com/adobe/helix-deploy/commit/6f6d903ecdb2a60258d5796c4c21222277753616)), closes [#31](https://github.com/adobe/helix-deploy/issues/31)
+* **azure:** update package parameters using application settings api ([e9129ea](https://github.com/adobe/helix-deploy/commit/e9129ea84799edc9e904e023901480c87aae597e)), closes [#31](https://github.com/adobe/helix-deploy/issues/31)
+
+
+### Features
+
+* **azure:** get path info/suffix and version from url ([e53784e](https://github.com/adobe/helix-deploy/commit/e53784ef52e1783e6a28b4d1b1d9a86ad789cd1c))
+
 # [3.3.0](https://github.com/adobe/helix-deploy/compare/v3.2.0...v3.3.0) (2021-02-24)
 
 
