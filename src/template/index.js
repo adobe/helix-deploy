@@ -116,7 +116,7 @@ async function azure(context, req) {
     const con = {
       resolver: new AzureResolver(context, req),
       pathInfo: {
-        suffix: '', // TODO!
+        suffix: `/${req.url.split('/').slice(7).join('/')}`,
       },
       runtime: {
         name: 'azure-functions',
@@ -124,7 +124,7 @@ async function azure(context, req) {
       },
       func: {
         name: context.executionContext.functionName,
-        version: undefined, // seems impossible to get
+        version: req.url.split('/')[6],
         app: process.env.WEBSITE_SITE_NAME,
       },
       invocation: {
