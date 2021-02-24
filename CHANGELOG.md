@@ -1,3 +1,10 @@
+# [3.3.0](https://github.com/adobe/helix-deploy/compare/v3.2.0...v3.3.0) (2021-02-24)
+
+
+### Features
+
+* **log:** flush log in AWS if present ([#120](https://github.com/adobe/helix-deploy/issues/120)) ([d7c5fbd](https://github.com/adobe/helix-deploy/commit/d7c5fbde9f55c92bd7227aa779f578408bc9de05))
+
 # [3.2.0](https://github.com/adobe/helix-deploy/compare/v3.1.2...v3.2.0) (2021-02-22)
 
 
