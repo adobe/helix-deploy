@@ -153,6 +153,7 @@ async function azure(context, req) {
       body: isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()) : await response.text(),
     };
   } catch (e) {
+    console.error(e);
     context.res = {
       status: 500,
       headers: {
