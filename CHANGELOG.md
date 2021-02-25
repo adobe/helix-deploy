@@ -1,3 +1,10 @@
+## [3.4.1](https://github.com/adobe/helix-deploy/compare/v[secure]...v3.4.1) (2021-02-25)
+
+
+### Bug Fixes
+
+* **google:** do not enable google deployer if project id has not been specified ([#125](https://github.com/adobe/helix-deploy/issues/125)) ([c95b5ad](https://github.com/adobe/helix-deploy/commit/c95b5ad8968d7482ef403a196d9ce360451ae3b3)), closes [#123](https://github.com/adobe/helix-deploy/issues/123)
+
 # [[secure]](https://github.com/adobe/helix-deploy/compare/v3.3.0...v[secure]) (2021-02-24)
 
 
