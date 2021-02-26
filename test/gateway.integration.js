@@ -70,7 +70,7 @@ describe('Gateway Integration Test', () => {
     const out = builder.cfg._logger.output;
     const { namespace } = builder._deployers.wsk._cfg;
     assert.ok(out.indexOf(`ok: 200
-{"url":"https://azure.adobe-runtime.com/api/v1/web/${namespace}/simple-package/simple-name@1.45.0/foo","file":"Hello, world.\\n"}`) > 0, out);
+{"url":"https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0/foo","file":"Hello, world.\\n"}`) > 0, out);
 
     const { fetch } = fetchContext();
     const respRandom = await fetch('https://deploy-test.anywhere.run/simple-package/simple-name@1.45.0/foo');
