@@ -211,6 +211,11 @@ class AzureDeployer extends BaseDeployer {
     return this._app.hostNames[0];
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  get urlVCL() {
+    return '"/api/" + var.package + "/" + var.action + var.slashversion + var.rest';
+  }
+
   async test() {
     const url = `https://${this._app.hostNames[0]}/api/${this.cfg.packageName}/${this.cfg.name.replace('@', '/')}`;
     return this.testRequest({
