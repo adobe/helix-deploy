@@ -241,6 +241,11 @@ class GoogleDeployer extends BaseDeployer {
     return `${this._cfg.region}-${this._cfg.projectID}.cloudfunctions.net`;
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  get urlVCL() {
+    return '"/" + var.package + "--" + var.action + var._version + var.rest';
+  }
+
   async test() {
     let url = this._functionURL;
     if (!url) {
