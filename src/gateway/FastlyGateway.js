@@ -201,7 +201,7 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)") {
               ip: str('%A'),
             },
           },
-          applicationName: this._cfg.coralogixApp,
+          applicationName: str(this._cfg.coralogixApp),
         }),
         url: 'https://api.coralogix.com/logs/rest/singles',
         request_max_bytes: 2000000,
