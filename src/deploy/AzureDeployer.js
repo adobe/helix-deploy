@@ -38,9 +38,8 @@ class AzureDeployer extends BaseDeployer {
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
   get basePath() {
-    return '/api';
+    return `/api/${this.cfg.packageName}/${this.cfg.name.replace('@', '/')}`;
   }
 
   // eslint-disable-next-line class-methods-use-this
