@@ -334,6 +334,8 @@ set resp.http.Surrogate-Key = resp.http.X-Surrogate-Key;
 set resp.http.Surrogate-Control = resp.http.X-Surrogate-Control;`,
       });
     }, true);
+
+    this._fastly.discard();
   }
 }
 
