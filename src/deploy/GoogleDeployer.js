@@ -247,7 +247,7 @@ class GoogleDeployer extends BaseDeployer {
   }
 
   get basePath() {
-    return this.fullFunctionName;
+    return `/${this.fullFunctionName}`;
   }
 
   async test() {
