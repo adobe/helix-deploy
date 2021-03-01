@@ -246,6 +246,10 @@ class GoogleDeployer extends BaseDeployer {
     return '"/" + var.package + "--" + var.action + var._version + var.rest';
   }
 
+  get basePath() {
+    return this.fullFunctionName;
+  }
+
   async test() {
     let url = this._functionURL;
     if (!url) {
