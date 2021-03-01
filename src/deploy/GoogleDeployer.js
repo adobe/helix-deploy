@@ -237,6 +237,10 @@ class GoogleDeployer extends BaseDeployer {
     }
   }
 
+  get host() {
+    return `${this._cfg.region}-${this._cfg.projectID}.cloudfunctions.net`;
+  }
+
   async test() {
     let url = this._functionURL;
     if (!url) {
