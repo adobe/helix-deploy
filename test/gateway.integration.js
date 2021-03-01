@@ -91,17 +91,25 @@ describe('Gateway Integration Test', () => {
         'x-ow-version-lock': 'env=amazonwebservices',
       },
     });
+    const respAzure = await fetch('https://deploy-test.anywhere.run/simple-package/simple-name@1.45.0/foo', {
+      headers: {
+        'x-ow-version-lock': 'env=azure',
+      },
+    });
 
     assert.ok(respRandom.ok, 'Randomly assigned request is OK');
     assert.ok(respOW.ok, 'OW request is not OK');
     assert.ok(respAWS.ok, 'AWS request is not OK');
+    assert.ok(respAzure.ok, 'Azure request is not OK');
 
     await respRandom.text();
     await respOW.text();
     await respAWS.text();
+    await respAzure.text();
 
     assert.ok(respOW.headers.get('X-Backend-Name'), 'OW: X-Backend-Name Header is missing');
     assert.ok(respAWS.headers.get('X-Backend-Name'), 'AWS: X-Backend-Name Header is missing');
+    assert.ok(respAzure.headers.get('X-Backend-Name'), 'AWS: X-Backend-Name Header is missing');
 
     assert.ok(respOW.headers.get('X-Backend-Name').indexOf('Openwhisk') > 0,
       `OW: X-Backend-Name Header is wrong:${respOW.headers.get('X-Backend-Name')}`);
@@ -109,7 +117,11 @@ describe('Gateway Integration Test', () => {
     assert.ok(respAWS.headers.get('X-Backend-Name').indexOf('AmazonWebServices') > 0,
       `AWS: X-Backend-Name Header is wrong:${respOW.headers.get('X-Backend-Name')}`);
 
+    assert.ok(respAWS.headers.get('X-Backend-Name').indexOf('Azure') > 0,
+      `Azure: X-Backend-Name Header is wrong:${respOW.headers.get('X-Backend-Name')}`);
+
     assert.equal(respAWS.headers.get('Surrogate-Key'), 'simple', 'AWS: Surrogate-Key not propagated');
     assert.equal(respOW.headers.get('Surrogate-Key'), 'simple', 'OW: Surrogate-Key not propagated');
+    assert.equal(respAzure.headers.get('Surrogate-Key'), 'simple', 'Azure: Surrogate-Key not propagated');
   }).timeout(150000);
 });
