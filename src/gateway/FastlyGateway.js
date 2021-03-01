@@ -98,7 +98,7 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)") {
   set var.rest = re.group.5;
 
   // normalize version divider
-  set var._version = regsub(var.version, "[@_.]", "_");
+  set var._version = regsub(var.version, "[@_]", "_");
   set var.atversion = regsub(var.version, "[@_]", "@");
   set var.slashversion = regsub(var.version, "[@_]", "/");
 }

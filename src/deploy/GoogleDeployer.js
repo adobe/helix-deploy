@@ -243,7 +243,7 @@ class GoogleDeployer extends BaseDeployer {
 
   // eslint-disable-next-line class-methods-use-this
   get urlVCL() {
-    return '"/" + var.package + "--" + var.action + var._version + var.rest';
+    return '"/" + var.package + "--" + var.action + regsuball(var._version, "\\.", "_") + var.rest';
   }
 
   get basePath() {
