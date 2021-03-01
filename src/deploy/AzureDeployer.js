@@ -207,6 +207,10 @@ class AzureDeployer extends BaseDeployer {
     }
   }
 
+  get host() {
+    return this._app.hostNames[0];
+  }
+
   async test() {
     const url = `https://${this._app.hostNames[0]}/api/${this.cfg.packageName}/${this.cfg.name.replace('@', '/')}`;
     return this.testRequest({
