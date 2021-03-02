@@ -38,9 +38,8 @@ class AzureDeployer extends BaseDeployer {
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
   get basePath() {
-    return '/api';
+    return `/api/${this.cfg.packageName}/${this.cfg.name.replace('@', '/')}`;
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -205,6 +204,15 @@ class AzureDeployer extends BaseDeployer {
       this.log.error(`Unable to update Azure function: ${err.message}`);
       throw err;
     }
+  }
+
+  get host() {
+    return this._app.hostNames[0];
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  get urlVCL() {
+    return '"/api/" + var.package + "/" + var.action + var.slashversion + var.rest';
   }
 
   async test() {

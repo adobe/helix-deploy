@@ -237,6 +237,19 @@ class GoogleDeployer extends BaseDeployer {
     }
   }
 
+  get host() {
+    return `${this._cfg.region}-${this._cfg.projectID}.cloudfunctions.net`;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  get urlVCL() {
+    return '"/" + var.package + "--" + var.action + regsuball(var._version, "\\.", "_") + var.rest';
+  }
+
+  get basePath() {
+    return `/${this.fullFunctionName}`;
+  }
+
   async test() {
     let url = this._functionURL;
     if (!url) {

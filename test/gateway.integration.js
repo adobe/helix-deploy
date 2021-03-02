@@ -41,7 +41,7 @@ describe('Gateway Integration Test', () => {
     await fse.remove(testRoot);
   });
 
-  it('Deploy to AWS and OpenWhisk (for real)', async () => {
+  it('Deploy to all Runtimes', async () => {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'simple'), testRoot);
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
@@ -52,9 +52,16 @@ describe('Gateway Integration Test', () => {
         '--deploy',
         '--target', 'wsk',
         '--target', 'aws',
+        '--target', 'google',
+        '--target', 'azure',
         '--aws-region', 'us-east-1',
         '--aws-api', 'lqmig3v5eb',
         '--aws-role', 'arn:aws:iam::118435662149:role/helix-lambda-role',
+        '--google-key-file', `${process.env.HOME}/.helix-google.json`,
+        '--google-email', 'cloud-functions-dev@helix-225321.iam.gserviceaccount.com',
+        '--google-project-id', 'helix-225321',
+        '--google-region', 'us-central1',
+        '--azure-app', 'deploy-helix',
         '--package.params', 'HEY=ho',
         '--update-package', 'true',
         '-p', 'FOO=bar',
@@ -85,17 +92,25 @@ describe('Gateway Integration Test', () => {
         'x-ow-version-lock': 'env=amazonwebservices',
       },
     });
+    const respAzure = await fetch('https://deploy-test.anywhere.run/simple-package/simple-name@1.45.0/foo', {
+      headers: {
+        'x-ow-version-lock': 'env=azure',
+      },
+    });
 
     assert.ok(respRandom.ok, 'Randomly assigned request is OK');
     assert.ok(respOW.ok, 'OW request is not OK');
     assert.ok(respAWS.ok, 'AWS request is not OK');
+    assert.ok(respAzure.ok, 'Azure request is not OK');
 
     await respRandom.text();
     await respOW.text();
     await respAWS.text();
+    await respAzure.text();
 
     assert.ok(respOW.headers.get('X-Backend-Name'), 'OW: X-Backend-Name Header is missing');
     assert.ok(respAWS.headers.get('X-Backend-Name'), 'AWS: X-Backend-Name Header is missing');
+    assert.ok(respAzure.headers.get('X-Backend-Name'), 'Azure: X-Backend-Name Header is missing');
 
     assert.ok(respOW.headers.get('X-Backend-Name').indexOf('Openwhisk') > 0,
       `OW: X-Backend-Name Header is wrong:${respOW.headers.get('X-Backend-Name')}`);
@@ -103,7 +118,11 @@ describe('Gateway Integration Test', () => {
     assert.ok(respAWS.headers.get('X-Backend-Name').indexOf('AmazonWebServices') > 0,
       `AWS: X-Backend-Name Header is wrong:${respOW.headers.get('X-Backend-Name')}`);
 
+    assert.ok(respAzure.headers.get('X-Backend-Name').indexOf('Azure') > 0,
+      `Azure: X-Backend-Name Header is wrong:${respOW.headers.get('X-Backend-Name')}`);
+
     assert.equal(respAWS.headers.get('Surrogate-Key'), 'simple', 'AWS: Surrogate-Key not propagated');
     assert.equal(respOW.headers.get('Surrogate-Key'), 'simple', 'OW: Surrogate-Key not propagated');
+    assert.equal(respAzure.headers.get('Surrogate-Key'), 'simple', 'Azure: Surrogate-Key not propagated');
   }).timeout(150000);
 });
