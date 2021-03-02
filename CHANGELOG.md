@@ -1,3 +1,19 @@
+# [3.5.0](https://github.com/adobe/helix-deploy/compare/v3.4.5...v3.5.0) (2021-03-02)
+
+
+### Bug Fixes
+
+* **cli:** add new args to gateway group ([129d691](https://github.com/adobe/helix-deploy/commit/129d691edeac3bacc67d8cfedf5c3d8211576192))
+* **fastly:** discard the fastly client after all operations have finished ([0416904](https://github.com/adobe/helix-deploy/commit/04169042a29ff618479a8fce864c44dc59fab243))
+* **fastly:** use correct escape code for regexes ([325a08b](https://github.com/adobe/helix-deploy/commit/325a08bdeda282cf7f8d23447c4f0009d57a5d42))
+* **gateway:** double escape backslashes ([6c02054](https://github.com/adobe/helix-deploy/commit/6c02054895b4eeb6e477cff8b1cf7f3ef2959bfa))
+* **gateway:** use json string for application name ([3e5f37e](https://github.com/adobe/helix-deploy/commit/3e5f37e3efeb37e43fb10818238d2270ca725613))
+
+
+### Features
+
+* **gateway:** enable gateway logging to coralogix ([0b32b15](https://github.com/adobe/helix-deploy/commit/0b32b15c0d63b9a28cd287ded9e208f50123c794)), closes [#126](https://github.com/adobe/helix-deploy/issues/126)
+
 ## [3.4.5](https://github.com/adobe/helix-deploy/compare/v3.4.4...v3.4.5) (2021-03-01)
 
 
