@@ -1,3 +1,22 @@
+# [3.6.0](https://github.com/adobe/helix-deploy/compare/v3.5.0...v3.6.0) (2021-03-02)
+
+
+### Bug Fixes
+
+* **azure:** use correct base path ([793ae68](https://github.com/adobe/helix-deploy/commit/793ae680327989c623f473d066b493fb90ed422e)), closes [#131](https://github.com/adobe/helix-deploy/issues/131)
+* **google:** add slash to health check URL ([ecddf7d](https://github.com/adobe/helix-deploy/commit/ecddf7d74040b538ce7a774f61d4ea4717b02fcf)), closes [#130](https://github.com/adobe/helix-deploy/issues/130)
+* **google:** use correct base path for health check ([bf237f6](https://github.com/adobe/helix-deploy/commit/bf237f6b39c900b21442bbb8e5f2eb9baa34da9c)), closes [#130](https://github.com/adobe/helix-deploy/issues/130)
+* **google:** use underscore instead of . in version URLs ([c236838](https://github.com/adobe/helix-deploy/commit/c236838fd1915dcde41d529cbc7c03d91ffed604)), closes [#130](https://github.com/adobe/helix-deploy/issues/130)
+* **google:** use underscores in _version ([8eb3453](https://github.com/adobe/helix-deploy/commit/8eb3453cf669ed714289502177bc5ef8ed0a502f)), closes [#130](https://github.com/adobe/helix-deploy/issues/130)
+
+
+### Features
+
+* **azure:** add host getter ([39b6111](https://github.com/adobe/helix-deploy/commit/39b611138e67c2ee43484540f7223b3fd4a06418)), closes [#131](https://github.com/adobe/helix-deploy/issues/131)
+* **azure:** set backend url in vcl ([2bf7c01](https://github.com/adobe/helix-deploy/commit/2bf7c01004ad1aa4d5f3defdab9cfccdc0b5236d)), closes [#131](https://github.com/adobe/helix-deploy/issues/131)
+* **google:** add host getter ([9c253a2](https://github.com/adobe/helix-deploy/commit/9c253a2b6a2b664cac28693bec8730a6e189151f)), closes [#130](https://github.com/adobe/helix-deploy/issues/130)
+* **google:** calculate backend url in vcl ([eff3130](https://github.com/adobe/helix-deploy/commit/eff313048dd651fb0c5eef6e68dadc64e0cd0f22)), closes [#130](https://github.com/adobe/helix-deploy/issues/130)
+
 # [3.5.0](https://github.com/adobe/helix-deploy/compare/v3.4.5...v3.5.0) (2021-03-02)
 
 
