@@ -10,6 +10,9 @@
  * governing permissions and limitations under the License.
  */
 const Fastly = require('@adobe/fastly-native-promises');
+const {
+  toString, vcl, time, req, res, str, concat,
+} = require('@adobe/fastly-native-promises').loghelpers;
 const FastlyConfig = require('./FastlyConfig.js');
 
 class FastlyGateway {
@@ -56,7 +59,7 @@ class FastlyGateway {
       .map((deployer, i) => ([deployer.name, this._deployers[i].name]))
       .map(([current, previous]) => `set var.${current.toLowerCase()} += var.${previous.toLowerCase()};`);
 
-    const vcl = `
+    const backendvcl = `
       declare local var.i INTEGER;
       set var.i = randomint(0, 100);
 
@@ -73,7 +76,7 @@ class FastlyGateway {
       ${this._deployers[0].customVCL}
     }`;
 
-    return [...init, ...set, ...increment].join('\n') + [vcl, ...middle, fallback].join(' else ');
+    return [...init, ...set, ...increment].join('\n') + [backendvcl, ...middle, fallback].join(' else ');
   }
 
   setURLVCL() {
@@ -110,10 +113,113 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)") {
       `).join('\n');
   }
 
+  async enableLogging(version) {
+    if (this._cfg.coralogixToken) {
+      this.log.info('Set up Gateway loggint to Coralogix');
+      await this._fastly.writeHttps(version, 'helix-coralogix', {
+        name: 'helix-coralogix',
+        format: toString({
+          timestamp: vcl`time.start.msec`,
+          subsystemName: str(vcl`req.service_id`),
+          severity: concat(
+            vcl`if(resp.status<400, "3", "")`,
+            vcl`if(resp.status>=400 && resp.status<500, "4", "")`,
+            vcl`if(resp.status>=500, "5", "")`,
+          ),
+          json: {
+            ow: {
+              environment: str(vcl`regsub(req.backend, ".*_", "")`),
+              actionName: str(vcl`regsub(req.url, "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)", "\\\\1/\\\\2\\\\3")`),
+            },
+            time: {
+              start: str(
+                concat(
+                  time`begin:%Y-%m-%dT%H:%M:%S`,
+                  '.',
+                  time`begin:msec_frac`,
+                  time`begin:%z`,
+                ),
+              ),
+              start_msec: vcl`time.start.msec`,
+              end: str(
+                concat(
+                  time`end:%Y-%m-%dT%H:%M:%S`,
+                  '.',
+                  time`end:msec_frac`,
+                  time`end:%z`,
+                ),
+              ),
+              end_msec: vcl`time.end.msec`,
+              elapsed: '%D',
+            },
+            client: {
+              name: str(vcl`client.as.name`),
+              number: vcl`client.as.number`,
+              location_geopoint: {
+                lat: vcl`client.geo.latitude`,
+                lon: vcl`client.geo.longitude`,
+              },
+              city_name: str(vcl`client.geo.city.ascii`),
+              country_name: str(vcl`client.geo.country_name.ascii`),
+              connection_speed: str(vcl`client.geo.conn_speed`),
+              ip: str(
+                vcl`regsuball(req.http.x-forwarded-for, ",.*", "")`,
+              ),
+            },
+            request: {
+              id: str(vcl`if(req.http.X-CDN-Request-ID, req.http.X-CDN-Request-ID, randomstr(8, "0123456789abcdef") + "-" + randomstr(4, "0123456789abcdef") + "-" + randomstr(4, "0123456789abcdef") + "-" + randomstr(1, "89ab") + randomstr(3, "0123456789abcdef") + "-" + randomstr(12, "0123456789abcdef"))`),
+              method: str('%m'),
+              protocol: str(vcl`if(fastly_info.is_h2, "HTTP/2", "HTTP/1.1")`),
+              h2: vcl`if(fastly_info.is_h2, "true", "false")`,
+              is_ipv6: vcl`if(req.is_ipv6, "true", "false")`,
+              url: str(vcl`cstr_escape(if(req.http.X-Orig-Url, req.http.X-Orig-Url, req.url))`),
+              referer: req`Referer`,
+              user_agent: req`User-Agent`,
+              accept_content: req`Accept`,
+              accept_language: req`Accept-Language`,
+              accept_encoding: req`Accept-Encoding`,
+              accept_charset: req`Accept-Charset`,
+              xfh: req`X-Forwarded-Host`,
+              via: req`Via`,
+              cache_control: req`Cache-Control`,
+              header_size: vcl`req.header_bytes_read`,
+              body_size: vcl`req.body_bytes_read`,
+            },
+            origin: {
+              host: str('%v'),
+              url: str(vcl`if(req.http.x-backend-url, req.http.x-backend-url, req.url)`),
+            },
+            response: {
+              status: str('%s'),
+              content_type: res`Content-Type`,
+              header_size: vcl`resp.header_bytes_written`,
+              body_size: '%B',
+            },
+            edge: {
+              cache_status: str(vcl`fastly_info.state`),
+              datacenter: str(vcl`server.datacenter`),
+              ip: str('%A'),
+            },
+          },
+          applicationName: str(this._cfg.coralogixApp),
+        }),
+        url: 'https://api.coralogix.com/logs/rest/singles',
+        request_max_bytes: 2000000,
+        content_type: 'application/json',
+        header_name: 'private_key',
+        header_value: this._cfg.coralogixToken,
+        json_format: 1,
+        service_id: this._cfg.service,
+      });
+    }
+  }
+
   async deploy() {
     this.log.info('Set up Fastly Gateway');
 
     await this._fastly.transact(async (newversion) => {
+      await this.enableLogging(newversion);
+
       this.log.info('create condition');
       await this._fastly.writeCondition(newversion, 'false', {
         name: 'false',
@@ -228,6 +334,8 @@ set resp.http.Surrogate-Key = resp.http.X-Surrogate-Key;
 set resp.http.Surrogate-Control = resp.http.X-Surrogate-Control;`,
       });
     }, true);
+
+    this._fastly.discard();
   }
 }
 
