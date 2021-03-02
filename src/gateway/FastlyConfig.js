@@ -54,7 +54,7 @@ class FastlyConfig {
 
   static yarg(yargs) {
     return yargs
-      .group(['fastly-service-id', 'fastly-auth', 'checkpath'], 'Fastly Gateway Options')
+      .group(['fastly-service-id', 'fastly-auth', 'checkpath', 'coralogix-token', 'coralogix-app'], 'Fastly Gateway Options')
       .option('fastly-service-id', {
         description: 'the Fastly Service to use as a gateway',
         type: 'string',
