@@ -11,10 +11,10 @@
  */
 /* eslint-disable no-param-reassign, no-underscore-dangle, import/no-extraneous-dependencies */
 const querystring = require('querystring');
-const { promisify } = require('util');
 const { Request } = require('@adobe/helix-fetch');
 const { epsagon } = require('@adobe/helix-epsagon');
 const { isBinary, ensureUTF8Charset } = require('./utils.js');
+const getAWSSecrets = require('./aws-package-params.js');
 const {
   AWSResolver,
   OpenwhiskResolver,
@@ -50,45 +50,6 @@ async function getGoogleSecrets(functionName, projectID) {
     console.error(`Unable to load secrets from ${name}`, err);
     return { };
   }
-}
-
-async function getAWSSecrets(functionName) {
-  // delay the import so that other runtimes do not have to care
-  // eslint-disable-next-line  import/no-unresolved, global-require
-  const AWS = require('aws-sdk');
-
-  AWS.config.update({
-    region: process.env.AWS_REGION,
-  });
-
-  const ssm = new AWS.SSM();
-  ssm.getParametersByPath = promisify(ssm.getParametersByPath.bind(ssm));
-
-  let params = [];
-  let nextToken;
-  try {
-    do {
-      const opts = {
-        Path: `/helix-deploy/${functionName.replace(/--.*/, '')}/`,
-        WithDecryption: true,
-      };
-      if (nextToken) {
-        opts.NextToken = nextToken;
-      }
-      // eslint-disable-next-line no-await-in-loop
-      const res = await ssm.getParametersByPath(opts);
-      nextToken = res.NextToken;
-      params = params.concat(res.Parameters);
-    } while (nextToken);
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error('unable to get parameters', e);
-  }
-
-  return params.reduce((p, param) => {
-    p[param.Name.replace(/.*\//, '')] = param.Value;
-    return p;
-  }, {});
 }
 
 // Azure
@@ -310,6 +271,17 @@ async function lambda(event, context) {
       headers: event.headers,
       body: event.isBase64Encoded ? Buffer.from(event.body, 'base64') : event.body,
     });
+
+    // parse ARN
+    //   arn:partition:service:region:account-id:resource-type:resource-id
+    //   eg: arn:aws:lambda:us-east-1:118435662149:function:dump:4_2_1
+    const [/* 'arn' */, /* 'aws' */, /* 'lambda' */,
+      region,
+      accountId, /* 'function' */,
+      functionName,
+      functionAlias,
+    ] = context.invokedFunctionArn.split(':');
+
     const con = {
       resolver: new AWSResolver(event),
       pathInfo: {
@@ -317,11 +289,12 @@ async function lambda(event, context) {
       },
       runtime: {
         name: 'aws-lambda',
-        region: process.env.AWS_REGION,
+        region,
+        accountId,
       },
       func: {
-        name: context.functionName,
-        version: context.functionVersion,
+        name: functionName,
+        version: (functionAlias || '').replace(/_/g, '.'),
         app: event.requestContext.apiId,
       },
       invocation: {
