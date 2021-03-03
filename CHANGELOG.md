@@ -1,3 +1,10 @@
+## [3.6.1](https://github.com/adobe/helix-deploy/compare/v3.6.0...v3.6.1) (2021-03-03)
+
+
+### Bug Fixes
+
+* **aws:** ensure version in context.func is correct ([#138](https://github.com/adobe/helix-deploy/issues/138)) ([97b9a39](https://github.com/adobe/helix-deploy/commit/97b9a3969c32ddf7f2b75b0ab5bf64572d87a753)), closes [#129](https://github.com/adobe/helix-deploy/issues/129)
+
 # [3.6.0](https://github.com/adobe/helix-deploy/compare/v3.5.0...v3.6.0) (2021-03-02)
 
 
