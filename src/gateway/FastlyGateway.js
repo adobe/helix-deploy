@@ -129,7 +129,7 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)") {
           json: {
             ow: {
               environment: str(vcl`regsub(req.backend, ".*_", "")`),
-              actionName: str(vcl`regsub(req.url, "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)", "\\\\1/\\\\2\\\\3")`),
+              actionName: str(vcl`regsub(req.url, "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)", "\\\\1/\\\\2@\\\\4")`),
             },
             time: {
               start: str(
