@@ -1,3 +1,10 @@
+## [3.6.3](https://github.com/adobe/helix-deploy/compare/v3.6.2...v3.6.3) (2021-03-03)
+
+
+### Bug Fixes
+
+* **logging:** cleanup action name in logs ([437af02](https://github.com/adobe/helix-deploy/commit/437af0294be8fb9465cf749919e8cad498c69d31))
+
 ## [3.6.2](https://github.com/adobe/helix-deploy/compare/v3.6.1...v3.6.2) (2021-03-03)
 
 
