@@ -139,7 +139,13 @@ async function openwhisk(params = {}) {
 
     let body;
     if (!/^(GET|HEAD)$/i.test(method)) {
-      body = isBinary(headers['content-type']) ? Buffer.from(rawBody, 'base64') : rawBody;
+      body = isBinary(headers['content-type'])
+        ? Buffer.from(rawBody, 'base64')
+        : rawBody;
+      // binaries and JSON (!) are base64 encoded
+      if (/application\/json/.test(headers['content-type'])) {
+        body = Buffer.from(rawBody, 'base64').toString('utf-8');
+      }
     }
 
     const env = { ...process.env };

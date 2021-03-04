@@ -47,6 +47,54 @@ describe('Wrapper tests for Azure', () => {
   });
 });
 
+describe('Wrapper tests for OpenWhisk', () => {
+  it('text request body is decoded', async () => {
+    const { main } = proxyquire('../src/template/index.js', {
+      './main.js': {
+        // eslint-disable-next-line no-unused-vars
+        main: async (request, context) => {
+          assert.equal(await request.text(), 'hallo text');
+          return new Response('okay');
+        },
+      },
+    });
+
+    const params = {
+      __ow_body: 'hallo text',
+      __ow_method: 'post',
+      __ow_headers: {
+        'content-type': 'text/plain',
+      },
+    };
+
+    const result = await main(params);
+    assert.equal(result.statusCode, 200);
+  });
+
+  it('json request body is decoded', async () => {
+    const { main } = proxyquire('../src/template/index.js', {
+      './main.js': {
+        // eslint-disable-next-line no-unused-vars
+        main: async (request, context) => {
+          assert.deepEqual(await request.json(), { goo: 'haha' });
+          return new Response('okay');
+        },
+      },
+    });
+
+    const params = {
+      __ow_body: 'eyJnb28iOiJoYWhhIn0=',
+      __ow_method: 'post',
+      __ow_headers: {
+        'content-type': 'application/json',
+      },
+    };
+
+    const result = await main(params);
+    assert.equal(result.statusCode, 200);
+  });
+});
+
 describe('Wrapper tests for AWS', () => {
   it('context.func', async () => {
     const { lambda } = proxyquire('../src/template/index.js', {
