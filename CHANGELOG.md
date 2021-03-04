@@ -1,3 +1,11 @@
+## [3.6.4](https://github.com/adobe/helix-deploy/compare/v3.6.3...v3.6.4) (2021-03-04)
+
+
+### Bug Fixes
+
+* **openwhisk:** assume utf-8 encoded json ([2ae702c](https://github.com/adobe/helix-deploy/commit/2ae702c955aaec690de756d053cc3625bce7d47b))
+* **openwhisk:** convert base64 encoded json request bodies into strings ([1bb4183](https://github.com/adobe/helix-deploy/commit/1bb41839bd92dc178ef7ebbcbceca83f3dc04c5c)), closes [#141](https://github.com/adobe/helix-deploy/issues/141)
+
 ## [3.6.3](https://github.com/adobe/helix-deploy/compare/v3.6.2...v3.6.3) (2021-03-03)
 
 
