@@ -1,3 +1,10 @@
+## [3.6.5](https://github.com/adobe/helix-deploy/compare/v3.6.4...v3.6.5) (2021-03-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-fetch to v2.1.7 ([a99cb68](https://github.com/adobe/helix-deploy/commit/a99cb6810d8cf66226c513a1a39f2687edc0aa6d))
+
 ## [3.6.4](https://github.com/adobe/helix-deploy/compare/v3.6.3...v3.6.4) (2021-03-04)
 
 
