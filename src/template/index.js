@@ -144,7 +144,7 @@ async function openwhisk(params = {}) {
         : rawBody;
       // binaries and JSON (!) are base64 encoded
       if (/application\/json/.test(headers['content-type'])) {
-        body = Buffer.from(rawBody, 'base64').toString();
+        body = Buffer.from(rawBody, 'base64').toString('utf-8');
       }
     }
 
