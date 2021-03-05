@@ -607,7 +607,7 @@ class AWSDeployer extends BaseDeployer {
       await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}/{path+}`);
     }
     if (cleanup) {
-      this.cleanUpIntegrations(functionName);
+      await this.cleanUpIntegrations(functionName);
     }
   }
 
