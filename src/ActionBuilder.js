@@ -602,8 +602,6 @@ module.exports = class ActionBuilder {
       await this._gateways.fastly.deploy();
     }
 
-    await this.runAdditionalTasks();
-
     if (cfg.deploy) {
       return Object.entries(this._deployers).reduce((p, [name, dep]) => {
         // eslint-disable-next-line no-param-reassign
@@ -614,6 +612,8 @@ module.exports = class ActionBuilder {
         return p;
       }, {});
     }
+
+    await this.runAdditionalTasks();
     return '';
   }
 };

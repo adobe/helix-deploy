@@ -42,6 +42,7 @@ const {
   CreateApiCommand,
   CreateStageCommand,
   CreateIntegrationCommand,
+  DeleteIntegrationCommand,
   CreateRouteCommand,
   GetRoutesCommand,
   UpdateRouteCommand,
@@ -306,6 +307,20 @@ class AWSDeployer extends BaseDeployer {
     return null;
   }
 
+  async fetchIntegration(ApiId) {
+    let nextToken;
+    const integrations = [];
+    do {
+      const res = await this._api.send(new GetIntegrationsCommand({
+        ApiId,
+        NextToken: nextToken,
+      }));
+      integrations.push(...res.Items);
+      nextToken = res.NextToken;
+    } while (nextToken);
+    return integrations;
+  }
+
   async fetchRoutes(ApiId) {
     let nextToken;
     const routes = [];
@@ -452,25 +467,90 @@ class AWSDeployer extends BaseDeployer {
     }
   }
 
+  async cleanUpIntegrations(filter) {
+    this.log.info('Clean up Integrations');
+    const { ApiId } = await this.initApiId();
+    this.log.info(chalk`--: fetching routes...`);
+    const routes = await this.fetchRoutes(ApiId);
+    this.log.info(chalk`{green ok}: ${routes.length} routes.`);
+
+    this.log.info(chalk`--: fetching integrations...`);
+    const ints = await this.fetchIntegration(ApiId);
+    this.log.info(chalk`{green ok}: ${ints.length} integrations.`);
+    const routesByTarget = new Map();
+    routes.forEach((route) => {
+      const rts = routesByTarget.get(route.Target) || [];
+      routesByTarget.set(route.Target, rts);
+      rts.push(route);
+    });
+    const unused = [];
+    if (filter) {
+      this.log.info(chalk`Integrations / Routes for {gray ${filter}}`);
+    } else {
+      this.log.info('Integrations / Routes');
+    }
+    ints.sort((i0, i1) => (i0.IntegrationUri.localeCompare(i1.IntegrationUri)));
+    ints.forEach((int, idx) => {
+      if (filter && int.IntegrationUri.indexOf(filter) < 0) {
+        return;
+      }
+      const key = `integrations/${int.IntegrationId}`;
+      let pfx = idx === ints.length - 1 ? '└──' : '├──';
+      const fnc = int.IntegrationUri.split(':').splice(-2, 2).join('@');
+      this.log.info(chalk`${pfx} {yellow ${fnc}} {grey (${int.IntegrationId}})`);
+      const rts = routesByTarget.get(key) || [];
+      if (!rts.length) {
+        unused.push(int);
+      }
+      pfx = idx === ints.length - 1 ? '    ' : '│   ';
+      rts.forEach((route, idx1) => {
+        const pfx1 = idx1 === rts.length - 1 ? '└──' : '├──';
+        this.log.info(chalk`${pfx}${pfx1} {blue ${route.RouteKey}}`);
+      });
+    });
+    if (!unused.length) {
+      this.log.info(chalk`{green ok}: No unused integrations.`);
+      return;
+    }
+    this.log.info(chalk`--: deleting ${unused.length} unused integrations...`);
+    // don't execute parallel to avoid flooding the API
+    for (const int of unused) {
+      const fnc = int.IntegrationUri.split(':')
+        .splice(-2, 2)
+        .join('@');
+      try {
+        await this._api.send(new DeleteIntegrationCommand({
+          ApiId,
+          IntegrationId: int.IntegrationId,
+        }));
+        this.log.info(chalk`{green ok}: {yellow ${int.IntegrationId}} {grey ${fnc}}`);
+        // const delay = res.$metadata.totalRetryDelay;
+      } catch (e) {
+        this.log.info(chalk`{red error}: {yellow ${int.IntegrationId}} {grey ${fnc}}: ${e.message}`);
+      }
+    }
+    this.log.info(chalk`{green ok}: deleted ${unused.length} unused integrations.`);
+  }
+
   async createOrUpdateRoute(routes, ApiId, IntegrationId, RouteKey) {
     const existing = routes.find((r) => r.RouteKey === RouteKey);
     if (existing) {
-      this.log.info(chalk`--: updating route for: ${existing.RouteKey}...`);
+      this.log.info(chalk`--: updating route for: {blue ${existing.RouteKey}}...`);
       const res = await this._api.send(new UpdateRouteCommand({
         ApiId,
         RouteId: existing.RouteId,
         RouteKey,
         Target: `integrations/${IntegrationId}`,
       }));
-      this.log.info(chalk`{green ok}: updated route for: ${res.RouteKey}`);
+      this.log.info(chalk`{green ok}: updated route for: {blue ${res.RouteKey}}`);
     } else {
-      this.log.info(chalk`--: creating route for: ${RouteKey}...`);
+      this.log.info(chalk`--: creating route for: {blue ${RouteKey}}...`);
       const res = await this._api.send(new CreateRouteCommand({
         ApiId,
         RouteKey,
         Target: `integrations/${IntegrationId}`,
       }));
-      this.log.info(chalk`{green ok}: created route for: ${res.RouteKey}`);
+      this.log.info(chalk`{green ok}: created route for: {blue ${res.RouteKey}}`);
     }
   }
 
@@ -497,6 +577,7 @@ class AWSDeployer extends BaseDeployer {
 
     // find integration
     let integration = await this.findIntegration(ApiId, aliasArn);
+    let cleanup = false;
     if (integration) {
       this.log.info(`--: using existing integration "${integration.IntegrationId}" for "${aliasArn}"`);
     } else {
@@ -509,6 +590,7 @@ class AWSDeployer extends BaseDeployer {
         TimeoutInMillis: Math.min(cfg.timeout, 30000),
       }));
       this.log.info(chalk`{green ok:} created new integration "${integration.IntegrationId}" for "${aliasArn}"`);
+      cleanup = true;
     }
     const { IntegrationId } = integration;
 
@@ -524,11 +606,17 @@ class AWSDeployer extends BaseDeployer {
       await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}`);
       await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}/{path+}`);
     }
+    if (cleanup) {
+      await this.cleanUpIntegrations(functionName);
+    }
   }
 
   async runAdditionalTasks() {
     if (this._cfg.cleanUpBuckets) {
       await this.cleanUpBuckets();
+    }
+    if (this._cfg.cleanUpIntegrations) {
+      await this.cleanUpIntegrations();
     }
   }
 
