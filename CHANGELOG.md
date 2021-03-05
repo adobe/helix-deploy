@@ -1,3 +1,10 @@
+# [3.7.0](https://github.com/adobe/helix-deploy/compare/v3.6.6...v3.7.0) (2021-03-05)
+
+
+### Features
+
+* **aws:** delete unused integrations ([#143](https://github.com/adobe/helix-deploy/issues/143)) ([c72e443](https://github.com/adobe/helix-deploy/commit/c72e4438c47c009c3a12ca72b15712d7e3993936)), closes [#128](https://github.com/adobe/helix-deploy/issues/128)
+
 ## [3.6.6](https://github.com/adobe/helix-deploy/compare/v3.6.5...v3.6.6) (2021-03-04)
 
 
