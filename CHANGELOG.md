@@ -1,3 +1,10 @@
+## [3.7.1](https://github.com/adobe/helix-deploy/compare/v3.7.0...v3.7.1) (2021-03-06)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([8232445](https://github.com/adobe/helix-deploy/commit/8232445045941759041e327b3f2159e94da1add4))
+
 # [3.7.0](https://github.com/adobe/helix-deploy/compare/v3.6.6...v3.7.0) (2021-03-05)
 
 
