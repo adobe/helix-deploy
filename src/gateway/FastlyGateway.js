@@ -332,7 +332,7 @@ set beresp.http.X-Surrogate-Control = beresp.http.Surrogate-Control;`,
         type: 'deliver',
         content: `
 # restart the request in case of flakiness
-if (req.restarts < 2 && (resp.status == 503 || resp.status == 504) && (req.request == "GET" || req.request == "HEAD" || req.request == "PUT || req.request == "DELETE")) {
+if (req.restarts < 2 && (resp.status == 503 || resp.status == 504) && (req.request == "GET" || req.request == "HEAD" || req.request == "PUT" || req.request == "DELETE")) {
   restart;
 }
 set resp.http.x-gateway-restarts = req.restarts;
