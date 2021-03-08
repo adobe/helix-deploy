@@ -1,3 +1,10 @@
+# [3.8.0](https://github.com/adobe/helix-deploy/compare/v3.7.1...v3.8.0) (2021-03-08)
+
+
+### Features
+
+* **uni:** add espagon support for AWS ([#149](https://github.com/adobe/helix-deploy/issues/149)) ([6be2f8b](https://github.com/adobe/helix-deploy/commit/6be2f8b60beb49033c5351d179e4cbbd78a20a5c)), closes [#147](https://github.com/adobe/helix-deploy/issues/147)
+
 ## [3.7.1](https://github.com/adobe/helix-deploy/compare/v3.7.0...v3.7.1) (2021-03-06)
 
 
