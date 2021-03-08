@@ -184,6 +184,7 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)") {
               cache_control: req`Cache-Control`,
               header_size: vcl`req.header_bytes_read`,
               body_size: vcl`req.body_bytes_read`,
+              restarts: vcl`req.restarts`,
             },
             origin: {
               host: str('%v'),
@@ -322,6 +323,20 @@ set beresp.cacheable = false;`,
         content: `
 set beresp.http.X-Surrogate-Key = beresp.http.Surrogate-Key;
 set beresp.http.X-Surrogate-Control = beresp.http.Surrogate-Control;`,
+      });
+
+      await this._fastly.writeSnippet(newversion, 'restart', {
+        name: 'restart',
+        priority: 10,
+        dynamic: 0,
+        type: 'deliver',
+        content: `
+# restart the request in case of flakiness
+if (req.restarts < 2 && (resp.status == 503 || resp.status == 504)) {
+  restart;
+}
+set resp.http.x-gateway-restarts = req.restarts;
+unset resp.http.Fastly-Restarts;`,
       });
 
       await this._fastly.writeSnippet(newversion, 'restoresurrogates', {
