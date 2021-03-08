@@ -270,65 +270,76 @@ async function google(req, res) {
 }
 
 // AWS
-async function lambda(event, context) {
+async function lambda(evt, ctx) {
   try {
-    const request = new Request(`https://${event.requestContext.domainName}${event.rawPath}${event.rawQueryString ? '?' : ''}${event.rawQueryString}`, {
-      method: event.requestContext.http.method,
-      headers: event.headers,
-      body: event.isBase64Encoded ? Buffer.from(event.body, 'base64') : event.body,
-    });
+    const secrets = await getAWSSecrets(ctx.functionName);
 
-    // parse ARN
-    //   arn:partition:service:region:account-id:resource-type:resource-id
-    //   eg: arn:aws:lambda:us-east-1:118435662149:function:dump:4_2_1
-    const [/* 'arn' */, /* 'aws' */, /* 'lambda' */,
-      region,
-      accountId, /* 'function' */,
-      functionName,
-      functionAlias,
-    ] = context.invokedFunctionArn.split(':');
+    let handler = async (event, context) => {
+      const request = new Request(`https://${event.requestContext.domainName}${event.rawPath}${event.rawQueryString ? '?' : ''}${event.rawQueryString}`, {
+        method: event.requestContext.http.method,
+        headers: event.headers,
+        body: event.isBase64Encoded ? Buffer.from(event.body, 'base64') : event.body,
+      });
 
-    const con = {
-      resolver: new AWSResolver(event),
-      pathInfo: {
-        suffix: event.pathParameters && event.pathParameters.path ? `/${event.pathParameters.path}` : '',
-      },
-      runtime: {
-        name: 'aws-lambda',
+      // parse ARN
+      //   arn:partition:service:region:account-id:resource-type:resource-id
+      //   eg: arn:aws:lambda:us-east-1:118435662149:function:dump:4_2_1
+      const [/* 'arn' */, /* 'aws' */, /* 'lambda' */,
         region,
-        accountId,
-      },
-      func: {
-        name: functionName,
-        version: (functionAlias || '').replace(/_/g, '.'),
-        app: event.requestContext.apiId,
-      },
-      invocation: {
-        id: context.awsRequestId,
-        deadline: Date.now() + context.getRemainingTimeInMillis(),
-      },
-      env: {
-        ...process.env,
-        ...(await getAWSSecrets(context.functionName)),
-      },
+        accountId, /* 'function' */,
+        functionName,
+        functionAlias,
+      ] = context.invokedFunctionArn.split(':');
+
+      const con = {
+        resolver: new AWSResolver(event),
+        pathInfo: {
+          suffix: event.pathParameters && event.pathParameters.path ? `/${event.pathParameters.path}` : '',
+        },
+        runtime: {
+          name: 'aws-lambda',
+          region,
+          accountId,
+        },
+        func: {
+          name: functionName,
+          version: (functionAlias || '').replace(/_/g, '.'),
+          app: event.requestContext.apiId,
+        },
+        invocation: {
+          id: context.awsRequestId,
+          deadline: Date.now() + context.getRemainingTimeInMillis(),
+        },
+        env: {
+          ...process.env,
+          ...secrets,
+        },
+      };
+
+      const response = await main(request, con);
+      ensureUTF8Charset(response);
+
+      // flush log if present
+      if (con.log && con.log.flush) {
+        await con.log.flush();
+      }
+      return {
+        statusCode: response.status,
+        headers: Array.from(response.headers.entries()).reduce((h, [header, value]) => {
+          h[header] = value;
+          return h;
+        }, {}),
+        isBase64Encoded: isBinary(response.headers.get('content-type')),
+        body: isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()).toString('base64') : await response.text(),
+      };
     };
 
-    const response = await main(request, con);
-    ensureUTF8Charset(response);
-
-    // flush log if present
-    if (con.log && con.log.flush) {
-      await con.log.flush();
+    if (secrets.EPSAGON_TOKEN) {
+      handler = epsagon(handler, {
+        token: secrets.EPSAGON_TOKEN,
+      });
     }
-    return {
-      statusCode: response.status,
-      headers: Array.from(response.headers.entries()).reduce((h, [header, value]) => {
-        h[header] = value;
-        return h;
-      }, {}),
-      isBase64Encoded: isBinary(response.headers.get('content-type')),
-      body: isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()).toString('base64') : await response.text(),
-    };
+    return handler(evt, ctx);
   } catch (e) {
     return {
       statusCode: 500,
