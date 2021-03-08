@@ -14,6 +14,13 @@ const reader = require('./helper/read.js');
 
 // eslint-disable-next-line no-unused-vars
 module.exports.main = function main(req, context) {
+  const url = new URL(req.url);
+  const chanceoffailure = parseInt(url.searchParams.get('chanceoffailure') || '0', 10);
+  if (Math.random() * 100 < chanceoffailure) {
+    return new Response(`${chanceoffailure}% of requests fail. This is one of the failures`, {
+      status: 503,
+    });
+  }
   const resp = JSON.stringify({
     url: req.url,
     file: reader(),
