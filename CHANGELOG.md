@@ -1,3 +1,16 @@
+# [3.9.0](https://github.com/adobe/helix-deploy/compare/v3.8.0...v3.9.0) (2021-03-08)
+
+
+### Bug Fixes
+
+* **gateway:** only attempt to restart the request for idepotempt HTTP methods ([c1584f6](https://github.com/adobe/helix-deploy/commit/c1584f6c53eb982330c077d38d9d6e4239218c7b)), closes [#152](https://github.com/adobe/helix-deploy/issues/152)
+* **vcl:** fix vcl syntax ([76352bd](https://github.com/adobe/helix-deploy/commit/76352bddb7394950058b33fb1931ac8018c4ba32))
+
+
+### Features
+
+* **gateway:** re-try when backend responds with 503 or 504 ([1144684](https://github.com/adobe/helix-deploy/commit/114468407cc8e24d78cfb7bd5304119e3ae865b0)), closes [#152](https://github.com/adobe/helix-deploy/issues/152)
+
 # [3.8.0](https://github.com/adobe/helix-deploy/compare/v3.7.1...v3.8.0) (2021-03-08)
 
 
