@@ -69,6 +69,7 @@ class FastlyGateway {
 
     const middle = this._deployers.map((deployer) => `if((var.i <= var.${deployer.name.toLowerCase()} && backend.F_${deployer.name}.healthy) && subfield(req.http.x-ow-version-lock, "env", "&") !~ ".?" || subfield(req.http.x-ow-version-lock, "env", "&") == "${deployer.name.toLowerCase()}") {
       set req.backend = F_${deployer.name};
+      ${this._deployers[0].customVCL}
     }`);
 
     const fallback = `{
@@ -130,6 +131,13 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)") {
             ow: {
               environment: str(vcl`regsub(req.backend, ".*_", "")`),
               actionName: str(vcl`regsub(req.url, "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)", "\\\\1/\\\\2@\\\\4")`),
+              activationId: concat(
+                vcl`if(resp.http.x-openwhisk-activation-id != "", resp.http.x-openwhisk-activation-id, "")`,
+              ),
+              transactionId: concat(
+                vcl`if(resp.http.x-request-id != "", resp.http.x-request-id, "")`,
+                vcl`if(req.http.x-amazn-trace-id != "", req.http.x-amazn-trace-id, "")`,
+              ),
             },
             time: {
               start: str(
