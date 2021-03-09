@@ -114,7 +114,20 @@ async function azure(context, req) {
       body: isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()) : await response.text(),
     };
   } catch (e) {
-    console.error(e);
+    if (e instanceof TypeError && e.code === 'ERR_INVALID_CHAR') {
+      // eslint-disable-next-line no-console
+      console.error('invalid request header', e.message);
+      context.res = {
+        status: 400,
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+        body: e.message,
+      };
+      return;
+    }
+    // eslint-disable-next-line no-console
+    console.error('error while invoking function', e);
     context.res = {
       status: 500,
       headers: {
@@ -211,6 +224,17 @@ async function openwhisk(params = {}) {
       body: isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()).toString('base64') : await response.text(),
     };
   } catch (e) {
+    if (e instanceof TypeError && e.code === 'ERR_INVALID_CHAR') {
+      // eslint-disable-next-line no-console
+      console.error('invalid request header', e.message);
+      return {
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+        body: e.message,
+      };
+    }
     // eslint-disable-next-line no-console
     console.error('error while invoking function', e);
     return {
@@ -265,75 +289,106 @@ async function google(req, res) {
 
     Array.from(response.headers.entries()).reduce((r, [header, value]) => r.set(header, value), res.status(response.status)).send(isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()) : await response.text());
   } catch (e) {
+    if (e instanceof TypeError && e.code === 'ERR_INVALID_CHAR') {
+      // eslint-disable-next-line no-console
+      console.error('invalid request header', e.message);
+      res.status(400).send(e.message);
+      return;
+    }
+    // eslint-disable-next-line no-console
+    console.error('error while invoking function', e);
     res.status(500).send(e.message);
   }
 }
 
 // AWS
+async function lambdaAdapter(event, context, secrets) {
+  try {
+    const request = new Request(`https://${event.requestContext.domainName}${event.rawPath}${event.rawQueryString ? '?' : ''}${event.rawQueryString}`, {
+      method: event.requestContext.http.method,
+      headers: event.headers,
+      body: event.isBase64Encoded ? Buffer.from(event.body, 'base64') : event.body,
+    });
+
+    // parse ARN
+    //   arn:partition:service:region:account-id:resource-type:resource-id
+    //   eg: arn:aws:lambda:us-east-1:118435662149:function:dump:4_2_1
+    const [/* 'arn' */, /* 'aws' */, /* 'lambda' */,
+      region,
+      accountId, /* 'function' */,
+      functionName,
+      functionAlias,
+    ] = context.invokedFunctionArn.split(':');
+
+    const con = {
+      resolver: new AWSResolver(event),
+      pathInfo: {
+        suffix: event.pathParameters && event.pathParameters.path ? `/${event.pathParameters.path}` : '',
+      },
+      runtime: {
+        name: 'aws-lambda',
+        region,
+        accountId,
+      },
+      func: {
+        name: functionName,
+        version: (functionAlias || '').replace(/_/g, '.'),
+        app: event.requestContext.apiId,
+      },
+      invocation: {
+        id: context.awsRequestId,
+        deadline: Date.now() + context.getRemainingTimeInMillis(),
+      },
+      env: {
+        ...process.env,
+        ...secrets,
+      },
+    };
+
+    const response = await main(request, con);
+    ensureUTF8Charset(response);
+
+    // flush log if present
+    if (con.log && con.log.flush) {
+      await con.log.flush();
+    }
+    return {
+      statusCode: response.status,
+      headers: Array.from(response.headers.entries()).reduce((h, [header, value]) => {
+        h[header] = value;
+        return h;
+      }, {}),
+      isBase64Encoded: isBinary(response.headers.get('content-type')),
+      body: isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()).toString('base64') : await response.text(),
+    };
+  } catch (e) {
+    if (e instanceof TypeError && e.code === 'ERR_INVALID_CHAR') {
+      // eslint-disable-next-line no-console
+      console.error('invalid request header', e.message);
+      return {
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+        body: e.message,
+      };
+    }
+    // eslint-disable-next-line no-console
+    console.error('error while invoking function', e);
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'text/plain',
+      },
+      body: e.message,
+    };
+  }
+}
+
 async function lambda(evt, ctx) {
   try {
     const secrets = await getAWSSecrets(ctx.functionName);
-
-    let handler = async (event, context) => {
-      const request = new Request(`https://${event.requestContext.domainName}${event.rawPath}${event.rawQueryString ? '?' : ''}${event.rawQueryString}`, {
-        method: event.requestContext.http.method,
-        headers: event.headers,
-        body: event.isBase64Encoded ? Buffer.from(event.body, 'base64') : event.body,
-      });
-
-      // parse ARN
-      //   arn:partition:service:region:account-id:resource-type:resource-id
-      //   eg: arn:aws:lambda:us-east-1:118435662149:function:dump:4_2_1
-      const [/* 'arn' */, /* 'aws' */, /* 'lambda' */,
-        region,
-        accountId, /* 'function' */,
-        functionName,
-        functionAlias,
-      ] = context.invokedFunctionArn.split(':');
-
-      const con = {
-        resolver: new AWSResolver(event),
-        pathInfo: {
-          suffix: event.pathParameters && event.pathParameters.path ? `/${event.pathParameters.path}` : '',
-        },
-        runtime: {
-          name: 'aws-lambda',
-          region,
-          accountId,
-        },
-        func: {
-          name: functionName,
-          version: (functionAlias || '').replace(/_/g, '.'),
-          app: event.requestContext.apiId,
-        },
-        invocation: {
-          id: context.awsRequestId,
-          deadline: Date.now() + context.getRemainingTimeInMillis(),
-        },
-        env: {
-          ...process.env,
-          ...secrets,
-        },
-      };
-
-      const response = await main(request, con);
-      ensureUTF8Charset(response);
-
-      // flush log if present
-      if (con.log && con.log.flush) {
-        await con.log.flush();
-      }
-      return {
-        statusCode: response.status,
-        headers: Array.from(response.headers.entries()).reduce((h, [header, value]) => {
-          h[header] = value;
-          return h;
-        }, {}),
-        isBase64Encoded: isBinary(response.headers.get('content-type')),
-        body: isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()).toString('base64') : await response.text(),
-      };
-    };
-
+    let handler = (event, context) => lambdaAdapter(event, context, secrets);
     if (secrets.EPSAGON_TOKEN) {
       handler = epsagon(handler, {
         token: secrets.EPSAGON_TOKEN,
