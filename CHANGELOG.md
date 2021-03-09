@@ -1,3 +1,10 @@
+## [3.9.1](https://github.com/adobe/helix-deploy/compare/v3.9.0...v3.9.1) (2021-03-09)
+
+
+### Bug Fixes
+
+* **adapter:** handle illegal request header errors with 400 ([#155](https://github.com/adobe/helix-deploy/issues/155)) ([e654b81](https://github.com/adobe/helix-deploy/commit/e654b81a3d7ad39dd09c2a8e902c54a236cbe4c7)), closes [#154](https://github.com/adobe/helix-deploy/issues/154)
+
 # [3.9.0](https://github.com/adobe/helix-deploy/compare/v3.8.0...v3.9.0) (2021-03-08)
 
 
