@@ -192,7 +192,7 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)") {
               url: str(vcl`if(req.http.x-backend-url, req.http.x-backend-url, req.url)`),
             },
             response: {
-              status: str('%s'),
+              status: '%s',
               content_type: res`Content-Type`,
               header_size: vcl`resp.header_bytes_written`,
               body_size: '%B',
