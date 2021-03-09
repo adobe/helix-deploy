@@ -185,6 +185,7 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)") {
               header_size: vcl`req.header_bytes_read`,
               body_size: vcl`req.body_bytes_read`,
               restarts: vcl`req.restarts`,
+              versionlock: req`X-OW-Version-Lock`,
             },
             origin: {
               host: str('%v'),
