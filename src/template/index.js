@@ -132,6 +132,7 @@ async function azure(context, req) {
       status: 500,
       headers: {
         'Content-Type': 'text/plain',
+        'x-error': e.message,
       },
       body: e.message,
     };
@@ -241,6 +242,7 @@ async function openwhisk(params = {}) {
       statusCode: 500,
       headers: {
         'Content-Type': 'text/plain',
+        'x-error': e.message,
       },
       body: 'Internal Server Error',
     };
@@ -297,7 +299,10 @@ async function google(req, res) {
     }
     // eslint-disable-next-line no-console
     console.error('error while invoking function', e);
-    res.status(500).send(e.message);
+    res
+      .status(500)
+      .set('x-error', e.message)
+      .send(e.message);
   }
 }
 
@@ -379,6 +384,7 @@ async function lambdaAdapter(event, context, secrets) {
       statusCode: 500,
       headers: {
         'Content-Type': 'text/plain',
+        'x-error': e.message,
       },
       body: e.message,
     };
@@ -400,6 +406,7 @@ async function lambda(evt, ctx) {
       statusCode: 500,
       headers: {
         'Content-Type': 'text/plain',
+        'x-error': e.message,
       },
       body: e.message,
     };
