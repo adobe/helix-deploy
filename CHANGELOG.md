@@ -1,3 +1,16 @@
+# [3.10.0](https://github.com/adobe/helix-deploy/compare/v3.9.1...v3.10.0) (2021-03-10)
+
+
+### Bug Fixes
+
+* **gateway:** log status code as integer instead of string ([3e21280](https://github.com/adobe/helix-deploy/commit/3e2128065149ed8a9f450b40aff3bcf53ef1e10c))
+
+
+### Features
+
+* **gateway:** log the version lock header value ([68d8258](https://github.com/adobe/helix-deploy/commit/68d82583c6462ea3446acb586bd94dca77aa9027))
+* **gateway:** trace aws and openwhisk transaction ids ([7419418](https://github.com/adobe/helix-deploy/commit/7419418eb6106154dc62a7ab9bb468a9f3ba07b3))
+
 ## [3.9.1](https://github.com/adobe/helix-deploy/compare/v3.9.0...v3.9.1) (2021-03-09)
 
 
