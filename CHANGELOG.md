@@ -1,3 +1,11 @@
+# [3.11.0](https://github.com/adobe/helix-deploy/compare/v3.10.0...v3.11.0) (2021-03-10)
+
+
+### Features
+
+* **gateway:** log x-error header ([48fd859](https://github.com/adobe/helix-deploy/commit/48fd859ff03b2fe618df19f8018f7e5523e15f85)), closes [adobe/helix-logging#461](https://github.com/adobe/helix-logging/issues/461)
+* **template:** set x-error header for caught 500s ([a94d200](https://github.com/adobe/helix-deploy/commit/a94d20065498b6f74bfc114acbed0b312e94440d)), closes [adobe/helix-logging#461](https://github.com/adobe/helix-logging/issues/461)
+
 # [3.10.0](https://github.com/adobe/helix-deploy/compare/v3.9.1...v3.10.0) (2021-03-10)
 
 
