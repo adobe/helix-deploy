@@ -289,6 +289,7 @@ describe('OpenWhisk Adapter Test', () => {
       body: 'Internal Server Error',
       headers: {
         'Content-Type': 'text/plain',
+        'x-error': 'boing!',
       },
       statusCode: 500,
     });
