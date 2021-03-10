@@ -110,6 +110,16 @@ class AWSDeployer extends BaseDeployer {
     return `${this.functionPath}`;
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  get customVCL() {
+    // https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-request-tracing.html
+    // set X-Amzn-Trace-Id (tracing from x-cdn-request-id)
+    return `if (req.http.x-cdn-request-id != "") {
+      # aws trace id: root/self + version + timestamp + id (stripped of dashes)
+      set req.http.X-Amzn-Trace-Id = "Root=1" + now.sec + req.http.x-cdn-request-id;
+    }`;
+  }
+
   validate() {
     if (!this._cfg.role || !this._cfg.region) {
       throw Error('AWS target needs --aws-region and --aws-role');
