@@ -133,10 +133,13 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)") {
               actionName: str(vcl`regsub(req.url, "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)", "\\\\1/\\\\2@\\\\4")`),
               activationId: str(concat(
                 vcl`if(resp.http.x-openwhisk-activation-id != "", resp.http.x-openwhisk-activation-id, "")`,
+                vcl`if(resp.http.Apigw-Requestid != "", resp.http.Apigw-Requestid, "")`,
+                vcl`if(resp.http.Function-Execution-Id != "", resp.http.Function-Execution-Id, "")`,
               )),
               transactionId: str(concat(
                 vcl`if(resp.http.x-request-id != "", resp.http.x-request-id, "")`,
-                vcl`if(req.http.x-amazn-trace-id != "", req.http.x-amazn-trace-id, "")`,
+                vcl`if(resp.http.x-amazn-trace-id != "", resp.http.x-amazn-trace-id, "")`,
+                vcl`if(resp.http.X-Cloud-Trace-Context != "", resp.http.X-Cloud-Trace-Context, "")`,
               )),
             },
             time: {
