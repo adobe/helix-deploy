@@ -201,7 +201,7 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)") {
             },
             response: {
               status: '%s',
-              error: res`X-Error`,
+              error: str(vcl`resp.http.x-error`),
               content_type: res`Content-Type`,
               header_size: vcl`resp.header_bytes_written`,
               body_size: '%B',
