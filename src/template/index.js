@@ -25,6 +25,8 @@ const {
 // eslint-disable-next-line  import/no-unresolved
 const { main } = require('./main.js');
 
+const HEALTHCHECK_PATH = '/_status_check/healthcheck.json';
+
 /*
  * Universal Wrapper for serverless functions
  */
@@ -137,7 +139,7 @@ async function azure(context, req) {
 }
 
 // OW
-async function openwhisk(params = {}) {
+async function openwhiskAdapter(params = {}) {
   try {
     const {
       __ow_method: method = 'GET',
@@ -242,6 +244,15 @@ async function openwhisk(params = {}) {
       body: 'Internal Server Error',
     };
   }
+}
+
+function openwhisk(params = {}) {
+  let handler = (p) => openwhiskAdapter(p);
+  // enable epsagon if not healthcheck path.
+  if (params.__ow_path !== HEALTHCHECK_PATH) {
+    handler = epsagon(handler);
+  }
+  return handler(params);
 }
 
 // Google
@@ -389,9 +400,13 @@ async function lambda(evt, ctx) {
     const secrets = await getAWSSecrets(ctx.functionName);
     let handler = (event, context) => lambdaAdapter(event, context, secrets);
     if (secrets.EPSAGON_TOKEN) {
-      handler = epsagon(handler, {
-        token: secrets.EPSAGON_TOKEN,
-      });
+      // check if health check
+      const suffix = evt.pathParameters && evt.pathParameters.path ? `/${evt.pathParameters.path}` : '';
+      if (suffix !== HEALTHCHECK_PATH) {
+        handler = epsagon(handler, {
+          token: secrets.EPSAGON_TOKEN,
+        });
+      }
     }
     return handler(evt, ctx);
   } catch (e) {
@@ -408,7 +423,7 @@ async function lambda(evt, ctx) {
 
 // exports
 module.exports = Object.assign(azure, {
-  main: epsagon(openwhisk),
+  main: openwhisk,
   lambda,
   google,
 });
