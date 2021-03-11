@@ -106,10 +106,7 @@ async function azure(context, req) {
 
     context.res = {
       status: response.status,
-      headers: Array.from(response.headers.entries()).reduce((h, [header, value]) => {
-        h[header] = value;
-        return h;
-      }, {}),
+      headers: Object.fromEntries(response.headers.entries()),
       isRaw: isBinary(response.headers.get('content-type')),
       body: isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()) : await response.text(),
     };
@@ -216,13 +213,11 @@ async function openwhisk(params = {}) {
     const response = await main(request, context);
     ensureUTF8Charset(response);
 
+    const isBase64Encoded = isBinary(response.headers.get('content-type'));
     return {
       statusCode: response.status,
-      headers: Array.from(response.headers.entries()).reduce((h, [header, value]) => {
-        h[header] = value;
-        return h;
-      }, {}),
-      body: isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()).toString('base64') : await response.text(),
+      headers: Object.fromEntries(response.headers.entries()),
+      body: isBase64Encoded ? Buffer.from(await response.arrayBuffer()).toString('base64') : await response.text(),
     };
   } catch (e) {
     if (e instanceof TypeError && e.code === 'ERR_INVALID_CHAR') {
@@ -357,14 +352,12 @@ async function lambdaAdapter(event, context, secrets) {
     if (con.log && con.log.flush) {
       await con.log.flush();
     }
+    const isBase64Encoded = isBinary(response.headers.get('content-type'));
     return {
       statusCode: response.status,
-      headers: Array.from(response.headers.entries()).reduce((h, [header, value]) => {
-        h[header] = value;
-        return h;
-      }, {}),
-      isBase64Encoded: isBinary(response.headers.get('content-type')),
-      body: isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()).toString('base64') : await response.text(),
+      headers: Object.fromEntries(response.headers.entries()),
+      isBase64Encoded,
+      body: isBase64Encoded ? Buffer.from(await response.arrayBuffer()).toString('base64') : await response.text(),
     };
   } catch (e) {
     if (e instanceof TypeError && e.code === 'ERR_INVALID_CHAR') {
