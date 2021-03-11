@@ -131,13 +131,13 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)") {
             ow: {
               environment: str(vcl`regsub(req.backend, ".*_", "")`),
               actionName: str(vcl`regsub(req.url, "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)", "\\\\1/\\\\2@\\\\4")`),
-              activationId: concat(
+              activationId: str(concat(
                 vcl`if(resp.http.x-openwhisk-activation-id != "", resp.http.x-openwhisk-activation-id, "")`,
-              ),
-              transactionId: concat(
+              )),
+              transactionId: str(concat(
                 vcl`if(resp.http.x-request-id != "", resp.http.x-request-id, "")`,
                 vcl`if(req.http.x-amazn-trace-id != "", req.http.x-amazn-trace-id, "")`,
-              ),
+              )),
             },
             time: {
               start: str(
