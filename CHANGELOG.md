@@ -1,3 +1,16 @@
+# [3.12.0](https://github.com/adobe/helix-deploy/compare/v3.11.0...v3.12.0) (2021-03-11)
+
+
+### Bug Fixes
+
+* **gateway:** add missing quotes to log strings ([c448ae3](https://github.com/adobe/helix-deploy/commit/c448ae3d2efbc0da881cc7eda7115b87c46d4cd5))
+* **gateway:** escape error header ([bc3a5fd](https://github.com/adobe/helix-deploy/commit/bc3a5fdb1661d58356f35824900dcc8b5664b4ef))
+
+
+### Features
+
+* **gateway:** log transaction id and activation id for google ([587d5c4](https://github.com/adobe/helix-deploy/commit/587d5c4bf85a1cb58afa21f40e775abe60192fc5))
+
 # [3.11.0](https://github.com/adobe/helix-deploy/compare/v3.10.0...v3.11.0) (2021-03-10)
 
 
