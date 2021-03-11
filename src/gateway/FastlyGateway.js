@@ -131,13 +131,16 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)") {
             ow: {
               environment: str(vcl`regsub(req.backend, ".*_", "")`),
               actionName: str(vcl`regsub(req.url, "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)", "\\\\1/\\\\2@\\\\4")`),
-              activationId: concat(
+              activationId: str(concat(
                 vcl`if(resp.http.x-openwhisk-activation-id != "", resp.http.x-openwhisk-activation-id, "")`,
-              ),
-              transactionId: concat(
+                vcl`if(resp.http.Apigw-Requestid != "", resp.http.Apigw-Requestid, "")`,
+                vcl`if(resp.http.Function-Execution-Id != "", resp.http.Function-Execution-Id, "")`,
+              )),
+              transactionId: str(concat(
                 vcl`if(resp.http.x-request-id != "", resp.http.x-request-id, "")`,
-                vcl`if(req.http.x-amazn-trace-id != "", req.http.x-amazn-trace-id, "")`,
-              ),
+                vcl`if(resp.http.x-amazn-trace-id != "", resp.http.x-amazn-trace-id, "")`,
+                vcl`if(resp.http.X-Cloud-Trace-Context != "", resp.http.X-Cloud-Trace-Context, "")`,
+              )),
             },
             time: {
               start: str(
@@ -201,7 +204,7 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)") {
             },
             response: {
               status: '%s',
-              error: res`X-Error`,
+              error: str(vcl`resp.http.x-error`),
               content_type: res`Content-Type`,
               header_size: vcl`resp.header_bytes_written`,
               body_size: '%B',
