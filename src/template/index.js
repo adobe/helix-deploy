@@ -25,6 +25,8 @@ const {
 // eslint-disable-next-line  import/no-unresolved
 const { main } = require('./main.js');
 
+const HEALTHCHECK_PATH = '/_status_check/healthcheck.json';
+
 /*
  * Universal Wrapper for serverless functions
  */
@@ -106,10 +108,7 @@ async function azure(context, req) {
 
     context.res = {
       status: response.status,
-      headers: Array.from(response.headers.entries()).reduce((h, [header, value]) => {
-        h[header] = value;
-        return h;
-      }, {}),
+      headers: Object.fromEntries(response.headers.entries()),
       isRaw: isBinary(response.headers.get('content-type')),
       body: isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()) : await response.text(),
     };
@@ -140,7 +139,7 @@ async function azure(context, req) {
 }
 
 // OW
-async function openwhisk(params = {}) {
+async function openwhiskAdapter(params = {}) {
   try {
     const {
       __ow_method: method = 'GET',
@@ -216,13 +215,11 @@ async function openwhisk(params = {}) {
     const response = await main(request, context);
     ensureUTF8Charset(response);
 
+    const isBase64Encoded = isBinary(response.headers.get('content-type'));
     return {
       statusCode: response.status,
-      headers: Array.from(response.headers.entries()).reduce((h, [header, value]) => {
-        h[header] = value;
-        return h;
-      }, {}),
-      body: isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()).toString('base64') : await response.text(),
+      headers: Object.fromEntries(response.headers.entries()),
+      body: isBase64Encoded ? Buffer.from(await response.arrayBuffer()).toString('base64') : await response.text(),
     };
   } catch (e) {
     if (e instanceof TypeError && e.code === 'ERR_INVALID_CHAR') {
@@ -247,6 +244,15 @@ async function openwhisk(params = {}) {
       body: 'Internal Server Error',
     };
   }
+}
+
+function openwhisk(params = {}) {
+  let handler = (p) => openwhiskAdapter(p);
+  // enable epsagon if not healthcheck path.
+  if (params.__ow_path !== HEALTHCHECK_PATH) {
+    handler = epsagon(handler);
+  }
+  return handler(params);
 }
 
 // Google
@@ -357,14 +363,12 @@ async function lambdaAdapter(event, context, secrets) {
     if (con.log && con.log.flush) {
       await con.log.flush();
     }
+    const isBase64Encoded = isBinary(response.headers.get('content-type'));
     return {
       statusCode: response.status,
-      headers: Array.from(response.headers.entries()).reduce((h, [header, value]) => {
-        h[header] = value;
-        return h;
-      }, {}),
-      isBase64Encoded: isBinary(response.headers.get('content-type')),
-      body: isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()).toString('base64') : await response.text(),
+      headers: Object.fromEntries(response.headers.entries()),
+      isBase64Encoded,
+      body: isBase64Encoded ? Buffer.from(await response.arrayBuffer()).toString('base64') : await response.text(),
     };
   } catch (e) {
     if (e instanceof TypeError && e.code === 'ERR_INVALID_CHAR') {
@@ -396,9 +400,13 @@ async function lambda(evt, ctx) {
     const secrets = await getAWSSecrets(ctx.functionName);
     let handler = (event, context) => lambdaAdapter(event, context, secrets);
     if (secrets.EPSAGON_TOKEN) {
-      handler = epsagon(handler, {
-        token: secrets.EPSAGON_TOKEN,
-      });
+      // check if health check
+      const suffix = evt.pathParameters && evt.pathParameters.path ? `/${evt.pathParameters.path}` : '';
+      if (suffix !== HEALTHCHECK_PATH) {
+        handler = epsagon(handler, {
+          token: secrets.EPSAGON_TOKEN,
+        });
+      }
     }
     return handler(evt, ctx);
   } catch (e) {
@@ -415,7 +423,7 @@ async function lambda(evt, ctx) {
 
 // exports
 module.exports = Object.assign(azure, {
-  main: epsagon(openwhisk),
+  main: openwhisk,
   lambda,
   google,
 });
