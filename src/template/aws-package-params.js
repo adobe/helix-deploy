@@ -11,7 +11,12 @@
  */
 const { promisify } = require('util');
 
-async function getAWSSecrets(functionName) {
+const cache = {
+  expiration: 0,
+  data: null,
+};
+
+async function loadAWSSecrets(functionName) {
   // delay the import so that other runtimes do not have to care
   // eslint-disable-next-line import/no-unresolved, global-require,import/no-extraneous-dependencies
   const AWS = require('aws-sdk');
@@ -50,6 +55,21 @@ async function getAWSSecrets(functionName) {
     p[param.Name.replace(/.*\//, '')] = param.Value;
     return p;
   }, {});
+}
+
+async function getAWSSecrets(functionName) {
+  const now = Date.now();
+  if (!cache.data || now > cache.expiration) {
+    const params = await loadAWSSecrets(functionName);
+    const nower = Date.now();
+    // eslint-disable-next-line no-console
+    console.info(`loaded ${Object.entries(params).length} package parameter in ${nower - now}ms`);
+    if (params) {
+      cache.data = params;
+      cache.expiration = nower + 60000;
+    }
+  }
+  return cache.data;
 }
 
 module.exports = getAWSSecrets;
