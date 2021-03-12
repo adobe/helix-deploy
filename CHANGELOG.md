@@ -1,3 +1,10 @@
+# [3.14.0](https://github.com/adobe/helix-deploy/compare/v3.13.0...v3.14.0) (2021-03-12)
+
+
+### Features
+
+* **aws:** cache package parameters ([#163](https://github.com/adobe/helix-deploy/issues/163)) ([ff2e9e8](https://github.com/adobe/helix-deploy/commit/ff2e9e8918d6be7dbe05c50a2d52ce2961172259)), closes [#162](https://github.com/adobe/helix-deploy/issues/162)
+
 # [3.13.0](https://github.com/adobe/helix-deploy/compare/v3.12.0...v3.13.0) (2021-03-12)
 
 
