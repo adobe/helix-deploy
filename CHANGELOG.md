@@ -1,3 +1,10 @@
+# [3.13.0](https://github.com/adobe/helix-deploy/compare/v3.12.0...v3.13.0) (2021-03-12)
+
+
+### Features
+
+* **epsagon:** disable epsagon for status pings ([06adcd1](https://github.com/adobe/helix-deploy/commit/06adcd12a44327d8a1d2d07ec9addc3ef8a00ad7)), closes [#158](https://github.com/adobe/helix-deploy/issues/158)
+
 # [3.12.0](https://github.com/adobe/helix-deploy/compare/v3.11.0...v3.12.0) (2021-03-11)
 
 
