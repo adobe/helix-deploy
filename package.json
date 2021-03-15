@@ -32,7 +32,7 @@
     "@aws-sdk/client-lambda": "3.8.1",
     "@aws-sdk/client-s3": "3.8.1",
     "@aws-sdk/client-ssm": "3.8.1",
-    "@azure/arm-appservice": "6.1.0",
+    "@azure/arm-appservice": "7.0.0",
     "@azure/ms-rest-nodeauth": "3.0.7",
     "@google-cloud/functions": "^1.1.2",
     "@google-cloud/secret-manager": "3.5.0",
