@@ -9,15 +9,25 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+const { wrap } = require('@adobe/openwhisk-action-utils');
+const { logger } = require('@adobe/openwhisk-action-logger');
 const { Response } = require('@adobe/helix-fetch');
+const { report } = require('@adobe/helix-status');
 
-// eslint-disable-next-line no-unused-vars
-module.exports.main = function main(req, context) {
-  const resp = JSON.stringify({
-    url: req.url,
-    error: context.env.ERROR,
+/**
+ * This is the main function
+ * @param {Request} req Universal API Request
+ * @param {HEDYContext} context Universal API Context
+ * @returns {Response} a status response
+ */
+async function main(req, context) {
+  const result = await report({}, context.env);
+  return new Response(JSON.stringify(result.body), {
+    headers: result.headers,
+    status: result.statusCode,
   });
+}
 
-  const response = new Response(resp);
-  return response;
-};
+module.exports.main = wrap(main)
+  .with(logger.trace)
+  .with(logger);
