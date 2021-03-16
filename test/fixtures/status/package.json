@@ -1,0 +1,17 @@
+{
+  "name": "status",
+  "version": "1.45.0",
+  "description": "Simple Status Ping",
+  "private": true,
+  "license": "Apache-2.0",
+  "main": "index.js",
+  "dependencies": {
+    "@adobe/helix-fetch": "2.0.0"
+  },
+  "wsk": {
+    "name": "simple-package/simple-status@${version}",
+    "params-file": [
+      "test.env"
+    ]
+  }
+}

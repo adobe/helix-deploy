@@ -60,4 +60,33 @@ describe('Google Integration Test', () => {
     const out = builder.cfg._logger.output;
     assert.ok(out.indexOf('{"url":"https://us-central1-helix-225321.cloudfunctions.net/simple-package--simple-name_1_45_0/foo","file":"Hello, world.\\n"}') > 0, out);
   }).timeout(5000000);
+
+  it('Deploy Simple Status action to Google', async () => {
+    await fse.copy(path.resolve(__dirname, 'fixtures', 'status'), testRoot);
+
+    process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
+    const builder = new CLI()
+      .prepare([
+        '--build',
+        '--verbose',
+        '--deploy',
+        '--target', 'google',
+        '--google-key-file', `${process.env.HOME}/.helix-google.json`,
+        '--google-email', 'cloud-functions-dev@helix-225321.iam.gserviceaccount.com',
+        '--google-project-id', 'helix-225321',
+        '--google-region', 'us-central1',
+        '--package.params', 'HEY=ho',
+        '--update-package', 'true',
+        '-p', 'FOO=bar',
+        '--test', '/foo',
+        '--directory', testRoot,
+        '--entryFile', 'index.js',
+      ]);
+    builder.cfg._logger = new TestLogger();
+
+    const res = await builder.run();
+    assert.ok(res);
+    const out = builder.cfg._logger.output;
+    assert.ok(out.indexOf('{"url":"https://us-central1-helix-225321.cloudfunctions.net/simple-package--simple-status_1_45_0/foo","file":"Hello, world.\\n"}') > 0, out);
+  }).timeout(5000000);
 });
