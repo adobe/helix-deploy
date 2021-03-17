@@ -4,7 +4,7 @@
   "description": "Simple Status Ping",
   "private": true,
   "license": "Apache-2.0",
-  "main": "index.js",
+  "main": "./src/index.js",
   "dependencies": {
     "@adobe/helix-fetch": "2.1.7",
     "@adobe/helix-status": "9.0.9",
