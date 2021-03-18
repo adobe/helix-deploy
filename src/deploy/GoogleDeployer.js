@@ -27,11 +27,21 @@ class GoogleDeployer extends BaseDeployer {
       name: 'Google',
       _cfg: config,
       _client: null,
+      _keyFilename: '',
     });
   }
 
   ready() {
-    return !!this._client && !!this._cfg.projectID;
+    if (!this._client || !this._cfg.projectID || !this._cfg.keyFile) {
+      return false;
+    }
+    this._keyFilename = path.resolve(process.cwd(), this._cfg.keyFile);
+    // todo: maybe support async `ready` ?
+    if (fs.existsSync(this._keyFilename)) {
+      return true;
+    }
+    this.log.warn(`google client and project ID are specified, but key file at ${this._keyFilename} doesn't exist.`);
+    return false;
   }
 
   validate() {
@@ -44,12 +54,12 @@ class GoogleDeployer extends BaseDeployer {
     try {
       this._client = new CloudFunctionsServiceClient({
         email: this._cfg.email,
-        keyFilename: path.resolve(process.cwd(), this._cfg.keyFile),
+        keyFilename: this._keyFilename,
         projectId: this._cfg.projectID,
       });
       this._secretclient = new SecretManagerServiceClient({
         email: this._cfg.email,
-        keyFilename: path.resolve(process.cwd(), this._cfg.keyFile),
+        keyFilename: this._keyFilename,
         projectId: this._cfg.projectID,
       });
     } catch (e) {
