@@ -32,25 +32,20 @@ class GoogleDeployer extends BaseDeployer {
   }
 
   ready() {
-    if (!this._client || !this._cfg.projectID || !this._cfg.keyFile) {
-      return false;
-    }
-    this._keyFilename = path.resolve(process.cwd(), this._cfg.keyFile);
-    // todo: maybe support async `ready` ?
-    if (fs.existsSync(this._keyFilename)) {
-      return true;
-    }
-    this.log.warn(`google client and project ID are specified, but key file at ${this._keyFilename} doesn't exist.`);
-    return false;
+    return !!this._client && !!this._cfg.projectID;
   }
 
   validate() {
     if (!this.ready()) {
       throw new Error('Google target needs key file, email, and project ID');
     }
+    if (!fs.existsSync(this._keyFilename)) {
+      throw new Error(`Google target needs key file ${this._keyFilename} which does not exist`);
+    }
   }
 
   async init() {
+    this._keyFilename = path.resolve(process.cwd(), this._cfg.keyFile);
     try {
       this._client = new CloudFunctionsServiceClient({
         email: this._cfg.email,
