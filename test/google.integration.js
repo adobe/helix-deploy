@@ -80,7 +80,7 @@ describe('Google Integration Test', () => {
         '-p', 'FOO=bar',
         '--test', '/foo',
         '--directory', testRoot,
-        '--entryFile', 'index.js',
+        '--entryFile', 'src/index.js',
       ]);
     builder.cfg._logger = new TestLogger();
 
