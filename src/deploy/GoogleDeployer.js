@@ -237,7 +237,9 @@ class GoogleDeployer extends BaseDeployer {
       await this.uploadZIP();
       await this.createFunction();
     } catch (err) {
-      this.log.error(`Unable to deploy Google Cloud function: ${err.message}`, err);
+      const message = err.metadata ? err.metadata.get('grpc-status-details-bin')[0].toString() : err.message;
+      this.log.error(`Unable to deploy Google Cloud function: ${message}`, err.metadata);
+
       throw err;
     }
   }
