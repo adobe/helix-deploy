@@ -1,3 +1,17 @@
+## [3.14.2](https://github.com/adobe/helix-deploy/compare/v3.14.1...v3.14.2) (2021-03-20)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes to v3.9.0 ([f708b12](https://github.com/adobe/helix-deploy/commit/f708b12d915a5c8820e480c3b7a64dd91b7a5d22))
+
+## [3.14.1](https://github.com/adobe/helix-deploy/compare/v3.14.0...v3.14.1) (2021-03-18)
+
+
+### Bug Fixes
+
+* **google:** only enable google deployer when keyfile exists ([985c1c6](https://github.com/adobe/helix-deploy/commit/985c1c6f94c0551bd4b7233011479bb0216cc6c3))
+
 # [3.14.0](https://github.com/adobe/helix-deploy/compare/v3.13.0...v3.14.0) (2021-03-12)
 
 
