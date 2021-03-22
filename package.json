@@ -27,7 +27,7 @@
   "dependencies": {
     "@adobe/fastly-native-promises": "1.22.2",
     "@adobe/helix-epsagon": "1.6.0",
-    "@adobe/helix-fetch": "2.1.7",
+    "@adobe/helix-fetch": "2.1.8",
     "@aws-sdk/client-apigatewayv2": "3.9.0",
     "@aws-sdk/client-lambda": "3.9.0",
     "@aws-sdk/client-s3": "3.9.0",
