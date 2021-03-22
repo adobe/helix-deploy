@@ -52,7 +52,7 @@ describe('Gateway Integration Test', () => {
         '--deploy',
         '--target', 'wsk',
         '--target', 'aws',
-        // '--target', 'google',
+        '--target', 'google',
         '--target', 'azure',
         '--aws-region', 'us-east-1',
         '--aws-api', 'lqmig3v5eb',
