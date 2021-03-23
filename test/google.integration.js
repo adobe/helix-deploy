@@ -87,6 +87,6 @@ describe('Google Integration Test', () => {
     const res = await builder.run();
     assert.ok(res);
     const out = builder.cfg._logger.output;
-    assert.ok(out.indexOf('{"url":"https://us-central1-helix-225321.cloudfunctions.net/simple-package--simple-status_1_45_0/foo"}') > 0, out);
+    assert.ok(out.indexOf('{"status":"OK","version":"1.45.0"') > 0, out);
   }).timeout(10000000);
 });
