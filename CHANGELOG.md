@@ -1,3 +1,10 @@
+## [3.15.1](https://github.com/adobe/helix-deploy/compare/v3.15.0...v3.15.1) (2021-03-23)
+
+
+### Bug Fixes
+
+* **google:** ensure package.json has semver-compliant version strings ([3b43345](https://github.com/adobe/helix-deploy/commit/3b433459174563ea934c2fc92677b7d3d1060932)), closes [/github.com/adobe/helix-status-service/pull/2#issuecomment-804811000](https://github.com//github.com/adobe/helix-status-service/pull/2/issues/issuecomment-804811000)
+
 # [3.15.0](https://github.com/adobe/helix-deploy/compare/v3.14.3...v3.15.0) (2021-03-23)
 
 
