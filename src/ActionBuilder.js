@@ -17,6 +17,7 @@ const archiver = require('archiver');
 const webpack = require('webpack');
 const chalk = require('chalk');
 const git = require('isomorphic-git');
+const semver = require('semver');
 const { version, dependencies } = require('../package.json');
 
 /**
@@ -275,7 +276,8 @@ module.exports = class ActionBuilder {
 
       const packageJson = {
         name: cfg.baseName,
-        version: cfg.version,
+        // make sure the version string is valid, so that `npm install` works
+        version: semver.valid(cfg.version) ? cfg.version : `0.0.0+${cfg.version}`,
         description: `Universal Action of ${cfg.name}`,
         main: 'index.js',
         license: 'Apache-2.0',
@@ -286,7 +288,6 @@ module.exports = class ActionBuilder {
           '@google-cloud/secret-manager': dependencies['@google-cloud/secret-manager'],
         },
       };
-
       archive.pipe(output);
       this.updateArchive(archive, packageJson).then(() => {
         archive.finalize();
