@@ -34,7 +34,7 @@
     "@aws-sdk/client-ssm": "3.9.0",
     "@azure/arm-appservice": "7.0.0",
     "@azure/ms-rest-nodeauth": "3.0.7",
-    "@google-cloud/functions": "^1.1.2",
+    "@google-cloud/functions": "1.1.2",
     "@google-cloud/secret-manager": "3.5.0",
     "archiver": "5.3.0",
     "chalk": "4.1.0",
@@ -47,6 +47,9 @@
     "yargs": "16.2.0"
   },
   "devDependencies": {
+    "@adobe/helix-status": "9.1.0",
+    "@adobe/openwhisk-action-logger": "2.4.1",
+    "@adobe/openwhisk-action-utils": "4.4.1",
     "@semantic-release/changelog": "5.0.1",
     "@semantic-release/git": "9.0.0",
     "chai": "4.3.4",
