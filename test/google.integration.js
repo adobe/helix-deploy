@@ -32,7 +32,7 @@ describe('Google Integration Test', () => {
     await fse.remove(testRoot);
   });
 
-  it.skip('Deploy to Google (for real)', async () => {
+  it('Deploy to Google (for real)', async () => {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'simple'), testRoot);
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
@@ -59,5 +59,5 @@ describe('Google Integration Test', () => {
     assert.ok(res);
     const out = builder.cfg._logger.output;
     assert.ok(out.indexOf('{"url":"https://us-central1-helix-225321.cloudfunctions.net/simple-package--simple-name_1_45_0/foo","file":"Hello, world.\\n"}') > 0, out);
-  }).timeout(5000000);
+  }).timeout(10000000);
 });
