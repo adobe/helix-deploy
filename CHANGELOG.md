@@ -1,3 +1,23 @@
+# [3.15.0](https://github.com/adobe/helix-deploy/compare/v3.14.3...v3.15.0) (2021-03-23)
+
+
+### Bug Fixes
+
+* **google:** check that key file is available during ready() ([8927a79](https://github.com/adobe/helix-deploy/commit/8927a79d90f303324a53bf3cd692d013aba7e5cc)), closes [#170](https://github.com/adobe/helix-deploy/issues/170)
+* **google:** use correct way to validate google config ([57ccbf1](https://github.com/adobe/helix-deploy/commit/57ccbf1b085ef12584935231a52e7822c13b1dcd)), closes [#170](https://github.com/adobe/helix-deploy/issues/170)
+
+
+### Features
+
+* **google:** additional logging for errors ([70fee0e](https://github.com/adobe/helix-deploy/commit/70fee0e67e4393d9c65273962486651b0e9f0038))
+
+## [3.14.3](https://github.com/adobe/helix-deploy/compare/v3.14.2...v3.14.3) (2021-03-22)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-fetch to v2.1.8 ([0049d80](https://github.com/adobe/helix-deploy/commit/0049d80c48d82da0ed3c62da5c7285d1fc26dc31))
+
 ## [3.14.2](https://github.com/adobe/helix-deploy/compare/v3.14.1...v3.14.2) (2021-03-20)
 
 

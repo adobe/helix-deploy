@@ -32,16 +32,13 @@ class GoogleDeployer extends BaseDeployer {
   }
 
   ready() {
-    if (!this._client || !this._cfg.projectID || !this._cfg.keyFile) {
-      return false;
+    if (this._cfg.keyFile) {
+      this._keyFilename = path.resolve(process.cwd(), this._cfg.keyFile);
+      if (!fs.existsSync(this._keyFilename)) {
+        return false;
+      }
     }
-    this._keyFilename = path.resolve(process.cwd(), this._cfg.keyFile);
-    // todo: maybe support async `ready` ?
-    if (fs.existsSync(this._keyFilename)) {
-      return true;
-    }
-    this.log.warn(`google client and project ID are specified, but key file at ${this._keyFilename} doesn't exist.`);
-    return false;
+    return !!this._client && !!this._cfg.projectID && !!this._cfg.keyFile;
   }
 
   validate() {
@@ -242,7 +239,9 @@ class GoogleDeployer extends BaseDeployer {
       await this.uploadZIP();
       await this.createFunction();
     } catch (err) {
-      this.log.error(`Unable to deploy Google Cloud function: ${err.message}`, err);
+      const message = err.metadata ? err.metadata.get('grpc-status-details-bin')[0].toString() : err.message;
+      this.log.error(`Unable to deploy Google Cloud function: ${message}`, err.metadata);
+
       throw err;
     }
   }
