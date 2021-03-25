@@ -246,6 +246,11 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)") {
         write_only: 'false',
       });
 
+      await this._fastly.writeDictionary(newversion, 'aliases', {
+        name: 'aliases',
+        write_only: 'false',
+      });
+
       // set up health checks
       await Promise.all(this._deployers
         .map((deployer) => ({
