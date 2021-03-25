@@ -21,11 +21,11 @@ module.exports.main = function main(req, context) {
       status: 503,
     });
   }
-  const resp = JSON.stringify({
+  const resp = {
     url: req.url,
     file: reader(),
     error: context.env.ERROR,
-  });
+  };
 
   const resolve = url.searchParams.get('resolve');
   if (resolve) {
@@ -39,7 +39,7 @@ module.exports.main = function main(req, context) {
     resp.resolve = rurl.toString();
   }
 
-  const response = new Response(resp);
+  const response = new Response(JSON.stringify(resp));
   response.headers.set('Surrogate-Key', 'simple');
   response.headers.set('Hey', context.env.HEY);
   response.headers.set('Foo', context.env.FOO);
