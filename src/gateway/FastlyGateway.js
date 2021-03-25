@@ -89,6 +89,7 @@ declare local var._version STRING;
 declare local var.atversion STRING;
 declare local var.slashversion STRING;
 declare local var.rest STRING;
+declare local var.fullpath STRING;
 
 set var.version = "";
 set var.rest = "";
@@ -98,6 +99,10 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)") {
   set var.package = re.group.1;
   set var.action = re.group.2;
   set var.version = re.group.3;
+
+  set var.fullpath = "/" + var.package + "/" + var.action + regsub(var.version, "[@_]", "@");
+  
+  set var.version = table.lookup(aliases, var.fullpath, var.version);
 
   set var.rest = re.group.5;
 
