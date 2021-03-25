@@ -29,10 +29,14 @@ module.exports.main = function main(req, context) {
 
   const resolve = url.searchParams.get('resolve');
   if (resolve) {
-    resp.resolve = context.resolver.createURL({
+    const rurl = context.resolver.createURL({
       name: resolve,
       version: 'v1',
-    }).href;
+    });
+
+    console.log('resolved', rurl);
+
+    resp.resolve = rurl.toString();
   }
 
   const response = new Response(resp);
