@@ -27,6 +27,14 @@ module.exports.main = function main(req, context) {
     error: context.env.ERROR,
   });
 
+  const resolve = url.searchParams.get('resolve');
+  if (resolve) {
+    resp.resolve = context.resolver.createURL({
+      name: resolve,
+      version: 'v1',
+    }).href;
+  }
+
   const response = new Response(resp);
   response.headers.set('Surrogate-Key', 'simple');
   response.headers.set('Hey', context.env.HEY);
