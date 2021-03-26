@@ -56,7 +56,7 @@ class FastlyGateway {
         op: 'upsert',
       }));
 
-    await this._fastly.bulkUpdateDictItems(1, 'aliases', ...versionstrings);
+    await this._fastly.bulkUpdateDictItems(undefined, 'aliases', ...versionstrings);
   }
 
   init() {
