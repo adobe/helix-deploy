@@ -47,7 +47,7 @@
     "yargs": "16.2.0"
   },
   "devDependencies": {
-    "@adobe/helix-status": "9.1.1",
+    "@adobe/helix-status": "9.1.2",
     "@adobe/openwhisk-action-logger": "2.4.1",
     "@adobe/openwhisk-action-utils": "4.4.1",
     "@semantic-release/changelog": "5.0.1",
