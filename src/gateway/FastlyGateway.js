@@ -14,6 +14,7 @@ const {
   toString, vcl, time, req, res, str, concat,
 } = require('@adobe/fastly-native-promises').loghelpers;
 const FastlyConfig = require('./FastlyConfig.js');
+const BaseDeployer = require('../deploy/BaseDeployer.js');
 
 class FastlyGateway {
   constructor(baseConfig, config) {
@@ -31,8 +32,35 @@ class FastlyGateway {
     return !!this._cfg.service && !!this._cfg.auth && !!this._cfg.checkpath;
   }
 
+  /**
+   * A weaker version of `ready` that works without a check path
+   * and checks whether links can be updated.
+   * @returns boolean true if links can be updated
+   */
+  updateable() {
+    return !!this._cfg.service && !!this._cfg.auth;
+  }
+
+  async updateLinks(links, version) {
+    this.log.info('Updating links on the Gateway');
+    const fakeDeployer = new BaseDeployer({
+      links, version, log: this.log,
+    });
+
+    const versionstrings = fakeDeployer
+      .getLinkVersions()
+      .map((versionstring) => `/${this.cfg.packageName}/${this.cfg.name}@${versionstring}`)
+      .map((key) => ({
+        item_key: key,
+        item_value: `@${version}`,
+        op: 'upsert',
+      }));
+
+    await this._fastly.bulkUpdateDictItems(undefined, 'aliases', ...versionstrings);
+  }
+
   init() {
-    if (this.ready() && !this._fastly) {
+    if ((this.ready() || this.updateable) && !this._fastly) {
       this._fastly = Fastly(this._cfg.auth, this._cfg.service);
     }
   }
@@ -89,6 +117,7 @@ declare local var._version STRING;
 declare local var.atversion STRING;
 declare local var.slashversion STRING;
 declare local var.rest STRING;
+declare local var.fullpath STRING;
 
 set var.version = "";
 set var.rest = "";
@@ -98,6 +127,10 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)") {
   set var.package = re.group.1;
   set var.action = re.group.2;
   set var.version = re.group.3;
+
+  set var.fullpath = "/" + var.package + "/" + var.action + regsub(var.version, "[@_]", "@");
+  
+  set var.version = table.lookup(aliases, var.fullpath, var.version);
 
   set var.rest = re.group.5;
 
@@ -243,6 +276,11 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)") {
 
       await this._fastly.writeDictionary(newversion, 'priorities', {
         name: 'priorities',
+        write_only: 'false',
+      });
+
+      await this._fastly.writeDictionary(newversion, 'aliases', {
+        name: 'aliases',
         write_only: 'false',
       });
 

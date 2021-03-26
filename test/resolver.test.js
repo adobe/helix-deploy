@@ -214,26 +214,92 @@ describe('Azure Resolver Tests', () => {
 describe('Google Resolver Tests', () => {
   it('can handle single lock', async () => {
     const resolver = new GoogleResolver({
+      hostname: 'us-central1-helix-225321.cloudfunctions.net',
+      get: () => '',
       headers: {
-        host: 'foo.com',
         'x-ow-version-lock': 'foo=v2',
       },
     });
     assert.equal(
       resolver.createURL({ package: 'bar', name: 'foo', version: 'v1' }).href,
-      'google:/bar/foo/v2',
+      'https://us-central1-helix-225321.cloudfunctions.net/bar--foo_v2',
     );
   });
 
   it('can create url with no version', async () => {
     const resolver = new GoogleResolver({
+      hostname: 'us-central1-helix-225321.cloudfunctions.net',
+      get: () => '',
       headers: {
         host: 'foo.com',
       },
     });
     assert.equal(
       resolver.createURL({ package: 'bar', name: 'foo' }).href,
-      'google:/bar/foo',
+      'https://us-central1-helix-225321.cloudfunctions.net/bar--foo',
+    );
+  });
+});
+
+describe('Google Resolver Tests with single XFH', () => {
+  it('can handle single lock', async () => {
+    const resolver = new GoogleResolver({
+      hostname: 'us-central1-helix-225321.cloudfunctions.net',
+      get: () => 'helix-deploy.anywhere.run',
+      headers: {
+        'x-ow-version-lock': 'foo=v2',
+        'x-forwarded-host': 'helix-deploy.anywhere.run',
+      },
+    });
+    assert.equal(
+      resolver.createURL({ package: 'bar', name: 'foo', version: 'v1' }).href,
+      'https://helix-deploy.anywhere.run/bar/foo@v2',
+    );
+  });
+
+  it('can create url with no version', async () => {
+    const resolver = new GoogleResolver({
+      hostname: 'us-central1-helix-225321.cloudfunctions.net',
+      get: () => 'helix-deploy.anywhere.run',
+      headers: {
+        host: 'foo.com',
+      },
+    });
+    assert.equal(
+      resolver.createURL({ package: 'bar', name: 'foo' }).href,
+      'https://helix-deploy.anywhere.run/bar/foo',
+    );
+  });
+});
+
+describe('Google Resolver Tests with multiple XFH', () => {
+  it('can handle single lock', async () => {
+    const resolver = new GoogleResolver({
+      hostname: 'us-central1-helix-225321.cloudfunctions.net',
+      get: () => 'blog.adobe.com, theblog--adobe.hlx.page,helix-deploy.anywhere.run',
+      headers: {
+        'x-ow-version-lock': 'foo=v2',
+        'x-forwarded-host': 'blog.adobe.com, theblog--adobe.hlx.page,helix-deploy.anywhere.run',
+      },
+    });
+    assert.equal(
+      resolver.createURL({ package: 'bar', name: 'foo', version: 'v1' }).href,
+      'https://helix-deploy.anywhere.run/bar/foo@v2',
+    );
+  });
+
+  it('can create url with no version', async () => {
+    const resolver = new GoogleResolver({
+      hostname: 'us-central1-helix-225321.cloudfunctions.net',
+      get: () => 'blog.adobe.com, theblog--adobe.hlx.page,helix-deploy.anywhere.run',
+      headers: {
+        host: 'foo.com',
+        'x-forwarded-host': 'blog.adobe.com, theblog--adobe.hlx.page,helix-deploy.anywhere.run',
+      },
+    });
+    assert.equal(
+      resolver.createURL({ package: 'bar', name: 'foo' }).href,
+      'https://helix-deploy.anywhere.run/bar/foo',
     );
   });
 });

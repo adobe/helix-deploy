@@ -70,6 +70,9 @@ describe('Gateway Integration Test', () => {
         '--directory', testRoot,
         '--entryFile', 'index.js',
         '--coralogix-token', process.env.CORALOGIX_TOKEN,
+        '-l', 'latest',
+        '-l', 'major',
+        '-l', 'minor',
       ]);
     builder.cfg._logger = new TestLogger();
 

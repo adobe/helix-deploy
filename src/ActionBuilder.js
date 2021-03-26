@@ -603,6 +603,13 @@ module.exports = class ActionBuilder {
       await this._gateways.fastly.deploy();
     }
 
+    if (this._gateways.fastly
+      && this._gateways.fastly.updateable()
+      && cfg.links && cfg.links.length) {
+      this._gateways.fastly.init();
+      await this._gateways.fastly.updateLinks(cfg.links, cfg.version);
+    }
+
     if (cfg.deploy) {
       return Object.entries(this._deployers).reduce((p, [name, dep]) => {
         // eslint-disable-next-line no-param-reassign
