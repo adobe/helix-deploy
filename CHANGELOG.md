@@ -1,3 +1,10 @@
+## [3.15.5](https://github.com/adobe/helix-deploy/compare/v3.15.4...v3.15.5) (2021-03-26)
+
+
+### Bug Fixes
+
+* **deps:** update adobe fixes ([#182](https://github.com/adobe/helix-deploy/issues/182)) ([a60ee92](https://github.com/adobe/helix-deploy/commit/a60ee9288589a41e1d38c1d646b329a2f6666aa6))
+
 ## [3.15.4](https://github.com/adobe/helix-deploy/compare/v3.15.3...v3.15.4) (2021-03-26)
 
 
