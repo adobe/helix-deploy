@@ -1,6 +1,6 @@
 {
   "name": "@adobe/helix-deploy",
-  "version": "3.15.1",
+  "version": "3.15.3",
   "description": "Library and Commandline Tools to build and deploy OpenWhisk Actions",
   "license": "Apache-2.0",
   "repository": {
@@ -25,9 +25,9 @@
     "semantic-release": "semantic-release"
   },
   "dependencies": {
-    "@adobe/fastly-native-promises": "1.22.2",
+    "@adobe/fastly-native-promises": "1.22.3",
     "@adobe/helix-epsagon": "1.6.0",
-    "@adobe/helix-fetch": "2.1.8",
+    "@adobe/helix-fetch": "2.1.9",
     "@aws-sdk/client-apigatewayv2": "3.9.0",
     "@aws-sdk/client-lambda": "3.9.0",
     "@aws-sdk/client-s3": "3.9.0",
@@ -47,7 +47,7 @@
     "yargs": "16.2.0"
   },
   "devDependencies": {
-    "@adobe/helix-status": "9.1.1",
+    "@adobe/helix-status": "9.1.2",
     "@adobe/openwhisk-action-logger": "2.4.1",
     "@adobe/openwhisk-action-utils": "4.4.1",
     "@semantic-release/changelog": "5.0.1",
