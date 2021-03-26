@@ -1,3 +1,20 @@
+# [3.16.0](https://github.com/adobe/helix-deploy/compare/v3.15.5...v3.16.0) (2021-03-26)
+
+
+### Bug Fixes
+
+* **gateway:** pass base config into fake deployer ([ffdc1c5](https://github.com/adobe/helix-deploy/commit/ffdc1c589b404cf27eba69738033c8716b4d5f37))
+* **gateway:** pass logger directly ([e85aa52](https://github.com/adobe/helix-deploy/commit/e85aa52cefc4248d0b831d5d3d1fc701062a0e26))
+* **gateway:** update latest config version ([9fdeaa3](https://github.com/adobe/helix-deploy/commit/9fdeaa3a4a3ee313695f093e8a61ba5bed5c62e4))
+* **google:** fix google resolver ([e8c86fa](https://github.com/adobe/helix-deploy/commit/e8c86fa55756e47ae2680f2c7ad042cd726db93d))
+
+
+### Features
+
+* **gateway:** add aliases edge dictionary ([c1547da](https://github.com/adobe/helix-deploy/commit/c1547da2a4cc23ef3a2bbfc11acf65eb9d9d9373))
+* **gateway:** look up version from dictionary ([a24fd6c](https://github.com/adobe/helix-deploy/commit/a24fd6c06d7a5b752a1643eb7f900b1bd7069216)), closes [#175](https://github.com/adobe/helix-deploy/issues/175)
+* **gateway:** update aliases in gateway when fastly credentials have been provided ([05ba8bc](https://github.com/adobe/helix-deploy/commit/05ba8bc55769ffa97a7a9b5a85d58c257dd7f602)), closes [#175](https://github.com/adobe/helix-deploy/issues/175)
+
 ## [3.15.5](https://github.com/adobe/helix-deploy/compare/v3.15.4...v3.15.5) (2021-03-26)
 
 
