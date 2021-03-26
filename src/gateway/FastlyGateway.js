@@ -14,6 +14,7 @@ const {
   toString, vcl, time, req, res, str, concat,
 } = require('@adobe/fastly-native-promises').loghelpers;
 const FastlyConfig = require('./FastlyConfig.js');
+const BaseDeployer = require('../deploy/BaseDeployer.js');
 
 class FastlyGateway {
   constructor(baseConfig, config) {
@@ -31,8 +32,35 @@ class FastlyGateway {
     return !!this._cfg.service && !!this._cfg.auth && !!this._cfg.checkpath;
   }
 
+  /**
+   * A weaker version of `ready` that works without a check path
+   * and checks whether links can be updated.
+   * @returns boolean true if links can be updated
+   */
+  updateable() {
+    return !!this._cfg.service && !!this._cfg.auth;
+  }
+
+  async updateLinks(links, version) {
+    this.log.info('Updating links on the Gateway');
+    const fakeDeployer = new BaseDeployer({
+      links, version,
+    });
+
+    const versionstrings = fakeDeployer
+      .getLinkVersions()
+      .map((versionstring) => `/${this.cfg.packageName}/${this.cfg.name}@${versionstring}`)
+      .map((key) => ({
+        item_key: key,
+        item_value: `@${version}`,
+        op: 'upsert',
+      }));
+
+    await this._fastly.bulkUpdateDictItems(1, 'aliases', ...versionstrings);
+  }
+
   init() {
-    if (this.ready() && !this._fastly) {
+    if ((this.ready() || this.updateable) && !this._fastly) {
       this._fastly = Fastly(this._cfg.auth, this._cfg.service);
     }
   }
