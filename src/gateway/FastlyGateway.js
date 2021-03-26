@@ -44,7 +44,7 @@ class FastlyGateway {
   async updateLinks(links, version) {
     this.log.info('Updating links on the Gateway');
     const fakeDeployer = new BaseDeployer({
-      links, version,
+      links, version, ...this.cfg,
     });
 
     const versionstrings = fakeDeployer
