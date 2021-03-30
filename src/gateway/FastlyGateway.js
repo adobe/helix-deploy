@@ -42,14 +42,14 @@ class FastlyGateway {
   }
 
   async updateLinks(links, version) {
-    this.log.info('Updating links on the Gateway');
+    this.log.info(`Updating links on the Gateway for version ${version}`);
     const fakeDeployer = new BaseDeployer({
       links, version, log: this.log,
     });
 
     const versionstrings = fakeDeployer
       .getLinkVersions()
-      .map((versionstring) => `/${this.cfg.packageName}/${this.cfg.name}@${versionstring}`)
+      .map((versionstring) => `/${this.cfg.packageName}/${this.cfg.name.replace(/@.*/, '')}@${versionstring}`)
       .map((key) => ({
         item_key: key,
         item_value: `@${version}`,
