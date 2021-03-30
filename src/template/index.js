@@ -15,6 +15,8 @@ const { Request } = require('@adobe/helix-fetch');
 const { epsagon } = require('@adobe/helix-epsagon');
 const { isBinary, ensureUTF8Charset } = require('./utils.js');
 const getAWSSecrets = require('./aws-package-params.js');
+const getGoogleSecrets = require('./google-package-params.js');
+
 const {
   AWSResolver,
   OpenwhiskResolver,
@@ -27,32 +29,22 @@ const { main } = require('./main.js');
 
 const HEALTHCHECK_PATH = '/_status_check/healthcheck.json';
 
+/**
+ * Updates the process environment with function information.
+ * (note that we don't set the invocation id, since not all runtimes isolate the process env)
+ * @param {UniversalContext} context The context
+ */
+function updateProcessEnv(context) {
+  process.env.HELIX_UNIVERSAL_RUNTIME = context.runtime.name;
+  process.env.HELIX_UNIVERSAL_NAME = context.func.name;
+  process.env.HELIX_UNIVERSAL_PACKAGE = context.func.package;
+  process.env.HELIX_UNIVERSAL_APP = context.func.app;
+  process.env.HELIX_UNIVERSAL_VERSION = context.func.version;
+}
+
 /*
  * Universal Wrapper for serverless functions
  */
-
-async function getGoogleSecrets(functionName, projectID) {
-  const parent = `projects/${projectID}`;
-  const package = functionName.replace(/--.*/, '');
-  const name = `${parent}/secrets/helix-deploy--${package}/versions/latest`;
-  try {
-    // delay the import so that other runtimes do not have to care
-    // eslint-disable-next-line  import/no-unresolved, global-require
-    const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
-
-    // hope that the credentials appear by magic
-    const client = new SecretManagerServiceClient();
-
-    const [version] = await client.accessSecretVersion({
-      name,
-    });
-
-    return JSON.parse(version.payload.data.toString());
-  } catch (err) {
-    console.error(`Unable to load secrets from ${name}`, err);
-    return { };
-  }
-}
 
 // Azure
 async function azure(context, req) {
@@ -76,18 +68,21 @@ async function azure(context, req) {
       body,
     });
 
+    const [,,,, packageName, name, version, ...suffix] = req.url.split('/');
     const con = {
       resolver: new AzureResolver(context, req),
       pathInfo: {
-        suffix: `/${req.url.split('/').slice(7).join('/')}`,
+        suffix: `/${suffix.join('/')}`,
       },
       runtime: {
         name: 'azure-functions',
         region: process.env.Location,
       },
       func: {
-        name: context.executionContext.functionName,
-        version: req.url.split('/')[6],
+        name,
+        version,
+        package: packageName,
+        fqn: context.executionContext.functionName,
         app: process.env.WEBSITE_SITE_NAME,
       },
       invocation: {
@@ -103,6 +98,7 @@ async function azure(context, req) {
       headers: req.headers,
     };
 
+    updateProcessEnv(con);
     const response = await main(request, con);
     ensureUTF8Charset(response);
 
@@ -189,7 +185,9 @@ async function openwhiskAdapter(params = {}) {
       body,
     });
 
-    const [namespace, ...names] = (process.env.__OW_ACTION_NAME || 'default/test').split('/');
+    const fqn = (process.env.__OW_ACTION_NAME || 'default/dummy-package/dummy-name@dummy-version');
+    const [, packageName, nameAtVersion] = fqn.split('/');
+    const [name, version] = nameAtVersion.split('@');
 
     const context = {
       resolver: new OpenwhiskResolver(params),
@@ -201,9 +199,11 @@ async function openwhiskAdapter(params = {}) {
         region: process.env.__OW_REGION,
       },
       func: {
-        name: names.join('/'),
-        version: process.env.__OW_ACTION_VERSION,
-        app: namespace,
+        name,
+        version,
+        package: packageName,
+        app: process.env.__OW_NAMESPACE,
+        fqn,
       },
       invocation: {
         id: process.env.__OW_ACTIVATION_ID,
@@ -212,6 +212,7 @@ async function openwhiskAdapter(params = {}) {
       env,
     };
 
+    updateProcessEnv(context);
     const response = await main(request, context);
     ensureUTF8Charset(response);
 
@@ -267,6 +268,7 @@ async function google(req, res) {
 
     const [subdomain] = req.headers.host.split('.');
     const [country, region, ...servicename] = subdomain.split('-');
+    const [packageName, name] = process.env.K_SERVICE.split('--');
 
     const context = {
       resolver: new GoogleResolver(req),
@@ -278,8 +280,10 @@ async function google(req, res) {
         region: `${country}-${region}`,
       },
       func: {
-        name: process.env.K_SERVICE,
+        name,
+        package: packageName,
         version: process.env.K_REVISION,
+        fqn: process.env.K_SERVICE,
         app: servicename.join('-'),
       },
       invocation: {
@@ -292,6 +296,7 @@ async function google(req, res) {
       },
     };
 
+    updateProcessEnv(context);
     const response = await main(request, context);
     ensureUTF8Charset(response);
 
@@ -330,6 +335,7 @@ async function lambdaAdapter(event, context, secrets) {
       functionName,
       functionAlias,
     ] = context.invokedFunctionArn.split(':');
+    const [packageName, name] = functionName.split('--');
 
     const con = {
       resolver: new AWSResolver(event),
@@ -342,8 +348,10 @@ async function lambdaAdapter(event, context, secrets) {
         accountId,
       },
       func: {
-        name: functionName,
+        name,
+        package: packageName,
         version: (functionAlias || '').replace(/_/g, '.'),
+        fqn: context.invokedFunctionArn,
         app: event.requestContext.apiId,
       },
       invocation: {
@@ -356,6 +364,7 @@ async function lambdaAdapter(event, context, secrets) {
       },
     };
 
+    updateProcessEnv(con);
     const response = await main(request, con);
     ensureUTF8Charset(response);
 

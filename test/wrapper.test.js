@@ -184,7 +184,7 @@ describe('Wrapper tests for AWS', () => {
     memoryLimitInMB: '128',
     logGroupName: '/aws/lambda/dump',
     logStreamName: '2021/03/02/[$LATEST]89b58159f93949f787eb8de043937bbb',
-    invokedFunctionArn: 'arn:aws:lambda:us-east-1:118435662149:function:dump:4_3_1',
+    invokedFunctionArn: 'arn:aws:lambda:us-east-1:118435662149:function:helix-pages--dump:4_3_1',
     awsRequestId: '535f0399-9c90-4042-880e-620cfec6af55',
   };
 
@@ -194,7 +194,9 @@ describe('Wrapper tests for AWS', () => {
         main: (request, context) => {
           assert.deepEqual(context.func, {
             name: 'dump',
+            package: 'helix-pages',
             version: '4.3.1',
+            fqn: 'arn:aws:lambda:us-east-1:118435662149:function:helix-pages--dump:4_3_1',
             app: 'kvvyh7ikcb',
           });
           return new Response('ok');
@@ -248,5 +250,47 @@ describe('Wrapper tests for Google', () => {
     };
     await google(req, res);
     assert.equal(res.code, 400);
+  });
+
+  it('context.func', async () => {
+    process.env.K_SERVICE = 'simple-package--simple-name';
+    process.env.K_REVISION = '1.45.0';
+    const { google } = proxyquire('../src/template/index.js', {
+      './main.js': {
+        main: (request, context) => {
+          assert.deepEqual(context.func, {
+            name: 'simple-name',
+            package: 'simple-package',
+            version: '1.45.0',
+            fqn: 'simple-package--simple-name',
+            app: 'helix',
+          });
+          return new Response('ok');
+        },
+      },
+      './google-package-params.js': () => ({}),
+    });
+    const req = {
+      url: 'https://deploy-helix.azurewebsites.net/api/simple-package/simple-name/1.45.0/foo',
+      headers: {
+        host: 'us-east-helix.google.com',
+      },
+    };
+    req.get = (key) => req.headers[key];
+    const res = {
+      code: 999,
+      status(value) {
+        this.code = value;
+        return this;
+      },
+      set() {
+        return this;
+      },
+      send() {
+        return this;
+      },
+    };
+    await google(req, res);
+    assert.equal(res.code, 200);
   });
 });
