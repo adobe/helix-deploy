@@ -1,3 +1,10 @@
+## [3.16.2](https://github.com/adobe/helix-deploy/compare/v3.16.1...v3.16.2) (2021-03-30)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-epsagon to v1.6.1 ([5cce2b0](https://github.com/adobe/helix-deploy/commit/5cce2b0f8a7118b337a6b45f76c621c366f01f10))
+
 ## [3.16.1](https://github.com/adobe/helix-deploy/compare/v3.16.0...v3.16.1) (2021-03-27)
 
 
