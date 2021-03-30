@@ -1,3 +1,10 @@
+## [3.16.3](https://github.com/adobe/helix-deploy/compare/v3.16.2...v3.16.3) (2021-03-30)
+
+
+### Bug Fixes
+
+* **gateway:** prevent duplication of @ in version links ([83d8857](https://github.com/adobe/helix-deploy/commit/83d88571a95bb5f8737ce4b9e2cdf43c71fa9d6d)), closes [#184](https://github.com/adobe/helix-deploy/issues/184)
+
 ## [3.16.2](https://github.com/adobe/helix-deploy/compare/v3.16.1...v3.16.2) (2021-03-30)
 
 
