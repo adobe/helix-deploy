@@ -1,3 +1,12 @@
+## [3.16.4](https://github.com/adobe/helix-deploy/compare/v3.16.3...v3.16.4) (2021-03-31)
+
+
+### Bug Fixes
+
+* **adapter:** harmonize context and set process.env ([9e9354b](https://github.com/adobe/helix-deploy/commit/9e9354b6ad6fe5e2953a49ac961a8df3f56dffbf)), closes [#118](https://github.com/adobe/helix-deploy/issues/118) [#90](https://github.com/adobe/helix-deploy/issues/90)
+* **google:** add missing pathInfo.suffix ([e800040](https://github.com/adobe/helix-deploy/commit/e80004051cfbd92a7b66171b4a0b6fbca60c3254))
+* **test:** cleanup adapter tests ([4dfa143](https://github.com/adobe/helix-deploy/commit/4dfa143fd5e0540d6cabd610e364d06bfb0399c4))
+
 ## [3.16.3](https://github.com/adobe/helix-deploy/compare/v3.16.2...v3.16.3) (2021-03-30)
 
 
