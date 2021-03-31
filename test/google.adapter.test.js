@@ -32,7 +32,7 @@ function createMockResponse() {
 
 function createMockRequest(url, headers) {
   return {
-    originalUrl: url,
+    originalUrl: url.replace(/^\/([^/]+)/, ''),
     headers,
     get(key) {
       return this.headers[key];
