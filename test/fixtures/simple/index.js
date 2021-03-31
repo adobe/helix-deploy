@@ -39,6 +39,11 @@ module.exports.main = function main(req, context) {
     resp.resolve = rurl.toString();
   }
 
+  const checkpathinfo = url.searchParams.get('checkpathinfo');
+  if (checkpathinfo) {
+    resp.pathinfo = context.pathInfo.suffix;
+  }
+
   const response = new Response(JSON.stringify(resp));
   response.headers.set('Surrogate-Key', 'simple');
   response.headers.set('Hey', context.env.HEY);
