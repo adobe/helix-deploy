@@ -274,6 +274,7 @@ async function google(req, res) {
       resolver: new GoogleResolver(req),
       pathInfo: {
         // original: /simple-package--simple-name_1_45_0/foo?hey=bar
+        original: req.originalUrl,
         suffix: req.originalUrl.replace(/^\/[^/]+/, '').replace(/\?.*/, ''),
       },
       runtime: {
