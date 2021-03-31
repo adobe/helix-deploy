@@ -41,7 +41,7 @@ module.exports.main = function main(req, context) {
 
   const checkpathinfo = url.searchParams.get('checkpathinfo');
   if (checkpathinfo) {
-    resp.pathinfo = context.pathInfo.suffix;
+    resp.pathinfo = context.pathInfo;
   }
 
   const response = new Response(JSON.stringify(resp));
