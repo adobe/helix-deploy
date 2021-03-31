@@ -48,7 +48,7 @@ export declare interface FunctionInfo {
   name:string;
 
   /**
-   * Version in dotted format.
+   * Function Version.
    * @example '4.3.1'
    */
   version:string;

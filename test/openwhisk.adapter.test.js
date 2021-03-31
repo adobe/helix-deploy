@@ -332,4 +332,69 @@ describe('OpenWhisk Adapter Test', () => {
       statusCode: 500,
     });
   });
+
+  it('text request body is decoded', async () => {
+    const { main } = proxyquire('../src/template/index.js', {
+      './main.js': {
+        // eslint-disable-next-line no-unused-vars
+        main: async (request, context) => {
+          assert.equal(await request.text(), 'hallo text');
+          return new Response('okay');
+        },
+        '@noCallThru': true,
+      },
+    });
+
+    const params = {
+      __ow_body: 'hallo text',
+      __ow_method: 'post',
+      __ow_headers: {
+        'content-type': 'text/plain',
+      },
+    };
+
+    const result = await main(params);
+    assert.equal(result.statusCode, 200);
+  });
+
+  it('json request body is decoded', async () => {
+    const { main } = proxyquire('../src/template/index.js', {
+      './main.js': {
+        // eslint-disable-next-line no-unused-vars
+        main: async (request, context) => {
+          assert.deepEqual(await request.json(), { goo: 'haha' });
+          return new Response('okay');
+        },
+        '@noCallThru': true,
+      },
+    });
+
+    const params = {
+      __ow_body: 'eyJnb28iOiJoYWhhIn0=',
+      __ow_method: 'post',
+      __ow_headers: {
+        'content-type': 'application/json',
+      },
+    };
+
+    const result = await main(params);
+    assert.equal(result.statusCode, 200);
+  });
+
+  it('handles illegal request headers with 400', async () => {
+    const { main } = proxyquire('../src/template/index.js', {
+      './main.js': {
+        main: () => new Response('ok'),
+        '@noCallThru': true,
+      },
+    });
+    const params = {
+      __ow_method: 'get',
+      __ow_headers: {
+        accept: 'жsome value',
+      },
+    };
+    const result = await main(params);
+    assert.equal(result.statusCode, 400);
+  });
 });
