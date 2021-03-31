@@ -1,3 +1,11 @@
+## [3.16.5](https://github.com/adobe/helix-deploy/compare/v3.16.4...v3.16.5) (2021-03-31)
+
+
+### Bug Fixes
+
+* **google:** add missing pathInfo.suffix ([49fb087](https://github.com/adobe/helix-deploy/commit/49fb08765b7356fabcaa6c4deeaa4cdb2742687c))
+* **google:** use correct base to calculate pathinfo.suffix ([7c76d34](https://github.com/adobe/helix-deploy/commit/7c76d340aa7abab1610deb07a206acea1978ea2a))
+
 ## [3.16.4](https://github.com/adobe/helix-deploy/compare/v3.16.3...v3.16.4) (2021-03-31)
 
 
