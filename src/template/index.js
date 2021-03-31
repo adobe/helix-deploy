@@ -273,8 +273,8 @@ async function google(req, res) {
     const context = {
       resolver: new GoogleResolver(req),
       pathInfo: {
-        // original: /simple-package--simple-name_1_45_0/foo?hey=bar
-        suffix: req.originalUrl.replace(/^\/[^/]+/, '').replace(/\?.*/, ''),
+        // original: /foo?hey=bar
+        suffix: req.originalUrl.replace(/\?.*/, ''),
       },
       runtime: {
         name: 'googlecloud-functions',
