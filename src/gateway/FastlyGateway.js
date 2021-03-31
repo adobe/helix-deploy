@@ -57,6 +57,7 @@ class FastlyGateway {
       }));
 
     await this._fastly.bulkUpdateDictItems(undefined, 'aliases', ...versionstrings);
+    this._fastly.discard();
   }
 
   init() {
