@@ -22,9 +22,10 @@ const { promisify } = require('util');
  * ANY /helix-services/{action}/{version}
  * ANY /helix-services/{action}/{version}/{path+}
  *
- * Note that the package (helix-services) is currently hardcoded for simplicity.
+ * ANY /helix-observation/{action}/{version}
+ * ANY /helix-observation/{action}/{version}/{path+}
  *
- * TODO: test with package in route.
+ * Note that the package cannot be a path parameter, as it would clash with the pages proxy
  *
  * @param event
  * @returns {Promise<{body, statusCode}|any>}
@@ -34,7 +35,8 @@ exports.handler = async (event) => {
   const invoke = promisify(lambda.invoke.bind(lambda));
 
   const { action, version } = event.pathParameters;
-  const FunctionName = `helix-services--${action}:${version.replace(/\./g, '_')}`;
+  const [, pkgName] = event.rawPath.split('/');
+  const FunctionName = `${pkgName}--${action}:${version.replace(/\./g, '_')}`;
 
   try {
     console.log(`invoking: ${FunctionName}`);
