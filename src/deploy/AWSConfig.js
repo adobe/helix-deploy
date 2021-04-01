@@ -20,6 +20,7 @@ class AWSConfig {
       role: '',
       apiId: '',
       cleanUpBuckets: false,
+      cleanUpIntegrations: false,
       createRoutes: false,
       lambdaFormat: DEFAULT_LAMBDA_FORMAT,
     });
@@ -32,6 +33,7 @@ class AWSConfig {
       .withAWSApi(argv.awsApi)
       .withAWSLambdaFormat(argv.awsLambdaFormat)
       .withAWSCleanUpBuckets(argv.awsCleanupBuckets)
+      .withAWSCleanUpIntegrations(argv.awsCleanupIntegrations)
       .withAWSCreateRoutes(argv.awsCreateRoutes);
   }
 
@@ -60,6 +62,11 @@ class AWSConfig {
     return this;
   }
 
+  withAWSCleanUpIntegrations(value) {
+    this.cleanUpIntegrations = value;
+    return this;
+  }
+
   withAWSCreateRoutes(value) {
     this.createRoutes = value;
     return this;
@@ -67,7 +74,7 @@ class AWSConfig {
 
   static yarg(yargs) {
     return yargs
-      .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-create-routes'], 'AWS Deployment Options')
+      .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-cleanup-integrations', 'aws-create-routes'], 'AWS Deployment Options')
       .option('aws-region', {
         description: 'the AWS region to deploy lambda functions to',
         type: 'string',
@@ -95,6 +102,11 @@ class AWSConfig {
       })
       .option('aws-cleanup-buckets', {
         description: 'Cleans up stray temporary S3 buckets',
+        type: 'boolean',
+        default: false,
+      })
+      .option('aws-cleanup-integrations', {
+        description: 'Cleans up unused integrations',
         type: 'boolean',
         default: false,
       });

@@ -1,0 +1,17 @@
+{
+  "name": "status",
+  "version": "1.45.0",
+  "description": "Simple Status Ping",
+  "private": true,
+  "license": "Apache-2.0",
+  "main": "./src/index.js",
+  "dependencies": {
+    "@adobe/helix-fetch": "2.1.7",
+    "@adobe/helix-status": "9.0.9",
+    "@adobe/openwhisk-action-logger": "2.4.1",
+    "@adobe/openwhisk-action-utils": "4.4.1"
+  },
+  "wsk": {
+    "name": "simple-package/simple-status@${version}"
+  }
+}

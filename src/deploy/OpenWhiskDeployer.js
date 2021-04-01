@@ -68,6 +68,14 @@ class OpenWhiskDeployer extends BaseDeployer {
     return `/${this._cfg.namespace}/${this.cfg.packageName}/${this.cfg.name}`;
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  get customVCL() {
+    // set x-request-id (tracing from x-cdn-request-id)
+    return `if (req.http.x-cdn-request-id != "") {
+      set req.http.x-request-id = req.http.x-cdn-request-id;
+    }`;
+  }
+
   ready() {
     return !!this._cfg.apiHost && !!this._cfg.auth && !!this._cfg.namespace;
   }

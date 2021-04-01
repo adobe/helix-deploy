@@ -1,3 +1,446 @@
+## [3.16.5](https://github.com/adobe/helix-deploy/compare/v3.16.4...v3.16.5) (2021-03-31)
+
+
+### Bug Fixes
+
+* **google:** add missing pathInfo.suffix ([49fb087](https://github.com/adobe/helix-deploy/commit/49fb08765b7356fabcaa6c4deeaa4cdb2742687c))
+* **google:** use correct base to calculate pathinfo.suffix ([7c76d34](https://github.com/adobe/helix-deploy/commit/7c76d340aa7abab1610deb07a206acea1978ea2a))
+
+## [3.16.4](https://github.com/adobe/helix-deploy/compare/v3.16.3...v3.16.4) (2021-03-31)
+
+
+### Bug Fixes
+
+* **adapter:** harmonize context and set process.env ([9e9354b](https://github.com/adobe/helix-deploy/commit/9e9354b6ad6fe5e2953a49ac961a8df3f56dffbf)), closes [#118](https://github.com/adobe/helix-deploy/issues/118) [#90](https://github.com/adobe/helix-deploy/issues/90)
+* **google:** add missing pathInfo.suffix ([e800040](https://github.com/adobe/helix-deploy/commit/e80004051cfbd92a7b66171b4a0b6fbca60c3254))
+* **test:** cleanup adapter tests ([4dfa143](https://github.com/adobe/helix-deploy/commit/4dfa143fd5e0540d6cabd610e364d06bfb0399c4))
+
+## [3.16.3](https://github.com/adobe/helix-deploy/compare/v3.16.2...v3.16.3) (2021-03-30)
+
+
+### Bug Fixes
+
+* **gateway:** prevent duplication of @ in version links ([83d8857](https://github.com/adobe/helix-deploy/commit/83d88571a95bb5f8737ce4b9e2cdf43c71fa9d6d)), closes [#184](https://github.com/adobe/helix-deploy/issues/184)
+
+## [3.16.2](https://github.com/adobe/helix-deploy/compare/v3.16.1...v3.16.2) (2021-03-30)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-epsagon to v1.6.1 ([5cce2b0](https://github.com/adobe/helix-deploy/commit/5cce2b0f8a7118b337a6b45f76c621c366f01f10))
+
+## [3.16.1](https://github.com/adobe/helix-deploy/compare/v3.16.0...v3.16.1) (2021-03-27)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([0bf3f17](https://github.com/adobe/helix-deploy/commit/0bf3f17ab978b84ef3b1ca9b38743783ffd61012))
+
+# [3.16.0](https://github.com/adobe/helix-deploy/compare/v3.15.5...v3.16.0) (2021-03-26)
+
+
+### Bug Fixes
+
+* **gateway:** pass base config into fake deployer ([ffdc1c5](https://github.com/adobe/helix-deploy/commit/ffdc1c589b404cf27eba69738033c8716b4d5f37))
+* **gateway:** pass logger directly ([e85aa52](https://github.com/adobe/helix-deploy/commit/e85aa52cefc4248d0b831d5d3d1fc701062a0e26))
+* **gateway:** update latest config version ([9fdeaa3](https://github.com/adobe/helix-deploy/commit/9fdeaa3a4a3ee313695f093e8a61ba5bed5c62e4))
+* **google:** fix google resolver ([e8c86fa](https://github.com/adobe/helix-deploy/commit/e8c86fa55756e47ae2680f2c7ad042cd726db93d))
+
+
+### Features
+
+* **gateway:** add aliases edge dictionary ([c1547da](https://github.com/adobe/helix-deploy/commit/c1547da2a4cc23ef3a2bbfc11acf65eb9d9d9373))
+* **gateway:** look up version from dictionary ([a24fd6c](https://github.com/adobe/helix-deploy/commit/a24fd6c06d7a5b752a1643eb7f900b1bd7069216)), closes [#175](https://github.com/adobe/helix-deploy/issues/175)
+* **gateway:** update aliases in gateway when fastly credentials have been provided ([05ba8bc](https://github.com/adobe/helix-deploy/commit/05ba8bc55769ffa97a7a9b5a85d58c257dd7f602)), closes [#175](https://github.com/adobe/helix-deploy/issues/175)
+
+## [3.15.5](https://github.com/adobe/helix-deploy/compare/v3.15.4...v3.15.5) (2021-03-26)
+
+
+### Bug Fixes
+
+* **deps:** update adobe fixes ([#182](https://github.com/adobe/helix-deploy/issues/182)) ([a60ee92](https://github.com/adobe/helix-deploy/commit/a60ee9288589a41e1d38c1d646b329a2f6666aa6))
+
+## [3.15.4](https://github.com/adobe/helix-deploy/compare/v3.15.3...v3.15.4) (2021-03-26)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-fetch to v2.2.0 ([9fb58a1](https://github.com/adobe/helix-deploy/commit/9fb58a1d9f443d8b91c54232468fafae6e2ef321))
+
+## [3.15.3](https://github.com/adobe/helix-deploy/compare/v3.15.2...v3.15.3) (2021-03-26)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/fastly-native-promises to v1.22.3 ([db70aa2](https://github.com/adobe/helix-deploy/commit/db70aa28ff13fc3e1bd6adceee315732bf4d3b46))
+
+## [3.15.2](https://github.com/adobe/helix-deploy/compare/v3.15.1...v3.15.2) (2021-03-25)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-fetch to v2.1.9 ([993f153](https://github.com/adobe/helix-deploy/commit/993f153e65612084a3a9ba50c520480f7a983b08))
+
+## [3.15.1](https://github.com/adobe/helix-deploy/compare/v3.15.0...v3.15.1) (2021-03-23)
+
+
+### Bug Fixes
+
+* **google:** ensure package.json has semver-compliant version strings ([3b43345](https://github.com/adobe/helix-deploy/commit/3b433459174563ea934c2fc92677b7d3d1060932)), closes [/github.com/adobe/helix-status-service/pull/2#issuecomment-804811000](https://github.com//github.com/adobe/helix-status-service/pull/2/issues/issuecomment-804811000)
+
+# [3.15.0](https://github.com/adobe/helix-deploy/compare/v3.14.3...v3.15.0) (2021-03-23)
+
+
+### Bug Fixes
+
+* **google:** check that key file is available during ready() ([8927a79](https://github.com/adobe/helix-deploy/commit/8927a79d90f303324a53bf3cd692d013aba7e5cc)), closes [#170](https://github.com/adobe/helix-deploy/issues/170)
+* **google:** use correct way to validate google config ([57ccbf1](https://github.com/adobe/helix-deploy/commit/57ccbf1b085ef12584935231a52e7822c13b1dcd)), closes [#170](https://github.com/adobe/helix-deploy/issues/170)
+
+
+### Features
+
+* **google:** additional logging for errors ([70fee0e](https://github.com/adobe/helix-deploy/commit/70fee0e67e4393d9c65273962486651b0e9f0038))
+
+## [3.14.3](https://github.com/adobe/helix-deploy/compare/v3.14.2...v3.14.3) (2021-03-22)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-fetch to v2.1.8 ([0049d80](https://github.com/adobe/helix-deploy/commit/0049d80c48d82da0ed3c62da5c7285d1fc26dc31))
+
+## [3.14.2](https://github.com/adobe/helix-deploy/compare/v3.14.1...v3.14.2) (2021-03-20)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes to v3.9.0 ([f708b12](https://github.com/adobe/helix-deploy/commit/f708b12d915a5c8820e480c3b7a64dd91b7a5d22))
+
+## [3.14.1](https://github.com/adobe/helix-deploy/compare/v3.14.0...v3.14.1) (2021-03-18)
+
+
+### Bug Fixes
+
+* **google:** only enable google deployer when keyfile exists ([985c1c6](https://github.com/adobe/helix-deploy/commit/985c1c6f94c0551bd4b7233011479bb0216cc6c3))
+
+# [3.14.0](https://github.com/adobe/helix-deploy/compare/v3.13.0...v3.14.0) (2021-03-12)
+
+
+### Features
+
+* **aws:** cache package parameters ([#163](https://github.com/adobe/helix-deploy/issues/163)) ([ff2e9e8](https://github.com/adobe/helix-deploy/commit/ff2e9e8918d6be7dbe05c50a2d52ce2961172259)), closes [#162](https://github.com/adobe/helix-deploy/issues/162)
+
+# [3.13.0](https://github.com/adobe/helix-deploy/compare/v3.12.0...v3.13.0) (2021-03-12)
+
+
+### Features
+
+* **epsagon:** disable epsagon for status pings ([06adcd1](https://github.com/adobe/helix-deploy/commit/06adcd12a44327d8a1d2d07ec9addc3ef8a00ad7)), closes [#158](https://github.com/adobe/helix-deploy/issues/158)
+
+# [3.12.0](https://github.com/adobe/helix-deploy/compare/v3.11.0...v3.12.0) (2021-03-11)
+
+
+### Bug Fixes
+
+* **gateway:** add missing quotes to log strings ([c448ae3](https://github.com/adobe/helix-deploy/commit/c448ae3d2efbc0da881cc7eda7115b87c46d4cd5))
+* **gateway:** escape error header ([bc3a5fd](https://github.com/adobe/helix-deploy/commit/bc3a5fdb1661d58356f35824900dcc8b5664b4ef))
+
+
+### Features
+
+* **gateway:** log transaction id and activation id for google ([587d5c4](https://github.com/adobe/helix-deploy/commit/587d5c4bf85a1cb58afa21f40e775abe60192fc5))
+
+# [3.11.0](https://github.com/adobe/helix-deploy/compare/v3.10.0...v3.11.0) (2021-03-10)
+
+
+### Features
+
+* **gateway:** log x-error header ([48fd859](https://github.com/adobe/helix-deploy/commit/48fd859ff03b2fe618df19f8018f7e5523e15f85)), closes [adobe/helix-logging#461](https://github.com/adobe/helix-logging/issues/461)
+* **template:** set x-error header for caught 500s ([a94d200](https://github.com/adobe/helix-deploy/commit/a94d20065498b6f74bfc114acbed0b312e94440d)), closes [adobe/helix-logging#461](https://github.com/adobe/helix-logging/issues/461)
+
+# [3.10.0](https://github.com/adobe/helix-deploy/compare/v3.9.1...v3.10.0) (2021-03-10)
+
+
+### Bug Fixes
+
+* **gateway:** log status code as integer instead of string ([3e21280](https://github.com/adobe/helix-deploy/commit/3e2128065149ed8a9f450b40aff3bcf53ef1e10c))
+
+
+### Features
+
+* **gateway:** log the version lock header value ([68d8258](https://github.com/adobe/helix-deploy/commit/68d82583c6462ea3446acb586bd94dca77aa9027))
+* **gateway:** trace aws and openwhisk transaction ids ([7419418](https://github.com/adobe/helix-deploy/commit/7419418eb6106154dc62a7ab9bb468a9f3ba07b3))
+
+## [3.9.1](https://github.com/adobe/helix-deploy/compare/v3.9.0...v3.9.1) (2021-03-09)
+
+
+### Bug Fixes
+
+* **adapter:** handle illegal request header errors with 400 ([#155](https://github.com/adobe/helix-deploy/issues/155)) ([e654b81](https://github.com/adobe/helix-deploy/commit/e654b81a3d7ad39dd09c2a8e902c54a236cbe4c7)), closes [#154](https://github.com/adobe/helix-deploy/issues/154)
+
+# [3.9.0](https://github.com/adobe/helix-deploy/compare/v3.8.0...v3.9.0) (2021-03-08)
+
+
+### Bug Fixes
+
+* **gateway:** only attempt to restart the request for idepotempt HTTP methods ([c1584f6](https://github.com/adobe/helix-deploy/commit/c1584f6c53eb982330c077d38d9d6e4239218c7b)), closes [#152](https://github.com/adobe/helix-deploy/issues/152)
+* **vcl:** fix vcl syntax ([76352bd](https://github.com/adobe/helix-deploy/commit/76352bddb7394950058b33fb1931ac8018c4ba32))
+
+
+### Features
+
+* **gateway:** re-try when backend responds with 503 or 504 ([1144684](https://github.com/adobe/helix-deploy/commit/114468407cc8e24d78cfb7bd5304119e3ae865b0)), closes [#152](https://github.com/adobe/helix-deploy/issues/152)
+
+# [3.8.0](https://github.com/adobe/helix-deploy/compare/v3.7.1...v3.8.0) (2021-03-08)
+
+
+### Features
+
+* **uni:** add espagon support for AWS ([#149](https://github.com/adobe/helix-deploy/issues/149)) ([6be2f8b](https://github.com/adobe/helix-deploy/commit/6be2f8b60beb49033c5351d179e4cbbd78a20a5c)), closes [#147](https://github.com/adobe/helix-deploy/issues/147)
+
+## [3.7.1](https://github.com/adobe/helix-deploy/compare/v3.7.0...v3.7.1) (2021-03-06)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([8232445](https://github.com/adobe/helix-deploy/commit/8232445045941759041e327b3f2159e94da1add4))
+
+# [3.7.0](https://github.com/adobe/helix-deploy/compare/v3.6.6...v3.7.0) (2021-03-05)
+
+
+### Features
+
+* **aws:** delete unused integrations ([#143](https://github.com/adobe/helix-deploy/issues/143)) ([c72e443](https://github.com/adobe/helix-deploy/commit/c72e4438c47c009c3a12ca72b15712d7e3993936)), closes [#128](https://github.com/adobe/helix-deploy/issues/128)
+
+## [3.6.6](https://github.com/adobe/helix-deploy/compare/v3.6.5...v3.6.6) (2021-03-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/fastly-native-promises to v1.22.2 ([0062431](https://github.com/adobe/helix-deploy/commit/0062431d20cdd857eafb5a6d746a2a49b08309a2))
+
+## [3.6.5](https://github.com/adobe/helix-deploy/compare/v3.6.4...v3.6.5) (2021-03-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-fetch to v2.1.7 ([a99cb68](https://github.com/adobe/helix-deploy/commit/a99cb6810d8cf66226c513a1a39f2687edc0aa6d))
+
+## [3.6.4](https://github.com/adobe/helix-deploy/compare/v3.6.3...v3.6.4) (2021-03-04)
+
+
+### Bug Fixes
+
+* **openwhisk:** assume utf-8 encoded json ([2ae702c](https://github.com/adobe/helix-deploy/commit/2ae702c955aaec690de756d053cc3625bce7d47b))
+* **openwhisk:** convert base64 encoded json request bodies into strings ([1bb4183](https://github.com/adobe/helix-deploy/commit/1bb41839bd92dc178ef7ebbcbceca83f3dc04c5c)), closes [#141](https://github.com/adobe/helix-deploy/issues/141)
+
+## [3.6.3](https://github.com/adobe/helix-deploy/compare/v3.6.2...v3.6.3) (2021-03-03)
+
+
+### Bug Fixes
+
+* **logging:** cleanup action name in logs ([437af02](https://github.com/adobe/helix-deploy/commit/437af0294be8fb9465cf749919e8cad498c69d31))
+
+## [3.6.2](https://github.com/adobe/helix-deploy/compare/v3.6.1...v3.6.2) (2021-03-03)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/fastly-native-promises to v1.22.1 ([#139](https://github.com/adobe/helix-deploy/issues/139)) ([56133ee](https://github.com/adobe/helix-deploy/commit/56133ee93f40fc10615d22d75bd09bad27db7af0))
+
+## [3.6.1](https://github.com/adobe/helix-deploy/compare/v3.6.0...v3.6.1) (2021-03-03)
+
+
+### Bug Fixes
+
+* **aws:** ensure version in context.func is correct ([#138](https://github.com/adobe/helix-deploy/issues/138)) ([97b9a39](https://github.com/adobe/helix-deploy/commit/97b9a3969c32ddf7f2b75b0ab5bf64572d87a753)), closes [#129](https://github.com/adobe/helix-deploy/issues/129)
+
+# [3.6.0](https://github.com/adobe/helix-deploy/compare/v3.5.0...v3.6.0) (2021-03-02)
+
+
+### Bug Fixes
+
+* **azure:** use correct base path ([793ae68](https://github.com/adobe/helix-deploy/commit/793ae680327989c623f473d066b493fb90ed422e)), closes [#131](https://github.com/adobe/helix-deploy/issues/131)
+* **google:** add slash to health check URL ([ecddf7d](https://github.com/adobe/helix-deploy/commit/ecddf7d74040b538ce7a774f61d4ea4717b02fcf)), closes [#130](https://github.com/adobe/helix-deploy/issues/130)
+* **google:** use correct base path for health check ([bf237f6](https://github.com/adobe/helix-deploy/commit/bf237f6b39c900b21442bbb8e5f2eb9baa34da9c)), closes [#130](https://github.com/adobe/helix-deploy/issues/130)
+* **google:** use underscore instead of . in version URLs ([c236838](https://github.com/adobe/helix-deploy/commit/c236838fd1915dcde41d529cbc7c03d91ffed604)), closes [#130](https://github.com/adobe/helix-deploy/issues/130)
+* **google:** use underscores in _version ([8eb3453](https://github.com/adobe/helix-deploy/commit/8eb3453cf669ed714289502177bc5ef8ed0a502f)), closes [#130](https://github.com/adobe/helix-deploy/issues/130)
+
+
+### Features
+
+* **azure:** add host getter ([39b6111](https://github.com/adobe/helix-deploy/commit/39b611138e67c2ee43484540f7223b3fd4a06418)), closes [#131](https://github.com/adobe/helix-deploy/issues/131)
+* **azure:** set backend url in vcl ([2bf7c01](https://github.com/adobe/helix-deploy/commit/2bf7c01004ad1aa4d5f3defdab9cfccdc0b5236d)), closes [#131](https://github.com/adobe/helix-deploy/issues/131)
+* **google:** add host getter ([9c253a2](https://github.com/adobe/helix-deploy/commit/9c253a2b6a2b664cac28693bec8730a6e189151f)), closes [#130](https://github.com/adobe/helix-deploy/issues/130)
+* **google:** calculate backend url in vcl ([eff3130](https://github.com/adobe/helix-deploy/commit/eff313048dd651fb0c5eef6e68dadc64e0cd0f22)), closes [#130](https://github.com/adobe/helix-deploy/issues/130)
+
+# [3.5.0](https://github.com/adobe/helix-deploy/compare/v3.4.5...v3.5.0) (2021-03-02)
+
+
+### Bug Fixes
+
+* **cli:** add new args to gateway group ([129d691](https://github.com/adobe/helix-deploy/commit/129d691edeac3bacc67d8cfedf5c3d8211576192))
+* **fastly:** discard the fastly client after all operations have finished ([0416904](https://github.com/adobe/helix-deploy/commit/04169042a29ff618479a8fce864c44dc59fab243))
+* **fastly:** use correct escape code for regexes ([325a08b](https://github.com/adobe/helix-deploy/commit/325a08bdeda282cf7f8d23447c4f0009d57a5d42))
+* **gateway:** double escape backslashes ([6c02054](https://github.com/adobe/helix-deploy/commit/6c02054895b4eeb6e477cff8b1cf7f3ef2959bfa))
+* **gateway:** use json string for application name ([3e5f37e](https://github.com/adobe/helix-deploy/commit/3e5f37e3efeb37e43fb10818238d2270ca725613))
+
+
+### Features
+
+* **gateway:** enable gateway logging to coralogix ([0b32b15](https://github.com/adobe/helix-deploy/commit/0b32b15c0d63b9a28cd287ded9e208f50123c794)), closes [#126](https://github.com/adobe/helix-deploy/issues/126)
+
+## [3.4.5](https://github.com/adobe/helix-deploy/compare/v3.4.4...v3.4.5) (2021-03-01)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/fastly-native-promises to v1.22.0 ([f4214ee](https://github.com/adobe/helix-deploy/commit/f4214eef8dd22f709891b5d4cb89e0d100d7c663))
+
+## [3.4.4](https://github.com/adobe/helix-deploy/compare/v3.4.3...v3.4.4) (2021-03-01)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/fastly-native-promises to v1.21.0 ([f061f70](https://github.com/adobe/helix-deploy/commit/f061f70370070d1e1e8207696617b43a73fe9bf7))
+
+## [3.4.3](https://github.com/adobe/helix-deploy/compare/v3.4.2...v3.4.3) (2021-02-27)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([a6261cf](https://github.com/adobe/helix-deploy/commit/a6261cfbb7a0a85092bb96443998e6c1872f0408))
+
+## [3.4.2](https://github.com/adobe/helix-deploy/compare/v3.4.1...v3.4.2) (2021-02-26)
+
+
+### Bug Fixes
+
+* **deps:** update adobe fixes ([d196562](https://github.com/adobe/helix-deploy/commit/d196562011a4318f1277d6ee26a7497d2ae06db6))
+
+## [3.4.1](https://github.com/adobe/helix-deploy/compare/v[secure]...v3.4.1) (2021-02-25)
+
+
+### Bug Fixes
+
+* **google:** do not enable google deployer if project id has not been specified ([#125](https://github.com/adobe/helix-deploy/issues/125)) ([c95b5ad](https://github.com/adobe/helix-deploy/commit/c95b5ad8968d7482ef403a196d9ce360451ae3b3)), closes [#123](https://github.com/adobe/helix-deploy/issues/123)
+
+# [[secure]](https://github.com/adobe/helix-deploy/compare/v3.3.0...v[secure]) (2021-02-24)
+
+
+### Bug Fixes
+
+* **azure:** allow paths in azure function URLs ([19c8f02](https://github.com/adobe/helix-deploy/commit/19c8f028568cf6d2ae0724f68aa70cf0d05b55ce))
+* **azure:** make azure integration test pass again ([6f6d903](https://github.com/adobe/helix-deploy/commit/6f6d903ecdb2a60258d5796c4c21222277753616)), closes [#31](https://github.com/adobe/helix-deploy/issues/31)
+* **azure:** update package parameters using application settings api ([e9129ea](https://github.com/adobe/helix-deploy/commit/e9129ea84799edc9e904e023901480c87aae597e)), closes [#31](https://github.com/adobe/helix-deploy/issues/31)
+
+
+### Features
+
+* **azure:** get path info/suffix and version from url ([e53784e](https://github.com/adobe/helix-deploy/commit/e53784ef52e1783e6a28b4d1b1d9a86ad789cd1c))
+
+# [3.3.0](https://github.com/adobe/helix-deploy/compare/v3.2.0...v3.3.0) (2021-02-24)
+
+
+### Features
+
+* **log:** flush log in AWS if present ([#120](https://github.com/adobe/helix-deploy/issues/120)) ([d7c5fbd](https://github.com/adobe/helix-deploy/commit/d7c5fbde9f55c92bd7227aa779f578408bc9de05))
+
+# [3.2.0](https://github.com/adobe/helix-deploy/compare/v3.1.2...v3.2.0) (2021-02-22)
+
+
+### Bug Fixes
+
+* **google:** catch runtime error (secret retrieval) ([f08ef6a](https://github.com/adobe/helix-deploy/commit/f08ef6aa200ef4d37f75655c2aafa49e4a7d9657))
+* **google:** exclude google secrets manager dependency from bundle ([f21cab8](https://github.com/adobe/helix-deploy/commit/f21cab8091f36647a991fbe43a6fe5a0b38ccb35))
+* **google:** install google secrets manager client through package.json ([1e73576](https://github.com/adobe/helix-deploy/commit/1e7357629f3602dc8debfd8b8fcc49d02438d191))
+* **google:** remove double dots ([05184c3](https://github.com/adobe/helix-deploy/commit/05184c3ae88cdb24d9fa98a2eadb54c9cf74f535))
+* **google:** use cwd as a function ([ef9405d](https://github.com/adobe/helix-deploy/commit/ef9405db95cb9128e7d6df265114e6b74038e08c))
+
+
+### Features
+
+* **cli:** add google plugin ([74e2bee](https://github.com/adobe/helix-deploy/commit/74e2bee0e8771bfe497b755cfddb580534e735a3))
+* **google:** add ability to select google region ([8800cd0](https://github.com/adobe/helix-deploy/commit/8800cd028774e511791a3bb40428b732eaa2ca86))
+* **google:** add labels, description, memory, runtime version to function ([1718531](https://github.com/adobe/helix-deploy/commit/1718531476e873473f6e99d7f692a05251c0b351))
+* **google:** allow updates and anonymous http requests ([b9e7150](https://github.com/adobe/helix-deploy/commit/b9e7150d3b5b4935f4e5e668dc65f3876989b01b))
+* **google:** deploy a function ([e50f546](https://github.com/adobe/helix-deploy/commit/e50f546c1793b27303ed298a30e9b34c64dac5e3))
+* **google:** enable self-test after deploy ([a01aaed](https://github.com/adobe/helix-deploy/commit/a01aaed35ac7fe8ce541faa7d35a9b58e803fa10))
+* **google:** initial draft of google functions deployment tool ([fef680b](https://github.com/adobe/helix-deploy/commit/fef680bcf29649154ecacf87b4b234b27eb0c91b))
+* **google:** retrieve package secrets at runtime ([18ef9a2](https://github.com/adobe/helix-deploy/commit/18ef9a2eb61eaecdfa79e237da242361dfc26fcf))
+* **google:** set environment variables ([8cd1760](https://github.com/adobe/helix-deploy/commit/8cd1760a256e02dd48d8e189a4a65d877c7746e3))
+* **google:** store secrets in google secrets manager ([966a861](https://github.com/adobe/helix-deploy/commit/966a861acc51881f1968ac6b29b28235b444d7ec))
+
+
+### Reverts
+
+* Revert "ci: use codecov bash uploader" ([2e348ac](https://github.com/adobe/helix-deploy/commit/2e348acb920c5b352ba1ca4dc8fb9d231b6c5801))
+
+## [3.1.2](https://github.com/adobe/helix-deploy/compare/v3.1.1...v3.1.2) (2021-02-22)
+
+
+### Bug Fixes
+
+* **deps:** update external to v3.6.0 ([#117](https://github.com/adobe/helix-deploy/issues/117)) ([af08624](https://github.com/adobe/helix-deploy/commit/af086242e822b9392f3f677f9ef61060ae3ee726))
+
+## [3.1.1](https://github.com/adobe/helix-deploy/compare/v3.1.0...v3.1.1) (2021-02-18)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/fastly-native-promises to v1.19.13 ([3da8a57](https://github.com/adobe/helix-deploy/commit/3da8a5786e7fd131e6e80e93bc984ddfc6a8158d))
+
+# [3.1.0](https://github.com/adobe/helix-deploy/compare/v3.0.18...v3.1.0) (2021-02-18)
+
+
+### Bug Fixes
+
+* **gateway:** do not lowercase backend names ([b3ee254](https://github.com/adobe/helix-deploy/commit/b3ee254261ce8dd6aeb57b101bcc87b0ea62d830))
+* **gateway:** provide string default value for string dictionaries ([1f77bd5](https://github.com/adobe/helix-deploy/commit/1f77bd5ffbf3078a035254b6e5acc2981db522e4))
+* **gateway:** upper limit is not index-dependent ([7e6c1d2](https://github.com/adobe/helix-deploy/commit/7e6c1d28f7bf08fa6875854f511f895a160dee8c))
+
+
+### Features
+
+* **gateway:** create dictionary with runtime priorities ([fc2abb3](https://github.com/adobe/helix-deploy/commit/fc2abb335a1b9d1dbff1f5e131b21ecb8674c6de)), closes [#112](https://github.com/adobe/helix-deploy/issues/112)
+* **gateway:** read priorities from edge dictionary ([83dea75](https://github.com/adobe/helix-deploy/commit/83dea758dcf7fbb8317bda27a7111fad536f341c))
+
+## [3.0.18](https://github.com/adobe/helix-deploy/compare/v3.0.17...v3.0.18) (2021-02-16)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-fetch to v2.1.5 ([ae3b199](https://github.com/adobe/helix-deploy/commit/ae3b19942cae4afc6c6a7375da222dff70b2cc5d))
+
+## [3.0.17](https://github.com/adobe/helix-deploy/compare/v3.0.16...v3.0.17) (2021-02-15)
+
+
+### Bug Fixes
+
+* **deps:** bump deps ([45a1f6c](https://github.com/adobe/helix-deploy/commit/45a1f6c011bca8644b4a8ac285cd396ac4169a04))
+
+## [3.0.16](https://github.com/adobe/helix-deploy/compare/v3.0.15...v3.0.16) (2021-02-15)
+
+
+### Bug Fixes
+
+* **deps:** update external ([#110](https://github.com/adobe/helix-deploy/issues/110)) ([99da463](https://github.com/adobe/helix-deploy/commit/99da4631d988e74089ebabf383374fe11a49617c))
+
+## [3.0.15](https://github.com/adobe/helix-deploy/compare/v3.0.14...v3.0.15) (2021-02-12)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-fetch to v2.1.4 ([26fbcb0](https://github.com/adobe/helix-deploy/commit/26fbcb0638473cbb179777745b8b26667417eb3b))
+
+## [3.0.14](https://github.com/adobe/helix-deploy/compare/v3.0.13...v3.0.14) (2021-02-10)
+
+
+### Bug Fixes
+
+* **gateway:** fix snippet name ([ae3c043](https://github.com/adobe/helix-deploy/commit/ae3c04391fd0b201ae87375337b0a7a7a511f7c1))
+* **gateway:** stash and restore surrogate headers in fetch and deliver ([b153f16](https://github.com/adobe/helix-deploy/commit/b153f16537df3e3bd0b82b777cd831a0214c39ea)), closes [#105](https://github.com/adobe/helix-deploy/issues/105)
+* **gateway:** use surrogate key from response ([c48b8d4](https://github.com/adobe/helix-deploy/commit/c48b8d4e4c5442cb9d7f3686a50fd5a6c75b0605))
+
 ## [3.0.13](https://github.com/adobe/helix-deploy/compare/v3.0.12...v3.0.13) (2021-02-09)
 
 

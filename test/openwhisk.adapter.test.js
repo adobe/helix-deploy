@@ -18,9 +18,47 @@ const proxyquire = require('proxyquire');
 
 describe('OpenWhisk Adapter Test', () => {
   beforeEach(() => {
-    process.env.__OW_ACTION_NAME = '/simple-package/simple-name';
+    process.env.__OW_NAMESPACE = 'helix-pages';
+    process.env.__OW_ACTION_NAME = '/simple-package/simple-name@4.2.1';
     process.env.__OW_ACTIVATION_ID = '1234';
     process.env.__OW_API_HOST = 'https://test.com';
+  });
+
+  it('set correct context and environment', async () => {
+    const { main } = proxyquire('../src/template/index.js', {
+      './main.js': {
+        main: (req, context) => {
+          const ret = JSON.stringify({
+            func: context.func,
+            env: Object.fromEntries(
+              Object.entries(process.env)
+                .filter(([key]) => key.startsWith('HELIX_UNIVERSAL')),
+            ),
+          });
+          return new Response(ret);
+        },
+        '@noCallThru': true,
+      },
+    });
+
+    const resp = await main({});
+    const body = JSON.parse(resp.body);
+    assert.deepEqual(body, {
+      env: {
+        HELIX_UNIVERSAL_APP: 'helix-pages',
+        HELIX_UNIVERSAL_NAME: 'simple-name',
+        HELIX_UNIVERSAL_PACKAGE: 'simple-package',
+        HELIX_UNIVERSAL_RUNTIME: 'apache-openwhisk',
+        HELIX_UNIVERSAL_VERSION: '4.2.1',
+      },
+      func: {
+        app: 'helix-pages',
+        fqn: '/simple-package/simple-name@4.2.1',
+        name: 'simple-name',
+        package: 'simple-package',
+        version: '4.2.1',
+      },
+    });
   });
 
   it('Adapts with empty params', async () => {
@@ -60,7 +98,7 @@ describe('OpenWhisk Adapter Test', () => {
     resp.body = JSON.parse(resp.body);
     assert.deepEqual(resp, {
       body: {
-        url: 'https://test.com/api/v1/web/simple-package/simple-name?foo=bar&zoo=42',
+        url: 'https://test.com/api/v1/web/simple-package/simple-name@4.2.1?foo=bar&zoo=42',
       },
       headers: {
         'content-type': 'text/plain; charset=utf-8',
@@ -91,7 +129,7 @@ describe('OpenWhisk Adapter Test', () => {
     resp.body = JSON.parse(resp.body);
     assert.deepEqual(resp, {
       body: {
-        url: 'https://test.com/api/v1/web/simple-package/simple-name?foo=bar&zoo=42&test=dummy',
+        url: 'https://test.com/api/v1/web/simple-package/simple-name@4.2.1?foo=bar&zoo=42&test=dummy',
         secret: 'xyz',
       },
       headers: {
@@ -135,7 +173,7 @@ describe('OpenWhisk Adapter Test', () => {
         },
         method: 'PUT',
         secret: 'xyz',
-        url: 'https://test.com/api/v1/web/simple-package/simple-name/test-suffix?foo=bar&zoo=42&test=dummy',
+        url: 'https://test.com/api/v1/web/simple-package/simple-name@4.2.1/test-suffix?foo=bar&zoo=42&test=dummy',
       },
       headers: {
         'content-type': 'text/plain; charset=utf-8',
@@ -231,7 +269,7 @@ describe('OpenWhisk Adapter Test', () => {
     resp.body = JSON.parse(resp.body);
     assert.deepEqual(resp, {
       body: {
-        url: 'https://localhost/api/v1/web/simple-package/simple-name',
+        url: 'https://localhost/api/v1/web/simple-package/simple-name@4.2.1',
       },
       headers: {
         'content-type': 'text/plain; charset=utf-8',
@@ -261,7 +299,7 @@ describe('OpenWhisk Adapter Test', () => {
     resp.body = JSON.parse(resp.body);
     assert.deepEqual(resp, {
       body: {
-        url: 'https://adobeioruntime.net/api/v1/web/simple-package/simple-name',
+        url: 'https://adobeioruntime.net/api/v1/web/simple-package/simple-name@4.2.1',
       },
       headers: {
         'content-type': 'text/plain; charset=utf-8',
@@ -289,8 +327,74 @@ describe('OpenWhisk Adapter Test', () => {
       body: 'Internal Server Error',
       headers: {
         'Content-Type': 'text/plain',
+        'x-error': 'boing!',
       },
       statusCode: 500,
     });
+  });
+
+  it('text request body is decoded', async () => {
+    const { main } = proxyquire('../src/template/index.js', {
+      './main.js': {
+        // eslint-disable-next-line no-unused-vars
+        main: async (request, context) => {
+          assert.equal(await request.text(), 'hallo text');
+          return new Response('okay');
+        },
+        '@noCallThru': true,
+      },
+    });
+
+    const params = {
+      __ow_body: 'hallo text',
+      __ow_method: 'post',
+      __ow_headers: {
+        'content-type': 'text/plain',
+      },
+    };
+
+    const result = await main(params);
+    assert.equal(result.statusCode, 200);
+  });
+
+  it('json request body is decoded', async () => {
+    const { main } = proxyquire('../src/template/index.js', {
+      './main.js': {
+        // eslint-disable-next-line no-unused-vars
+        main: async (request, context) => {
+          assert.deepEqual(await request.json(), { goo: 'haha' });
+          return new Response('okay');
+        },
+        '@noCallThru': true,
+      },
+    });
+
+    const params = {
+      __ow_body: 'eyJnb28iOiJoYWhhIn0=',
+      __ow_method: 'post',
+      __ow_headers: {
+        'content-type': 'application/json',
+      },
+    };
+
+    const result = await main(params);
+    assert.equal(result.statusCode, 200);
+  });
+
+  it('handles illegal request headers with 400', async () => {
+    const { main } = proxyquire('../src/template/index.js', {
+      './main.js': {
+        main: () => new Response('ok'),
+        '@noCallThru': true,
+      },
+    });
+    const params = {
+      __ow_method: 'get',
+      __ow_headers: {
+        accept: 'жsome value',
+      },
+    };
+    const result = await main(params);
+    assert.equal(result.statusCode, 400);
   });
 });

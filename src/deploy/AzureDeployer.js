@@ -11,15 +11,10 @@
  */
 const msRestNodeAuth = require('@azure/ms-rest-nodeauth');
 const { WebSiteManagementClient } = require('@azure/arm-appservice');
-const { context, ALPN_HTTP1_1 } = require('@adobe/helix-fetch');
 const fs = require('fs');
+const { fetch } = require('@adobe/helix-fetch');
 const BaseDeployer = require('./BaseDeployer');
 const AzureConfig = require('./AzureConfig.js');
-
-const { fetch } = context({
-  // TODO: why is HTTP/1.1 enforced?
-  alpnProtocols: [ALPN_HTTP1_1],
-});
 
 class AzureDeployer extends BaseDeployer {
   constructor(baseConfig, config) {
@@ -43,9 +38,8 @@ class AzureDeployer extends BaseDeployer {
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
   get basePath() {
-    return '/api';
+    return `/api/${this.cfg.packageName}/${this.cfg.name.replace('@', '/')}`;
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -94,11 +88,16 @@ class AzureDeployer extends BaseDeployer {
     }
   }
 
+  get fullFunctionName() {
+    const { cfg } = this;
+    const funcname = `${cfg.packageName}--${cfg.name}`.replace('@', '_').replace(/\./g, '_');
+    return funcname;
+  }
+
   async uploadFunctionZIP() {
     const { cfg } = this;
-    const funcname = `${cfg.packageName}--${cfg.name}`.replace('@', '_').replace('.', '_');
     const url = new URL(
-      `${this._pubcreds.scmUri}/api/zip/site/wwwroot/${funcname}/`,
+      `${this._pubcreds.scmUri}/api/zip/site/wwwroot/${this.fullFunctionName}/`,
     ).href.replace(/https:\/\/.*?@/, 'https://');
     // const url = new URL(this._pubcreds.scmUri + `/api/zip/site/wwwroot/${'newfunc'.replace('/', '--')}/`).href.replace(/https:\/\/.*?@/, 'https://');
     const body = fs.createReadStream(cfg.zipFile);
@@ -129,9 +128,8 @@ class AzureDeployer extends BaseDeployer {
   async updateParams() {
     const { cfg } = this;
     this.log.info('--: updating function parameters ...');
-    const funcname = `${cfg.packageName}--${cfg.name}`.replace('@', '_').replace('.', '_');
     const url = new URL(
-      `${this._pubcreds.scmUri}/api/vfs/site/wwwroot/${funcname}/params.json`,
+      `${this._pubcreds.scmUri}/api/vfs/site/wwwroot/${this.fullFunctionName}/params.json`,
     ).href.replace(/https:\/\/.*?@/, 'https://');
 
     const authorization = `Basic ${Buffer.from(
@@ -180,26 +178,22 @@ class AzureDeployer extends BaseDeployer {
   async updatePackage() {
     const { cfg } = this;
     this.log.info('--: updating app (package) parameters ...');
-    const url = new URL(
-      `${this._pubcreds.scmUri}/api/settings`,
-    ).href.replace(/https:\/\/.*?@/, 'https://');
 
-    const authorization = `Basic ${Buffer.from(
-      `${this._pubcreds.publishingUserName
-      }:${
-        this._pubcreds.publishingPassword}`,
-    ).toString('base64')}`;
+    const result = await this._client.webApps.listApplicationSettings(this._app.resourceGroup,
+      this._cfg.appName);
 
-    const resp = await fetch(url, {
-      method: 'POST',
-      body: JSON.stringify(cfg.packageParams),
-      headers: {
-        authorization,
-        'Content-Type': 'application/json',
-      },
-    });
+    const update = {
+      ...cfg.packageParams,
+      ...result.properties,
+    };
 
-    this.log.info(resp.status, await resp.text());
+    await this._client.webApps.updateApplicationSettings(this._app.resourceGroup,
+      this._cfg.appName,
+      {
+        properties: update,
+      });
+
+    this.log.info(`${Object.keys(update).length} package parameters have been updated.`);
   }
 
   async deploy() {
@@ -210,6 +204,24 @@ class AzureDeployer extends BaseDeployer {
       this.log.error(`Unable to update Azure function: ${err.message}`);
       throw err;
     }
+  }
+
+  get host() {
+    return this._app.hostNames[0];
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  get urlVCL() {
+    return '"/api/" + var.package + "/" + var.action + var.slashversion + var.rest';
+  }
+
+  async test() {
+    const url = `https://${this._app.hostNames[0]}/api/${this.cfg.packageName}/${this.cfg.name.replace('@', '/')}`;
+    return this.testRequest({
+      url,
+      // idHeader: 'X-Cloud-Trace-Context',
+      retry404: 1,
+    });
   }
 }
 

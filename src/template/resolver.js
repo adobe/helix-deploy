@@ -143,12 +143,23 @@ class GoogleResolver extends Resolver {
    */
   constructor(req) {
     super(req.headers);
+    this.hostname = req.hostname;
+    if (req.get('x-forwarded-host')) {
+      this.universal = true;
+      this.hostname = req
+        .get('x-forwarded-host')
+        .split(',')
+        .map((h) => h.trim())
+        .pop();
+    }
   }
 
   // eslint-disable-next-line no-unused-vars,class-methods-use-this
   _createActionURL(packageName, actionName, version) {
-    // dummy implementation for testing
-    return new URL(path.join('google:', packageName, actionName, version));
+    if (this.universal) {
+      return new URL(path.join(`https://${this.hostname}`, packageName, `${actionName}${version.replace(/^(.)/, '@$1')}`));
+    }
+    return new URL(path.join(`https://${this.hostname}`, `${packageName}--${actionName}${version.replace(/^(.)/, '_$1').replace(/\./g, '_')}`));
   }
 }
 

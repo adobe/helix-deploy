@@ -17,7 +17,8 @@ const archiver = require('archiver');
 const webpack = require('webpack');
 const chalk = require('chalk');
 const git = require('isomorphic-git');
-const { version } = require('../package.json');
+const semver = require('semver');
+const { version, dependencies } = require('../package.json');
 
 /**
  * Returns the `origin` remote url or `''` if none is defined.
@@ -275,17 +276,47 @@ module.exports = class ActionBuilder {
 
       const packageJson = {
         name: cfg.baseName,
-        version: cfg.version,
-        description: `OpenWhisk Action of ${cfg.name}`,
+        // make sure the version string is valid, so that `npm install` works
+        version: semver.valid(cfg.version) ? cfg.version : `0.0.0+${cfg.version}`,
+        description: `Universal Action of ${cfg.name}`,
         main: 'index.js',
         license: 'Apache-2.0',
+        dependencies: {
+          // google cloud installs these dependencies at deploy time
+          // all other environments ignore them – this allows us to
+          // avoid bundling something that only google needs
+          '@google-cloud/secret-manager': dependencies['@google-cloud/secret-manager'],
+        },
       };
-
       archive.pipe(output);
       this.updateArchive(archive, packageJson).then(() => {
         archive.finalize();
       });
     });
+  }
+
+  get functionJson() {
+    return {
+      bindings: [
+        {
+          authLevel: 'anonymous',
+          type: 'httpTrigger',
+          direction: 'in',
+          name: 'req',
+          route: `${this.cfg.packageName}/${this.cfg.name.replace('@', '/')}/{path1?}/{path2?}/{path3?}/{path4?}/{path5?}`,
+          methods: [
+            'get',
+            'post',
+            'put',
+          ],
+        },
+        {
+          type: 'http',
+          direction: 'out',
+          name: 'res',
+        },
+      ],
+    };
   }
 
   async updateArchive(archive, packageJson) {
@@ -304,7 +335,7 @@ module.exports = class ActionBuilder {
 
     archive.append(JSON.stringify(packageJson, null, '  '), { name: 'package.json' });
     // azure functions manifest
-    archive.file(path.resolve(__dirname, 'template', 'function.json'), { name: 'function.json' });
+    archive.append(JSON.stringify(this.functionJson, null, '  '), { name: 'function.json' });
   }
 
   async getWebpackConfig() {
@@ -326,6 +357,7 @@ module.exports = class ActionBuilder {
         // the following are imported by the universal adapter and are assumed to be available
         './params.json',
         'aws-sdk',
+        '@google-cloud/secret-manager',
       ].reduce((obj, ext) => {
         // this makes webpack to ignore the module and just leave it as normal require.
         // eslint-disable-next-line no-param-reassign
@@ -571,7 +603,12 @@ module.exports = class ActionBuilder {
       await this._gateways.fastly.deploy();
     }
 
-    await this.runAdditionalTasks();
+    if (this._gateways.fastly
+      && this._gateways.fastly.updateable()
+      && cfg.links && cfg.links.length) {
+      this._gateways.fastly.init();
+      await this._gateways.fastly.updateLinks(cfg.links, cfg.version);
+    }
 
     if (cfg.deploy) {
       return Object.entries(this._deployers).reduce((p, [name, dep]) => {
@@ -583,6 +620,8 @@ module.exports = class ActionBuilder {
         return p;
       }, {});
     }
+
+    await this.runAdditionalTasks();
     return '';
   }
 };

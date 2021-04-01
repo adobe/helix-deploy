@@ -69,27 +69,43 @@ describe('AWS Integration Test', () => {
   it('Update links to AWS (for real)', async () => {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'simple'), testRoot);
 
+    const version = `ci${process.env.CIRCLE_BUILD_NUM || Date.now()}`;
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
       .prepare([
-        '--no-build',
         '--verbose',
+        '--deploy',
+        '--pkgVersion', version,
         '-l', 'major',
+        '-l', 'ci',
         '--target', 'aws',
         '--aws-region', 'us-east-1',
         '--aws-api', 'lqmig3v5eb',
         '--aws-role', 'arn:aws:iam::118435662149:role/service-role/helix-service-role-ogu32wiz',
         '--directory', testRoot,
+        '--entryFile', 'index.js',
       ]);
     builder.cfg._logger = new TestLogger();
 
     const res = await builder.run();
-    assert.equal(res, '');
+    assert.ok(res);
+    const out = builder.cfg._logger.output;
+    assert.ok(/.*deleted \d+ unused integrations.*/sg.test(out), out);
 
-    const ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo');
+    // eslint-disable-next-line no-console
+    console.log('testing if v1 link works...');
+    let ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo');
     assert.ok(ret.ok);
     assert.equal(ret.status, 200);
-    const text = await ret.text();
+    let text = await ret.text();
     assert.equal(text.trim(), '{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo","file":"Hello, world.\\n"}');
+
+    // eslint-disable-next-line no-console
+    console.log('testing if ci link works...');
+    ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo');
+    assert.ok(ret.ok);
+    assert.equal(ret.status, 200);
+    text = await ret.text();
+    assert.equal(text.trim(), '{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo","file":"Hello, world.\\n"}');
   }).timeout(50000);
 });

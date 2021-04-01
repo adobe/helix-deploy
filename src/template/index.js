@@ -11,10 +11,12 @@
  */
 /* eslint-disable no-param-reassign, no-underscore-dangle, import/no-extraneous-dependencies */
 const querystring = require('querystring');
-const { promisify } = require('util');
 const { Request } = require('@adobe/helix-fetch');
 const { epsagon } = require('@adobe/helix-epsagon');
 const { isBinary, ensureUTF8Charset } = require('./utils.js');
+const getAWSSecrets = require('./aws-package-params.js');
+const getGoogleSecrets = require('./google-package-params.js');
+
 const {
   AWSResolver,
   OpenwhiskResolver,
@@ -25,48 +27,24 @@ const {
 // eslint-disable-next-line  import/no-unresolved
 const { main } = require('./main.js');
 
+const HEALTHCHECK_PATH = '/_status_check/healthcheck.json';
+
+/**
+ * Updates the process environment with function information.
+ * (note that we don't set the invocation id, since not all runtimes isolate the process env)
+ * @param {UniversalContext} context The context
+ */
+function updateProcessEnv(context) {
+  process.env.HELIX_UNIVERSAL_RUNTIME = context.runtime.name;
+  process.env.HELIX_UNIVERSAL_NAME = context.func.name;
+  process.env.HELIX_UNIVERSAL_PACKAGE = context.func.package;
+  process.env.HELIX_UNIVERSAL_APP = context.func.app;
+  process.env.HELIX_UNIVERSAL_VERSION = context.func.version;
+}
+
 /*
  * Universal Wrapper for serverless functions
  */
-
-async function getAWSSecrets(functionName) {
-  // delay the import so that other runtimes do not have to care
-  // eslint-disable-next-line  import/no-unresolved, global-require
-  const AWS = require('aws-sdk');
-
-  AWS.config.update({
-    region: process.env.AWS_REGION,
-  });
-
-  const ssm = new AWS.SSM();
-  ssm.getParametersByPath = promisify(ssm.getParametersByPath.bind(ssm));
-
-  let params = [];
-  let nextToken;
-  try {
-    do {
-      const opts = {
-        Path: `/helix-deploy/${functionName.replace(/--.*/, '')}/`,
-        WithDecryption: true,
-      };
-      if (nextToken) {
-        opts.NextToken = nextToken;
-      }
-      // eslint-disable-next-line no-await-in-loop
-      const res = await ssm.getParametersByPath(opts);
-      nextToken = res.NextToken;
-      params = params.concat(res.Parameters);
-    } while (nextToken);
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error('unable to get parameters', e);
-  }
-
-  return params.reduce((p, param) => {
-    p[param.Name.replace(/.*\//, '')] = param.Value;
-    return p;
-  }, {});
-}
 
 // Azure
 async function azure(context, req) {
@@ -90,18 +68,21 @@ async function azure(context, req) {
       body,
     });
 
+    const [,,,, packageName, name, version, ...suffix] = req.url.split('/');
     const con = {
       resolver: new AzureResolver(context, req),
       pathInfo: {
-        suffix: '', // TODO!
+        suffix: `/${suffix.join('/')}`,
       },
       runtime: {
         name: 'azure-functions',
         region: process.env.Location,
       },
       func: {
-        name: context.executionContext.functionName,
-        version: undefined, // seems impossible to get
+        name,
+        version,
+        package: packageName,
+        fqn: context.executionContext.functionName,
         app: process.env.WEBSITE_SITE_NAME,
       },
       invocation: {
@@ -117,23 +98,36 @@ async function azure(context, req) {
       headers: req.headers,
     };
 
+    updateProcessEnv(con);
     const response = await main(request, con);
     ensureUTF8Charset(response);
 
     context.res = {
       status: response.status,
-      headers: Array.from(response.headers.entries()).reduce((h, [header, value]) => {
-        h[header] = value;
-        return h;
-      }, {}),
+      headers: Object.fromEntries(response.headers.entries()),
       isRaw: isBinary(response.headers.get('content-type')),
       body: isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()) : await response.text(),
     };
   } catch (e) {
+    if (e instanceof TypeError && e.code === 'ERR_INVALID_CHAR') {
+      // eslint-disable-next-line no-console
+      console.error('invalid request header', e.message);
+      context.res = {
+        status: 400,
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+        body: e.message,
+      };
+      return;
+    }
+    // eslint-disable-next-line no-console
+    console.error('error while invoking function', e);
     context.res = {
       status: 500,
       headers: {
         'Content-Type': 'text/plain',
+        'x-error': e.message,
       },
       body: e.message,
     };
@@ -141,7 +135,7 @@ async function azure(context, req) {
 }
 
 // OW
-async function openwhisk(params = {}) {
+async function openwhiskAdapter(params = {}) {
   try {
     const {
       __ow_method: method = 'GET',
@@ -154,7 +148,13 @@ async function openwhisk(params = {}) {
 
     let body;
     if (!/^(GET|HEAD)$/i.test(method)) {
-      body = isBinary(headers['content-type']) ? Buffer.from(rawBody, 'base64') : rawBody;
+      body = isBinary(headers['content-type'])
+        ? Buffer.from(rawBody, 'base64')
+        : rawBody;
+      // binaries and JSON (!) are base64 encoded
+      if (/application\/json/.test(headers['content-type'])) {
+        body = Buffer.from(rawBody, 'base64').toString('utf-8');
+      }
     }
 
     const env = { ...process.env };
@@ -185,7 +185,9 @@ async function openwhisk(params = {}) {
       body,
     });
 
-    const [namespace, ...names] = (process.env.__OW_ACTION_NAME || 'default/test').split('/');
+    const fqn = (process.env.__OW_ACTION_NAME || 'default/dummy-package/dummy-name@dummy-version');
+    const [, packageName, nameAtVersion] = fqn.split('/');
+    const [name, version] = nameAtVersion.split('@');
 
     const context = {
       resolver: new OpenwhiskResolver(params),
@@ -197,9 +199,11 @@ async function openwhisk(params = {}) {
         region: process.env.__OW_REGION,
       },
       func: {
-        name: names.join('/'),
-        version: process.env.__OW_ACTION_VERSION,
-        app: namespace,
+        name,
+        version,
+        package: packageName,
+        app: process.env.__OW_NAMESPACE,
+        fqn,
       },
       invocation: {
         id: process.env.__OW_ACTIVATION_ID,
@@ -208,28 +212,48 @@ async function openwhisk(params = {}) {
       env,
     };
 
+    updateProcessEnv(context);
     const response = await main(request, context);
     ensureUTF8Charset(response);
 
+    const isBase64Encoded = isBinary(response.headers.get('content-type'));
     return {
       statusCode: response.status,
-      headers: Array.from(response.headers.entries()).reduce((h, [header, value]) => {
-        h[header] = value;
-        return h;
-      }, {}),
-      body: isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()).toString('base64') : await response.text(),
+      headers: Object.fromEntries(response.headers.entries()),
+      body: isBase64Encoded ? Buffer.from(await response.arrayBuffer()).toString('base64') : await response.text(),
     };
   } catch (e) {
+    if (e instanceof TypeError && e.code === 'ERR_INVALID_CHAR') {
+      // eslint-disable-next-line no-console
+      console.error('invalid request header', e.message);
+      return {
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+        body: e.message,
+      };
+    }
     // eslint-disable-next-line no-console
     console.error('error while invoking function', e);
     return {
       statusCode: 500,
       headers: {
         'Content-Type': 'text/plain',
+        'x-error': e.message,
       },
       body: 'Internal Server Error',
     };
   }
+}
+
+function openwhisk(params = {}) {
+  let handler = (p) => openwhiskAdapter(p);
+  // enable epsagon if not healthcheck path.
+  if (params.__ow_path !== HEALTHCHECK_PATH) {
+    handler = epsagon(handler);
+  }
+  return handler(params);
 }
 
 // Google
@@ -244,45 +268,76 @@ async function google(req, res) {
 
     const [subdomain] = req.headers.host.split('.');
     const [country, region, ...servicename] = subdomain.split('-');
+    const [packageName, name] = process.env.K_SERVICE.split('--');
 
     const context = {
       resolver: new GoogleResolver(req),
       pathInfo: {
-        suffix: '', // TODO!
+        // original: /foo?hey=bar
+        suffix: req.originalUrl.replace(/\?.*/, ''),
       },
       runtime: {
         name: 'googlecloud-functions',
-        region: `${country}${region}`,
+        region: `${country}-${region}`,
       },
       func: {
-        name: process.env.K_SERVICE,
+        name,
+        package: packageName,
         version: process.env.K_REVISION,
+        fqn: process.env.K_SERVICE,
         app: servicename.join('-'),
       },
       invocation: {
         id: req.headers['function-execution-id'],
         deadline: Number.parseInt(req.headers['x-appengine-timeout-ms'], 10) + Date.now(),
       },
-      env: process.env,
+      env: {
+        ...process.env,
+        ...(await getGoogleSecrets(process.env.K_SERVICE, servicename.join('-'))),
+      },
     };
 
+    updateProcessEnv(context);
     const response = await main(request, context);
     ensureUTF8Charset(response);
 
     Array.from(response.headers.entries()).reduce((r, [header, value]) => r.set(header, value), res.status(response.status)).send(isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()) : await response.text());
   } catch (e) {
-    res.status(500).send(e.message);
+    if (e instanceof TypeError && e.code === 'ERR_INVALID_CHAR') {
+      // eslint-disable-next-line no-console
+      console.error('invalid request header', e.message);
+      res.status(400).send(e.message);
+      return;
+    }
+    // eslint-disable-next-line no-console
+    console.error('error while invoking function', e);
+    res
+      .status(500)
+      .set('x-error', e.message)
+      .send(e.message);
   }
 }
 
 // AWS
-async function lambda(event, context) {
+async function lambdaAdapter(event, context, secrets) {
   try {
     const request = new Request(`https://${event.requestContext.domainName}${event.rawPath}${event.rawQueryString ? '?' : ''}${event.rawQueryString}`, {
       method: event.requestContext.http.method,
       headers: event.headers,
       body: event.isBase64Encoded ? Buffer.from(event.body, 'base64') : event.body,
     });
+
+    // parse ARN
+    //   arn:partition:service:region:account-id:resource-type:resource-id
+    //   eg: arn:aws:lambda:us-east-1:118435662149:function:dump:4_2_1
+    const [/* 'arn' */, /* 'aws' */, /* 'lambda' */,
+      region,
+      accountId, /* 'function' */,
+      functionName,
+      functionAlias,
+    ] = context.invokedFunctionArn.split(':');
+    const [packageName, name] = functionName.split('--');
+
     const con = {
       resolver: new AWSResolver(event),
       pathInfo: {
@@ -290,11 +345,14 @@ async function lambda(event, context) {
       },
       runtime: {
         name: 'aws-lambda',
-        region: process.env.AWS_REGION,
+        region,
+        accountId,
       },
       func: {
-        name: context.functionName,
-        version: context.functionVersion,
+        name,
+        package: packageName,
+        version: (functionAlias || '').replace(/_/g, '.'),
+        fqn: context.invokedFunctionArn,
         app: event.requestContext.apiId,
       },
       invocation: {
@@ -303,27 +361,70 @@ async function lambda(event, context) {
       },
       env: {
         ...process.env,
-        ...(await getAWSSecrets(context.functionName)),
+        ...secrets,
       },
     };
 
+    updateProcessEnv(con);
     const response = await main(request, con);
     ensureUTF8Charset(response);
 
+    // flush log if present
+    if (con.log && con.log.flush) {
+      await con.log.flush();
+    }
+    const isBase64Encoded = isBinary(response.headers.get('content-type'));
     return {
       statusCode: response.status,
-      headers: Array.from(response.headers.entries()).reduce((h, [header, value]) => {
-        h[header] = value;
-        return h;
-      }, {}),
-      isBase64Encoded: isBinary(response.headers.get('content-type')),
-      body: isBinary(response.headers.get('content-type')) ? Buffer.from(await response.arrayBuffer()).toString('base64') : await response.text(),
+      headers: Object.fromEntries(response.headers.entries()),
+      isBase64Encoded,
+      body: isBase64Encoded ? Buffer.from(await response.arrayBuffer()).toString('base64') : await response.text(),
     };
+  } catch (e) {
+    if (e instanceof TypeError && e.code === 'ERR_INVALID_CHAR') {
+      // eslint-disable-next-line no-console
+      console.error('invalid request header', e.message);
+      return {
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'text/plain',
+        },
+        body: e.message,
+      };
+    }
+    // eslint-disable-next-line no-console
+    console.error('error while invoking function', e);
+    return {
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'text/plain',
+        'x-error': e.message,
+      },
+      body: e.message,
+    };
+  }
+}
+
+async function lambda(evt, ctx) {
+  try {
+    const secrets = await getAWSSecrets(ctx.functionName);
+    let handler = (event, context) => lambdaAdapter(event, context, secrets);
+    if (secrets.EPSAGON_TOKEN) {
+      // check if health check
+      const suffix = evt.pathParameters && evt.pathParameters.path ? `/${evt.pathParameters.path}` : '';
+      if (suffix !== HEALTHCHECK_PATH) {
+        handler = epsagon(handler, {
+          token: secrets.EPSAGON_TOKEN,
+        });
+      }
+    }
+    return handler(evt, ctx);
   } catch (e) {
     return {
       statusCode: 500,
       headers: {
         'Content-Type': 'text/plain',
+        'x-error': e.message,
       },
       body: e.message,
     };
@@ -332,7 +433,7 @@ async function lambda(event, context) {
 
 // exports
 module.exports = Object.assign(azure, {
-  main: epsagon(openwhisk),
+  main: openwhisk,
   lambda,
   google,
 });

@@ -22,6 +22,8 @@ class FastlyConfig {
     return this
       .withServiceID(argv.fastlyServiceId)
       .withAuth(argv.fastlyAuth)
+      .withCoralogixToken(argv.coralogixToken)
+      .withCoralogixApp(argv.coralogixApp)
       .withCheckpath(argv.checkpath);
   }
 
@@ -40,9 +42,19 @@ class FastlyConfig {
     return this;
   }
 
+  withCoralogixToken(value) {
+    this.coralogixToken = value;
+    return this;
+  }
+
+  withCoralogixApp(value) {
+    this.coralogixApp = value;
+    return this;
+  }
+
   static yarg(yargs) {
     return yargs
-      .group(['fastly-service-id', 'fastly-auth', 'checkpath'], 'Fastly Gateway Options')
+      .group(['fastly-service-id', 'fastly-auth', 'checkpath', 'coralogix-token', 'coralogix-app'], 'Fastly Gateway Options')
       .option('fastly-service-id', {
         description: 'the Fastly Service to use as a gateway',
         type: 'string',
@@ -52,6 +64,16 @@ class FastlyConfig {
         description: 'the Fastly token',
         type: 'string',
         default: '',
+      })
+      .option('coralogix-token', {
+        description: 'the Coralogix token (to enable logging)',
+        type: 'string',
+        default: '',
+      })
+      .option('coralogix-app', {
+        description: 'the Application name',
+        type: 'string',
+        default: 'universal-runtime',
       })
       .option('checkpath', {
         description: 'the path to check as part of the Fastly health check',

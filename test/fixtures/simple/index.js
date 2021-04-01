@@ -14,9 +14,39 @@ const reader = require('./helper/read.js');
 
 // eslint-disable-next-line no-unused-vars
 module.exports.main = function main(req, context) {
-  const resp = JSON.stringify({
+  const url = new URL(req.url);
+  const chanceoffailure = parseInt(url.searchParams.get('chanceoffailure') || '0', 10);
+  if (Math.random() * 100 < chanceoffailure) {
+    return new Response(`${chanceoffailure}% of requests fail. This is one of the failures`, {
+      status: 503,
+    });
+  }
+  const resp = {
     url: req.url,
     file: reader(),
-  });
-  return new Response(resp);
+    error: context.env.ERROR,
+  };
+
+  const resolve = url.searchParams.get('resolve');
+  if (resolve) {
+    const rurl = context.resolver.createURL({
+      name: resolve,
+      version: 'v1',
+    });
+
+    console.log('resolved', rurl);
+
+    resp.resolve = rurl.toString();
+  }
+
+  const checkpathinfo = url.searchParams.get('checkpathinfo');
+  if (checkpathinfo) {
+    resp.pathinfo = context.pathInfo;
+  }
+
+  const response = new Response(JSON.stringify(resp));
+  response.headers.set('Surrogate-Key', 'simple');
+  response.headers.set('Hey', context.env.HEY);
+  response.headers.set('Foo', context.env.FOO);
+  return response;
 };
