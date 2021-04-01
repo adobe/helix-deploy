@@ -38,11 +38,8 @@ class OpenWhiskDeployer extends BaseDeployer {
     if (await fse.pathExists(wskPropsFile)) {
       wskProps = dotenv.parse(await fse.readFile(wskPropsFile));
     }
-    const wskNamespace = process.env.WSK_NAMESPACE || wskProps.NAMESPACE;
-    if (this._cfg.namespace && this._cfg.namespace !== wskNamespace) {
-      throw Error(chalk`Openhwhisk namespace {grey '${wskNamespace}'} doesn't match configured namespace {grey '${this._cfg.namespace}'}.\nThis is a security measure to prevent accidental deployment dues to wrong .wskprops.`);
-    }
-    this._cfg.namespace = wskNamespace;
+    this._cfg.propsNamespace = process.env.WSK_NAMESPACE || wskProps.NAMESPACE;
+    this._cfg.namespace = this._cfg.namespace || this._cfg.propsNamespace;
     this._cfg.auth = process.env.WSK_AUTH || wskProps.AUTH;
     this._cfg.apiHost = process.env.WSK_APIHOST || wskProps.APIHOST || 'https://adobeioruntime.net';
 
@@ -83,6 +80,9 @@ class OpenWhiskDeployer extends BaseDeployer {
   validate() {
     if (!this.ready()) {
       throw Error('Openwhisk target needs --wsk-host, --wsk-auth and --wsk-namespace');
+    }
+    if (this._cfg.namespace !== this._cfg.propsNamespace) {
+      throw Error(chalk`Openhwhisk namespace {grey '${this._cfg.propsNamespace}'} doesn't match configured namespace {grey '${this._cfg.namespace}'}.\nThis is a security measure to prevent accidental deployment due to wrong .wskprops.`);
     }
   }
 

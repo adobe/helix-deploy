@@ -218,14 +218,20 @@ module.exports = class ActionBuilder {
       cfg.showHints = false;
       cfg.links = [];
     }
+  }
 
-    // init deployers
+  async validateDeployers() {
+    if (this.validated) {
+      return;
+    }
+    const { cfg } = this;
     const targets = { };
     cfg.targets.forEach((t) => {
       if (t === 'auto') {
         // get all deployers that are ready();
         Object.entries(this._deployers).forEach(([name, deployer]) => {
           if (deployer.ready()) {
+            deployer.validate();
             targets[name] = deployer;
           }
         });
@@ -245,6 +251,8 @@ module.exports = class ActionBuilder {
         throw new Error('No applicable deployers found');
       }
     }
+    cfg.log.info(chalk`selected targets: {yellow ${Object.values(this._deployers).map((d) => d.name).join(', ')}}`);
+    this.validated = true;
   }
 
   async createArchive() {
@@ -558,7 +566,6 @@ module.exports = class ActionBuilder {
     const { cfg } = this;
     cfg.log.info(chalk`{grey universal-action-builder v${version}}`);
     await this.validate();
-    cfg.log.info(chalk`selected targets: {yellow ${Object.values(this._deployers).map((d) => d.name).join(', ')}}`);
 
     if (cfg.build) {
       await this.createPackage();
@@ -569,10 +576,12 @@ module.exports = class ActionBuilder {
     }
 
     if (cfg.updatePackage) {
+      await this.validateDeployers();
       await this.updatePackage();
     }
 
     if (cfg.deploy) {
+      await this.validateDeployers();
       if (!cfg.build) {
         const relZip = path.relative(process.cwd(), cfg.zipFile);
         cfg.log.info(chalk`{green ok:} using: {yellow ${relZip}}.`);
@@ -583,18 +592,22 @@ module.exports = class ActionBuilder {
     }
 
     if (cfg.delete) {
+      await this.validateDeployers();
       await this.delete();
     }
 
     if (typeof cfg.test === 'string' || Object.keys(cfg.testParams).length) {
+      await this.validateDeployers();
       await this.test();
     }
 
     if (cfg.links && cfg.links.length) {
+      await this.validateDeployers();
       await this.updateLinks();
     }
 
     if (this._gateways.fastly && this._gateways.fastly.ready()) {
+      await this.validateDeployers();
       Object.values(this._deployers).forEach((d) => {
         this._gateways.fastly.withDeployer(d);
       });
@@ -606,11 +619,13 @@ module.exports = class ActionBuilder {
     if (this._gateways.fastly
       && this._gateways.fastly.updateable()
       && cfg.links && cfg.links.length) {
+      await this.validateDeployers();
       this._gateways.fastly.init();
       await this._gateways.fastly.updateLinks(cfg.links, cfg.version);
     }
 
     if (cfg.deploy) {
+      await this.validateDeployers();
       return Object.entries(this._deployers).reduce((p, [name, dep]) => {
         // eslint-disable-next-line no-param-reassign
         p[name] = {
