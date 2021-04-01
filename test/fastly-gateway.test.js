@@ -31,6 +31,7 @@ gateway._fastly = {
     ops = operations;
     assert.equal(dict, 'aliases');
   },
+  discard: () => true,
 };
 
 describe('Unit Tests for Fastly Gateway', () => {
