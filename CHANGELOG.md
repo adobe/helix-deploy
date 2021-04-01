@@ -1,3 +1,10 @@
+## [3.16.6](https://github.com/adobe/helix-deploy/compare/v3.16.5...v3.16.6) (2021-04-01)
+
+
+### Bug Fixes
+
+* **fastly:** discard fastly client after updating links ([5b1a5e2](https://github.com/adobe/helix-deploy/commit/5b1a5e2c082e0a9e65332582619fb0bbe4037b06))
+
 ## [3.16.5](https://github.com/adobe/helix-deploy/compare/v3.16.4...v3.16.5) (2021-03-31)
 
 
