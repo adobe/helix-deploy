@@ -77,6 +77,23 @@ describe('Deploy Test', () => {
     await assert.rejects(builder.run(), /Error: Openhwhisk namespace .*'foobar'.* doesn't match configured namespace .*'baz'.*./);
   });
 
+  it('doesnt reports error configured namespace does not match wsk namespace for non wsk deployments', async () => {
+    await fse.copy(path.resolve(__dirname, 'fixtures', 'web-action'), testRoot);
+    process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
+    const builder = new CLI()
+      .prepare([
+        '--target', 'aws',
+        '--aws-region', '*',
+        '--aws-api', '*',
+        '--aws-role', '*',
+        '--verbose',
+        '--deploy',
+        '--namespace', 'baz',
+        '--directory', testRoot,
+      ]);
+    await assert.rejects(builder.run(), /Error: aborted due to errors during deploy/);
+  }).timeout(10000);
+
   it('deploys a web action', async () => {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'web-action'), testRoot);
 
@@ -139,7 +156,7 @@ describe('Deploy Test', () => {
     const out = builder.cfg.log.output;
     assert.ok(out.indexOf('requesting: https://example.com/api/v1/web/foobar/default/simple-project/foo') > 0);
     assert.ok(out.indexOf('Location: https://example.com/') > 0);
-  });
+  }).timeout(10000);
 
   it('test can retry with 404', async () => {
     nock('https://www.example.com')

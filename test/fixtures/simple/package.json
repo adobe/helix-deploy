@@ -9,6 +9,7 @@
     "@adobe/helix-fetch": "2.0.0"
   },
   "wsk": {
+    "namespace": "helix",
     "name": "simple-package/simple-name@${version}",
     "params-file": [
       "test.env"
