@@ -1,3 +1,10 @@
+## [3.16.7](https://github.com/adobe/helix-deploy/compare/v3.16.6...v3.16.7) (2021-04-02)
+
+
+### Bug Fixes
+
+* **build:** don't check wsk namespace for non-deploy ([#191](https://github.com/adobe/helix-deploy/issues/191)) ([5e72dc8](https://github.com/adobe/helix-deploy/commit/5e72dc8895a240c723e29d6d39436a76e39d852d)), closes [#160](https://github.com/adobe/helix-deploy/issues/160)
+
 ## [3.16.6](https://github.com/adobe/helix-deploy/compare/v3.16.5...v3.16.6) (2021-04-01)
 
 
