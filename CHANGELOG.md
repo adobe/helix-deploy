@@ -1,3 +1,10 @@
+# [3.17.0](https://github.com/adobe/helix-deploy/compare/v3.16.8...v3.17.0) (2021-04-05)
+
+
+### Features
+
+* **adapter:** log better errors for missing headers ([#198](https://github.com/adobe/helix-deploy/issues/198)) ([1adc8a6](https://github.com/adobe/helix-deploy/commit/1adc8a64b73a100cc87de0969d898af264ac6e8e)), closes [#194](https://github.com/adobe/helix-deploy/issues/194)
+
 ## [3.16.8](https://github.com/adobe/helix-deploy/compare/v3.16.7...v3.16.8) (2021-04-03)
 
 
