@@ -9,6 +9,7 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+const { inspect } = require('util');
 
 /**
  * Checks if the content type is binary.
@@ -38,7 +39,7 @@ function ensureUTF8Charset(resp) {
     throw Error('unexpected response: undefined');
   }
   if (!resp.headers) {
-    throw Error('unexpected response: no headers');
+    throw Error(`unexpected response: no headers. is: ${inspect(resp)}`);
   }
   if (typeof resp.headers.get !== 'function') {
     throw Error('response.headers has no method "get()"');

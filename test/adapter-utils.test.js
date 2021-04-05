@@ -55,7 +55,15 @@ describe('Adapter Utils Tests: ensureUTF8Encoding', () => {
   });
 
   it('errors if no response headers', () => {
-    assert.throws(() => ensureUTF8Charset({}), Error('unexpected response: no headers'));
+    assert.throws(() => ensureUTF8Charset({ body: '', status: 200 }), Error('unexpected response: no headers. is: { body: \'\', status: 200 }'));
+  });
+
+  it('errors if response is a promise', () => {
+    assert.throws(() => ensureUTF8Charset(Promise.resolve()), Error('unexpected response: no headers. is: Promise { undefined }'));
+  });
+
+  it('errors if response is not an object', () => {
+    assert.throws(() => ensureUTF8Charset('400'), Error('unexpected response: no headers. is: \'400\''));
   });
 
   it('errors if plain response headers', () => {
