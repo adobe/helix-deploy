@@ -1,3 +1,10 @@
+# [3.18.0](https://github.com/adobe/helix-deploy/compare/v3.17.0...v3.18.0) (2021-04-07)
+
+
+### Features
+
+* **adapter:** add consistent tracing information ([#200](https://github.com/adobe/helix-deploy/issues/200)) ([dab14be](https://github.com/adobe/helix-deploy/commit/dab14be0875bf5f5b082b04f92cac76e552e11c3)), closes [#199](https://github.com/adobe/helix-deploy/issues/199)
+
 # [3.17.0](https://github.com/adobe/helix-deploy/compare/v3.16.8...v3.17.0) (2021-04-05)
 
 
