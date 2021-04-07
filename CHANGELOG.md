@@ -1,3 +1,10 @@
+## [3.18.1](https://github.com/adobe/helix-deploy/compare/v3.18.0...v3.18.1) (2021-04-07)
+
+
+### Bug Fixes
+
+* **template:** clean up x-error header value prior to sending response ([2e03414](https://github.com/adobe/helix-deploy/commit/2e03414d0c0a2dec62ade96e3ca7a26fcbeae5ac)), closes [#201](https://github.com/adobe/helix-deploy/issues/201)
+
 # [3.18.0](https://github.com/adobe/helix-deploy/compare/v3.17.0...v3.18.0) (2021-04-07)
 
 
