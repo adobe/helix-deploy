@@ -86,6 +86,16 @@ export declare interface InvocationInfo {
    * Expiration time in unix epoch
    */
   deadline:number;
+
+  /**
+   * Transaction ID. Some identifier that can be used to trace several connecting actions.
+   */
+  transactionId?:string;
+
+  /**
+   * Request ID. Identifies the request of the invocation
+   */
+  requestId?:string;
 }
 
 /**

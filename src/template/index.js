@@ -88,6 +88,8 @@ async function azure(context, req) {
       invocation: {
         id: context.invocationId,
         deadline: undefined,
+        transactionId: req.headers['x-transaction-id'],
+        requestId: req.headers['x-request-id'],
       },
       env: {
         ...params,
@@ -208,6 +210,8 @@ async function openwhiskAdapter(params = {}) {
       invocation: {
         id: process.env.__OW_ACTIVATION_ID,
         deadline: Number.parseInt(process.env.__OW_DEADLINE, 10),
+        transactionId: headers['x-transaction-id'] || process.env.__OW_TRANSACTION_ID,
+        requestId: headers['x-request-id'],
       },
       env,
     };
@@ -290,6 +294,8 @@ async function google(req, res) {
       invocation: {
         id: req.headers['function-execution-id'],
         deadline: Number.parseInt(req.headers['x-appengine-timeout-ms'], 10) + Date.now(),
+        transactionId: request.headers.get('x-transaction-id'),
+        requestId: request.headers.get('x-cloud-trace-context'),
       },
       env: {
         ...process.env,
@@ -358,6 +364,8 @@ async function lambdaAdapter(event, context, secrets) {
       invocation: {
         id: context.awsRequestId,
         deadline: Date.now() + context.getRemainingTimeInMillis(),
+        transactionId: request.headers.get('x-transaction-id') || request.headers.get('x-amzn-trace-id'),
+        requestId: event.requestContext.requestId,
       },
       env: {
         ...process.env,

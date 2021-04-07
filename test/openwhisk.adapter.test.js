@@ -22,6 +22,8 @@ describe('OpenWhisk Adapter Test', () => {
     process.env.__OW_ACTION_NAME = '/simple-package/simple-name@4.2.1';
     process.env.__OW_ACTIVATION_ID = '1234';
     process.env.__OW_API_HOST = 'https://test.com';
+    process.env.__OW_DEADLINE = '1984';
+    process.env.__OW_TRANSACTION_ID = 'ow-tx-id';
   });
 
   it('set correct context and environment', async () => {
@@ -30,6 +32,7 @@ describe('OpenWhisk Adapter Test', () => {
         main: (req, context) => {
           const ret = JSON.stringify({
             func: context.func,
+            invocation: context.invocation,
             env: Object.fromEntries(
               Object.entries(process.env)
                 .filter(([key]) => key.startsWith('HELIX_UNIVERSAL')),
@@ -41,9 +44,13 @@ describe('OpenWhisk Adapter Test', () => {
       },
     });
 
-    const resp = await main({});
+    const resp = await main({
+      __ow_headers: {
+        'x-request-id': 'my-req-id',
+      },
+    });
     const body = JSON.parse(resp.body);
-    assert.deepEqual(body, {
+    assert.deepStrictEqual(body, {
       env: {
         HELIX_UNIVERSAL_APP: 'helix-pages',
         HELIX_UNIVERSAL_NAME: 'simple-name',
@@ -57,6 +64,12 @@ describe('OpenWhisk Adapter Test', () => {
         name: 'simple-name',
         package: 'simple-package',
         version: '4.2.1',
+      },
+      invocation: {
+        id: '1234',
+        deadline: 1984,
+        transactionId: 'ow-tx-id',
+        requestId: 'my-req-id',
       },
     });
   });
