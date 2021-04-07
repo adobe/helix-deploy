@@ -30,6 +30,15 @@ const { main } = require('./main.js');
 const HEALTHCHECK_PATH = '/_status_check/healthcheck.json';
 
 /**
+ * Cleans up a header value by stripping invalid characters and truncating to 1024 chars
+ * @param {string} value a header value
+ * @returns a valid header value
+ */
+function cleanupHeaderValue(value) {
+  return value.replace(/[^\t\u0020-\u007E\u0080-\u00FF]/g, '').substr(0, 1024);
+}
+
+/**
  * Updates the process environment with function information.
  * (note that we don't set the invocation id, since not all runtimes isolate the process env)
  * @param {UniversalContext} context The context
@@ -129,7 +138,7 @@ async function azure(context, req) {
       status: 500,
       headers: {
         'Content-Type': 'text/plain',
-        'x-error': e.message,
+        'x-error': cleanupHeaderValue(e.message),
       },
       body: e.message,
     };
@@ -244,7 +253,7 @@ async function openwhiskAdapter(params = {}) {
       statusCode: 500,
       headers: {
         'Content-Type': 'text/plain',
-        'x-error': e.message,
+        'x-error': cleanupHeaderValue(e.message),
       },
       body: 'Internal Server Error',
     };
@@ -319,7 +328,7 @@ async function google(req, res) {
     console.error('error while invoking function', e);
     res
       .status(500)
-      .set('x-error', e.message)
+      .set('x-error', cleanupHeaderValue(e.message))
       .send(e.message);
   }
 }
@@ -406,7 +415,7 @@ async function lambdaAdapter(event, context, secrets) {
       statusCode: 500,
       headers: {
         'Content-Type': 'text/plain',
-        'x-error': e.message,
+        'x-error': cleanupHeaderValue(e.message),
       },
       body: e.message,
     };
@@ -432,7 +441,7 @@ async function lambda(evt, ctx) {
       statusCode: 500,
       headers: {
         'Content-Type': 'text/plain',
-        'x-error': e.message,
+        'x-error': cleanupHeaderValue(e.message),
       },
       body: e.message,
     };
