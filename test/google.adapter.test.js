@@ -109,8 +109,8 @@ describe('Adapter tests for Google', () => {
     const { google } = proxyquire('../src/template/index.js', {
       './main.js': {
         main: (request, context) => {
+          delete context.invocation.deadline;
           assert.deepEqual(context.invocation, {
-            deadline: NaN,
             id: '1234',
             requestId: 'some-request-id',
             transactionId: 'my-tx-id',
