@@ -83,6 +83,50 @@ describe('Adapter tests for AWS', () => {
     assert.equal(res.statusCode, 200);
   });
 
+  it('context.invocation', async () => {
+    const { lambda } = proxyquire('../src/template/index.js', {
+      './main.js': {
+        main: (request, context) => {
+          delete context.invocation.deadline;
+          assert.deepEqual(context.invocation, {
+            id: '535f0399-9c90-4042-880e-620cfec6af55',
+            requestId: 'bjKNYhHcoAMEJIw=',
+            transactionId: 'Root=1-603df0bb-05e846307a6221f72030fe68',
+          });
+          return new Response('ok');
+        },
+      },
+      './aws-package-params.js': () => ({}),
+    });
+    const res = await lambda(DEFAULT_EVENT, DEFAULT_CONTEXT);
+    assert.equal(res.statusCode, 200);
+  });
+
+  it('context.invocation (external transaction id)', async () => {
+    const { lambda } = proxyquire('../src/template/index.js', {
+      './main.js': {
+        main: (request, context) => {
+          delete context.invocation.deadline;
+          assert.deepEqual(context.invocation, {
+            id: '535f0399-9c90-4042-880e-620cfec6af55',
+            requestId: 'bjKNYhHcoAMEJIw=',
+            transactionId: 'my-tx-id',
+          });
+          return new Response('ok');
+        },
+      },
+      './aws-package-params.js': () => ({}),
+    });
+    const res = await lambda({
+      ...DEFAULT_EVENT,
+      headers: {
+        ...DEFAULT_EVENT.headers,
+        'x-transaction-id': 'my-tx-id',
+      },
+    }, DEFAULT_CONTEXT);
+    assert.equal(res.statusCode, 200);
+  });
+
   it('handles illegal request headers with 400', async () => {
     const { lambda } = proxyquire('../src/template/index.js', {
       './main.js': {

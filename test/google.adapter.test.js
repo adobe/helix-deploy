@@ -102,4 +102,32 @@ describe('Adapter tests for Google', () => {
     await google(req, res);
     assert.equal(res.code, 200);
   });
+
+  it('context.invocation', async () => {
+    process.env.K_SERVICE = 'simple-package--simple-name';
+    process.env.K_REVISION = '1.45.0';
+    const { google } = proxyquire('../src/template/index.js', {
+      './main.js': {
+        main: (request, context) => {
+          assert.deepEqual(context.invocation, {
+            deadline: NaN,
+            id: '1234',
+            requestId: 'some-request-id',
+            transactionId: 'my-tx-id',
+          });
+          return new Response('ok');
+        },
+      },
+      './google-package-params.js': () => ({}),
+    });
+    const req = createMockRequest('/api/simple-package/simple-name/1.45.0/foo', {
+      host: 'us-central1-helix-225321.cloudfunctions.net',
+      'function-execution-id': '1234',
+      'x-transaction-id': 'my-tx-id',
+      'x-cloud-trace-context': 'some-request-id',
+    });
+    const res = createMockResponse();
+    await google(req, res);
+    assert.equal(res.code, 200);
+  });
 });

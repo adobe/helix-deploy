@@ -81,6 +81,7 @@ describe('Adapter tests for Azure', () => {
         main: (req, context) => {
           const ret = JSON.stringify({
             func: context.func,
+            invocation: context.invocation,
             env: Object.fromEntries(
               Object.entries(process.env)
                 .filter(([key]) => key.startsWith('HELIX_UNIVERSAL')),
@@ -105,6 +106,8 @@ describe('Adapter tests for Azure', () => {
       url: 'https://deploy-helix.azurewebsites.net/api/simple-package/simple-name/1.45.0/foo',
       headers: {
         host: 'deploy-helix.azurewebsites.net',
+        'x-transaction-id': 'my-tx-id',
+        'x-request-id': 'my-request-id',
       },
     };
 
@@ -124,6 +127,10 @@ describe('Adapter tests for Azure', () => {
         name: 'simple-name',
         package: 'simple-package',
         version: '1.45.0',
+      },
+      invocation: {
+        requestId: 'my-request-id',
+        transactionId: 'my-tx-id',
       },
     });
   });
