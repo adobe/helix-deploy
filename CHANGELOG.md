@@ -1,3 +1,10 @@
+## [3.18.3](https://github.com/adobe/helix-deploy/compare/v3.18.2...v3.18.3) (2021-04-08)
+
+
+### Bug Fixes
+
+* **ow:** correctly decompose the function name ([#204](https://github.com/adobe/helix-deploy/issues/204)) ([c2448dd](https://github.com/adobe/helix-deploy/commit/c2448ddcef511ad39d0b1bc221dbc05e14a5b029))
+
 ## [3.18.2](https://github.com/adobe/helix-deploy/compare/v3.18.1...v3.18.2) (2021-04-08)
 
 
