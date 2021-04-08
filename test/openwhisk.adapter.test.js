@@ -19,7 +19,7 @@ const proxyquire = require('proxyquire');
 describe('OpenWhisk Adapter Test', () => {
   beforeEach(() => {
     process.env.__OW_NAMESPACE = 'helix-pages';
-    process.env.__OW_ACTION_NAME = '/simple-package/simple-name@4.2.1';
+    process.env.__OW_ACTION_NAME = '/helix/simple-package/simple-name@4.2.1';
     process.env.__OW_ACTIVATION_ID = '1234';
     process.env.__OW_API_HOST = 'https://test.com';
     process.env.__OW_DEADLINE = '1984';
@@ -60,7 +60,7 @@ describe('OpenWhisk Adapter Test', () => {
       },
       func: {
         app: 'helix-pages',
-        fqn: '/simple-package/simple-name@4.2.1',
+        fqn: '/helix/simple-package/simple-name@4.2.1',
         name: 'simple-name',
         package: 'simple-package',
         version: '4.2.1',
@@ -111,7 +111,7 @@ describe('OpenWhisk Adapter Test', () => {
     resp.body = JSON.parse(resp.body);
     assert.deepEqual(resp, {
       body: {
-        url: 'https://test.com/api/v1/web/simple-package/simple-name@4.2.1?foo=bar&zoo=42',
+        url: 'https://test.com/api/v1/web/helix/simple-package/simple-name@4.2.1?foo=bar&zoo=42',
       },
       headers: {
         'content-type': 'text/plain; charset=utf-8',
@@ -142,7 +142,7 @@ describe('OpenWhisk Adapter Test', () => {
     resp.body = JSON.parse(resp.body);
     assert.deepEqual(resp, {
       body: {
-        url: 'https://test.com/api/v1/web/simple-package/simple-name@4.2.1?foo=bar&zoo=42&test=dummy',
+        url: 'https://test.com/api/v1/web/helix/simple-package/simple-name@4.2.1?foo=bar&zoo=42&test=dummy',
         secret: 'xyz',
       },
       headers: {
@@ -186,7 +186,7 @@ describe('OpenWhisk Adapter Test', () => {
         },
         method: 'PUT',
         secret: 'xyz',
-        url: 'https://test.com/api/v1/web/simple-package/simple-name@4.2.1/test-suffix?foo=bar&zoo=42&test=dummy',
+        url: 'https://test.com/api/v1/web/helix/simple-package/simple-name@4.2.1/test-suffix?foo=bar&zoo=42&test=dummy',
       },
       headers: {
         'content-type': 'text/plain; charset=utf-8',
@@ -282,7 +282,7 @@ describe('OpenWhisk Adapter Test', () => {
     resp.body = JSON.parse(resp.body);
     assert.deepEqual(resp, {
       body: {
-        url: 'https://localhost/api/v1/web/simple-package/simple-name@4.2.1',
+        url: 'https://localhost/api/v1/web/helix/simple-package/simple-name@4.2.1',
       },
       headers: {
         'content-type': 'text/plain; charset=utf-8',
@@ -312,7 +312,7 @@ describe('OpenWhisk Adapter Test', () => {
     resp.body = JSON.parse(resp.body);
     assert.deepEqual(resp, {
       body: {
-        url: 'https://adobeioruntime.net/api/v1/web/simple-package/simple-name@4.2.1',
+        url: 'https://adobeioruntime.net/api/v1/web/helix/simple-package/simple-name@4.2.1',
       },
       headers: {
         'content-type': 'text/plain; charset=utf-8',
