@@ -196,9 +196,10 @@ async function openwhiskAdapter(params = {}) {
       body,
     });
 
-    const fqn = (process.env.__OW_ACTION_NAME || 'default/dummy-package/dummy-name@dummy-version');
-    const [, packageName, nameAtVersion] = fqn.split('/');
-    const [name, version] = nameAtVersion.split('@');
+    const fqn = (process.env.__OW_ACTION_NAME || '/default/dummy-package/dummy-name@dummy-version');
+    const segments = fqn.split('/');
+    const [name, version] = segments.pop().split('@');
+    const packageName = segments.pop();
 
     const context = {
       resolver: new OpenwhiskResolver(params),
