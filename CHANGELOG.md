@@ -1,3 +1,10 @@
+## [3.18.5](https://github.com/adobe/helix-deploy/compare/v3.18.4...v3.18.5) (2021-04-10)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([dd9f70f](https://github.com/adobe/helix-deploy/commit/dd9f70f227a31966e634a76568d024a3f3028bdc))
+
 ## [3.18.4](https://github.com/adobe/helix-deploy/compare/v3.18.3...v3.18.4) (2021-04-09)
 
 
