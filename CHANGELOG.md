@@ -1,3 +1,15 @@
+# [4.0.0](https://github.com/adobe/helix-deploy/compare/v3.18.6...v4.0.0) (2021-04-12)
+
+
+### Features
+
+* **adapter:** use helix-universal ([2e7d6bf](https://github.com/adobe/helix-deploy/commit/2e7d6bf951d5312736bb3f4c3e8c5486b7e4779e)), closes [#2](https://github.com/adobe/helix-deploy/issues/2)
+
+
+### BREAKING CHANGES
+
+* **adapter:** @adobe/helix-universal is now a peer-dependency.
+
 ## [3.18.6](https://github.com/adobe/helix-deploy/compare/v3.18.5...v3.18.6) (2021-04-12)
 
 
