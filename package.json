@@ -24,9 +24,11 @@
     "integration-ci": "nyc --reporter=lcov mocha -R xunit -O output=junit/integration-results.xml -g Integration && codecov",
     "semantic-release": "semantic-release"
   },
+  "peerDependencies": {
+    "@adobe/helix-universal": "^1.0"
+  },
   "dependencies": {
     "@adobe/fastly-native-promises": "1.22.4",
-    "@adobe/helix-epsagon": "1.6.4",
     "@adobe/helix-fetch": "2.2.0",
     "@aws-sdk/client-apigatewayv2": "3.12.0",
     "@aws-sdk/client-lambda": "3.12.0",
@@ -47,9 +49,9 @@
     "yargs": "16.2.0"
   },
   "devDependencies": {
+    "@adobe/helix-shared": "7.23.1",
     "@adobe/helix-status": "9.1.5",
-    "@adobe/openwhisk-action-logger": "2.4.3",
-    "@adobe/openwhisk-action-utils": "4.4.4",
+    "@adobe/helix-universal-logger": "1.0.2",
     "@semantic-release/changelog": "5.0.1",
     "@semantic-release/git": "9.0.0",
     "chai": "4.3.4",

@@ -34,6 +34,7 @@ module.exports.main = function main(req, context) {
       version: 'v1',
     });
 
+    // eslint-disable-next-line no-console
     console.log('resolved', rurl);
 
     resp.resolve = rurl.toString();
