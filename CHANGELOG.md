@@ -1,3 +1,10 @@
+## [4.0.2](https://github.com/adobe/helix-deploy/compare/v4.0.1...v4.0.2) (2021-04-16)
+
+
+### Bug Fixes
+
+* **google:** allow underscore-escaped version names ([5a25bab](https://github.com/adobe/helix-deploy/commit/5a25bab610ac149fed5b4b4d473acf65d8132d5f))
+
 ## [4.0.1](https://github.com/adobe/helix-deploy/compare/v4.0.0...v4.0.1) (2021-04-12)
 
 
