@@ -285,7 +285,7 @@ module.exports = class ActionBuilder {
       const packageJson = {
         name: cfg.baseName,
         // make sure the version string is valid, so that `npm install` works
-        version: semver.valid(cfg.version) ? cfg.version : `0.0.0+${cfg.version}`,
+        version: semver.valid(cfg.version.replace(/_/g, '.')) ? cfg.version.replace(/_/g, '.') : `0.0.0+${cfg.version}`,
         description: `Universal Action of ${cfg.name}`,
         main: 'index.js',
         license: 'Apache-2.0',
