@@ -1,3 +1,10 @@
+## [4.0.5](https://github.com/adobe/helix-deploy/compare/v4.0.4...v4.0.5) (2021-04-19)
+
+
+### Bug Fixes
+
+* **google:** avoid dots in package name for secrets ([c740224](https://github.com/adobe/helix-deploy/commit/c7402243ab8745e6c41492fb9782fbc715dc9616)), closes [#222](https://github.com/adobe/helix-deploy/issues/222)
+
 ## [4.0.4](https://github.com/adobe/helix-deploy/compare/v4.0.3...v4.0.4) (2021-04-19)
 
 
