@@ -25,7 +25,7 @@
     "semantic-release": "semantic-release"
   },
   "peerDependencies": {
-    "@adobe/helix-universal": "^1.0"
+    "@adobe/helix-universal": "^1.0 || ^1.0.0"
   },
   "dependencies": {
     "@adobe/fastly-native-promises": "1.23.0",
