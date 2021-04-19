@@ -12,7 +12,6 @@
 const msRestNodeAuth = require('@azure/ms-rest-nodeauth');
 const { WebSiteManagementClient } = require('@azure/arm-appservice');
 const fs = require('fs');
-const { fetch } = require('@adobe/helix-fetch');
 const BaseDeployer = require('./BaseDeployer');
 const AzureConfig = require('./AzureConfig.js');
 
@@ -109,7 +108,7 @@ class AzureDeployer extends BaseDeployer {
 
     this.log.info(`--: uploading ${this.relZip} to Azure bucket ${url} ...`);
 
-    const resp = await fetch(url, {
+    const resp = await this.fetch(url, {
       method: 'PUT',
       body,
       headers: {
@@ -141,7 +140,7 @@ class AzureDeployer extends BaseDeployer {
     let params = {};
     let ifmatch = '*';
     try {
-      const prereq = await fetch(url, {
+      const prereq = await this.fetch(url, {
         method: 'GET',
         headers: {
           authorization,
@@ -153,7 +152,7 @@ class AzureDeployer extends BaseDeployer {
       this.log.warn('Unable to get existing function parameters, starting from scratch.');
     }
 
-    const resp = await fetch(url, {
+    const resp = await this.fetch(url, {
       method: 'PUT',
       body: JSON.stringify({
         ...cfg.params,

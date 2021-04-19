@@ -13,11 +13,8 @@ const { CloudFunctionsServiceClient } = require('@google-cloud/functions');
 const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
 const path = require('path');
 const fs = require('fs');
-const { context } = require('@adobe/helix-fetch');
 const BaseDeployer = require('./BaseDeployer');
 const GoogleConfig = require('./GoogleConfig.js');
-
-const { fetch } = context();
 
 class GoogleDeployer extends BaseDeployer {
   constructor(baseConfig, config) {
@@ -119,7 +116,7 @@ class GoogleDeployer extends BaseDeployer {
     const body = fs.createReadStream(this.cfg.zipFile);
 
     // upload
-    await fetch(uploadUrl, {
+    await this.fetch(uploadUrl, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/zip',

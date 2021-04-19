@@ -562,7 +562,21 @@ module.exports = class ActionBuilder {
     return this.execute('runAdditionalTasks', '');
   }
 
+  close() {
+    if (this.validated) {
+      Object.values(this._deployers).forEach((dep) => dep.close());
+    }
+  }
+
   async run() {
+    try {
+      return await this._run();
+    } finally {
+      this.close();
+    }
+  }
+
+  async _run() {
     const { cfg } = this;
     cfg.log.info(chalk`{grey universal-action-builder v${version}}`);
     await this.validate();
