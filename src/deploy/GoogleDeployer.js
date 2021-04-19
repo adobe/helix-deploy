@@ -65,7 +65,7 @@ class GoogleDeployer extends BaseDeployer {
   async updatePackage() {
     this.log.info('--: updating app (package) parameters ...');
     // Create the secret with automation replication.
-    const secretId = `helix-deploy--${this.cfg.packageName}`;
+    const secretId = `helix-deploy--${this.cfg.packageName.replace(/\./g, '_')}`;
     const parent = `projects/${this._cfg.projectID}`;
     let secret;
 
