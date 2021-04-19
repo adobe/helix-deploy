@@ -123,7 +123,7 @@ declare local var.fullpath STRING;
 set var.version = "";
 set var.rest = "";
 
-if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_]+)+)?(.*$)") {
+if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
   log "match";
   set var.package = re.group.1;
   set var.action = re.group.2;
