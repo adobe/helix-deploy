@@ -377,18 +377,29 @@ set beresp.http.X-Surrogate-Key = beresp.http.Surrogate-Key;
 set beresp.http.X-Surrogate-Control = beresp.http.Surrogate-Control;`,
       });
 
-      await this._fastly.writeSnippet(newversion, 'restart', {
-        name: 'restart',
-        priority: 10,
-        dynamic: 0,
-        type: 'deliver',
-        content: `
+      let restartcontent = `
 # restart the request in case of flakiness
 if (req.restarts < 2 && (resp.status == 503 || resp.status == 504) && (req.request == "GET" || req.request == "HEAD" || req.request == "PUT" || req.request == "DELETE")) {
   restart;
 }
 set resp.http.x-gateway-restarts = req.restarts;
-unset resp.http.Fastly-Restarts;`,
+unset resp.http.Fastly-Restarts;`;
+
+      if (this._deployers.find((deployer) => deployer.name === 'Google')) {
+        restartcontent += `
+# If Google can't find a function, it sends a redirect to the login page instead
+# of a 404. This fixes it.
+if (resp.status == 302 && req.backend == F_Google && resp.http.Location ~ "^https://accounts.google.com/ServiceLogin") {
+  set resp.status = 404;
+}
+`;
+      }
+      await this._fastly.writeSnippet(newversion, 'restart', {
+        name: 'restart',
+        priority: 10,
+        dynamic: 0,
+        type: 'deliver',
+        content: restartcontent,
       });
 
       await this._fastly.writeSnippet(newversion, 'restoresurrogates', {
