@@ -1,3 +1,10 @@
+## [4.0.4](https://github.com/adobe/helix-deploy/compare/v4.0.3...v4.0.4) (2021-04-19)
+
+
+### Bug Fixes
+
+* **deploy:** try to reset all fetch context to avoid hanging processes ([#219](https://github.com/adobe/helix-deploy/issues/219)) ([afae86f](https://github.com/adobe/helix-deploy/commit/afae86ff0b278e5ba956224e0bf3a2188e3c5b24))
+
 ## [4.0.3](https://github.com/adobe/helix-deploy/compare/v4.0.2...v4.0.3) (2021-04-17)
 
 
