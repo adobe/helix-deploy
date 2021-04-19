@@ -1,3 +1,11 @@
+## [4.0.6](https://github.com/adobe/helix-deploy/compare/v4.0.5...v4.0.6) (2021-04-19)
+
+
+### Bug Fixes
+
+* **google:** do not send a 302 for missing actions ([931d3cc](https://github.com/adobe/helix-deploy/commit/931d3cc620eb3d66537fdc42b3574bbec1d0bbf6))
+* **google:** treat ? as a version string terminator ([ea60187](https://github.com/adobe/helix-deploy/commit/ea60187b25f4ee6af58dc815b36066f7c5e8da51))
+
 ## [4.0.5](https://github.com/adobe/helix-deploy/compare/v4.0.4...v4.0.5) (2021-04-19)
 
 
