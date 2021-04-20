@@ -1,3 +1,10 @@
+## [4.0.7](https://github.com/adobe/helix-deploy/compare/v4.0.6...v4.0.7) (2021-04-20)
+
+
+### Bug Fixes
+
+* **gateway:** fix typo in log message ([6ae679e](https://github.com/adobe/helix-deploy/commit/6ae679ed27030ba7340cb59bfa8580716f562756))
+
 ## [4.0.6](https://github.com/adobe/helix-deploy/compare/v4.0.5...v4.0.6) (2021-04-19)
 
 
