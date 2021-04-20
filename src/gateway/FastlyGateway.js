@@ -150,7 +150,7 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
 
   async enableLogging(version) {
     if (this._cfg.coralogixToken) {
-      this.log.info('Set up Gateway loggint to Coralogix');
+      this.log.info('Set up Gateway logging to Coralogix');
       await this._fastly.writeHttps(version, 'helix-coralogix', {
         name: 'helix-coralogix',
         format: toString({
