@@ -1,3 +1,10 @@
+# [4.1.0](https://github.com/adobe/helix-deploy/compare/v4.0.7...v4.1.0) (2021-04-21)
+
+
+### Features
+
+* **esm:** add minimal esm support by using .cjs as bundle extension ([#229](https://github.com/adobe/helix-deploy/issues/229)) ([e876bed](https://github.com/adobe/helix-deploy/commit/e876bed6a6993684a4217846196ae243274f80e2))
+
 ## [4.0.7](https://github.com/adobe/helix-deploy/compare/v4.0.6...v4.0.7) (2021-04-20)
 
 
