@@ -45,6 +45,7 @@ class BaseConfig {
       webSecure: false,
       showHints: false,
       modules: [],
+      modulePaths: [],
       build: true,
       delete: false,
       updatePackage: false,
@@ -341,6 +342,31 @@ class BaseConfig {
     return this;
   }
 
+  withBundlePath(value) {
+    this.bundle = value;
+    return this;
+  }
+
+  withDepInfoPath(value) {
+    this.depFile = value;
+    return this;
+  }
+
+  withZipPath(value) {
+    this.zipFile = value;
+    return this;
+  }
+
+  withDistDir(value) {
+    this.distDir = value;
+    return this;
+  }
+
+  withModulePaths(value) {
+    this.modulePaths = value;
+    return this;
+  }
+
   withPackageShared(value) {
     Object.values(this._deployers)
       .filter((deployer) => typeof deployer.withPackageShared === 'function')
@@ -397,6 +423,11 @@ class BaseConfig {
 
   withProperties(value) {
     this.properties = value;
+    return this;
+  }
+
+  withLogger(logger) {
+    this._logger = logger;
     return this;
   }
 
