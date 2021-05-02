@@ -10,11 +10,15 @@
  * governing permissions and limitations under the License.
  */
 const ActionBuilder = require('./src/ActionBuilder.js');
+const Bundler = require('./src/Bundler.js');
+const BaseConfig = require('./src/BaseConfig.js');
 const CLI = require('./src/cli.js');
 const DevelopmentServer = require('./src/DevelopmentServer.js');
 
 module.exports = {
   ActionBuilder,
+  Bundler,
+  BaseConfig,
   CLI,
   DevelopmentServer,
 };

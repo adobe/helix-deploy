@@ -18,10 +18,10 @@
     "hedy": "src/index.js"
   },
   "scripts": {
-    "lint": "./node_modules/.bin/eslint .",
-    "test": "nyc --reporter=text --reporter=lcov --check-coverage --branches 50 --statements 50 --lines 50 mocha -i -g Integration",
-    "test-ci": "npm run lint && nyc --reporter=text --reporter=lcov --check-coverage --branches 50 --statements 50 --lines 50 mocha -R xunit -O output=junit/test-results.xml -i -g Integration && codecov",
-    "integration-ci": "nyc --reporter=lcov mocha -R xunit -O output=junit/integration-results.xml -g Integration && codecov",
+    "lint": "eslint .",
+    "test": "nyc mocha -i -g Integration",
+    "test-ci": "npm run lint && nyc mocha -R xunit -O output=junit/test-results.xml -i -g Integration && codecov",
+    "integration-ci": "nyc mocha -R xunit -O output=junit/integration-results.xml -g Integration && codecov",
     "semantic-release": "semantic-release"
   },
   "peerDependencies": {
@@ -49,7 +49,7 @@
     "yargs": "16.2.0"
   },
   "devDependencies": {
-    "@adobe/helix-shared": "7.29.1",
+    "@adobe/helix-shared-wrap": "1.0.0",
     "@adobe/helix-status": "9.1.6",
     "@adobe/helix-universal-logger": "1.0.2",
     "@semantic-release/changelog": "5.0.1",

@@ -9,7 +9,8 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-const { wrap } = require('@adobe/helix-shared');
+// eslint-disable-next-line import/no-extraneous-dependencies
+const wrap = require('@adobe/helix-shared-wrap');
 const { logger } = require('@adobe/helix-universal-logger');
 const { Response } = require('@adobe/helix-universal');
 const { report } = require('@adobe/helix-status');
