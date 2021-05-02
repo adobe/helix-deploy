@@ -1,3 +1,10 @@
+# [4.2.0](https://github.com/adobe/helix-deploy/compare/v4.1.2...v4.2.0) (2021-05-02)
+
+
+### Features
+
+* refactor to expose apis better ([9e8084a](https://github.com/adobe/helix-deploy/commit/9e8084a151fc5f603fd89b20a3885ca3af5ca781))
+
 ## [4.1.2](https://github.com/adobe/helix-deploy/compare/v4.1.1...v4.1.2) (2021-05-01)
 
 
