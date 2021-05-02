@@ -55,7 +55,7 @@ module.exports = class Bundler {
       target: 'node',
       mode: 'development',
       // the universal adapter is the entry point
-      entry: path.resolve(__dirname, 'template', 'index.js'),
+      entry: cfg.adapterFile || path.resolve(__dirname, 'template', 'index.js'),
       output: {
         path: cfg.cwd,
         filename: path.relative(cfg.cwd, cfg.bundle),

@@ -33,6 +33,7 @@ class BaseConfig {
       zipFile: null,
       minify: false,
       bundle: null,
+      adapterFile: '',
       env: null,
       verbose: false,
       externals: [],
@@ -150,6 +151,7 @@ class BaseConfig {
       .withVersion(argv.pkgVersion)
       .withNodeVersion(argv.nodeVersion)
       .withEntryFile(argv.entryFile)
+      .withAdapterFile(argv.adapterFile)
       .withExternals(argv.externals)
       .withModules(argv.modules)
       .withWebSecure(argv.webSecure)
@@ -342,6 +344,11 @@ class BaseConfig {
     return this;
   }
 
+  withAdapterFile(value) {
+    this.adapterFile = value;
+    return this;
+  }
+
   withBundlePath(value) {
     this.bundle = value;
     return this;
@@ -492,7 +499,7 @@ class BaseConfig {
         default: false,
       })
 
-      .group(['minify', 'static', 'entryFile', 'externals', 'modules'], 'Build Options')
+      .group(['minify', 'static', 'entryFile', 'externals', 'modules', 'adapterFile'], 'Build Options')
       .option('minify', {
         description: 'Minify the final bundle',
         type: 'boolean',
@@ -511,8 +518,11 @@ class BaseConfig {
         default: [],
       })
       .option('entryFile', {
-        description: 'Specifies the entry file.',
+        description: 'Specifies the entry file (the universal function).',
         default: 'src/index.js',
+      })
+      .option('adapterFile', {
+        description: 'Specifies the adapter file (the exported module).',
       })
       .option('externals', {
         description: 'Defines the externals for webpack.',
