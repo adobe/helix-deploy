@@ -1,3 +1,10 @@
+# [4.3.0](https://github.com/adobe/helix-deploy/compare/v4.2.0...v4.3.0) (2021-05-02)
+
+
+### Features
+
+* **build:** allow to specify the adapter file ([#242](https://github.com/adobe/helix-deploy/issues/242)) ([69eff0a](https://github.com/adobe/helix-deploy/commit/69eff0a7d609833a861138507236c085c9548178))
+
 # [4.2.0](https://github.com/adobe/helix-deploy/compare/v4.1.2...v4.2.0) (2021-05-02)
 
 
