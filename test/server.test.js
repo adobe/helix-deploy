@@ -11,11 +11,10 @@
  */
 
 /* eslint-env mocha */
-/* eslint-disable no-underscore-dangle */
 
-const express = require('express');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
+const { Response } = require('@adobe/helix-fetch');
 
 chai.use(chaiHttp);
 
@@ -23,15 +22,8 @@ const DevelopmentServer = require('../src/DevelopmentServer.js');
 
 describe('Server Test', () => {
   it('it can start an stop the server', async () => {
-    const App = () => {
-      const app = express();
-      app.get('/', (req, res) => {
-        res.send(`hello: ${req.owActionParams.TEST_PARAM}`);
-      });
-      return app;
-    };
-
-    const server = new DevelopmentServer(App).withPort(0);
+    const main = (req, ctx) => new Response(`hello: ${ctx.env.TEST_PARAM}`);
+    const server = new DevelopmentServer(main).withPort(0);
     await server.init();
     server.params.TEST_PARAM = 'foo';
     await server.start();
