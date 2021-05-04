@@ -1,3 +1,10 @@
+## [4.3.1](https://github.com/adobe/helix-deploy/compare/v4.3.0...v4.3.1) (2021-05-04)
+
+
+### Bug Fixes
+
+* **dev:** fix development server to use universal action ([#246](https://github.com/adobe/helix-deploy/issues/246)) ([3a7ccff](https://github.com/adobe/helix-deploy/commit/3a7ccfff78bf651219d3e766c1998621142adbf6))
+
 # [4.3.0](https://github.com/adobe/helix-deploy/compare/v4.2.0...v4.3.0) (2021-05-02)
 
 
