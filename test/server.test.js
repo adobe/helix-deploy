@@ -33,4 +33,22 @@ describe('Server Test', () => {
     chai.expect(res.text).to.be.equal('hello: foo');
     await server.stop();
   });
+
+  it('it can post json body', async () => {
+    const main = async (req) => {
+      const body = await req.json();
+      return new Response(`hello: ${JSON.stringify(body)}`);
+    };
+    const server = new DevelopmentServer(main).withPort(0);
+    await server.init();
+    await server.start();
+
+    const res = await chai.request(`http://localhost:${server.server.address().port}`)
+      .post('/')
+      .set('content-type', 'application/json')
+      .send({ myparam: 'test' });
+
+    chai.expect(res.text).to.be.equal('hello: {"myparam":"test"}');
+    await server.stop();
+  });
 });

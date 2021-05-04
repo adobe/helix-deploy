@@ -125,8 +125,7 @@ module.exports = class DevelopmentServer {
   async start() {
     const app = express();
     app.use(rawBody());
-    app.get('*', this._handler);
-    app.post('*', this._handler);
+    app.all('*', this._handler);
     await new Promise((resolve, reject) => {
       try {
         this.server = app.listen(this._port, () => {
