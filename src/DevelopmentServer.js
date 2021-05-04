@@ -9,41 +9,58 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-/* eslint-disable no-underscore-dangle */
 const fse = require('fs-extra');
 const path = require('path');
+const express = require('express');
+const proxyquire = require('proxyquire').noCallThru();
 const ActionBuilder = require('./ActionBuilder');
 const BaseConfig = require('./BaseConfig.js');
-const OpenWhiskConfig = require('./deploy/OpenWhiskConfig.js');
-const OpenWhiskDeployer = require('./deploy/OpenWhiskDeployer.js');
+
+function rawBody() {
+  return (req, res, next) => {
+    if (req.method === 'GET' || req.method === 'HEAD') {
+      next();
+      return;
+    }
+    const chunks = [];
+    req.on('data', (chunk) => {
+      chunks.push(chunk);
+    });
+    req.on('end', () => {
+      req.rawBody = Buffer.concat(chunks);
+      next();
+    });
+  };
+}
 
 /**
- * Development server to use with a expressified openwhisk app.
+ * Development server for local development.
  *
  * Example:
  *
  * ```
  * // test/dev.js
  *
- * const { DevelopmentServer } = require('@adobe/openwhisk-action-builder');
- * const App = require('../src/app.js');
+ * const { DevelopmentServer } = require('@adobe/helix-deploy');
+ * const { main } = require('../src/index.js');
  *
  * async function run() {
- *  const devServer = await new DevelopmentServer(App).init();
- *  return devServer.start();
+ *  const devServer = await new DevelopmentServer(main).init();
+ *  await devServer.start();
  * }
- * run().catch(console.error);
+ *
+ * run().then(process.stdout).catch(process.stderr);
  * ```
  *
  * @type {DevelopmentServer}
  */
 module.exports = class DevelopmentServer {
   /**
-   * Creates a new development server using the given express app.
-   * @param {function} appFn - The function that creates an express app.
+   * Creates a new development server using the given universal function.
+   * @param {UniversalFunction} main - The universal function
    */
-  constructor(appFn) {
-    this._appFn = appFn;
+  constructor(main) {
+    this._main = main;
     this._cwd = process.cwd();
     this._port = process.env.WEBSERVER_PORT || 3000;
   }
@@ -51,6 +68,10 @@ module.exports = class DevelopmentServer {
   withPort(value) {
     this._port = value;
     return this;
+  }
+
+  get port() {
+    return this._port;
   }
 
   /**
@@ -81,17 +102,19 @@ module.exports = class DevelopmentServer {
         config.withParamsFile(file);
       }
     }
-    const wsk = new OpenWhiskDeployer(config, new OpenWhiskConfig());
-    await wsk.init();
+    const builder = new ActionBuilder().withConfig(config);
+    await builder.validate();
 
-    const params = await ActionBuilder.resolveParams(config.params);
-
-    // set openwhisk coordinates for transparent ow client usage.
-    process.env.__OW_API_KEY = wsk._cfg.auth;
-    process.env.__OW_API_HOST = wsk._cfg.apiHost;
-    process.env.__OW_NAMESPACE = wsk._cfg.namespace;
-
-    this.params = params;
+    // use google adapter since it already supports express req/res types
+    process.env.K_SERVICE = `${config.packageName}--${config.name}`;
+    process.env.K_REVISION = config.version;
+    this._handler = proxyquire('@adobe/helix-universal/src/google-adapter.js', {
+      './main.js': {
+        main: this._main,
+      },
+      './google-package-params.js': () => (config.params),
+    });
+    this.params = config.params;
     return this;
   }
 
@@ -100,19 +123,15 @@ module.exports = class DevelopmentServer {
    * @returns {Promise<void>}
    */
   async start() {
-    const app = await this._appFn(this.params);
-
-    // bind default params like expressify does
-    Object.defineProperty(app.request, 'owActionParams', {
-      value: this.params,
-      enumerable: false,
-    });
-
+    const app = express();
+    app.use(rawBody());
+    app.all('*', this._handler);
     await new Promise((resolve, reject) => {
       try {
         this.server = app.listen(this._port, () => {
+          this._port = this.server.address().port;
           // eslint-disable-next-line no-console
-          console.log(`Started development server on port ${this.server.address().port}`);
+          console.log(`Started development server on port ${this._port}`);
           resolve();
         });
       } catch (e) {
