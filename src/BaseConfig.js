@@ -40,6 +40,7 @@ class BaseConfig {
       nodeVersion: null,
       deploy: false,
       test: null,
+      testUrl: null,
       testParams: {},
       statics: [],
       params: {},
@@ -140,6 +141,7 @@ class BaseConfig {
       .withDeploy(argv.deploy)
       .withTest(argv.test)
       .withTestParams(argv.testParams)
+      .withTestUrl(argv.testUrl)
       .withHints(argv.hints)
       .withStatic(argv.static)
       .withName(argv.name)
@@ -218,7 +220,15 @@ class BaseConfig {
     return this;
   }
 
+  withTestUrl(value) {
+    this.testUrl = value;
+    return this;
+  }
+
   get testPath() {
+    if (!this.test.startsWith('/') && this.testUrl) {
+      return this.testUrl;
+    }
     return this.test;
   }
 
@@ -479,7 +489,7 @@ class BaseConfig {
         default: false,
       })
       .option('test', {
-        description: 'Invoke action after deployment. Can be relative url.',
+        description: 'Invoke action after deployment. Can be relative url or "true"',
         type: 'string',
       })
       .option('version-link', {
@@ -544,11 +554,15 @@ class BaseConfig {
         default: true,
       })
 
-      .group(['target', 'test-params'], 'Test Options')
+      .group(['target', 'test-params', 'test-url'], 'Test Options')
       .option('test-params', {
         description: 'Invoke openwhisk action after deployment with the given params.',
         type: 'array',
         default: [],
+      })
+      .option('test-url', {
+        description: 'Test url to use after deployment, in case --test is not an url.',
+        type: 'string',
       })
 
       .group(['target', 'linkPackage'], 'Link Options')
