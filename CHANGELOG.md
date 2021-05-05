@@ -1,3 +1,10 @@
+# [4.4.0](https://github.com/adobe/helix-deploy/compare/v4.3.1...v4.4.0) (2021-05-05)
+
+
+### Features
+
+* decouple test from test url ([#247](https://github.com/adobe/helix-deploy/issues/247)) ([506f8ff](https://github.com/adobe/helix-deploy/commit/506f8ffda7252f7173999d4d04e6a0a21628ed4e))
+
 ## [4.3.1](https://github.com/adobe/helix-deploy/compare/v4.3.0...v4.3.1) (2021-05-04)
 
 
