@@ -135,6 +135,13 @@ class BaseDeployer {
   }
 
   /**
+   * Can be used by deployers to validate additional tasks, eg. custom commands.
+   */
+  // eslint-disable-next-line class-methods-use-this,no-empty-function
+  async validateAdditionalTasks() {
+  }
+
+  /**
    * Returns the link versions based on the configruation. eg ['v8', 'ci']
    */
   getLinkVersions() {

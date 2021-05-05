@@ -250,7 +250,7 @@ module.exports = class ActionBuilder {
         throw new Error('No applicable deployers found');
       }
     }
-    cfg.log.info(chalk`selected targets: {yellow ${Object.values(this._deployers).map((d) => d.name).join(', ')}}`);
+    cfg.log.info(chalk`--: selected targets: {yellow ${Object.values(this._deployers).map((d) => d.name).join(', ')}}`);
     this.validated = true;
   }
 
@@ -306,6 +306,10 @@ module.exports = class ActionBuilder {
     return this.execute('runAdditionalTasks', '');
   }
 
+  async validateAdditionalTasks() {
+    return this.execute('validateAdditionalTasks', '');
+  }
+
   close() {
     if (this.validated) {
       Object.values(this._deployers).forEach((dep) => dep.close());
@@ -324,10 +328,12 @@ module.exports = class ActionBuilder {
     const { cfg } = this;
     cfg.log.info(chalk`{grey universal-action-builder v${version}}`);
     await this.validate();
+    await this.validateAdditionalTasks();
+
+    const bundler = new Bundler().withConfig(cfg);
+    await bundler.init();
 
     if (cfg.build) {
-      const bundler = new Bundler().withConfig(cfg);
-      await bundler.init();
       await bundler.createBundle();
       await bundler.createArchive();
       await bundler.validateBundle();
@@ -344,7 +350,7 @@ module.exports = class ActionBuilder {
         const relZip = path.relative(process.cwd(), cfg.zipFile);
         cfg.log.info(chalk`{green ok:} using: {yellow ${relZip}}.`);
         cfg.dependencies = await fse.readJson(cfg.depFile);
-        await this.validateBundle();
+        await bundler.validateBundle();
       }
       await this.deploy();
     }

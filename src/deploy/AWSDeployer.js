@@ -121,8 +121,15 @@ class AWSDeployer extends BaseDeployer {
   }
 
   validate() {
-    if (!this._cfg.role || !this._cfg.region) {
-      throw Error('AWS target needs --aws-region and --aws-role');
+    const req = [];
+    if (!this._cfg.role) {
+      req.push('--aws-role');
+    }
+    if (!this._cfg.region) {
+      req.push('--aws-region');
+    }
+    if (req.length) {
+      throw Error(`AWS target needs ${req.join(' and ')}`);
     }
   }
 
@@ -210,6 +217,8 @@ class AWSDeployer extends BaseDeployer {
       },
       Handler: 'index.lambda',
     };
+
+    this.log.info(`--: using lambda role "${this._cfg.role}"`);
 
     try {
       this.log.info(`--: updating existing Lambda function ${functionName}`);
@@ -405,11 +414,7 @@ class AWSDeployer extends BaseDeployer {
       // ignore, most likely the permission already exists
     }
 
-    if (cfg.showHints) {
-      const opts = '';
-      this.log.info('\nYou can verify the action with:');
-      this.log.info(chalk`{grey $ curl${opts} "${this._functionURL}"}`);
-    }
+    this.log.info(chalk`{green ok:} function deployed: ${chalk.blueBright(this._functionURL)}`);
   }
 
   async test() {
@@ -621,6 +626,16 @@ class AWSDeployer extends BaseDeployer {
     }
   }
 
+  async validateAdditionalTasks() {
+    if (this._cfg.cleanUpBuckets || this._cfg.cleanUpIntegrations) {
+      // disable auto build if no deploy
+      if (!this.cfg.deploy) {
+        this.cfg.build = false;
+      }
+      await this.validate();
+    }
+  }
+
   async runAdditionalTasks() {
     if (this._cfg.cleanUpBuckets) {
       await this.cleanUpBuckets();
@@ -632,6 +647,7 @@ class AWSDeployer extends BaseDeployer {
 
   async deploy() {
     try {
+      this.log.info(`--: using aws region "${this._cfg.region}"`);
       await this.createS3Bucket();
       await this.uploadZIP();
       await this.createLambda();
