@@ -305,4 +305,28 @@ describe('CLI Test', () => {
     assert.equal(builder.cfg.name, 'bar');
     assert.equal(builder.cfg.packageName, 'foo');
   });
+
+  it('sets cleanup timelines', async () => {
+    const builder = new CLI()
+      .prepare(['--cleanup-ci', '24h',
+        '--cleanup-patch', '7d',
+        '--cleanup-minor', '4w',
+        '--cleanup-major', '12m']);
+    await builder.validate();
+    assert.equal(builder.cfg.cleanupCi, 24 * 3600);
+    assert.equal(builder.cfg.cleanupPatch, 24 * 3600 * 7);
+    assert.equal(builder.cfg.cleanupMinor, 24 * 3600 * 7 * 4);
+    assert.equal(builder.cfg.cleanupMajor, 24 * 3600 * 30 * 12);
+  });
+
+  it('sets default cleanup timelines', async () => {
+    const builder = new CLI()
+      .prepare(['--cleanup-ci', '24h',
+        '--cleanup-major', '1y']);
+    await builder.validate();
+    assert.equal(builder.cfg.cleanupCi, 24 * 3600);
+    assert.equal(builder.cfg.cleanupPatch, 0);
+    assert.equal(builder.cfg.cleanupMinor, 0);
+    assert.equal(builder.cfg.cleanupMajor, 24 * 3600 * 365);
+  });
 });

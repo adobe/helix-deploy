@@ -18,6 +18,23 @@ const dotenv = require('dotenv');
 // eslint-disable-next-line no-template-curly-in-string
 const DEFAULT_ACTION_FORMAT = '/${packageName}/${baseName}/${version}';
 
+function coerceDate(value) {
+  try {
+    const { duration, unit } = /(?<duration>[0-9]+)(?<unit>h|d|w|m|y)/.exec(value).groups;
+    const iduration = Number.parseInt(duration, 10);
+    switch (unit) {
+      case 'h': return iduration * 3600;
+      case 'd': return iduration * 3600 * 24;
+      case 'w': return iduration * 3600 * 24 * 7;
+      case 'm': return iduration * 3600 * 24 * 30;
+      case 'y': return iduration * 3600 * 24 * 365;
+      default: return 0;
+    }
+  } catch (e) {
+    return 0;
+  }
+}
+
 /**
  * @field name Name of function including the version. eg `my-action@1.2.3`
  * @field baseName Name of the function w/o the version. eg `my-action`
@@ -72,6 +89,10 @@ class BaseConfig {
         aws: DEFAULT_ACTION_FORMAT,
       },
       properties: {},
+      cleanupCi: 0,
+      cleanupPatch: 0,
+      cleanupMinor: 0,
+      cleanupMajor: 0,
       _logger: null,
     });
   }
@@ -167,6 +188,10 @@ class BaseConfig {
       .withLinks(argv.versionLink)
       .withLinksPackage(argv.linksPackage)
       .withFormat(argv.format)
+      .withCleanupCi(argv.cleanupCi)
+      .withCleanupPatch(argv.cleanupPatch)
+      .withCleanupMinor(argv.cleanupMinor)
+      .withCleanupMajor(argv.cleanupMajor)
       .withProperties(argv.property);
   }
 
@@ -448,6 +473,26 @@ class BaseConfig {
     return this;
   }
 
+  withCleanupCi(value) {
+    this.cleanupCi = value;
+    return this;
+  }
+
+  withCleanupPatch(value) {
+    this.cleanupPatch = value;
+    return this;
+  }
+
+  withCleanupMinor(value) {
+    this.cleanupMinor = value;
+    return this;
+  }
+
+  withCleanupMajor(value) {
+    this.cleanupMajor = value;
+    return this;
+  }
+
   get log() {
     if (!this._logger) {
       // poor men's logging...
@@ -594,7 +639,24 @@ class BaseConfig {
         type: 'object',
         default: {},
       })
-
+      .group(['cleanup-ci', 'cleanup-patch', 'cleanup-minor', 'cleanup-major'],
+        'Cleanup Old Deployments: automatically delete redundant versions older than specified. Use pattern like 7d or 1m to specify time frames.')
+      .option('cleanup-ci', {
+        description: 'Automatically delete redundant CI versions',
+        coerce: coerceDate,
+      })
+      .option('cleanup-patch', {
+        description: 'Automatically delete redundant patch versions. At least one patch version for each minor version will be kept.',
+        coerce: coerceDate,
+      })
+      .option('cleanup-minor', {
+        description: 'Automatically delete redundant minor versions. At least one minor version for each major version will be kept.',
+        coerce: coerceDate,
+      })
+      .option('cleanup-major', {
+        description: 'Automatically delete redundant major versions.',
+        coerce: coerceDate,
+      })
       .group([
         'name', 'package.name', 'node-version', 'params', 'params-file', 'updated-by', 'updated-at',
         'web-secure', 'timeout', 'pkgVersion', 'memory', 'concurrency',
