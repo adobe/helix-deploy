@@ -51,4 +51,24 @@ describe('Server Test', () => {
     chai.expect(res.text).to.be.equal('hello: {"myparam":"test"}');
     await server.stop();
   });
+
+  it('resolves the action correctly', async () => {
+    const main = async (req, ctx) => {
+      const url = ctx.resolver.createURL({
+        package: 'helix-services',
+        name: 'content-proxy',
+        version: 'v2',
+      });
+      return new Response(`xfh: ${url.href}`);
+    };
+    const server = new DevelopmentServer(main).withPort(0);
+    await server.init();
+    await server.start();
+
+    const res = await chai.request(`http://localhost:${server.server.address().port}`)
+      .get('/');
+
+    chai.expect(res.text).to.be.equal('xfh: https://helix-pages.anywhere.run/helix-services/content-proxy@v2');
+    await server.stop();
+  });
 });
