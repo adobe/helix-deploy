@@ -52,6 +52,7 @@ describe('Google Integration Test', () => {
         '--test', '/foo',
         '--directory', testRoot,
         '--entryFile', 'index.js',
+        '--cleanup-minor', '7d',
       ]);
     builder.cfg._logger = new TestLogger();
 

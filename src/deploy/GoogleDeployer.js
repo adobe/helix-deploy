@@ -13,6 +13,7 @@ const { CloudFunctionsServiceClient } = require('@google-cloud/functions');
 const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
 const path = require('path');
 const fs = require('fs');
+const semver = require('semver');
 const BaseDeployer = require('./BaseDeployer');
 const GoogleConfig = require('./GoogleConfig.js');
 
@@ -266,6 +267,77 @@ class GoogleDeployer extends BaseDeployer {
       idHeader: 'X-Cloud-Trace-Context',
       retry404: 1,
     });
+  }
+
+  async cleanup() {
+    console.log('cleanup!!!');
+    try {
+      const [allfns] = await this._client.listFunctions({
+        parent: `projects/${this._cfg.projectID}/locations/${this._cfg.region}`,
+      });
+      console.log(allfns.length, JSON.stringify(allfns));
+    } catch (e) {
+      console.error(e);
+    }
+    process.exit(1);
+  }
+
+  static filterFunctions(fns, name, now, {
+    ciAge, patchAge, minorAge, majorAge,
+  } = {}, { patchVersion, minorVersion, majorVersion } = {}) {
+    const namedfns = fns.map((fn) => {
+      const re = /(ci\d+)|(\d+_\d+_\d+)$/;
+
+      const updated = fn.labels && fn.labels.updated
+        ? fn.labels.updated
+        : fn.updateTime.seconds;
+
+      const versionstr = fn.labels && fn.labels.pkgversion
+        ? fn.labels.pkgversion
+        : fn.name.match(re) && fn.name.match(re)[0];
+
+      const version = {};
+      if (versionstr && versionstr.startsWith('ci')) {
+        version.ci = versionstr.substr(2);
+      } else if (versionstr) {
+        const cleanversionstr = versionstr
+          .replace(/^(\d+)[-_](\d+)[-_](\d+)[-_]/, '$1.$2.$3-')
+          .replace(/^(\d+)[-_](\d+)[-_](\d+)/, '$1.$2.$3');
+        const ver = semver.parse(cleanversionstr);
+        version.major = ver.major;
+        version.minor = ver.minor;
+        version.patch = ver.patch;
+      }
+      return {
+        fqName: fn.name,
+        name: fn.name.replace(/^.*--/, '').replace(re, '').replace(/_$/, ''),
+        updated: new Date(Number(updated)),
+        version,
+      };
+    }).filter((fn) => fn.name === name);
+
+    const cleanci = namedfns.filter((fn) => ciAge
+      && fn.version.ci
+      && fn.updated < new Date(now - (1000 * ciAge)));
+    const cleanpatch = namedfns.filter((fn) => patchAge
+      && fn.version.patch
+      && fn.version.patch < patchVersion
+      && fn.version.minor === minorVersion
+      && fn.version.major === majorVersion
+      && fn.updated < new Date(now - (1000 * patchAge)));
+
+    const cleanminor = namedfns.filter((fn) => minorAge
+      && fn.version.minor
+      && fn.version.minor < minorVersion
+      && fn.version.major === majorVersion
+      && fn.updated < new Date(now - (1000 * minorAge)));
+
+    const cleanmajor = namedfns.filter((fn) => majorAge
+      && fn.version.major
+      && fn.version.major < majorVersion
+      && fn.updated < new Date(now - (1000 * majorAge)));
+
+    return [...cleanci, ...cleanpatch, ...cleanminor, ...cleanmajor];
   }
 }
 

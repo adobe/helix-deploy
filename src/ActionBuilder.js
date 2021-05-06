@@ -310,6 +310,10 @@ module.exports = class ActionBuilder {
     return this.execute('validateAdditionalTasks', '');
   }
 
+  async runCleanup() {
+    return this.execute('cleanup', '');
+  }
+
   close() {
     if (this.validated) {
       Object.values(this._deployers).forEach((dep) => dep.close());
@@ -332,6 +336,10 @@ module.exports = class ActionBuilder {
 
     const bundler = new Bundler().withConfig(cfg);
     await bundler.init();
+
+    if (cfg.cleanupCi || cfg.cleanupPatch || cfg.cleanupMinor || cfg.cleanupMajor) {
+      this.runCleanup();
+    }
 
     if (cfg.build) {
       await bundler.createBundle();
@@ -398,6 +406,10 @@ module.exports = class ActionBuilder {
         };
         return p;
       }, {});
+    }
+
+    if (cfg.cleanupCi || cfg.cleanupPatch || cfg.cleanupMinor || cfg.cleanupMajor) {
+      this.runCleanup();
     }
 
     await this.runAdditionalTasks();
