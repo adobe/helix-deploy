@@ -33,6 +33,13 @@ function rawBody() {
   };
 }
 
+function addRequestHeader(name, value) {
+  return (req, res, next) => {
+    req.headers[name] = value;
+    next();
+  };
+}
+
 /**
  * Development server for local development.
  *
@@ -123,12 +130,13 @@ module.exports = class DevelopmentServer {
    * @returns {Promise<void>}
    */
   async start() {
-    const app = express();
-    app.use(rawBody());
-    app.all('*', this._handler);
+    this.app = express();
+    this.app.use(rawBody());
+    this.app.use(addRequestHeader('x-forwarded-host', 'helix-pages.anywhere.run'));
+    this.app.all('*', this._handler);
     await new Promise((resolve, reject) => {
       try {
-        this.server = app.listen(this._port, () => {
+        this.server = this.app.listen(this._port, () => {
           this._port = this.server.address().port;
           // eslint-disable-next-line no-console
           console.log(`Started development server on port ${this._port}`);
