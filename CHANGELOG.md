@@ -1,3 +1,10 @@
+## [4.4.1](https://github.com/adobe/helix-deploy/compare/v4.4.0...v4.4.1) (2021-05-06)
+
+
+### Bug Fixes
+
+* **dev:** ensure resolver works ([#249](https://github.com/adobe/helix-deploy/issues/249)) ([0268be5](https://github.com/adobe/helix-deploy/commit/0268be554908d7c46400f5f99c76bda68b2b6ed5))
+
 # [4.4.0](https://github.com/adobe/helix-deploy/compare/v4.3.1...v4.4.0) (2021-05-05)
 
 
