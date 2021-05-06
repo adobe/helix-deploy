@@ -337,10 +337,6 @@ module.exports = class ActionBuilder {
     const bundler = new Bundler().withConfig(cfg);
     await bundler.init();
 
-    if (cfg.cleanupCi || cfg.cleanupPatch || cfg.cleanupMinor || cfg.cleanupMajor) {
-      this.runCleanup();
-    }
-
     if (cfg.build) {
       await bundler.createBundle();
       await bundler.createArchive();

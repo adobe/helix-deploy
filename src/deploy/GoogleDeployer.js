@@ -270,14 +270,38 @@ class GoogleDeployer extends BaseDeployer {
   }
 
   async cleanup() {
-    console.log('cleanup!!!');
     try {
       const [allfns] = await this._client.listFunctions({
         parent: `projects/${this._cfg.projectID}/locations/${this._cfg.region}`,
       });
-      console.log(allfns.length, JSON.stringify(allfns));
+
+      const versionspec = {};
+      const sver = semver.parse(this.cfg.version);
+      if (sver) {
+        versionspec.patchVersion = sver.patch;
+        versionspec.minorVersion = sver.minor;
+        versionspec.majorVersion = sver.major;
+      }
+      await Promise.all(GoogleDeployer.filterFunctions(
+        allfns,
+        this.cfg.baseName,
+        Date.now(),
+        {
+          ciAge: this.cfg.cleanupCi,
+          patchAge: this.cfg.cleanupPatch,
+          minorAge: this.cfg.cleanupMinor,
+          majorAge: this.cfg.cleanupMajor,
+        },
+        versionspec,
+      ).map((fn) => {
+        this.log.info(`Cleaning up outdated function '${fn.fqName}`);
+        return this._client.deleteFunction({
+          name: fn.fqName,
+        });
+      }));
     } catch (e) {
-      console.error(e);
+      this.log.error('Cleanup failed, proceeding anyway.');
+      this.log.error(e);
     }
     process.exit(1);
   }
