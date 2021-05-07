@@ -300,6 +300,7 @@ class GoogleDeployer extends BaseDeployer {
         versionspec,
       ).map((fn) => {
         this.log.info(`Cleaning up outdated function '${fn.fqName}`);
+
         return this._client.deleteFunction({
           name: fn.fqName,
         });
@@ -308,7 +309,6 @@ class GoogleDeployer extends BaseDeployer {
       this.log.error('Cleanup failed, proceeding anyway.');
       this.log.error(e);
     }
-    process.exit(1);
   }
 
   static filterFunctions(fns, name, now, rangespec, versionspec) {
