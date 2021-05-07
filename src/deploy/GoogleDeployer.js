@@ -13,8 +13,10 @@ const { CloudFunctionsServiceClient } = require('@google-cloud/functions');
 const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
 const path = require('path');
 const fs = require('fs');
+const semver = require('semver');
 const BaseDeployer = require('./BaseDeployer');
 const GoogleConfig = require('./GoogleConfig.js');
+const { filterActions } = require('../utils.js');
 
 class GoogleDeployer extends BaseDeployer {
   constructor(baseConfig, config) {
@@ -266,6 +268,82 @@ class GoogleDeployer extends BaseDeployer {
       idHeader: 'X-Cloud-Trace-Context',
       retry404: 1,
     });
+  }
+
+  async cleanup() {
+    try {
+      const [allfns] = await this._client.listFunctions({
+        parent: `projects/${this._cfg.projectID}/locations/${this._cfg.region}`,
+      });
+
+      const versionspec = {};
+      const sver = semver.parse(this.cfg.version);
+      if (sver) {
+        versionspec.patchVersion = sver.patch;
+        versionspec.minorVersion = sver.minor;
+        versionspec.majorVersion = sver.major;
+      }
+      await Promise.all(GoogleDeployer.filterFunctions(
+        allfns,
+        this.cfg.baseName,
+        Date.now(),
+        {
+          ciAge: this.cfg.cleanupCiAge,
+          patchAge: this.cfg.cleanupPatchAge,
+          minorAge: this.cfg.cleanupMinorAge,
+          majorAge: this.cfg.cleanupMajorAge,
+          ciNum: this.cfg.cleanupCiNum,
+          patchNum: this.cfg.cleanupPatchNum,
+          minorNum: this.cfg.cleanupMinorNum,
+          majorNum: this.cfg.cleanupMajorNum,
+        },
+        versionspec,
+      ).map((fn) => {
+        this.log.info(`Cleaning up outdated function '${fn.fqName}`);
+
+        return this._client.deleteFunction({
+          name: fn.fqName,
+        });
+      }));
+    } catch (e) {
+      this.log.error('Cleanup failed, proceeding anyway.');
+      this.log.error(e);
+    }
+  }
+
+  static filterFunctions(fns, name, now, rangespec, versionspec) {
+    const namedfns = fns.map((fn) => {
+      const re = /(ci\d+)|(\d+_\d+_\d+)$/;
+
+      const updated = fn.labels && fn.labels.updated
+        ? fn.labels.updated
+        : fn.updateTime.seconds;
+
+      const versionstr = fn.labels && fn.labels.pkgversion
+        ? fn.labels.pkgversion
+        : fn.name.match(re) && fn.name.match(re)[0];
+
+      const version = {};
+      if (versionstr && versionstr.startsWith('ci')) {
+        version.ci = versionstr.substr(2);
+      } else if (versionstr) {
+        const cleanversionstr = versionstr
+          .replace(/^(\d+)[-_](\d+)[-_](\d+)[-_]/, '$1.$2.$3-')
+          .replace(/^(\d+)[-_](\d+)[-_](\d+)/, '$1.$2.$3');
+        const ver = semver.parse(cleanversionstr);
+        version.major = ver.major;
+        version.minor = ver.minor;
+        version.patch = ver.patch;
+      }
+      return {
+        fqName: fn.name,
+        name: fn.name.replace(/^.*--/, '').replace(re, '').replace(/_$/, ''),
+        updated: new Date(Number(updated)),
+        version,
+      };
+    }).filter((fn) => fn.name === name);
+
+    return filterActions(namedfns, now, rangespec, versionspec);
   }
 }
 

@@ -127,5 +127,5 @@ describe('Gateway Integration Test', () => {
     assert.equal(respAWS.headers.get('Surrogate-Key'), 'simple', 'AWS: Surrogate-Key not propagated');
     assert.equal(respOW.headers.get('Surrogate-Key'), 'simple', 'OW: Surrogate-Key not propagated');
     assert.equal(respAzure.headers.get('Surrogate-Key'), 'simple', 'Azure: Surrogate-Key not propagated');
-  }).timeout(150000);
+  }).timeout(250000);
 });

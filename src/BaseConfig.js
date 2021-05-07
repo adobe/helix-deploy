@@ -18,6 +18,24 @@ const dotenv = require('dotenv');
 // eslint-disable-next-line no-template-curly-in-string
 const DEFAULT_ACTION_FORMAT = '/${packageName}/${baseName}/${version}';
 
+function coerceDate(value) {
+  try {
+    const { duration, unit } = /(?<duration>[0-9]+)(?<unit>s|h|d|w|m|y)?/.exec(value).groups;
+    const iduration = Number.parseInt(duration, 10);
+    switch (unit) {
+      case 's': return iduration; // why would anyone want to specify retention in seconds? For integration tests.
+      case 'h': return iduration * 3600;
+      case 'd': return iduration * 3600 * 24;
+      case 'w': return iduration * 3600 * 24 * 7;
+      case 'm': return iduration * 3600 * 24 * 30;
+      case 'y': return iduration * 3600 * 24 * 365;
+      default: return -value;
+    }
+  } catch (e) {
+    return 0;
+  }
+}
+
 /**
  * @field name Name of function including the version. eg `my-action@1.2.3`
  * @field baseName Name of the function w/o the version. eg `my-action`
@@ -72,6 +90,14 @@ class BaseConfig {
         aws: DEFAULT_ACTION_FORMAT,
       },
       properties: {},
+      cleanupCiAge: 0,
+      cleanupPatchAge: 0,
+      cleanupMinorAge: 0,
+      cleanupMajorAge: 0,
+      cleanupCiNum: 0,
+      cleanupPatchNum: 0,
+      cleanupMinorNum: 0,
+      cleanupMajorNum: 0,
       _logger: null,
     });
   }
@@ -167,6 +193,10 @@ class BaseConfig {
       .withLinks(argv.versionLink)
       .withLinksPackage(argv.linksPackage)
       .withFormat(argv.format)
+      .withCleanupCi(argv.cleanupCi)
+      .withCleanupPatch(argv.cleanupPatch)
+      .withCleanupMinor(argv.cleanupMinor)
+      .withCleanupMajor(argv.cleanupMajor)
       .withProperties(argv.property);
   }
 
@@ -448,6 +478,42 @@ class BaseConfig {
     return this;
   }
 
+  withCleanupCi(value) {
+    if (value > 0) {
+      this.cleanupCiAge = value;
+    } else if (value < 0) {
+      this.cleanupCiNum = -value;
+    }
+    return this;
+  }
+
+  withCleanupPatch(value) {
+    if (value > 0) {
+      this.cleanupPatchAge = value;
+    } else if (value < 0) {
+      this.cleanupPatchNum = -value;
+    }
+    return this;
+  }
+
+  withCleanupMinor(value) {
+    if (value > 0) {
+      this.cleanupMinorAge = value;
+    } else if (value < 0) {
+      this.cleanupMinorNum = -value;
+    }
+    return this;
+  }
+
+  withCleanupMajor(value) {
+    if (value > 0) {
+      this.cleanupMajorAge = value;
+    } else if (value < 0) {
+      this.cleanupMajorNum = -value;
+    }
+    return this;
+  }
+
   get log() {
     if (!this._logger) {
       // poor men's logging...
@@ -594,7 +660,24 @@ class BaseConfig {
         type: 'object',
         default: {},
       })
-
+      .group(['cleanup-ci', 'cleanup-patch', 'cleanup-minor', 'cleanup-major'],
+        'Cleanup Old Deployments: automatically delete redundant versions older than specified. \n  Use a pattern like 7d or 1m to specify time frames.\n  Use a simple number like --cleanup-ci=5 to retain the last five CI builds')
+      .option('cleanup-ci', {
+        description: 'Automatically delete redundant CI versions',
+        coerce: coerceDate,
+      })
+      .option('cleanup-patch', {
+        description: 'Automatically delete redundant patch versions. At least one patch version for each minor version will be kept.',
+        coerce: coerceDate,
+      })
+      .option('cleanup-minor', {
+        description: 'Automatically delete redundant minor versions. At least one minor version for each major version will be kept.',
+        coerce: coerceDate,
+      })
+      .option('cleanup-major', {
+        description: 'Automatically delete redundant major versions.',
+        coerce: coerceDate,
+      })
       .group([
         'name', 'package.name', 'node-version', 'params', 'params-file', 'updated-by', 'updated-at',
         'web-secure', 'timeout', 'pkgVersion', 'memory', 'concurrency',

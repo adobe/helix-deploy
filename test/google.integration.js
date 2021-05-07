@@ -32,9 +32,8 @@ describe('Google Integration Test', () => {
     await fse.remove(testRoot);
   });
 
-  it('Deploy to Google (for real)', async () => {
-    await fse.copy(path.resolve(__dirname, 'fixtures', 'simple'), testRoot);
-
+  it('Deploy an older version to Google', async () => {
+    await fse.copy(path.resolve(__dirname, 'fixtures', 'simple-but-older'), testRoot);
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
       .prepare([
@@ -52,6 +51,35 @@ describe('Google Integration Test', () => {
         '--test', '/foo',
         '--directory', testRoot,
         '--entryFile', 'index.js',
+      ]);
+    builder.cfg._logger = new TestLogger();
+
+    const res = await builder.run();
+    assert.ok(res);
+    const out = builder.cfg._logger.output;
+    assert.ok(out.indexOf('{"url":"https://us-central1-helix-225321.cloudfunctions.net/simple-package--simple-name_1_44_9/foo","file":"Hello, world.\\n"}') > 0, out);
+  }).timeout(10000000);
+
+  it('Deploy a newer version to Google and clean up', async () => {
+    await fse.copy(path.resolve(__dirname, 'fixtures', 'simple'), testRoot);
+    process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
+    const builder = new CLI()
+      .prepare([
+        '--build',
+        '--verbose',
+        '--deploy',
+        '--target', 'google',
+        '--google-key-file', `${process.env.HOME}/.helix-google.json`,
+        '--google-email', 'cloud-functions-dev@helix-225321.iam.gserviceaccount.com',
+        '--google-project-id', 'helix-225321',
+        '--google-region', 'us-central1',
+        '--package.params', 'HEY=ho',
+        '--update-package', 'true',
+        '-p', 'FOO=bar',
+        '--test', '/foo',
+        '--directory', testRoot,
+        '--entryFile', 'index.js',
+        '--cleanup-minor', '1s', // cleanup the previous deployment
       ]);
     builder.cfg._logger = new TestLogger();
 

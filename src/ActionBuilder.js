@@ -310,6 +310,10 @@ module.exports = class ActionBuilder {
     return this.execute('validateAdditionalTasks', '');
   }
 
+  async runCleanup() {
+    return this.execute('cleanup', '');
+  }
+
   close() {
     if (this.validated) {
       Object.values(this._deployers).forEach((dep) => dep.close());
@@ -368,6 +372,11 @@ module.exports = class ActionBuilder {
     if (cfg.links && cfg.links.length) {
       await this.validateDeployers();
       await this.updateLinks();
+    }
+
+    if (cfg.cleanupCiAge || cfg.cleanupPatchAge || cfg.cleanupMinorAge || cfg.cleanupMajorAge
+      || cfg.cleanupCiNum || cfg.cleanupPatchNum || cfg.cleanupMinorNum || cfg.cleanupMajorNum) {
+      await this.runCleanup();
     }
 
     if (this._gateways.fastly && this._gateways.fastly.ready()) {
