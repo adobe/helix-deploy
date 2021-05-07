@@ -16,6 +16,7 @@ const fs = require('fs');
 const semver = require('semver');
 const BaseDeployer = require('./BaseDeployer');
 const GoogleConfig = require('./GoogleConfig.js');
+const { filterActions } = require('../utils.js');
 
 class GoogleDeployer extends BaseDeployer {
   constructor(baseConfig, config) {
@@ -306,9 +307,7 @@ class GoogleDeployer extends BaseDeployer {
     process.exit(1);
   }
 
-  static filterFunctions(fns, name, now, {
-    ciAge, patchAge, minorAge, majorAge,
-  } = {}, { patchVersion, minorVersion, majorVersion } = {}) {
+  static filterFunctions(fns, name, now, rangespec, versionspec) {
     const namedfns = fns.map((fn) => {
       const re = /(ci\d+)|(\d+_\d+_\d+)$/;
 
@@ -340,28 +339,7 @@ class GoogleDeployer extends BaseDeployer {
       };
     }).filter((fn) => fn.name === name);
 
-    const cleanci = namedfns.filter((fn) => ciAge
-      && fn.version.ci
-      && fn.updated < new Date(now - (1000 * ciAge)));
-    const cleanpatch = namedfns.filter((fn) => patchAge
-      && fn.version.patch
-      && fn.version.patch < patchVersion
-      && fn.version.minor === minorVersion
-      && fn.version.major === majorVersion
-      && fn.updated < new Date(now - (1000 * patchAge)));
-
-    const cleanminor = namedfns.filter((fn) => minorAge
-      && fn.version.minor
-      && fn.version.minor < minorVersion
-      && fn.version.major === majorVersion
-      && fn.updated < new Date(now - (1000 * minorAge)));
-
-    const cleanmajor = namedfns.filter((fn) => majorAge
-      && fn.version.major
-      && fn.version.major < majorVersion
-      && fn.updated < new Date(now - (1000 * majorAge)));
-
-    return [...cleanci, ...cleanpatch, ...cleanminor, ...cleanmajor];
+    return filterActions(namedfns, now, rangespec, versionspec);
   }
 }
 
