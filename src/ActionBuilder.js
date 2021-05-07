@@ -405,7 +405,7 @@ module.exports = class ActionBuilder {
     }
 
     if (cfg.cleanupCi || cfg.cleanupPatch || cfg.cleanupMinor || cfg.cleanupMajor) {
-      this.runCleanup();
+      await this.runCleanup();
     }
 
     await this.runAdditionalTasks();
