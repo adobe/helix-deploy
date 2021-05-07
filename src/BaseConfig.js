@@ -20,7 +20,7 @@ const DEFAULT_ACTION_FORMAT = '/${packageName}/${baseName}/${version}';
 
 function coerceDate(value) {
   try {
-    const { duration, unit } = /(?<duration>[0-9]+)(?<unit>h|d|w|m|y)/.exec(value).groups;
+    const { duration, unit } = /(?<duration>[0-9]+)(?<unit>h|d|w|m|y)?/.exec(value).groups;
     const iduration = Number.parseInt(duration, 10);
     switch (unit) {
       case 'h': return iduration * 3600;
@@ -28,7 +28,7 @@ function coerceDate(value) {
       case 'w': return iduration * 3600 * 24 * 7;
       case 'm': return iduration * 3600 * 24 * 30;
       case 'y': return iduration * 3600 * 24 * 365;
-      default: return 0;
+      default: return -value;
     }
   } catch (e) {
     return 0;
@@ -89,10 +89,14 @@ class BaseConfig {
         aws: DEFAULT_ACTION_FORMAT,
       },
       properties: {},
-      cleanupCi: 0,
-      cleanupPatch: 0,
-      cleanupMinor: 0,
-      cleanupMajor: 0,
+      cleanupCiAge: 0,
+      cleanupPatchAge: 0,
+      cleanupMinorAge: 0,
+      cleanupMajorAge: 0,
+      cleanupCiNum: 0,
+      cleanupPatchNum: 0,
+      cleanupMinorNum: 0,
+      cleanupMajorNum: 0,
       _logger: null,
     });
   }
@@ -474,22 +478,38 @@ class BaseConfig {
   }
 
   withCleanupCi(value) {
-    this.cleanupCi = value;
+    if (value > 0) {
+      this.cleanupCiAge = value;
+    } else if (value < 0) {
+      this.cleanupCiNum = -value;
+    }
     return this;
   }
 
   withCleanupPatch(value) {
-    this.cleanupPatch = value;
+    if (value > 0) {
+      this.cleanupPatchAge = value;
+    } else if (value < 0) {
+      this.cleanupPatchNum = -value;
+    }
     return this;
   }
 
   withCleanupMinor(value) {
-    this.cleanupMinor = value;
+    if (value > 0) {
+      this.cleanupMinorAge = value;
+    } else if (value < 0) {
+      this.cleanupMinorNum = -value;
+    }
     return this;
   }
 
   withCleanupMajor(value) {
-    this.cleanupMajor = value;
+    if (value > 0) {
+      this.cleanupMajorAge = value;
+    } else if (value < 0) {
+      this.cleanupMajorNum = -value;
+    }
     return this;
   }
 

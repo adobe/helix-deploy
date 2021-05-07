@@ -28,6 +28,10 @@
  * @property {number} patchAge - number of seconds to keep outdated patch versions
  * @property {number} minorAge - number of seconds to keep outdated minor versions
  * @property {number} majorAge - number of seconds to keep outdated major versions
+ * @property {number} ciAge - number of outdated CI builds to keep
+ * @property {number} patchAge - number of outdated patch versions to keep
+ * @property {number} minorAge - number of outdated minor versions to keep
+ * @property {number} majorAge - number of outdated major versions to keep
  */
 /**
  * @typedef {object} NamedAction
@@ -40,37 +44,105 @@
 /**
  * Filters a list of named actions according
  * to maximum age or number of versions.
- * @param {NamedAction[]} namedfns - a list of actions, all with the same name
+ * @param {NamedAction[]} fns - a list of actions, all with the same name
  * @param {Date} now - date time to use as reference for age comparisons
  * @param {RangeSpec} rangespec - which versions to keep
  * @param {VersionSpec} versionspec - which version is current
  * @returns {NamedAction[]} - a list of actions that can safely be deleted
  */
-function filterActions(namedfns, now, {
-  ciAge, patchAge, minorAge, majorAge,
+function filterActions(fns, now, {
+  ciAge, patchAge, minorAge, majorAge, ciNum, patchNum, minorNum, majorNum,
 } = {}, { patchVersion, minorVersion, majorVersion } = {}) {
-  const cleanci = namedfns.filter((fn) => ciAge
-      && fn.version.ci
-      && fn.updated < new Date(now - (1000 * ciAge)));
-  const cleanpatch = namedfns.filter((fn) => patchAge
-      && fn.version.patch
-      && fn.version.patch < patchVersion
+  // sort by updated date
+  const namedfns = fns.sort((a, b) => {
+    if (a.updated && b.updated) {
+      return a.updated - b.updated;
+    }
+    return 0;
+  });
+
+  function bycount(max) {
+    return (_, index, { length }) => index + max < length;
+  }
+
+  function bydate(age) {
+    return ({ updated }) => updated < new Date(now - (1000 * age));
+  }
+
+  function has(prop) {
+    return () => !!prop;
+  }
+
+  function hasVersion(prop) {
+    return (fn) => !!fn.version[prop];
+  }
+
+  function matchVersion(name) {
+    return (fn) => {
+      if (name === 'patch') {
+        return fn.version.patch < patchVersion
       && fn.version.minor === minorVersion
-      && fn.version.major === majorVersion
-      && fn.updated < new Date(now - (1000 * patchAge)));
+      && fn.version.major === majorVersion;
+      } if (name === 'minor') {
+        return fn.version.minor < minorVersion
+      && fn.version.major === majorVersion;
+      } if (name === 'major') {
+        return fn.version.major < majorVersion;
+      }
+      return false;
+    };
+  }
 
-  const cleanminor = namedfns.filter((fn) => minorAge
-      && fn.version.minor
-      && fn.version.minor < minorVersion
-      && fn.version.major === majorVersion
-      && fn.updated < new Date(now - (1000 * minorAge)));
+  const cleancibyage = namedfns
+    .filter(has(ciAge))
+    .filter(hasVersion('ci'))
+    .filter(bydate(ciAge));
 
-  const cleanmajor = namedfns.filter((fn) => majorAge
-      && fn.version.major
-      && fn.version.major < majorVersion
-      && fn.updated < new Date(now - (1000 * majorAge)));
+  const cleancibycount = namedfns
+    .filter(has(ciNum))
+    .filter(hasVersion('ci'))
+    .filter(bycount(ciNum));
 
-  return [...cleanci, ...cleanpatch, ...cleanminor, ...cleanmajor];
+  const cleanpatchbyage = namedfns
+    .filter(has(patchAge))
+    .filter(hasVersion('patch'))
+    .filter(matchVersion('patch'))
+    .filter(bydate(patchAge));
+
+  const cleanpatchbycount = namedfns
+    .filter(has(patchNum))
+    .filter(hasVersion('patch'))
+    .filter(matchVersion('patch'))
+    .filter(bycount(patchNum));
+
+  const cleanminorbyage = namedfns
+    .filter(has(minorAge))
+    .filter(hasVersion('minor'))
+    .filter(matchVersion('minor'))
+    .filter(bydate(minorAge));
+
+  const cleanminorbycount = namedfns
+    .filter(has(minorNum))
+    .filter(hasVersion('minor'))
+    .filter(matchVersion('minor'))
+    .filter(bycount(minorNum));
+
+  const cleanmajorbyage = namedfns
+    .filter(has(majorAge))
+    .filter(hasVersion('major'))
+    .filter(matchVersion('major'))
+    .filter(bydate(majorAge));
+
+  const cleanmajorbycount = namedfns
+    .filter(has(majorNum))
+    .filter(hasVersion('major'))
+    .filter(matchVersion('major'))
+    .filter(bycount(majorNum));
+
+  return [...cleancibyage, ...cleancibycount,
+    ...cleanpatchbyage, ...cleanpatchbycount,
+    ...cleanminorbyage, ...cleanminorbycount,
+    ...cleanmajorbyage, ...cleanmajorbycount];
 }
 
 module.exports = { filterActions };

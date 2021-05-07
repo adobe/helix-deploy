@@ -288,10 +288,14 @@ class GoogleDeployer extends BaseDeployer {
         this.cfg.baseName,
         Date.now(),
         {
-          ciAge: this.cfg.cleanupCi,
-          patchAge: this.cfg.cleanupPatch,
-          minorAge: this.cfg.cleanupMinor,
-          majorAge: this.cfg.cleanupMajor,
+          ciAge: this.cfg.cleanupCiAge,
+          patchAge: this.cfg.cleanupPatchAge,
+          minorAge: this.cfg.cleanupMinorAge,
+          majorAge: this.cfg.cleanupMajorAge,
+          ciNum: this.cfg.cleanupCiNum,
+          patchNum: this.cfg.cleanupPatchNum,
+          minorNum: this.cfg.cleanupMinorNum,
+          majorNum: this.cfg.cleanupMajorNum,
         },
         versionspec,
       ).map((fn) => {

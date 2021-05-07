@@ -25,9 +25,24 @@ describe('Google Integration Tests', () => {
     assert.equal(fns.length, 4);
   });
 
+  it('Test function filter by count for CI version', () => {
+    const fns = filterFunctions(testdata, 'embed', new Date(1620308098065), { ciNum: 3 });
+    assert.equal(fns.length, 2);
+  });
+
+  it('Test function filter by count for CI version (keep all)', () => {
+    const fns = filterFunctions(testdata, 'embed', new Date(1620308098065), { ciNum: 30 });
+    assert.equal(fns.length, 0);
+  });
+
   it('Test function filter for patch version', () => {
     const fns = filterFunctions(testdata, 'embed', new Date(1620308098065), { patchAge: 3600 * 24 * 21 }, { majorVersion: 1, minorVersion: 11, patchVersion: 8 });
     assert.equal(fns.length, 6);
+  });
+
+  it('Test function filter by count for patch version', () => {
+    const fns = filterFunctions(testdata, 'embed', new Date(1620308098065), { patchNum: 2 }, { majorVersion: 1, minorVersion: 11, patchVersion: 8 });
+    assert.equal(fns.length, 5);
   });
 
   it('Test function filter for minor version', () => {
@@ -35,9 +50,19 @@ describe('Google Integration Tests', () => {
     assert.equal(fns.length, 9);
   });
 
+  it('Test function filter by count for minor version', () => {
+    const fns = filterFunctions(testdata, 'dispatch', new Date(1620308098065), { minorNum: 4 }, { majorVersion: 4, minorVersion: 12, patchVersion: 2 });
+    assert.equal(fns.length, 6);
+  });
+
   it('Test function filter for major version', () => {
     const fns = filterFunctions(testdata, 'cgi-bin-feed', new Date(1620308098065), { majorAge: 3600 * 24 * 7 }, { majorVersion: 6, minorVersion: 0, patchVersion: 0 });
     assert.equal(fns.length, 15);
+  });
+
+  it('Test function filter by count for major version', () => {
+    const fns = filterFunctions(testdata, 'cgi-bin-feed', new Date(1620308098065), { majorNum: 2 }, { majorVersion: 6, minorVersion: 0, patchVersion: 0 });
+    assert.equal(fns.length, 14);
   });
 
   it('Test function filter for major, minor, patch, ci version', () => {

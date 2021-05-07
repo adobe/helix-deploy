@@ -313,10 +313,10 @@ describe('CLI Test', () => {
         '--cleanup-minor', '4w',
         '--cleanup-major', '12m']);
     await builder.validate();
-    assert.equal(builder.cfg.cleanupCi, 24 * 3600);
-    assert.equal(builder.cfg.cleanupPatch, 24 * 3600 * 7);
-    assert.equal(builder.cfg.cleanupMinor, 24 * 3600 * 7 * 4);
-    assert.equal(builder.cfg.cleanupMajor, 24 * 3600 * 30 * 12);
+    assert.equal(builder.cfg.cleanupCiAge, 24 * 3600);
+    assert.equal(builder.cfg.cleanupPatchAge, 24 * 3600 * 7);
+    assert.equal(builder.cfg.cleanupMinorAge, 24 * 3600 * 7 * 4);
+    assert.equal(builder.cfg.cleanupMajorAge, 24 * 3600 * 30 * 12);
   });
 
   it('sets default cleanup timelines', async () => {
@@ -324,9 +324,33 @@ describe('CLI Test', () => {
       .prepare(['--cleanup-ci', '24h',
         '--cleanup-major', '1y']);
     await builder.validate();
-    assert.equal(builder.cfg.cleanupCi, 24 * 3600);
-    assert.equal(builder.cfg.cleanupPatch, 0);
-    assert.equal(builder.cfg.cleanupMinor, 0);
-    assert.equal(builder.cfg.cleanupMajor, 24 * 3600 * 365);
+    assert.equal(builder.cfg.cleanupCiAge, 24 * 3600);
+    assert.equal(builder.cfg.cleanupPatchAge, 0);
+    assert.equal(builder.cfg.cleanupMinorAge, 0);
+    assert.equal(builder.cfg.cleanupMajorAge, 24 * 3600 * 365);
+  });
+
+  it('sets cleanup counts', async () => {
+    const builder = new CLI()
+      .prepare(['--cleanup-ci', '3',
+        '--cleanup-patch', '5',
+        '--cleanup-minor', '7',
+        '--cleanup-major', '11']);
+    await builder.validate();
+    assert.equal(builder.cfg.cleanupCiNum, 3);
+    assert.equal(builder.cfg.cleanupPatchNum, 5);
+    assert.equal(builder.cfg.cleanupMinorNum, 7);
+    assert.equal(builder.cfg.cleanupMajorNum, 11);
+  });
+
+  it('sets default cleanup counts', async () => {
+    const builder = new CLI()
+      .prepare(['--cleanup-ci', '24',
+        '--cleanup-major', '1']);
+    await builder.validate();
+    assert.equal(builder.cfg.cleanupCiNum, 24);
+    assert.equal(builder.cfg.cleanupPatchNum, 0);
+    assert.equal(builder.cfg.cleanupMinorNum, 0);
+    assert.equal(builder.cfg.cleanupMajorNum, 1);
   });
 });
