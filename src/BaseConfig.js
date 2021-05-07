@@ -20,9 +20,10 @@ const DEFAULT_ACTION_FORMAT = '/${packageName}/${baseName}/${version}';
 
 function coerceDate(value) {
   try {
-    const { duration, unit } = /(?<duration>[0-9]+)(?<unit>h|d|w|m|y)?/.exec(value).groups;
+    const { duration, unit } = /(?<duration>[0-9]+)(?<unit>s|h|d|w|m|y)?/.exec(value).groups;
     const iduration = Number.parseInt(duration, 10);
     switch (unit) {
+      case 's': return iduration; // why would anyone want to specify retention in seconds? For integration tests.
       case 'h': return iduration * 3600;
       case 'd': return iduration * 3600 * 24;
       case 'w': return iduration * 3600 * 24 * 7;
