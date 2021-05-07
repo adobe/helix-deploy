@@ -374,6 +374,11 @@ module.exports = class ActionBuilder {
       await this.updateLinks();
     }
 
+    if (cfg.cleanupCiAge || cfg.cleanupPatchAge || cfg.cleanupMinorAge || cfg.cleanupMajorAge
+      || cfg.cleanupCiNum || cfg.cleanupPatchNum || cfg.cleanupMinorNum || cfg.cleanupMajorNum) {
+      await this.runCleanup();
+    }
+
     if (this._gateways.fastly && this._gateways.fastly.ready()) {
       await this.validateDeployers();
       Object.values(this._deployers).forEach((d) => {
@@ -402,11 +407,6 @@ module.exports = class ActionBuilder {
         };
         return p;
       }, {});
-    }
-
-    if (cfg.cleanupCiAge || cfg.cleanupPatchAge || cfg.cleanupMinorAge || cfg.cleanupMajorAge
-      || cfg.cleanupCiNum || cfg.cleanupPatchNum || cfg.cleanupMinorNum || cfg.cleanupMajorNum) {
-      await this.runCleanup();
     }
 
     await this.runAdditionalTasks();
