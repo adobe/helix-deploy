@@ -1,3 +1,19 @@
+# [4.5.0](https://github.com/adobe/helix-deploy/compare/v4.4.1...v4.5.0) (2021-05-07)
+
+
+### Bug Fixes
+
+* **google:** remove stray exit ([898694d](https://github.com/adobe/helix-deploy/commit/898694d441701eaa31af53d6d58fe1ca39b184f3))
+* run cleanup earlier ([5b88238](https://github.com/adobe/helix-deploy/commit/5b88238fabaf08f8aa073015d6926e140e830252))
+* **google:** actually run the cleanup from action builder ([935dfde](https://github.com/adobe/helix-deploy/commit/935dfde05fc50c0067fad4538ca932646a7cb10c))
+
+
+### Features
+
+* **cli:** add --cleanup-(ci|patch|minor|major) options ([87317a7](https://github.com/adobe/helix-deploy/commit/87317a7a4b5f3e6f3d27a6e6b35069a167036ff2)), closes [#232](https://github.com/adobe/helix-deploy/issues/232)
+* **google:** allow specifying cleanup retention as count instead of time span ([4f3193e](https://github.com/adobe/helix-deploy/commit/4f3193ef90842ddccb0de48e65af8505b2888e7c)), closes [#232](https://github.com/adobe/helix-deploy/issues/232)
+* **google:** run cleanup when enought parameters supplied ([e285f79](https://github.com/adobe/helix-deploy/commit/e285f794a0c2c0e03fe6c240644bd62c27fa35a3)), closes [#232](https://github.com/adobe/helix-deploy/issues/232)
+
 ## [4.4.1](https://github.com/adobe/helix-deploy/compare/v4.4.0...v4.4.1) (2021-05-06)
 
 
