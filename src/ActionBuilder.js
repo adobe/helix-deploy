@@ -404,7 +404,8 @@ module.exports = class ActionBuilder {
       }, {});
     }
 
-    if (cfg.cleanupCi || cfg.cleanupPatch || cfg.cleanupMinor || cfg.cleanupMajor) {
+    if (cfg.cleanupCiAge || cfg.cleanupPatchAge || cfg.cleanupMinorAge || cfg.cleanupMajorAge
+      || cfg.cleanupCiNum || cfg.cleanupPatchNum || cfg.cleanupMinorNum || cfg.cleanupMajorNum) {
       await this.runCleanup();
     }
 
