@@ -238,7 +238,7 @@ module.exports = class ActionBuilder {
         // deployer must be ready
         const deployer = this._deployers[t];
         if (!deployer) {
-          throw Error(`'No such target: ${t}`);
+          throw Error(`No such target: ${t}`);
         }
         deployer.validate();
         targets[t] = deployer;
