@@ -285,23 +285,25 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
         write_only: 'false',
       });
 
+      if (this._cfg.checkinterval > 0) {
       // set up health checks
-      await Promise.all(this._deployers
-        .map((deployer) => ({
-          check_interval: 6000000,
-          expected_response: 200,
-          host: deployer.host,
-          http_version: '1.1',
-          method: 'GET',
-          initial: 1,
-          name: `${deployer.name}Check`,
-          path: deployer.basePath + this._cfg.checkpath,
-          threshold: 1,
-          timeout: 5000,
-          window: 2,
-        }))
-        .map((healthcheck) => this._fastly
-          .writeHealthcheck(newversion, healthcheck.name, healthcheck)));
+        await Promise.all(this._deployers
+          .map((deployer) => ({
+            check_interval: this._cfg.checkinterval,
+            expected_response: 200,
+            host: deployer.host,
+            http_version: '1.1',
+            method: 'GET',
+            initial: 1,
+            name: `${deployer.name}Check`,
+            path: deployer.basePath + this._cfg.checkpath,
+            threshold: 1,
+            timeout: 5000,
+            window: 2,
+          }))
+          .map((healthcheck) => this._fastly
+            .writeHealthcheck(newversion, healthcheck.name, healthcheck)));
+      }
 
       // set up backends
       await Promise.all(this._deployers
@@ -312,7 +314,7 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
           address: deployer.host,
           override_host: deployer.host,
           name: deployer.name,
-          healthcheck: `${deployer.name}Check`,
+          healthcheck: this._cfg.checkinterval > 0 ? `${deployer.name}Check` : undefined,
           error_threshold: 0,
           first_byte_timeout: 60000,
           weight: 100,
