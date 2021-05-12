@@ -1,3 +1,10 @@
+## [4.5.1](https://github.com/adobe/helix-deploy/compare/v4.5.0...v4.5.1) (2021-05-12)
+
+
+### Bug Fixes
+
+* **gateway:** increase check interval ([7319c97](https://github.com/adobe/helix-deploy/commit/7319c97b203395b5732ce7d9ec70a3891d5349e3))
+
 # [4.5.0](https://github.com/adobe/helix-deploy/compare/v4.4.1...v4.5.0) (2021-05-07)
 
 
