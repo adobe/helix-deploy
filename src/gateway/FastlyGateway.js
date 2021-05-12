@@ -288,7 +288,7 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
       // set up health checks
       await Promise.all(this._deployers
         .map((deployer) => ({
-          check_interval: 600000,
+          check_interval: 6000000,
           expected_response: 200,
           host: deployer.host,
           http_version: '1.1',
