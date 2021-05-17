@@ -38,6 +38,10 @@
     "@azure/ms-rest-nodeauth": "3.0.9",
     "@google-cloud/functions": "1.1.4",
     "@google-cloud/secret-manager": "3.6.1",
+    "@rollup/plugin-alias": "3.1.2",
+    "@rollup/plugin-commonjs": "19.0.0",
+    "@rollup/plugin-json": "4.1.0",
+    "@rollup/plugin-node-resolve": "13.0.0",
     "archiver": "5.3.0",
     "chalk": "4.1.1",
     "dotenv": "9.0.2",
@@ -46,6 +50,7 @@
     "isomorphic-git": "1.8.2",
     "openwhisk": "3.21.3",
     "proxyquire": "2.1.3",
+    "rollup": "2.48.0",
     "semver": "7.3.5",
     "webpack": "5.37.0",
     "yargs": "17.0.1"

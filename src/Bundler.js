@@ -12,10 +12,14 @@
 
 const path = require('path');
 const fse = require('fs-extra');
-const webpack = require('webpack');
+const rollup = require('rollup');
 const chalk = require('chalk');
 const archiver = require('archiver');
 const semver = require('semver');
+const { nodeResolve } = require('@rollup/plugin-node-resolve');
+const commonjs = require('@rollup/plugin-commonjs');
+const alias = require('@rollup/plugin-alias');
+const pluginJson = require('@rollup/plugin-json');
 const { dependencies } = require('../package.json');
 
 /**
@@ -105,8 +109,96 @@ module.exports = class Bundler {
     }
 
     if (cfg.progressHandler) {
+      // eslint-disable-next-line no-undef
       opts.plugins.push(new webpack.ProgressPlugin(cfg.progressHandler));
     }
+    return opts;
+  }
+
+  async getRollupConfig() {
+    const { cfg } = this;
+    const opts = {
+
+      // target: 'node',
+      // mode: 'development',
+      // the universal adapter is the entry point
+      input: cfg.adapterFile || path.resolve(__dirname, 'template', 'index.js'),
+      output: {
+        // dir: path.dirname(cfg.bundle),
+        // filename: path.relative(cfg.cwd, cfg.bundle),
+        file: cfg.bundle,
+        name: 'main',
+        format: 'cjs',
+        inlineDynamicImports: true,
+        preferConst: true,
+        externalLiveBindings: false,
+        // preserveModules: true,
+      },
+      // treeshake: false,
+      // devtool: false,
+      external: [
+        ...cfg.externals,
+        // the following are imported by the universal adapter and are assumed to be available
+        './params.json',
+        // 'aws-sdk',
+        '@google-cloud/secret-manager',
+      ],
+      // ].reduce((obj, ext) => {
+      //   // this makes webpack to ignore the module and just leave it as normal require.
+      //   // eslint-disable-next-line no-param-reassign
+      //   obj[ext] = `commonjs2 ${ext}`;
+      //   return obj;
+      // }, {}),
+      // module: {
+      //   rules: [{
+      //     test: /\.mjs$/,
+      //     type: 'javascript/auto',
+      //   }],
+      // },
+      // resolve: {
+      //   mainFields: ['main', 'module'],
+      //   extensions: ['.wasm', '.js', '.mjs', '.json'],
+      //   alias: {
+      //     // the main.js is imported in the universal adapter and is _the_ action entry point
+      //     './main.js': cfg.file,
+      //   },
+      // },
+      // node: {
+      //   __dirname: true,
+      //   __filename: false,
+      // },
+      plugins: [
+        pluginJson({
+          preferConst: true,
+        }),
+        alias({
+          entries: [
+            { find: './main.js', replacement: cfg.file },
+          ],
+        }),
+        nodeResolve({
+          preferBuiltins: true,
+          isRequire: true,
+        }),
+        commonjs({
+          ignore: [
+            // '/params.json',
+          ],
+        }),
+      ],
+    };
+    if (cfg.minify) {
+      opts.optimization = {
+        minimize: cfg.minify,
+      };
+    }
+    if (cfg.modulePaths && cfg.modulePaths.length > 0) {
+      opts.resolve.modules = cfg.modulePaths;
+    }
+
+    // if (cfg.progressHandler) {
+    //   opts.plugins.push(new webpack.ProgressPlugin(cfg.progressHandler));
+    // }
     return opts;
   }
 
@@ -122,29 +214,36 @@ module.exports = class Bundler {
     if (!cfg.progressHandler) {
       cfg.log.info(`--: creating ${m}bundle ...`);
     }
-    const config = await this.getWebpackConfig();
-    const compiler = webpack(config);
-    const stats = await new Promise((resolve, reject) => {
-      compiler.run((err, s) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(s);
-        }
-      });
-    });
-    cfg.log.debug(stats.toString({
-      chunks: false,
-      colors: true,
-    }));
+    const config = await this.getRollupConfig();
+    const bundle = await rollup.rollup(config);
+    // const { output } = await bundle.generate(config);
+    // or write the bundle to disk
+    await bundle.write(config.output);
 
-    await this.resolveDependencyInfos(stats);
-    // write dependencies info file
-    await fse.writeJson(cfg.depFile, cfg.dependencies, { spaces: 2 });
-    if (!cfg.progressHandler) {
-      cfg.log.info(chalk`{green ok:} created bundle {yellow ${config.output.filename}}`);
-    }
-    return stats;
+    // closes the bundle
+    await bundle.close();
+    // const compiler = webpack(config);
+    // const stats = await new Promise((resolve, reject) => {
+    //   compiler.run((err, s) => {
+    //     if (err) {
+    //       reject(err);
+    //     } else {
+    //       resolve(s);
+    //     }
+    //   });
+    // });
+    // cfg.log.debug(stats.toString({
+    //   chunks: false,
+    //   colors: true,
+    // }));
+    //
+    // await this.resolveDependencyInfos(stats);
+    // // write dependencies info file
+    // await fse.writeJson(cfg.depFile, cfg.dependencies, { spaces: 2 });
+    // if (!cfg.progressHandler) {
+    //   cfg.log.info(chalk`{green ok:} created bundle {yellow ${config.output.filename}}`);
+    // }
+    return { };
   }
 
   /**
