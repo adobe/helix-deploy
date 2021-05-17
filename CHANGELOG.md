@@ -1,3 +1,10 @@
+## [4.6.1](https://github.com/adobe/helix-deploy/compare/v4.6.0...v4.6.1) (2021-05-17)
+
+
+### Bug Fixes
+
+* **deps:** update adobe fixes ([f62fef4](https://github.com/adobe/helix-deploy/commit/f62fef4d3624d9c2248d48a6e40d0c4f51263cb5))
+
 # [4.6.0](https://github.com/adobe/helix-deploy/compare/v4.5.1...v4.6.0) (2021-05-17)
 
 

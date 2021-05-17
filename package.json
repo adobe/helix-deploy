@@ -1,6 +1,6 @@
 {
   "name": "@adobe/helix-deploy",
-  "version": "4.6.0",
+  "version": "4.6.1",
   "description": "Library and Commandline Tools to build and deploy OpenWhisk Actions",
   "license": "Apache-2.0",
   "repository": {
