@@ -51,6 +51,7 @@
     "yargs": "17.0.1"
   },
   "devDependencies": {
+    "@adobe/eslint-config-helix": "1.1.5",
     "@adobe/helix-shared-wrap": "1.0.0",
     "@adobe/helix-status": "9.1.6",
     "@adobe/helix-universal-logger": "1.0.3",
