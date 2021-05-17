@@ -1,3 +1,10 @@
+# [4.6.0](https://github.com/adobe/helix-deploy/compare/v4.5.1...v4.6.0) (2021-05-17)
+
+
+### Features
+
+* **gateway:** enable configurable check interval ([3fa1f33](https://github.com/adobe/helix-deploy/commit/3fa1f336ec3ce88ee7c1367155bd41dee972c47a)), closes [#255](https://github.com/adobe/helix-deploy/issues/255)
+
 ## [4.5.1](https://github.com/adobe/helix-deploy/compare/v4.5.0...v4.5.1) (2021-05-12)
 
 
