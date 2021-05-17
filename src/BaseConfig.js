@@ -517,9 +517,13 @@ class BaseConfig {
   get log() {
     if (!this._logger) {
       // poor men's logging...
-      /* eslint-disable no-console */
       this._logger = {
-        debug: (...args) => { if (this.verbose) { console.error(...args); } },
+        debug: (...args) => {
+          if (this.verbose) {
+            /* eslint-disable no-console */
+            console.error(...args);
+          }
+        },
         info: console.error,
         warn: console.error,
         error: console.error,

@@ -81,12 +81,14 @@ function filterActions(fns, now, {
     return (fn) => {
       if (name === 'patch') {
         return fn.version.patch < patchVersion
-      && fn.version.minor === minorVersion
-      && fn.version.major === majorVersion;
-      } if (name === 'minor') {
+          && fn.version.minor === minorVersion
+          && fn.version.major === majorVersion;
+      }
+      if (name === 'minor') {
         return fn.version.minor < minorVersion
-      && fn.version.major === majorVersion;
-      } if (name === 'major') {
+          && fn.version.major === majorVersion;
+      }
+      if (name === 'major') {
         return fn.version.major < majorVersion;
       }
       return false;
