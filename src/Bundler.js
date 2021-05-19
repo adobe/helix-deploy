@@ -140,7 +140,7 @@ module.exports = class Bundler {
         ...cfg.externals,
         // the following are imported by the universal adapter and are assumed to be available
         './params.json',
-        // 'aws-sdk',
+        'aws-sdk',
         '@google-cloud/secret-manager',
       ],
       // ].reduce((obj, ext) => {
