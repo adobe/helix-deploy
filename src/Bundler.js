@@ -284,7 +284,7 @@ module.exports = class Bundler {
       archive.pipe(output);
       this.updateArchive(archive, packageJson).then(() => {
         archive.finalize();
-      });
+      }).catch(reject);
     });
   }
 
@@ -316,10 +316,15 @@ module.exports = class Bundler {
     const { cfg } = this;
     archive.file(cfg.bundle, { name: 'index.js' });
     cfg.statics.forEach(([src, name]) => {
-      if (fse.lstatSync(src).isDirectory()) {
-        archive.directory(src, name);
-      } else {
-        archive.file(src, { name });
+      try {
+        if (fse.lstatSync(src)
+          .isDirectory()) {
+          archive.directory(src, name);
+        } else {
+          archive.file(src, { name });
+        }
+      } catch (e) {
+        throw Error(`error with static file: ${e.message}`);
       }
     });
     cfg.modules.forEach((mod) => {
