@@ -1,3 +1,15 @@
+# [4.7.0](https://github.com/adobe/helix-deploy/compare/v4.6.1...v4.7.0) (2021-05-19)
+
+
+### Bug Fixes
+
+* **archive:** handle exception when static file is missing ([de31c4b](https://github.com/adobe/helix-deploy/commit/de31c4b7613f1402d76cf6925706086d299be7a4)), closes [#248](https://github.com/adobe/helix-deploy/issues/248)
+
+
+### Features
+
+* support for test headers ([54d47fe](https://github.com/adobe/helix-deploy/commit/54d47fe27ce7a7a280feef4ed35ab3d883051731)), closes [#263](https://github.com/adobe/helix-deploy/issues/263)
+
 ## [4.6.1](https://github.com/adobe/helix-deploy/compare/v4.6.0...v4.6.1) (2021-05-17)
 
 
