@@ -89,6 +89,10 @@ class BaseDeployer {
     idHeader,
     retry404 = 0,
   }) {
+    if (this.cfg.testHeaders) {
+      // eslint-disable-next-line no-param-reassign
+      headers = Object.assign(headers, this.cfg.testHeaders);
+    }
     while (retry404 >= 0) {
       // eslint-disable-next-line no-param-reassign
       const testUrl = `${url}${this.cfg.testPath || ''}`;

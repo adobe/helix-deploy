@@ -158,6 +158,30 @@ describe('Deploy Test', () => {
     assert.ok(out.indexOf('Location: https://example.com/') > 0);
   }).timeout(10000);
 
+  it('tests can send headers', async () => {
+    await fse.copy(path.resolve(__dirname, 'fixtures', 'web-action'), testRoot);
+
+    nock(process.env.WSK_APIHOST)
+      .get('/api/v1/web/foobar/default/simple-project/foo')
+      .matchHeader('x-foo-bar', 'test')
+      .reply(200, 'ok');
+    process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
+    const builder = new CLI()
+      .prepare([
+        '--target', 'wsk',
+        '--verbose',
+        '--no-build',
+        '--test', '/foo',
+        '--test-headers', 'x-foo-bar=test',
+        '--directory', testRoot,
+      ]);
+    builder.cfg._logger = new TestLogger();
+
+    await builder.run();
+    const out = builder.cfg.log.output;
+    assert.ok(out.indexOf('requesting: https://example.com/api/v1/web/foobar/default/simple-project/foo') > 0);
+  }).timeout(10000);
+
   it('test can retry with 404', async () => {
     nock('https://www.example.com')
       .get('/action/404/foo')
