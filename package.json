@@ -40,7 +40,7 @@
     "@google-cloud/secret-manager": "3.6.1",
     "archiver": "5.3.0",
     "chalk": "4.1.1",
-    "dotenv": "9.0.2",
+    "dotenv": "10.0.0",
     "express": "4.17.1",
     "fs-extra": "10.0.0",
     "isomorphic-git": "1.8.2",
@@ -71,7 +71,7 @@
     "nock": "13.0.11",
     "nyc": "15.1.0",
     "semantic-release": "17.4.3",
-    "sinon": "10.0.0",
+    "sinon": "11.1.1",
     "yauzl": "2.10.0"
   },
   "engines": {
