@@ -38,6 +38,7 @@
     "@azure/ms-rest-nodeauth": "3.0.10",
     "@google-cloud/functions": "1.1.4",
     "@google-cloud/secret-manager": "3.6.1",
+    "@google-cloud/storage": "5.8.5",
     "archiver": "5.3.0",
     "chalk": "4.1.1",
     "dotenv": "10.0.0",

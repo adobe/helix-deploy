@@ -279,6 +279,7 @@ module.exports = class Bundler {
           // all other environments ignore them – this allows us to
           // avoid bundling something that only google needs
           '@google-cloud/secret-manager': dependencies['@google-cloud/secret-manager'],
+          '@google-cloud/storage': dependencies['@google-cloud/storage'],
         },
       };
       archive.pipe(output);
