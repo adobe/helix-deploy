@@ -1,3 +1,10 @@
+## [4.7.2](https://github.com/adobe/helix-deploy/compare/v4.7.1...v4.7.2) (2021-05-27)
+
+
+### Bug Fixes
+
+* **deps:** update external major ([e647704](https://github.com/adobe/helix-deploy/commit/e647704b1cf9d9d33b5cd5abeaca80a12ebcd32e))
+
 ## [4.7.1](https://github.com/adobe/helix-deploy/compare/v4.7.0...v4.7.1) (2021-05-22)
 
 
