@@ -314,7 +314,6 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
           address: deployer.host,
           override_host: deployer.host,
           name: deployer.name,
-          healthcheck: this._cfg.checkinterval > 0 ? `${deployer.name}Check` : undefined,
           error_threshold: 0,
           first_byte_timeout: 60000,
           weight: 100,
@@ -326,6 +325,13 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
           use_ssl: true,
           request_condition: 'false',
         }))
+        .map((backend) => {
+          const retval = backend;
+          if (this._cfg.checkinterval > 0) {
+            retval.healthcheck = `${backend.name}Check`;
+          }
+          return retval;
+        })
         .map(async (backend) => {
           try {
             return await this._fastly.createBackend(newversion, backend);
