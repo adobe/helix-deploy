@@ -1,3 +1,17 @@
+# [4.8.0](https://github.com/adobe/helix-deploy/compare/v4.7.2...v4.8.0) (2021-05-31)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([a8b9e73](https://github.com/adobe/helix-deploy/commit/a8b9e739a93efd01a44a7a66ae100147c42e898e))
+* **gateway:** do not select a healthcheck if the interval is zero (disabled) ([2a7335b](https://github.com/adobe/helix-deploy/commit/2a7335b25e1eb3da5fbf705f152552a36b5c8a35))
+
+
+### Features
+
+* **deps:** add storage api support via helix-universal ([1de096d](https://github.com/adobe/helix-deploy/commit/1de096d6d1005d82b9deb98262d76bc73a6328bd))
+* **google:** make sure google storage client is installed on google runtime ([4ac2be0](https://github.com/adobe/helix-deploy/commit/4ac2be0dcf7f8b2942e686e1cc402ff4a0cfa27a))
+
 ## [4.7.2](https://github.com/adobe/helix-deploy/compare/v4.7.1...v4.7.2) (2021-05-27)
 
 
