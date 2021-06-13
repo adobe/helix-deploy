@@ -54,7 +54,7 @@
   "devDependencies": {
     "@adobe/eslint-config-helix": "1.1.5",
     "@adobe/helix-shared-wrap": "1.0.0",
-    "@adobe/helix-status": "9.1.7",
+    "@adobe/helix-status": "9.1.8",
     "@adobe/helix-universal-logger": "1.0.5",
     "@semantic-release/changelog": "5.0.1",
     "@semantic-release/git": "9.0.0",
