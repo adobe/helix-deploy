@@ -1,3 +1,15 @@
+# [4.9.0](https://github.com/adobe/helix-deploy/compare/v4.8.4...v4.9.0) (2021-07-18)
+
+
+### Bug Fixes
+
+* **test:** increase timeout ([186adcc](https://github.com/adobe/helix-deploy/commit/186adcc1320c50fa6333dd507c303b91d0f888f8))
+
+
+### Features
+
+* add alias for function ([#284](https://github.com/adobe/helix-deploy/issues/284)) ([2cb52e6](https://github.com/adobe/helix-deploy/commit/2cb52e678aad2adeb4a39838e38f041ac1ddacc5))
+
 ## [4.8.4](https://github.com/adobe/helix-deploy/compare/v4.8.3...v4.8.4) (2021-07-17)
 
 
