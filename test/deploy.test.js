@@ -61,7 +61,7 @@ describe('Deploy Test', () => {
     builder._deployers.wsk.init = () => {};
 
     await assert.rejects(builder.run(), /Openwhisk target needs --wsk-host, --wsk-auth and --wsk-namespace/);
-  });
+  }).timeout(5000);
 
   it('reports error configured namespace does not match wsk namespace', async () => {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'web-action'), testRoot);
