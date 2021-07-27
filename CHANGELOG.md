@@ -1,3 +1,99 @@
+# [4.9.0](https://github.com/adobe/helix-deploy/compare/v4.8.4...v4.9.0) (2021-07-18)
+
+
+### Bug Fixes
+
+* **test:** increase timeout ([186adcc](https://github.com/adobe/helix-deploy/commit/186adcc1320c50fa6333dd507c303b91d0f888f8))
+
+
+### Features
+
+* add alias for function ([#284](https://github.com/adobe/helix-deploy/issues/284)) ([2cb52e6](https://github.com/adobe/helix-deploy/commit/2cb52e678aad2adeb4a39838e38f041ac1ddacc5))
+
+## [4.8.4](https://github.com/adobe/helix-deploy/compare/v4.8.3...v4.8.4) (2021-07-17)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([adc8337](https://github.com/adobe/helix-deploy/commit/adc833765066f6b90d1488ba99d1032b17f5c1eb))
+* **deps:** update external fixes ([19e7e51](https://github.com/adobe/helix-deploy/commit/19e7e513e928f54f1e4fb8032f5fc8855bea95c1))
+
+## [4.8.3](https://github.com/adobe/helix-deploy/compare/v4.8.2...v4.8.3) (2021-07-04)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([a4a916a](https://github.com/adobe/helix-deploy/commit/a4a916a6a70016fbca5861b623d251868f5e66e8))
+* **deps:** update external fixes ([17a2cc7](https://github.com/adobe/helix-deploy/commit/17a2cc79d8555e0b0816492641f3258ece6fcfd3))
+
+## [4.8.2](https://github.com/adobe/helix-deploy/compare/v4.8.1...v4.8.2) (2021-06-12)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([ed005c4](https://github.com/adobe/helix-deploy/commit/ed005c4d781c925751773ac6826fce434743f4a3))
+
+## [4.8.1](https://github.com/adobe/helix-deploy/compare/v4.8.0...v4.8.1) (2021-06-11)
+
+
+### Bug Fixes
+
+* **deps:** update adobe fixes ([0103158](https://github.com/adobe/helix-deploy/commit/0103158e5b581213dd67758c978866d05cf5a231))
+
+# [4.8.0](https://github.com/adobe/helix-deploy/compare/v4.7.2...v4.8.0) (2021-05-31)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([a8b9e73](https://github.com/adobe/helix-deploy/commit/a8b9e739a93efd01a44a7a66ae100147c42e898e))
+* **gateway:** do not select a healthcheck if the interval is zero (disabled) ([2a7335b](https://github.com/adobe/helix-deploy/commit/2a7335b25e1eb3da5fbf705f152552a36b5c8a35))
+
+
+### Features
+
+* **deps:** add storage api support via helix-universal ([1de096d](https://github.com/adobe/helix-deploy/commit/1de096d6d1005d82b9deb98262d76bc73a6328bd))
+* **google:** make sure google storage client is installed on google runtime ([4ac2be0](https://github.com/adobe/helix-deploy/commit/4ac2be0dcf7f8b2942e686e1cc402ff4a0cfa27a))
+
+## [4.7.2](https://github.com/adobe/helix-deploy/compare/v4.7.1...v4.7.2) (2021-05-27)
+
+
+### Bug Fixes
+
+* **deps:** update external major ([e647704](https://github.com/adobe/helix-deploy/commit/e647704b1cf9d9d33b5cd5abeaca80a12ebcd32e))
+
+## [4.7.1](https://github.com/adobe/helix-deploy/compare/v4.7.0...v4.7.1) (2021-05-22)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([ed6f4b9](https://github.com/adobe/helix-deploy/commit/ed6f4b9c2af9d0b99f6cbd019827269b6d94f552))
+
+# [4.7.0](https://github.com/adobe/helix-deploy/compare/v4.6.1...v4.7.0) (2021-05-19)
+
+
+### Bug Fixes
+
+* **archive:** handle exception when static file is missing ([de31c4b](https://github.com/adobe/helix-deploy/commit/de31c4b7613f1402d76cf6925706086d299be7a4)), closes [#248](https://github.com/adobe/helix-deploy/issues/248)
+
+
+### Features
+
+* support for test headers ([54d47fe](https://github.com/adobe/helix-deploy/commit/54d47fe27ce7a7a280feef4ed35ab3d883051731)), closes [#263](https://github.com/adobe/helix-deploy/issues/263)
+
+## [4.6.1](https://github.com/adobe/helix-deploy/compare/v4.6.0...v4.6.1) (2021-05-17)
+
+
+### Bug Fixes
+
+* **deps:** update adobe fixes ([f62fef4](https://github.com/adobe/helix-deploy/commit/f62fef4d3624d9c2248d48a6e40d0c4f51263cb5))
+
+# [4.6.0](https://github.com/adobe/helix-deploy/compare/v4.5.1...v4.6.0) (2021-05-17)
+
+
+### Features
+
+* **gateway:** enable configurable check interval ([3fa1f33](https://github.com/adobe/helix-deploy/commit/3fa1f336ec3ce88ee7c1367155bd41dee972c47a)), closes [#255](https://github.com/adobe/helix-deploy/issues/255)
+
 ## [4.5.1](https://github.com/adobe/helix-deploy/compare/v4.5.0...v4.5.1) (2021-05-12)
 
 

@@ -60,6 +60,7 @@ class BaseConfig {
       test: null,
       testUrl: null,
       testParams: {},
+      testHeaders: {},
       statics: [],
       params: {},
       webSecure: false,
@@ -167,6 +168,7 @@ class BaseConfig {
       .withDeploy(argv.deploy)
       .withTest(argv.test)
       .withTestParams(argv.testParams)
+      .withTestHeaders(argv.testHeaders)
       .withTestUrl(argv.testUrl)
       .withHints(argv.hints)
       .withStatic(argv.static)
@@ -263,17 +265,11 @@ class BaseConfig {
   }
 
   withTestParams(params) {
-    if (!params) {
-      return this;
-    }
-    if (Array.isArray(params)) {
-      params.forEach((v) => {
-        this.testParams = Object.assign(this.testParams, this.decodeParams(v, false));
-      });
-    } else {
-      this.testParams = Object.assign(this.testParams, this.decodeParams(params, false));
-    }
-    return this;
+    return this.paramOptionProcessor(params, 'testParams');
+  }
+
+  withTestHeaders(headers) {
+    return this.paramOptionProcessor(headers, 'testHeaders');
   }
 
   withHints(showHints) {
@@ -320,35 +316,32 @@ class BaseConfig {
     return this;
   }
 
-  withParams(params, forceFile) {
+  paramOptionProcessor(params, fieldName, forceFile, warnError) {
     if (!params) {
       return this;
     }
     if (Array.isArray(params)) {
       params.forEach((v) => {
-        this.params = Object.assign(this.params, this.decodeParams(v, forceFile));
+        this[fieldName] = Object.assign(
+          this[fieldName],
+          this.decodeParams(v, forceFile, warnError),
+        );
       });
     } else {
-      this.params = Object.assign(this.params, this.decodeParams(params, forceFile));
+      this[fieldName] = Object.assign(
+        this[fieldName],
+        this.decodeParams(params, forceFile, warnError),
+      );
     }
     return this;
   }
 
+  withParams(params, forceFile) {
+    return this.paramOptionProcessor(params, 'params', forceFile);
+  }
+
   withPackageParams(params, forceFile) {
-    if (!params) {
-      return this;
-    }
-    const warnError = !this.updatePackage;
-    if (Array.isArray(params)) {
-      params.forEach((v) => {
-        // eslint-disable-next-line max-len
-        this.packageParams = Object.assign(this.packageParams, this.decodeParams(v, forceFile, warnError));
-      });
-    } else {
-      // eslint-disable-next-line max-len
-      this.packageParams = Object.assign(this.packageParams, this.decodeParams(params, forceFile, warnError));
-    }
-    return this;
+    return this.paramOptionProcessor(params, 'packageParams', forceFile, !this.updatePackage);
   }
 
   withParamsFile(params) {
@@ -624,9 +617,14 @@ class BaseConfig {
         default: true,
       })
 
-      .group(['target', 'test-params', 'test-url'], 'Test Options')
+      .group(['target', 'test-params', 'test-url', 'test-headers'], 'Test Options')
       .option('test-params', {
         description: 'Invoke openwhisk action after deployment with the given params.',
+        type: 'array',
+        default: [],
+      })
+      .option('test-headers', {
+        description: 'Test headers to send in test requests.',
         type: 'array',
         default: [],
       })

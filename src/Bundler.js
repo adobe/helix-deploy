@@ -378,12 +378,13 @@ module.exports = class Bundler {
           // all other environments ignore them – this allows us to
           // avoid bundling something that only google needs
           '@google-cloud/secret-manager': dependencies['@google-cloud/secret-manager'],
+          '@google-cloud/storage': dependencies['@google-cloud/storage'],
         },
       };
       archive.pipe(output);
       this.updateArchive(archive, packageJson).then(() => {
         archive.finalize();
-      });
+      }).catch(reject);
     });
   }
 
@@ -415,10 +416,15 @@ module.exports = class Bundler {
     const { cfg } = this;
     archive.file(cfg.bundle, { name: 'index.js' });
     cfg.statics.forEach(([src, name]) => {
-      if (fse.lstatSync(src).isDirectory()) {
-        archive.directory(src, name);
-      } else {
-        archive.file(src, { name });
+      try {
+        if (fse.lstatSync(src)
+          .isDirectory()) {
+          archive.directory(src, name);
+        } else {
+          archive.file(src, { name });
+        }
+      } catch (e) {
+        throw Error(`error with static file: ${e.message}`);
       }
     });
     cfg.modules.forEach((mod) => {

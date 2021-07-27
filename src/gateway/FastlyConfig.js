@@ -15,6 +15,7 @@ class FastlyConfig {
       service: null,
       auth: null,
       checkpath: '',
+      checkinterval: 0,
     });
   }
 
@@ -24,11 +25,17 @@ class FastlyConfig {
       .withAuth(argv.fastlyAuth)
       .withCoralogixToken(argv.coralogixToken)
       .withCoralogixApp(argv.coralogixApp)
+      .withCheckInterval(argv.checkInterval)
       .withCheckpath(argv.checkpath);
   }
 
   withAuth(value) {
     this.auth = value;
+    return this;
+  }
+
+  withCheckInterval(value) {
+    this.checkinterval = value;
     return this;
   }
 
@@ -79,6 +86,11 @@ class FastlyConfig {
         description: 'the path to check as part of the Fastly health check',
         type: 'string',
         default: '',
+      })
+      .option('checkinterval', {
+        description: 'the interval in milliseconds that each Fastly POP should perform a health check. Set to 0 to disable health checks entirely.',
+        type: 'number',
+        default: 6000000,
       });
   }
 }

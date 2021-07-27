@@ -64,6 +64,7 @@ describe('Gateway Integration Test', () => {
         '--azure-app', 'deploy-helix',
         '--package.params', 'HEY=ho',
         '--update-package', 'true',
+        '--check-interval', 60000000,
         '-p', 'FOO=bar',
         '--test', '/foo',
         '--checkpath', '/foo',

@@ -569,6 +569,33 @@ class AWSDeployer extends BaseDeployer {
     }
   }
 
+  async createOrUpdateAlias(name, functionName, functionVersion) {
+    try {
+      await this._lambda.send(new GetAliasCommand({
+        FunctionName: functionName,
+        Name: name,
+      }));
+      this.log.info(chalk`--: updating alias for: {blue ${name}}...`);
+      await this._lambda.send(new UpdateAliasCommand({
+        FunctionName: functionName,
+        Name: name,
+        FunctionVersion: functionVersion,
+      }));
+    } catch (e) {
+      if (e.name === 'ResourceNotFoundException') {
+        this.log.info(chalk`--: creating alias for: {blue ${name}}...`);
+        await this._lambda.send(new CreateAliasCommand({
+          FunctionName: functionName,
+          Name: name,
+          FunctionVersion: functionVersion,
+        }));
+      } else {
+        this.log.error(`Unable to verify existence of Lambda alias ${name}`);
+        throw e;
+      }
+    }
+  }
+
   async updateLinks() {
     const { cfg, functionName } = this;
     const { ApiId } = await this.initApiId();
@@ -577,6 +604,7 @@ class AWSDeployer extends BaseDeployer {
     // get function alias
     let res;
     let aliasArn;
+    let incrementalVersion;
     try {
       this.log.info(chalk`--: fetching alias ...`);
       res = await this._lambda.send(new GetAliasCommand({
@@ -584,6 +612,7 @@ class AWSDeployer extends BaseDeployer {
         Name: functionVersion,
       }));
       aliasArn = res.AliasArn;
+      incrementalVersion = res.FunctionVersion;
       this.log.info(chalk`{green ok}: ${aliasArn}`);
     } catch (e) {
       this.log.error(chalk`{red error}: Unable to create link to function ${functionName}`);
@@ -620,7 +649,11 @@ class AWSDeployer extends BaseDeployer {
       // check if route already exists
       await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}`);
       await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}/{path+}`);
+
+      // create or update alias
+      await this.createOrUpdateAlias(suffix.replace('.', '_'), functionName, incrementalVersion);
     }
+
     if (cleanup) {
       await this.cleanUpIntegrations(functionName);
     }
