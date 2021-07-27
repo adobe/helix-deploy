@@ -132,8 +132,10 @@ module.exports = class Bundler {
         inlineDynamicImports: true,
         preferConst: true,
         externalLiveBindings: false,
+        exports: 'default',
         // preserveModules: true,
       },
+      shimMissingExports: true,
       // treeshake: false,
       // devtool: false,
       external: [
@@ -142,6 +144,8 @@ module.exports = class Bundler {
         './params.json',
         'aws-sdk',
         '@google-cloud/secret-manager',
+        '@google-cloud/storage',
+        '@google-cloud/functions',
       ],
       // ].reduce((obj, ext) => {
       //   // this makes webpack to ignore the module and just leave it as normal require.
@@ -181,6 +185,13 @@ module.exports = class Bundler {
           isRequire: true,
         }),
         commonjs({
+          // ignoreTryCatch: (id) => {
+          //   console.log('******', id);
+          //   if (id === './main.js') {
+          //     return false;
+          //   }
+          //   return true;
+          // },
           ignore: [
             // '/params.json',
           ],
