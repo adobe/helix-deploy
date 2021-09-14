@@ -1,3 +1,10 @@
+## [4.9.10](https://github.com/adobe/helix-deploy/compare/v4.9.9...v4.9.10) (2021-09-14)
+
+
+### Bug Fixes
+
+* **bundler:** exclude google storage dependency (included in Google Runtime) ([4233e6f](https://github.com/adobe/helix-deploy/commit/4233e6f7f22cc1e4b910a7543316e7994212c12c))
+
 ## [4.9.9](https://github.com/adobe/helix-deploy/compare/v4.9.8...v4.9.9) (2021-09-11)
 
 
