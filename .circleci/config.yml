@@ -2,7 +2,7 @@ version: 2.1
 executors:
   node12:
     docker:
-      - image: cimg/node:12
+      - image: cimg/node:12.22
         environment:
           NPM_CONFIG_PREFIX: "~/.npm-global"
     working_directory: ~/repo
