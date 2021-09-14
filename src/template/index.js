@@ -26,7 +26,7 @@ module.exports = Object.assign(azure, {
 });
 
 /* eslint-disable no-restricted-globals */
-if (addEventListener) {
+if (typeof addEventListener === 'function') {
   addEventListener('fetch', (event) => {
     const handler = cloudflare() || fastly();
     if (typeof handler === 'function') {
