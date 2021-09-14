@@ -61,6 +61,7 @@ module.exports = class Bundler {
         filename: path.relative(cfg.cwd, cfg.bundle),
         library: 'main',
         libraryTarget: 'umd',
+        globalObject: 'globalThis',
       },
       devtool: false,
       externals: [
