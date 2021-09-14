@@ -9,12 +9,14 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-
+/* eslint-env serviceworker */
 const {
   openwhisk,
   aws,
   google,
   azure,
+  fastly,
+  cloudflare,
 } = require('@adobe/helix-universal').adapter;
 
 module.exports = Object.assign(azure, {
@@ -22,3 +24,13 @@ module.exports = Object.assign(azure, {
   lambda: aws,
   google,
 });
+
+/* eslint-disable no-restricted-globals */
+if (addEventListener) {
+  addEventListener('fetch', (event) => {
+    const handler = cloudflare() || fastly();
+    if (typeof handler === 'function') {
+      event.respondWith(handler(event));
+    }
+  });
+}

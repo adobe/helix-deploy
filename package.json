@@ -25,7 +25,7 @@
     "semantic-release": "semantic-release"
   },
   "peerDependencies": {
-    "@adobe/helix-universal": ">=1.6.0"
+    "@adobe/helix-universal": "adobe/helix-universal#edge-deploy"
   },
   "dependencies": {
     "@adobe/fastly-native-promises": "1.23.5",
