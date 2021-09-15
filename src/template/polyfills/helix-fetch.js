@@ -10,27 +10,10 @@
  * governing permissions and limitations under the License.
  */
 /* eslint-env serviceworker */
-const {
-  openwhisk,
-  aws,
-  google,
-  azure,
-  fastly,
-  cloudflare,
-} = require('@adobe/helix-universal').adapter;
-
-module.exports = Object.assign(azure, {
-  main: openwhisk,
-  lambda: aws,
-  google,
-});
-
-/* eslint-disable no-restricted-globals */
-if (typeof addEventListener === 'function') {
-  addEventListener('fetch', (event) => {
-    const handler = cloudflare() || fastly();
-    if (typeof handler === 'function') {
-      event.respondWith(handler(event));
-    }
-  });
-}
+module.exports = {
+  // replacing helix-fetch with the built-in edge worker API
+  // TODO: fastly will need to import @fastly/js-compute for this to work
+  fetch,
+  Request,
+  Response,
+};
