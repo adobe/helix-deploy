@@ -58,7 +58,7 @@ module.exports = class Bundler {
       entry: cfg.adapterFile || path.resolve(__dirname, 'template', 'serviceworker-index.js'),
       output: {
         path: cfg.cwd,
-        filename: path.relative(cfg.cwd, `${cfg.bundle.replace(/\.cjs/, '-edge.cjs')}`),
+        filename: path.relative(cfg.cwd, cfg.edgeBundle),
         library: 'main',
         libraryTarget: 'umd',
         globalObject: 'globalThis',
@@ -203,8 +203,8 @@ module.exports = class Bundler {
 
   async createEdgeBundle() {
     const { cfg } = this;
-    if (!cfg.bundle) {
-      throw Error('bundle path is undefined');
+    if (!cfg.edgeBundle) {
+      throw Error('edge bundle path is undefined');
     }
     const m = cfg.minify ? 'minified ' : '';
     if (!cfg.progressHandler) {

@@ -186,6 +186,9 @@ module.exports = class ActionBuilder {
     if (!cfg.bundle) {
       cfg.bundle = path.resolve(cfg.distDir, cfg.packageName, `${cfg.name}-bundle.cjs`);
     }
+    if (!cfg.edgeBundle) {
+      cfg.edgeBundle = path.resolve(cfg.distDir, cfg.packageName, `${cfg.name}-edge-bundle.cjs`);
+    }
     if (!cfg.depFile) {
       cfg.depFile = path.resolve(cfg.distDir, cfg.packageName, `${cfg.name}-dependencies.json`);
     }
