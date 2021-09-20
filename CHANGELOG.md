@@ -1,3 +1,11 @@
+## [4.9.11](https://github.com/adobe/helix-deploy/compare/v4.9.10...v4.9.11) (2021-09-20)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([#303](https://github.com/adobe/helix-deploy/issues/303)) ([340dd5e](https://github.com/adobe/helix-deploy/commit/340dd5e5b8eec64e185aaed632e2ebc1ddb413d3))
+* only select wsk if namespace is present in env or props ([#304](https://github.com/adobe/helix-deploy/issues/304)) ([cdf2e15](https://github.com/adobe/helix-deploy/commit/cdf2e153eddb627d3cd328c9e3c17920057437fe))
+
 ## [4.9.10](https://github.com/adobe/helix-deploy/compare/v4.9.9...v4.9.10) (2021-09-14)
 
 
