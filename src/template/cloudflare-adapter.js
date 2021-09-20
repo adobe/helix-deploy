@@ -12,8 +12,39 @@
 /* eslint-env serviceworker */
 
 async function handler(event) {
+  console.log(event);
   const { request } = event;
-  return new Response(`cloudflare ${request.url}`);
+  // eslint-disable-next-line import/no-unresolved,global-require
+  const { main } = require('./main.js');
+  const context = {
+    resolver: null,
+    pathInfo: {
+      suffix: request.url.replace(/\?.*/, ''),
+    },
+    runtime: {
+      name: 'cloudflare-workers',
+      region: request.cf.colo,
+    },
+    func: {
+      name: null,
+      package: null,
+      version: null,
+      fqn: null,
+      app: null,
+    },
+    invocation: {
+      id: null,
+      deadline: null,
+      transactionId: null,
+      requestId: null,
+    },
+    env: {
+
+    },
+    storage: null,
+  };
+  const response = await main(request, context);
+  return response;
 }
 
 function cloudflare() {

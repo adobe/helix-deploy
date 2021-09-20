@@ -33,7 +33,7 @@ describe('Cloudflare Integration Test', () => {
   });
 
   it('Deploy an pure action to Cloudflare', async () => {
-    await fse.copy(path.resolve(__dirname, 'fixtures', 'pure-action'), testRoot);
+    await fse.copy(path.resolve(__dirname, 'fixtures', 'edge-action'), testRoot);
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
       .prepare([
@@ -49,7 +49,7 @@ describe('Cloudflare Integration Test', () => {
         '-p', 'FOO=bar',
         '--test', '/foo',
         '--directory', testRoot,
-        '--entryFile', 'index.js',
+        '--entryFile', 'src/index.js',
       ]);
     builder.cfg._logger = new TestLogger();
 
