@@ -1,8 +1,8 @@
 version: 2.1
 executors:
-  node12:
+  node14:
     docker:
-      - image: circleci/node:12
+      - image: circleci/node:14
         environment:
           NPM_CONFIG_PREFIX: "~/.npm-global"
     working_directory: ~/repo
@@ -33,7 +33,7 @@ commands:
 
 jobs:
   build:
-    executor: node12
+    executor: node14
 
     steps:
       - setup
@@ -43,14 +43,14 @@ jobs:
           command: npm run test-ci
       - run:
           name: Prepare .wskprops
-          command: | 
+          command: |
             echo APIHOST=$WSK_APIHOST > ~/.wskprops
             echo NAMESPACE=$WSK_NAMESPACE > ~/.wskprops
             echo AUTH=$WSK_AUTH > ~/.wskprops
       - run:
           name: Integration Test and Code Coverage
           command: npm run integration-ci
-         
+
 
       - store_test_results:
           path: junit
