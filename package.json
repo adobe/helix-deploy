@@ -27,8 +27,7 @@
   "mocha": {
     "reporter": "mocha-multi-reporters",
     "reporter-options": "configFile=.mocha-multi.json",
-    "require": "test/setup-env.js",
-    "spec": "test/*.test.js"
+    "require": "test/setup-env.js"
   },
   "peerDependencies": {
     "@adobe/helix-universal": ">=1.6.0"
