@@ -1,0 +1,6 @@
+{
+    "reporterEnabled": "spec,xunit",
+    "xunitReporterOptions": {
+        "output": "junit/integration-results.xml"
+    }
+}

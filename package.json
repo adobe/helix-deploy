@@ -20,9 +20,15 @@
   "scripts": {
     "lint": "eslint .",
     "test": "nyc mocha -i -g Integration",
-    "test-ci": "npm run lint && nyc mocha -R xunit -O output=junit/test-results.xml -i -g Integration && codecov",
-    "integration-ci": "nyc mocha -R xunit -O output=junit/integration-results.xml -g Integration && codecov",
+    "test-ci": "npm run lint && nyc mocha -i -g Integration && codecov",
+    "integration-ci": "nyc mocha --reporter-options=configFile=.mocha-multi.json -g Integration && codecov",
     "semantic-release": "semantic-release"
+  },
+  "mocha": {
+    "reporter": "mocha-multi-reporters",
+    "reporter-options": "configFile=.mocha-multi.json",
+    "require": "test/setup-env.js",
+    "spec": "test/*.test.js"
   },
   "peerDependencies": {
     "@adobe/helix-universal": ">=1.6.0"
@@ -69,6 +75,7 @@
     "lint-staged": "11.1.2",
     "mocha": "github:trieloff/mocha#issue/4526",
     "mocha-junit-reporter": "2.0.0",
+    "mocha-multi-reporters": "1.5.1",
     "nock": "13.1.3",
     "nyc": "15.1.0",
     "semantic-release": "18.0.0",

@@ -19,8 +19,6 @@ const fse = require('fs-extra');
 const nock = require('nock');
 const { createTestRoot, TestLogger } = require('./utils');
 
-process.env.HELIX_FETCH_FORCE_HTTP1 = 'true';
-
 const CLI = require('../src/cli.js');
 const BaseDeployer = require('../src/deploy/BaseDeployer');
 
