@@ -692,7 +692,7 @@ class BaseConfig {
       })
       .option('node-version', {
         description: 'Specifies the node.js version to use in the serverless runtime',
-        default: '12',
+        default: '14',
       })
       .option('web-secure', {
         description: 'Annotates the action with require-whisk-auth. leave empty to generate random token.',
