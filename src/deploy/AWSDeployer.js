@@ -51,6 +51,11 @@ const {
   SSMClient,
   PutParameterCommand,
 } = require('@aws-sdk/client-ssm');
+const {
+  SecretsManagerClient,
+  PutSecretValueCommand,
+} = require('@aws-sdk/client-secrets-manager');
+
 const path = require('path');
 const fse = require('fs-extra');
 const crypto = require('crypto');
@@ -146,6 +151,9 @@ class AWSDeployer extends BaseDeployer {
         region: this._cfg.region,
       });
       this._ssm = new SSMClient({
+        region: this._cfg.region,
+      });
+      this._sm = new SecretsManagerClient({
         region: this._cfg.region,
       });
     }
@@ -435,7 +443,19 @@ class AWSDeployer extends BaseDeployer {
 
   async updatePackage() {
     const { cfg } = this;
-    this.log.info('--: updating app (package) parameters ...');
+    this.log.info('--: updating app (package) parameters (secrets mananger)...');
+    const SecretId = `/helix-deploy/${cfg.packageName}/all`;
+    try {
+      await this._sm.send(new PutSecretValueCommand({
+        SecretId,
+        SecretString: JSON.stringify(cfg.packageParams),
+      }));
+    } catch (e) {
+      this.log.error(chalk`{red error:} unable to update value of '${SecretId}'`);
+      throw e;
+    }
+
+    this.log.info('--: updating app (package) parameters (param store)...');
     const commands = Object
       .entries(cfg.packageParams)
       .map(([key, value]) => this._ssm.send(new PutParameterCommand({
@@ -445,10 +465,8 @@ class AWSDeployer extends BaseDeployer {
         DataType: 'text',
         Overwrite: true,
       })));
-
     await Promise.all(commands);
-
-    this.log.info('parameters updated');
+    this.log.info(chalk`{green ok}: parameters updated.`);
   }
 
   async cleanUpBuckets() {
