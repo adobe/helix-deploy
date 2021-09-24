@@ -17,7 +17,7 @@
     "package": {
       "name": "simple-package",
       "params": {
-        "foo": "bar"
+        "test-package-param": "42"
       }
     },
     "static": [
