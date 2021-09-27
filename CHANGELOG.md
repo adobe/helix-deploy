@@ -1,3 +1,15 @@
+# [4.10.0](https://github.com/adobe/helix-deploy/compare/v4.9.11...v4.10.0) (2021-09-27)
+
+
+### Bug Fixes
+
+* use node 14 by default ([0f46220](https://github.com/adobe/helix-deploy/commit/0f462209061a191f0ee598e0f6cd75025f0f043d)), closes [#309](https://github.com/adobe/helix-deploy/issues/309)
+
+
+### Features
+
+* also store package params in secrets store ([d74956b](https://github.com/adobe/helix-deploy/commit/d74956b2e40549b9525404bddbab9613a55bfde4)), closes [#308](https://github.com/adobe/helix-deploy/issues/308)
+
 ## [4.9.11](https://github.com/adobe/helix-deploy/compare/v4.9.10...v4.9.11) (2021-09-20)
 
 
