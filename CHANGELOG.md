@@ -1,3 +1,10 @@
+# [4.11.0](https://github.com/adobe/helix-deploy/compare/v4.10.0...v4.11.0) (2021-09-27)
+
+
+### Features
+
+* add options to select params manager ([#312](https://github.com/adobe/helix-deploy/issues/312)) ([a3829a8](https://github.com/adobe/helix-deploy/commit/a3829a8651c1d9a8bbe10c7310e41fa24418a2aa))
+
 # [4.10.0](https://github.com/adobe/helix-deploy/compare/v4.9.11...v4.10.0) (2021-09-27)
 
 
