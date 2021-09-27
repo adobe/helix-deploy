@@ -23,6 +23,7 @@ class AWSConfig {
       cleanUpIntegrations: false,
       createRoutes: false,
       lambdaFormat: DEFAULT_LAMBDA_FORMAT,
+      parameterMgr: ['system', 'secret'],
     });
   }
 
@@ -34,7 +35,8 @@ class AWSConfig {
       .withAWSLambdaFormat(argv.awsLambdaFormat)
       .withAWSCleanUpBuckets(argv.awsCleanupBuckets)
       .withAWSCleanUpIntegrations(argv.awsCleanupIntegrations)
-      .withAWSCreateRoutes(argv.awsCreateRoutes);
+      .withAWSCreateRoutes(argv.awsCreateRoutes)
+      .withAWSParamsManager(argv.awsParameterManager);
   }
 
   withAWSRegion(value) {
@@ -72,6 +74,11 @@ class AWSConfig {
     return this;
   }
 
+  withAWSParamsManager(value) {
+    this.parameterMgr = value;
+    return this;
+  }
+
   static yarg(yargs) {
     return yargs
       .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-cleanup-integrations', 'aws-create-routes'], 'AWS Deployment Options')
@@ -94,6 +101,12 @@ class AWSConfig {
         description: 'Create routes for function (usually not needed due to proxy function).',
         type: 'boolean',
         default: false,
+      })
+      .option('aws-parameter-manager', {
+        description: 'Manager to use for storing package params. (either "secret" for Secrets Manager or "system" for System Manager)',
+        type: 'string',
+        default: ['secret', 'system'],
+        array: true,
       })
       .option('aws-lambda-format', {
         description: 'Format to use to create lambda functions (note that all dots (\'.\') will be replaced with underscores.',
