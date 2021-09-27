@@ -38,6 +38,7 @@
     "@aws-sdk/client-apigatewayv2": "3.34.0",
     "@aws-sdk/client-lambda": "3.34.0",
     "@aws-sdk/client-s3": "3.34.0",
+    "@aws-sdk/client-secrets-manager": "3.33.0",
     "@aws-sdk/client-ssm": "3.34.0",
     "@azure/arm-appservice": "9.0.0",
     "@azure/ms-rest-nodeauth": "3.1.0",
