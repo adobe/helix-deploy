@@ -1,3 +1,10 @@
+## [4.11.1](https://github.com/adobe/helix-deploy/compare/v4.11.0...v4.11.1) (2021-10-02)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([952bfa9](https://github.com/adobe/helix-deploy/commit/952bfa9bedd1123edaf3e48ef1be57f383049cf8))
+
 # [4.11.0](https://github.com/adobe/helix-deploy/compare/v4.10.0...v4.11.0) (2021-09-27)
 
 
