@@ -11,6 +11,6 @@
  */
 const { Response } = require('@adobe/helix-fetch');
 
-module.exports.main = function main() {
-  return new Response('ok');
+module.exports.main = async function main(req, context) {
+  return new Response(`ok: ${await context.env.HEY} ${await context.env.FOO} – ${req.url}`);
 };

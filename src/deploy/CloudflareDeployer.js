@@ -90,19 +90,21 @@ class CloudflareDeployer extends BaseDeployer {
       throw new Error(`Unable to upload worker to Cloudflare: ${errors[0].message}`);
     }
 
-    this.updatePackageParams(id, this.cfg.packageParams);
+    await this.updatePackageParams(id, this.cfg.packageParams);
   }
 
   async updatePackageParams(id, params) {
+    const kvlist = Object.entries(params).map(([key, value]) => ({
+      key, value,
+    }));
+
     const res = await this.fetch(`https://api.cloudflare.com/client/v4/accounts/${this._cfg.accountID}/storage/kv/namespaces/${id}/bulk`, {
       method: 'PUT',
       headers: {
         Authorization: `Bearer ${this._cfg.auth}`,
         'content-type': 'application/json',
       },
-      body: Object.entries(params).map(([key, value]) => ({
-        key, value,
-      })),
+      body: JSON.stringify(kvlist),
     });
     return res.ok;
   }

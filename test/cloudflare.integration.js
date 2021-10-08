@@ -45,6 +45,7 @@ describe('Cloudflare Integration Test', () => {
         '--cloudflare-account-id', 'b4adf6cfdac0918eb6aa5ad033da0747',
         '--cloudflare-test-domain', 'rockerduck',
         '--package.params', 'HEY=ho',
+        '--package.params', 'ZIP=zap',
         '--update-package', 'true',
         '-p', 'FOO=bar',
         '--test', '/foo',

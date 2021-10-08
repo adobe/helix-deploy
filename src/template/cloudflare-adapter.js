@@ -10,6 +10,7 @@
  * governing permissions and limitations under the License.
  */
 /* eslint-env serviceworker */
+/* global globalThis */
 
 async function handler(event) {
   console.log(event);
@@ -38,9 +39,9 @@ async function handler(event) {
       transactionId: null,
       requestId: null,
     },
-    env: {
-
-    },
+    env: new Proxy(globalThis, {
+      get: (target, prop) => target[prop] || target.PACKAGE.get(prop),
+    }),
     storage: null,
   };
   const response = await main(request, context);
