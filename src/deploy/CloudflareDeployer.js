@@ -11,6 +11,7 @@
  */
 const path = require('path');
 const fs = require('fs');
+const FormData = require('form-data');
 const BaseDeployer = require('./BaseDeployer');
 const CloudflareConfig = require('./CloudflareConfig');
 
@@ -46,21 +47,89 @@ class CloudflareDeployer extends BaseDeployer {
   }
 
   async deploy() {
-    const body = fs.createReadStream(path.relative(this.cfg.cwd, this.cfg.edgeBundle));
+    const body = fs.readFileSync(path.relative(this.cfg.cwd, this.cfg.edgeBundle));
+    const { id } = await this.createKVNamespace(`${this.cfg.packageName}--secrets`);
+
+    const metadata = {
+      body_part: 'script',
+      bindings: [
+        ...Object.entries(this.cfg.params).map(([key, value]) => ({
+          name: key,
+          type: 'secret_text',
+          text: value,
+        })),
+        {
+          name: 'PACKAGE',
+          namespace_id: id,
+          type: 'kv_namespace',
+        },
+      ],
+    };
+
+    // what https://api.cloudflare.com/#worker-script-upload-worker won't tell you:
+    // you can use multipart/formdata to set metadata according to
+    // https://community.cloudflare.com/t/bind-kv-and-workers-via-api/221391
+    const form = new FormData();
+    form.append('script', body, {
+      contentType: 'application/javascript',
+    });
+    form.append('metadata', JSON.stringify(metadata), {
+      contentType: 'application/json',
+    });
 
     const res = await this.fetch(`https://api.cloudflare.com/client/v4/accounts/${this._cfg.accountID}/workers/scripts/${this.fullFunctionName}`, {
       method: 'PUT',
-      headers: {
+      headers: form.getHeaders({
         Authorization: `Bearer ${this._cfg.auth}`,
-        'content-type': 'application/javascript',
-      },
-      body,
+      }),
+      body: form.getBuffer(),
     });
 
     if (!res.ok) {
       const { errors } = await res.json();
       throw new Error(`Unable to upload worker to Cloudflare: ${errors[0].message}`);
     }
+
+    this.updatePackageParams(id, this.cfg.packageParams);
+  }
+
+  async updatePackageParams(id, params) {
+    const res = await this.fetch(`https://api.cloudflare.com/client/v4/accounts/${this._cfg.accountID}/storage/kv/namespaces/${id}/bulk`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${this._cfg.auth}`,
+        'content-type': 'application/json',
+      },
+      body: Object.entries(params).map(([key, value]) => ({
+        key, value,
+      })),
+    });
+    return res.ok;
+  }
+
+  async createKVNamespace(name) {
+    const postres = await this.fetch(`https://api.cloudflare.com/client/v4/accounts/${this._cfg.accountID}/storage/kv/namespaces`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${this._cfg.auth}`,
+        'content-type': 'application/json',
+      },
+      body: {
+        title: name,
+      },
+    });
+    let { result } = await postres.json();
+    if (!result) {
+      const listres = await this.fetch(`https://api.cloudflare.com/client/v4/accounts/${this._cfg.accountID}/storage/kv/namespaces`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${this._cfg.auth}`,
+        },
+      });
+      const { result: results } = await listres.json();
+      result = results.find((r) => r.title === name);
+    }
+    return result;
   }
 
   async test() {
