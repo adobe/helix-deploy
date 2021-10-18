@@ -1,3 +1,10 @@
+## [4.11.5](https://github.com/adobe/helix-deploy/compare/v4.11.4...v4.11.5) (2021-10-18)
+
+
+### Bug Fixes
+
+* force release ([71d65ab](https://github.com/adobe/helix-deploy/commit/71d65abab0bce163a8db4bc4371dfe7a67143834))
+
 ## [4.11.4](https://github.com/adobe/helix-deploy/compare/v4.11.3...v4.11.4) (2021-10-16)
 
 
