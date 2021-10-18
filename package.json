@@ -72,7 +72,7 @@
     "eslint-plugin-import": "2.25.2",
     "ghooks": "2.0.4",
     "lint-staged": "11.2.3",
-    "mocha": "github:trieloff/mocha#issue/4526",
+    "mocha": "9.1.3",
     "mocha-junit-reporter": "2.0.2",
     "mocha-multi-reporters": "1.5.1",
     "nock": "13.1.3",
