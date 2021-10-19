@@ -1,3 +1,136 @@
+## [4.11.5](https://github.com/adobe/helix-deploy/compare/v4.11.4...v4.11.5) (2021-10-18)
+
+
+### Bug Fixes
+
+* force release ([71d65ab](https://github.com/adobe/helix-deploy/commit/71d65abab0bce163a8db4bc4371dfe7a67143834))
+
+## [4.11.4](https://github.com/adobe/helix-deploy/compare/v4.11.3...v4.11.4) (2021-10-16)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([88ba0d9](https://github.com/adobe/helix-deploy/commit/88ba0d95db38411dbb03a6cbd60997c6fa96fb12))
+
+## [4.11.3](https://github.com/adobe/helix-deploy/compare/v4.11.2...v4.11.3) (2021-10-15)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-fetch to v3 ([7bface6](https://github.com/adobe/helix-deploy/commit/7bface67138c8530190b17adc169ff5a5aade89f))
+
+## [4.11.2](https://github.com/adobe/helix-deploy/compare/v4.11.1...v4.11.2) (2021-10-09)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([082697e](https://github.com/adobe/helix-deploy/commit/082697e8bebab62f156b39c05887765e0c345c5e))
+
+## [4.11.1](https://github.com/adobe/helix-deploy/compare/v4.11.0...v4.11.1) (2021-10-02)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([952bfa9](https://github.com/adobe/helix-deploy/commit/952bfa9bedd1123edaf3e48ef1be57f383049cf8))
+
+# [4.11.0](https://github.com/adobe/helix-deploy/compare/v4.10.0...v4.11.0) (2021-09-27)
+
+
+### Features
+
+* add options to select params manager ([#312](https://github.com/adobe/helix-deploy/issues/312)) ([a3829a8](https://github.com/adobe/helix-deploy/commit/a3829a8651c1d9a8bbe10c7310e41fa24418a2aa))
+
+# [4.10.0](https://github.com/adobe/helix-deploy/compare/v4.9.11...v4.10.0) (2021-09-27)
+
+
+### Bug Fixes
+
+* use node 14 by default ([0f46220](https://github.com/adobe/helix-deploy/commit/0f462209061a191f0ee598e0f6cd75025f0f043d)), closes [#309](https://github.com/adobe/helix-deploy/issues/309)
+
+
+### Features
+
+* also store package params in secrets store ([d74956b](https://github.com/adobe/helix-deploy/commit/d74956b2e40549b9525404bddbab9613a55bfde4)), closes [#308](https://github.com/adobe/helix-deploy/issues/308)
+
+## [4.9.11](https://github.com/adobe/helix-deploy/compare/v4.9.10...v4.9.11) (2021-09-20)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([#303](https://github.com/adobe/helix-deploy/issues/303)) ([340dd5e](https://github.com/adobe/helix-deploy/commit/340dd5e5b8eec64e185aaed632e2ebc1ddb413d3))
+* only select wsk if namespace is present in env or props ([#304](https://github.com/adobe/helix-deploy/issues/304)) ([cdf2e15](https://github.com/adobe/helix-deploy/commit/cdf2e153eddb627d3cd328c9e3c17920057437fe))
+
+## [4.9.10](https://github.com/adobe/helix-deploy/compare/v4.9.9...v4.9.10) (2021-09-14)
+
+
+### Bug Fixes
+
+* **bundler:** exclude google storage dependency (included in Google Runtime) ([4233e6f](https://github.com/adobe/helix-deploy/commit/4233e6f7f22cc1e4b910a7543316e7994212c12c))
+
+## [4.9.9](https://github.com/adobe/helix-deploy/compare/v4.9.8...v4.9.9) (2021-09-11)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([#301](https://github.com/adobe/helix-deploy/issues/301)) ([8a889a2](https://github.com/adobe/helix-deploy/commit/8a889a2e6570047644a94c9a2e5693ea644f0b13))
+
+## [4.9.8](https://github.com/adobe/helix-deploy/compare/v4.9.7...v4.9.8) (2021-09-06)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([#299](https://github.com/adobe/helix-deploy/issues/299)) ([fe963fe](https://github.com/adobe/helix-deploy/commit/fe963fe7cae60e684e29a35603e4eea05a52ac17))
+
+## [4.9.7](https://github.com/adobe/helix-deploy/compare/v4.9.6...v4.9.7) (2021-08-23)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([#294](https://github.com/adobe/helix-deploy/issues/294)) ([b38b593](https://github.com/adobe/helix-deploy/commit/b38b593b113821bf485a0c271504982e3e62aaac))
+
+## [4.9.6](https://github.com/adobe/helix-deploy/compare/v4.9.5...v4.9.6) (2021-08-14)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([9060d84](https://github.com/adobe/helix-deploy/commit/9060d84d6e62db23fc767b646b5b05ab8acaddb9))
+
+## [4.9.5](https://github.com/adobe/helix-deploy/compare/v4.9.4...v4.9.5) (2021-08-07)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([cf3335a](https://github.com/adobe/helix-deploy/commit/cf3335a14bc91dfb2dba921389ef778fbe297479))
+
+## [4.9.4](https://github.com/adobe/helix-deploy/compare/v4.9.3...v4.9.4) (2021-08-01)
+
+
+### Bug Fixes
+
+* **deps:** update adobe fixes ([#288](https://github.com/adobe/helix-deploy/issues/288)) ([6fce98e](https://github.com/adobe/helix-deploy/commit/6fce98e06e103b1e468fb97a447f38eb2a58ec98))
+
+## [4.9.3](https://github.com/adobe/helix-deploy/compare/v4.9.2...v4.9.3) (2021-08-01)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([#289](https://github.com/adobe/helix-deploy/issues/289)) ([e0ff910](https://github.com/adobe/helix-deploy/commit/e0ff9102a3f52f70617bc54bcdc581b10cb3ab98))
+
+## [4.9.2](https://github.com/adobe/helix-deploy/compare/v4.9.1...v4.9.2) (2021-07-30)
+
+
+### Bug Fixes
+
+* **deps:** update adobe fixes ([#287](https://github.com/adobe/helix-deploy/issues/287)) ([a988dd6](https://github.com/adobe/helix-deploy/commit/a988dd61f01bc77c3d528acd7bdc55c0c3e44eac))
+
+## [4.9.1](https://github.com/adobe/helix-deploy/compare/v4.9.0...v4.9.1) (2021-07-28)
+
+
+### Bug Fixes
+
+* **deps:** update adobe fixes ([#286](https://github.com/adobe/helix-deploy/issues/286)) ([e0052bc](https://github.com/adobe/helix-deploy/commit/e0052bc18828ed349527016a2c3073ed2517d812))
+* **deps:** update external fixes ([b6aba86](https://github.com/adobe/helix-deploy/commit/b6aba86060bcb6a5eb19fbfef07451ceb380a237))
+
 # [4.9.0](https://github.com/adobe/helix-deploy/compare/v4.8.4...v4.9.0) (2021-07-18)
 
 
