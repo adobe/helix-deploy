@@ -118,6 +118,9 @@ module.exports = class Bundler {
 
   async getRollupConfig() {
     const { cfg } = this;
+    /**
+     * @type {import('rollup').RollupOptions}
+     */
     const opts = {
 
       // target: 'node',
@@ -176,25 +179,20 @@ module.exports = class Bundler {
         pluginJson({
           preferConst: true,
         }),
+        nodeResolve({
+          preferBuiltins: true,
+        }),
+        commonjs({
+          dynamicRequireTargets: [
+            // include using a glob pattern (either a string or an array of strings)
+            'helix-universal/src/aws-adapter.js',
+            'node_modules/winston-transport/node_modules/readable-stream/lib/*.js',
+          ],
+          ignoreTryCatch: (id) => id !== './main.js',
+        }),
         alias({
           entries: [
             { find: './main.js', replacement: cfg.file },
-          ],
-        }),
-        nodeResolve({
-          preferBuiltins: true,
-          isRequire: true,
-        }),
-        commonjs({
-          // ignoreTryCatch: (id) => {
-          //   console.log('******', id);
-          //   if (id === './main.js') {
-          //     return false;
-          //   }
-          //   return true;
-          // },
-          ignore: [
-            // '/params.json',
           ],
         }),
       ],
