@@ -586,7 +586,7 @@ class BaseConfig {
         default: false,
       })
       .option('esm', {
-        description: 'Produce EcmaSript Module (experimental)',
+        description: 'Produce EcmaScript Module (experimental)',
         type: 'boolean',
         default: false,
       })
