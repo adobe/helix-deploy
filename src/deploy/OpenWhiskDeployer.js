@@ -130,7 +130,7 @@ class OpenWhiskDeployer extends BaseDeployer {
         'raw-http': true,
         description: cfg.pkgJson.description,
         pkgVersion: cfg.version,
-        dependencies: cfg.dependencies.main.map((dep) => `${dep.name}:${dep.version}`).join(','),
+        dependencies: cfg.dependencies.index.map((dep) => `${dep.name}:${dep.version}`).join(','),
         repository: cfg.gitUrl,
         git: `${cfg.gitOrigin}#${cfg.gitRef}`,
         updated: cfg.updatedAt,

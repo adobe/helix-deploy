@@ -150,7 +150,7 @@ module.exports = class Bundler {
     const resolved = {};
     await Promise.all(output.filter((chunkOrAsset) => chunkOrAsset.type !== 'asset').map(async (chunk) => {
       const deps = {};
-      depsByFile[chunk.fileName] = deps;
+      depsByFile[chunk.name] = deps;
       await Promise.all(Object.keys(chunk.modules).map(async (modulePath) => {
         const segs = modulePath.split('/');
         let idx = segs.lastIndexOf('node_modules');

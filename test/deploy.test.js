@@ -127,7 +127,7 @@ describe('Deploy Test', () => {
 
     const out = builder.cfg.log.output;
     assert.ok(out.indexOf('$ curl "https://example.com/api/v1/web/foobar/default/simple-project"') > 0);
-  });
+  }).timeout(10000);
 
   it('tests a web action with redirect', async () => {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'web-action'), testRoot);
