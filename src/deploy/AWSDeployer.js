@@ -223,7 +223,7 @@ class AWSDeployer extends BaseDeployer {
       Environment: {
         Variables: cfg.params,
       },
-      Handler: 'index.lambda',
+      Handler: cfg.esm ? 'esm-adapter/index.handler' : 'index.lambda',
     };
 
     this.log.info(`--: using lambda role "${this._cfg.role}"`);

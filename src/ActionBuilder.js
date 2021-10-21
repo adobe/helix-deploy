@@ -184,7 +184,8 @@ module.exports = class ActionBuilder {
       cfg.zipFile = path.resolve(cfg.distDir, cfg.packageName, `${cfg.name}.zip`);
     }
     if (!cfg.bundle) {
-      cfg.bundle = path.resolve(cfg.distDir, cfg.packageName, `${cfg.name}-bundle.cjs`);
+      const ext = cfg.esm ? '.js' : '.cjs';
+      cfg.bundle = path.resolve(cfg.distDir, cfg.packageName, `${cfg.name}-bundle${ext}`);
     }
     if (!cfg.depFile) {
       cfg.depFile = path.resolve(cfg.distDir, cfg.packageName, `${cfg.name}-dependencies.json`);

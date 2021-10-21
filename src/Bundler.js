@@ -121,7 +121,7 @@ module.exports = class Bundler {
       throw Error('dependencies info path is undefined');
     }
 
-    cfg.log.info(`--: creating ${cfg.minify ? 'minified ' : ''}bundle using rollup...`);
+    cfg.log.info(`--: creating ${cfg.esm ? 'esm ' : ''}${cfg.minify ? 'minified ' : ''}bundle using rollup...`);
     const config = await this.getRollupConfig();
     const bundle = await rollup.rollup(config);
 
@@ -191,6 +191,10 @@ module.exports = class Bundler {
 
   async validateBundle() {
     const { cfg } = this;
+    if (cfg.esm) {
+      cfg.log.info(chalk`{yellow !!:} unable to validate ESM bundle yet.`);
+      return;
+    }
     cfg.log.info('--: validating bundle ...');
     let module;
     try {
@@ -247,6 +251,7 @@ module.exports = class Bundler {
         version: semver.valid(cfg.version.replace(/_/g, '.')) ? cfg.version.replace(/_/g, '.') : `0.0.0+${cfg.version}`,
         description: `Universal Action of ${cfg.name}`,
         main: 'index.js',
+        type: cfg.esm ? 'module' : 'script',
         license: 'Apache-2.0',
         dependencies: {
           // google cloud installs these dependencies at deploy time
@@ -309,5 +314,11 @@ module.exports = class Bundler {
     archive.append(JSON.stringify(packageJson, null, '  '), { name: 'package.json' });
     // azure functions manifest
     archive.append(JSON.stringify(this.functionJson, null, '  '), { name: 'function.json' });
+
+    if (cfg.esm) {
+      archive.directory('esm-adapter');
+      archive.append('{}', { name: 'esm-adapter/package.json' });
+      archive.file(path.resolve(__dirname, 'template', 'aws-esm-adapter.js'), { name: 'esm-adapter/index.js' });
+    }
   }
 };
