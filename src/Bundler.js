@@ -20,6 +20,8 @@ const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const commonjs = require('@rollup/plugin-commonjs');
 const alias = require('@rollup/plugin-alias');
 const pluginJson = require('@rollup/plugin-json');
+const { terser } = require('rollup-plugin-terser');
+
 const { dependencies } = require('../package.json');
 
 /**
@@ -53,87 +55,19 @@ module.exports = class Bundler {
   async init() {
   }
 
-  async getWebpackConfig() {
-    const { cfg } = this;
-    const opts = {
-      target: 'node',
-      mode: 'development',
-      // the universal adapter is the entry point
-      entry: cfg.adapterFile || path.resolve(__dirname, 'template', 'index.js'),
-      output: {
-        path: cfg.cwd,
-        filename: path.relative(cfg.cwd, cfg.bundle),
-        library: 'main',
-        libraryTarget: 'umd',
-      },
-      devtool: false,
-      externals: [
-        ...cfg.externals,
-        // the following are imported by the universal adapter and are assumed to be available
-        './params.json',
-        'aws-sdk',
-        '@google-cloud/secret-manager',
-        '@google-cloud/storage',
-      ].reduce((obj, ext) => {
-        // this makes webpack to ignore the module and just leave it as normal require.
-        // eslint-disable-next-line no-param-reassign
-        obj[ext] = `commonjs2 ${ext}`;
-        return obj;
-      }, {}),
-      module: {
-        rules: [{
-          test: /\.mjs$/,
-          type: 'javascript/auto',
-        }],
-      },
-      resolve: {
-        mainFields: ['main', 'module'],
-        extensions: ['.wasm', '.js', '.mjs', '.json'],
-        alias: {
-          // the main.js is imported in the universal adapter and is _the_ action entry point
-          './main.js': cfg.file,
-        },
-      },
-      node: {
-        __dirname: true,
-        __filename: false,
-      },
-      plugins: [],
-    };
-    if (cfg.minify) {
-      opts.optimization = {
-        minimize: cfg.minify,
-      };
-    }
-    if (cfg.modulePaths && cfg.modulePaths.length > 0) {
-      opts.resolve.modules = cfg.modulePaths;
-    }
-
-    if (cfg.progressHandler) {
-      // eslint-disable-next-line no-undef
-      opts.plugins.push(new webpack.ProgressPlugin(cfg.progressHandler));
-    }
-    return opts;
-  }
-
   async getRollupConfig() {
     const { cfg } = this;
     /**
      * @type {import('rollup').RollupOptions}
      */
     const opts = {
-
-      // target: 'node',
-      // mode: 'development',
       // the universal adapter is the entry point
       input: cfg.adapterFile || path.resolve(__dirname, 'template', 'index.js'),
       output: {
-        // dir: path.dirname(cfg.bundle),
-        // filename: path.relative(cfg.cwd, cfg.bundle),
         file: cfg.bundle,
         name: 'main',
-        format: 'cjs',
-        inlineDynamicImports: true,
+        format: cfg.esm ? 'es' : 'cjs',
+        // inlineDynamicImports: true,
         preferConst: true,
         externalLiveBindings: false,
         exports: 'default',
@@ -141,7 +75,6 @@ module.exports = class Bundler {
       },
       shimMissingExports: true,
       // treeshake: false,
-      // devtool: false,
       external: [
         ...cfg.externals,
         // the following are imported by the universal adapter and are assumed to be available
@@ -151,30 +84,6 @@ module.exports = class Bundler {
         '@google-cloud/storage',
         '@google-cloud/functions',
       ],
-      // ].reduce((obj, ext) => {
-      //   // this makes webpack to ignore the module and just leave it as normal require.
-      //   // eslint-disable-next-line no-param-reassign
-      //   obj[ext] = `commonjs2 ${ext}`;
-      //   return obj;
-      // }, {}),
-      // module: {
-      //   rules: [{
-      //     test: /\.mjs$/,
-      //     type: 'javascript/auto',
-      //   }],
-      // },
-      // resolve: {
-      //   mainFields: ['main', 'module'],
-      //   extensions: ['.wasm', '.js', '.mjs', '.json'],
-      //   alias: {
-      //     // the main.js is imported in the universal adapter and is _the_ action entry point
-      //     './main.js': cfg.file,
-      //   },
-      // },
-      // node: {
-      //   __dirname: true,
-      //   __filename: false,
-      // },
       plugins: [
         pluginJson({
           preferConst: true,
@@ -183,11 +92,6 @@ module.exports = class Bundler {
           preferBuiltins: true,
         }),
         commonjs({
-          dynamicRequireTargets: [
-            // include using a glob pattern (either a string or an array of strings)
-            'helix-universal/src/aws-adapter.js',
-            'node_modules/winston-transport/node_modules/readable-stream/lib/*.js',
-          ],
           ignoreTryCatch: (id) => id !== './main.js',
         }),
         alias({
@@ -198,17 +102,13 @@ module.exports = class Bundler {
       ],
     };
     if (cfg.minify) {
-      opts.optimization = {
-        minimize: cfg.minify,
-      };
-    }
-    if (cfg.modulePaths && cfg.modulePaths.length > 0) {
-      opts.resolve.modules = cfg.modulePaths;
+      opts.plugins.push(terser());
     }
 
-    // if (cfg.progressHandler) {
-    //   opts.plugins.push(new webpack.ProgressPlugin(cfg.progressHandler));
+    // if (cfg.modulePaths && cfg.modulePaths.length > 0) {
+    //   opts.resolve.modules = cfg.modulePaths;
     // }
+
     return opts;
   }
 
@@ -220,39 +120,16 @@ module.exports = class Bundler {
     if (!cfg.depFile) {
       throw Error('dependencies info path is undefined');
     }
-    const m = cfg.minify ? 'minified ' : '';
-    if (!cfg.progressHandler) {
-      cfg.log.info(`--: creating ${m}bundle ...`);
-    }
+
+    cfg.log.info(`--: creating ${cfg.minify ? 'minified ' : ''}bundle using rollup...`);
     const config = await this.getRollupConfig();
     const bundle = await rollup.rollup(config);
-    // const { output } = await bundle.generate(config);
-    // or write the bundle to disk
-    await bundle.write(config.output);
 
-    // closes the bundle
+    const { output } = await bundle.generate(config.output);
+    await this.resolveDependencyInfos(output);
+    await bundle.write(config.output);
     await bundle.close();
-    // const compiler = webpack(config);
-    // const stats = await new Promise((resolve, reject) => {
-    //   compiler.run((err, s) => {
-    //     if (err) {
-    //       reject(err);
-    //     } else {
-    //       resolve(s);
-    //     }
-    //   });
-    // });
-    // cfg.log.debug(stats.toString({
-    //   chunks: false,
-    //   colors: true,
-    // }));
-    //
-    // await this.resolveDependencyInfos(stats);
-    // // write dependencies info file
-    // await fse.writeJson(cfg.depFile, cfg.dependencies, { spaces: 2 });
-    // if (!cfg.progressHandler) {
-    //   cfg.log.info(chalk`{green ok:} created bundle {yellow ${config.output.filename}}`);
-    // }
+    cfg.log.info(chalk`{green ok:} created bundle {yellow ${config.output.file}}`);
     return { };
   }
 
@@ -268,58 +145,46 @@ module.exports = class Bundler {
    *   ...
    * }
    */
-  async resolveDependencyInfos(stats) {
-    const { cfg } = this;
-
-    // get list of dependencies
+  async resolveDependencyInfos(output) {
     const depsByFile = {};
     const resolved = {};
-
-    const jsonStats = stats.toJson({
-      chunks: true,
-      chunkModules: true,
-    });
-
-    await Promise.all(jsonStats.chunks
-      .map(async (chunk) => {
-        const chunkName = chunk.names[0];
-        const deps = {};
-        depsByFile[chunkName] = deps;
-
-        await Promise.all(chunk.modules.map(async (mod) => {
-          const segs = mod.identifier.split('/');
-          let idx = segs.lastIndexOf('node_modules');
-          if (idx >= 0) {
+    await Promise.all(output.filter((chunkOrAsset) => chunkOrAsset.type !== 'asset').map(async (chunk) => {
+      const deps = {};
+      depsByFile[chunk.fileName] = deps;
+      await Promise.all(Object.keys(chunk.modules).map(async (modulePath) => {
+        const segs = modulePath.split('/');
+        let idx = segs.lastIndexOf('node_modules');
+        if (idx >= 0) {
+          idx += 1;
+          if (segs[idx].charAt(0) === '@') {
             idx += 1;
-            if (segs[idx].charAt(0) === '@') {
-              idx += 1;
-            }
-            segs.splice(idx + 1);
-            const dir = path.resolve('/', ...segs);
-
-            try {
-              if (!resolved[dir]) {
-                const pkgJson = await fse.readJson(path.resolve(dir, 'package.json'));
-                const id = `${pkgJson.name}:${pkgJson.version}`;
-                resolved[dir] = {
-                  id,
-                  name: pkgJson.name,
-                  version: pkgJson.version,
-                };
-              }
-              const dep = resolved[dir];
-              deps[dep.id] = dep;
-            } catch (e) {
-              // ignore
-            }
           }
-        }));
+          segs.splice(idx + 1);
+          const dir = path.resolve('/', ...segs);
+
+          try {
+            if (!resolved[dir]) {
+              const pkgJson = await fse.readJson(path.resolve(dir, 'package.json'));
+              const id = `${pkgJson.name}:${pkgJson.version}`;
+              resolved[dir] = {
+                id,
+                name: pkgJson.name,
+                version: pkgJson.version,
+              };
+            }
+            const dep = resolved[dir];
+            deps[dep.id] = dep;
+          } catch (e) {
+            // ignore
+          }
+        }
       }));
+    }));
 
     // sort the deps
     Object.entries(depsByFile)
       .forEach(([scriptFile, deps]) => {
-        cfg.dependencies[scriptFile] = Object.values(deps)
+        this.cfg.dependencies[scriptFile] = Object.values(deps)
           .sort((d0, d1) => d0.name.localeCompare(d1.name));
       });
   }
