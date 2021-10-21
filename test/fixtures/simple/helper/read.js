@@ -14,7 +14,9 @@ const path = require('path');
 
 module.exports = () => {
   try {
-    const hello = path.resolve(process.platform === 'win32' ? __filename : __dirname, '..', 'files', 'hello.txt');
+    // note that __dirname and __flename are not reliable with rollup and cause problems
+    // with ESM on the long run.
+    const hello = path.resolve(process.cwd(), 'files', 'hello.txt');
     const data = fs.readFileSync(hello, 'utf-8');
     // eslint-disable-next-line no-console
     console.log(hello, data);
