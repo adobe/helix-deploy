@@ -9,12 +9,14 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+
+/* global __rootdir */
 const fs = require('fs');
 const path = require('path');
 
 module.exports = () => {
   try {
-    const hello = path.resolve(process.platform === 'win32' ? __filename : __dirname, '..', 'files', 'hello.txt');
+    const hello = path.resolve(__rootdir, 'files', 'hello.txt');
     const data = fs.readFileSync(hello, 'utf-8');
     // eslint-disable-next-line no-console
     console.log(hello, data);

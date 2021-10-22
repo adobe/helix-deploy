@@ -70,6 +70,7 @@ module.exports = class Bundler {
         externalLiveBindings: false,
         exports: 'default',
       },
+      // shimMissingExports: false,
       treeshake: false,
       external: [
         ...cfg.externals,
