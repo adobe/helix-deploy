@@ -68,6 +68,7 @@ module.exports = class Bundler {
         format: cfg.esm ? 'es' : 'cjs',
         preferConst: true,
         externalLiveBindings: false,
+        // inlineDynamicImports: true,
         exports: 'default',
       },
       // shimMissingExports: false,

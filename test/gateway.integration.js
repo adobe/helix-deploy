@@ -81,8 +81,8 @@ describe('Gateway Integration Test', () => {
     assert.ok(res);
     const out = builder.cfg._logger.output;
     const { namespace } = builder._deployers.wsk._cfg;
-    assert.ok(out.indexOf(`ok: 200
-{"url":"https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0/foo?testPackageParam=42&test-package-param=42","file":"Hello, world.\\n"}`) > 0, out);
+    assert.ok(out.indexOf('ok: 200') > 0, out);
+    assert.ok(out.indexOf(`{"url":"https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0/foo?testPackageParam=42&test-package-param=42","file":"Hello, world.\\n"}`) > 0, out);
 
     const { fetch } = fetchContext();
     const respRandom = await fetch('https://deploy-test.anywhere.run/simple-package/simple-name@1.45.0/foo');
@@ -128,5 +128,5 @@ describe('Gateway Integration Test', () => {
     assert.equal(respAWS.headers.get('Surrogate-Key'), 'simple', 'AWS: Surrogate-Key not propagated');
     assert.equal(respOW.headers.get('Surrogate-Key'), 'simple', 'OW: Surrogate-Key not propagated');
     assert.equal(respAzure.headers.get('Surrogate-Key'), 'simple', 'Azure: Surrogate-Key not propagated');
-  }).timeout(250000);
+  }).timeout(5 * 60 * 1000);
 });
