@@ -50,6 +50,7 @@ describe('Deploy Test', () => {
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
       .prepare([
+        '--no-build',
         '--target', 'wsk',
         '--verbose',
         '--deploy',
@@ -66,6 +67,7 @@ describe('Deploy Test', () => {
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
       .prepare([
+        '--no-build',
         '--target', 'wsk',
         '--verbose',
         '--deploy',
@@ -265,7 +267,7 @@ describe('Deploy Test', () => {
 
     const out = builder.cfg.log.output;
     assert.ok(out.indexOf('$ curl "https://example.com/api/v1/web/foobar/test-package/simple-project"') > 0);
-  });
+  }).timeout(5000);
 
   it.skip('deploys a pure action', async () => {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'pure-action'), testRoot);
