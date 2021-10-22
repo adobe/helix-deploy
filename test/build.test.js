@@ -18,7 +18,7 @@ const crypto = require('crypto');
 const path = require('path');
 const yauzl = require('yauzl');
 const fse = require('fs-extra');
-
+const { validateBundle } = require('../src/utils.js');
 const CLI = require('../src/cli.js');
 
 async function createTestRoot() {
@@ -73,7 +73,7 @@ describe('Build Test', () => {
     await fse.remove(testRoot);
   });
 
-  it('generates the bundle', async () => {
+  async function generate(buildArgs) {
     // need to change .cwd() for yargs to pickup `wsk` in package.json
     process.chdir(testRoot);
     process.env.WSK_AUTH = 'foobar';
@@ -82,6 +82,7 @@ describe('Build Test', () => {
     process.env.__OW_ACTION_NAME = '/namespace/package/name@version';
     const builder = new CLI()
       .prepare([
+        ...buildArgs,
         '--target', 'wsk',
         '--verbose',
         '--directory', testRoot,
@@ -133,11 +134,16 @@ describe('Build Test', () => {
     });
 
     // execute main script
-    // eslint-disable-next-line global-require,import/no-dynamic-require
-    const { main } = require(path.resolve(zipDir, 'index.js'));
-    process.chdir(zipDir);
-    const ret = await main({});
-    assert.deepEqual(await ret.body, '{"url":"https://localhost/api/v1/web/namespace/package/name@version","file":"Hello, world.\\n"}');
-  })
-    .timeout(5000);
+    const result = await validateBundle(path.resolve(zipDir, 'index.js'), true);
+    assert.strictEqual(result.error, undefined);
+    assert.deepEqual(result.response.body, '{"url":"https://localhost/api/v1/web/namespace/package/name@version","file":"Hello, world.\\n"}');
+  }
+
+  it('generates the bundle', async () => {
+    await generate([]);
+  }).timeout(5000);
+
+  it('generates the bundle (esm)', async () => {
+    await generate(['--esm']);
+  }).timeout(5000);
 });

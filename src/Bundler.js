@@ -11,7 +11,6 @@
  */
 
 const path = require('path');
-const { fork } = require('child_process');
 const fse = require('fs-extra');
 const rollup = require('rollup');
 const chalk = require('chalk');
@@ -22,7 +21,7 @@ const commonjs = require('@rollup/plugin-commonjs');
 const alias = require('@rollup/plugin-alias');
 const pluginJson = require('@rollup/plugin-json');
 const { terser } = require('rollup-plugin-terser');
-
+const { validateBundle } = require('./utils.js');
 const { dependencies } = require('../package.json');
 
 /**
@@ -63,7 +62,7 @@ module.exports = class Bundler {
      */
     const opts = {
       // the universal adapter is the entry point
-      input: cfg.adapterFile || path.resolve(__dirname, 'template', 'index.js'),
+      input: cfg.adapterFile || path.resolve(__dirname, 'template', cfg.esm ? 'index.mjs' : 'index.js'),
       output: {
         file: cfg.bundle,
         name: 'main',
@@ -193,18 +192,7 @@ module.exports = class Bundler {
   async validateBundle() {
     const { cfg } = this;
     cfg.log.info('--: validating bundle ...');
-    const child = fork(path.resolve(__dirname, 'template', 'validate-bundle.js'), [cfg.bundle]);
-    const ret = await new Promise((resolve, reject) => {
-      child.on('message', resolve);
-      child.on('error', reject);
-      child.on('exit', (code) => {
-        resolve(JSON.stringify({
-          status: 'error',
-          error: `Child process stopped with exit code ${code}`,
-        }));
-      });
-    });
-    const result = JSON.parse(ret);
+    const result = await validateBundle(cfg.bundle);
     if (result.error) {
       cfg.log.error(chalk`{red error:}`, result.error);
       throw Error(`Validation failed: ${result.error}`);
