@@ -11,6 +11,7 @@
  */
 
 const path = require('path');
+const { fork } = require('child_process');
 const fse = require('fs-extra');
 const rollup = require('rollup');
 const chalk = require('chalk');
@@ -191,21 +192,22 @@ module.exports = class Bundler {
 
   async validateBundle() {
     const { cfg } = this;
-    if (cfg.esm) {
-      cfg.log.info(chalk`{yellow !!:} unable to validate ESM bundle yet.`);
-      return;
-    }
     cfg.log.info('--: validating bundle ...');
-    let module;
-    try {
-      // eslint-disable-next-line global-require,import/no-dynamic-require
-      module = require(cfg.bundle);
-    } catch (e) {
-      cfg.log.error(chalk`{red error:}`, e);
-      throw Error(`Validation failed: ${e}`);
-    }
-    if (!module.main && typeof module.main !== 'function') {
-      throw Error('Validation failed: Action has no main() function.');
+    const child = fork(path.resolve(__dirname, 'template', 'validate-bundle.js'), [cfg.bundle]);
+    const ret = await new Promise((resolve, reject) => {
+      child.on('message', resolve);
+      child.on('error', reject);
+      child.on('exit', (code) => {
+        resolve(JSON.stringify({
+          status: 'error',
+          error: `Child processed stopped with exit code ${code}`,
+        }));
+      });
+    });
+    const result = JSON.parse(ret);
+    if (result.error) {
+      cfg.log.error(chalk`{red error:}`, result.error);
+      throw Error(`Validation failed: ${result.error}`);
     }
     cfg.log.info(chalk`{green ok:} bundle can be loaded and has a {gray main()} function.`);
   }

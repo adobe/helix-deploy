@@ -184,7 +184,7 @@ module.exports = class ActionBuilder {
       cfg.zipFile = path.resolve(cfg.distDir, cfg.packageName, `${cfg.name}.zip`);
     }
     if (!cfg.bundle) {
-      const ext = cfg.esm ? '.js' : '.cjs';
+      const ext = cfg.esm ? '.mjs' : '.cjs';
       cfg.bundle = path.resolve(cfg.distDir, cfg.packageName, `${cfg.name}-bundle${ext}`);
     }
     if (!cfg.depFile) {
