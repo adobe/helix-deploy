@@ -10,6 +10,9 @@
  * governing permissions and limitations under the License.
  */
 
+// eslint-disable-next-line no-underscore-dangle
+global.__rootdir = __dirname;
+
 const {
   openwhisk,
   aws,
