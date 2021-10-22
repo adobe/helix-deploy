@@ -61,20 +61,16 @@ module.exports = class Bundler {
      * @type {import('rollup').RollupOptions}
      */
     const opts = {
-      // the universal adapter is the entry point
       input: cfg.adapterFile || path.resolve(__dirname, 'template', cfg.esm ? 'index.mjs' : 'index.js'),
       output: {
         file: cfg.bundle,
         name: 'main',
         format: cfg.esm ? 'es' : 'cjs',
-        // inlineDynamicImports: true,
         preferConst: true,
         externalLiveBindings: false,
         exports: 'default',
-        // preserveModules: true,
       },
-      shimMissingExports: true,
-      // treeshake: false,
+      treeshake: false,
       external: [
         ...cfg.externals,
         // the following are imported by the universal adapter and are assumed to be available

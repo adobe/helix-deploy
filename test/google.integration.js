@@ -29,7 +29,7 @@ describe('Google Integration Test', () => {
 
   afterEach(async () => {
     process.chdir(origPwd);
-    await fse.remove(testRoot);
+    // await fse.remove(testRoot);
   });
 
   it('Deploy an older version to Google', async () => {

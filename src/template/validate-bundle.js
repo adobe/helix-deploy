@@ -24,7 +24,7 @@ async function run(bundlePath, opts) {
     result.status = 'ok';
   } catch (e) {
     result.status = 'error';
-    result.error = e.message;
+    result.error = `${e.message}\n${e.stack}`;
   }
   process.send(JSON.stringify(result));
 }
