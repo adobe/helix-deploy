@@ -200,7 +200,7 @@ module.exports = class Bundler {
       child.on('exit', (code) => {
         resolve(JSON.stringify({
           status: 'error',
-          error: `Child processed stopped with exit code ${code}`,
+          error: `Child process stopped with exit code ${code}`,
         }));
       });
     });
