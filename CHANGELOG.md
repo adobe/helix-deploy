@@ -1,3 +1,10 @@
+# [4.12.0](https://github.com/adobe/helix-deploy/compare/v4.11.6...v4.12.0) (2021-11-02)
+
+
+### Features
+
+* add function state check ([#329](https://github.com/adobe/helix-deploy/issues/329)) ([33c4456](https://github.com/adobe/helix-deploy/commit/33c44565c20e4ebfacfbb300557d7615932569bf)), closes [#328](https://github.com/adobe/helix-deploy/issues/328)
+
 ## [4.11.6](https://github.com/adobe/helix-deploy/compare/v4.11.5...v4.11.6) (2021-11-02)
 
 
