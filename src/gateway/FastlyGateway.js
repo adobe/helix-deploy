@@ -297,9 +297,9 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
             initial: 1,
             name: `${deployer.name}Check`,
             path: deployer.basePath + this._cfg.checkpath,
-            threshold: 1,
+            threshold: 2,
             timeout: 5000,
-            window: 2,
+            window: 3,
           }))
           .map((healthcheck) => this._fastly
             .writeHealthcheck(newversion, healthcheck.name, healthcheck)));
