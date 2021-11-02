@@ -81,8 +81,7 @@ describe('Gateway Integration Test', () => {
     assert.ok(res);
     const out = builder.cfg._logger.output;
     const { namespace } = builder._deployers.wsk._cfg;
-    assert.ok(out.indexOf(`ok: 200
-    {"url":"https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0/foo?testPackageParam=42&test-package-param=42","file":"Hello, world.\\n"}`) > 0, out);
+    assert.ok(out.indexOf(`ok: 200\n{"url":"https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0/foo?testPackageParam=42&test-package-param=42","file":"Hello, world.\\n"}`) > 0, out);
 
     const { fetch } = fetchContext();
     const results = await Promise.all(['random', 'openwhisk', 'amazonwebservices', 'azure'].map(async (name) => {
