@@ -41,7 +41,8 @@ describe('Gateway Integration Test', () => {
     await fse.remove(testRoot);
   });
 
-  it('Deploy to all Runtimes', async () => {
+  it('Deploy to all Runtimes', async function() {
+    this.retries(3);
     await fse.copy(path.resolve(__dirname, 'fixtures', 'simple'), testRoot);
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
@@ -64,7 +65,7 @@ describe('Gateway Integration Test', () => {
         '--azure-app', 'deploy-helix',
         '--package.params', 'HEY=ho',
         '--update-package', 'true',
-        '--check-interval', 60000000,
+        '--check-interval', 30000000,
         '-p', 'FOO=bar',
         '--test', '/foo',
         '--checkpath', '/foo',
