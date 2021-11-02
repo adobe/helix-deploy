@@ -41,7 +41,7 @@ describe('Gateway Integration Test', () => {
     await fse.remove(testRoot);
   });
 
-  it('Deploy to all Runtimes', async function() {
+  it('Deploy to all Runtimes', async function test() {
     this.retries(3);
     await fse.copy(path.resolve(__dirname, 'fixtures', 'simple'), testRoot);
 
