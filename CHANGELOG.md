@@ -1,3 +1,11 @@
+## [4.11.6](https://github.com/adobe/helix-deploy/compare/v4.11.5...v4.11.6) (2021-11-02)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([a39e9b1](https://github.com/adobe/helix-deploy/commit/a39e9b195e0a2f5087647b9e27afa3cf91b56088))
+* **gateway:** increase backend health threshold and window ([37cd539](https://github.com/adobe/helix-deploy/commit/37cd5394274202ab353e07af5f5bf393d071d553))
+
 ## [4.11.5](https://github.com/adobe/helix-deploy/compare/v4.11.4...v4.11.5) (2021-10-18)
 
 
