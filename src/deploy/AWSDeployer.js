@@ -689,6 +689,31 @@ class AWSDeployer extends BaseDeployer {
     }
   }
 
+  async checkFunctionReady() {
+    let tries = 3;
+    while (tries > 0) {
+      try {
+        tries -= 1;
+        this.log.info(chalk`--: checking function state ...`);
+        const { Configuration } = await this._lambda.send(new GetFunctionCommand({
+          FunctionName: this._functionARN,
+        }));
+        if (Configuration.State !== 'Active') {
+          this.log.warn(chalk`{yellow warn:} function is {blue ${Configuration.State}} and last update was {blue ${Configuration.LastUpdateStatus}}.`);
+        } else {
+          this.log.info(chalk`{green ok:} function is {blue ${Configuration.State}} and last update was {blue ${Configuration.LastUpdateStatus}}.`);
+          return;
+        }
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+      } catch (e) {
+        this.log.error(chalk`{red error}: error checking function state`);
+        throw e;
+      }
+    }
+    this.log.warn(chalk`{yellow warn:} function is not active yet, which might lead to failed requests.`);
+  }
+
   async validateAdditionalTasks() {
     if (this._cfg.cleanUpBuckets || this._cfg.cleanUpIntegrations) {
       // disable auto build if no deploy
@@ -716,6 +741,7 @@ class AWSDeployer extends BaseDeployer {
       await this.createLambda();
       await this.createAPI();
       await this.deleteS3Bucket();
+      await this.checkFunctionReady();
     } catch (err) {
       this.log.error(`Unable to deploy Lambda function: ${err.message}`, err);
       throw err;
