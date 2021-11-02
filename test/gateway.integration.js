@@ -82,51 +82,74 @@ describe('Gateway Integration Test', () => {
     const out = builder.cfg._logger.output;
     const { namespace } = builder._deployers.wsk._cfg;
     assert.ok(out.indexOf(`ok: 200
-{"url":"https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0/foo?testPackageParam=42&test-package-param=42","file":"Hello, world.\\n"}`) > 0, out);
+    {"url":"https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0/foo?testPackageParam=42&test-package-param=42","file":"Hello, world.\\n"}`) > 0, out);
 
     const { fetch } = fetchContext();
-    const respRandom = await fetch('https://deploy-test.anywhere.run/simple-package/simple-name@1.45.0/foo');
-    const respOW = await fetch('https://deploy-test.anywhere.run/simple-package/simple-name@1.45.0/foo', {
-      headers: {
-        'x-ow-version-lock': 'env=openwhisk',
+    const results = await Promise.all(['random', 'openwhisk', 'amazonwebservices', 'azure'].map(async (name) => {
+      const headers = {};
+      if (name !== 'random') {
+        headers['x-ow-version-lock'] = `env=${name}`;
+      }
+      const resp = await fetch('https://deploy-test.anywhere.run/simple-package/simple-name@1.45.0/foo', {
+        headers,
+      });
+      let body = await resp.text();
+      try {
+        body = JSON.parse(body);
+        if (name === 'random') {
+          delete body.url;
+        }
+      } catch {
+        // ignore
+      }
+      return {
+        name,
+        status: resp.status,
+        body,
+        backendName: name === 'random' ? name : (resp.headers.get('X-Backend-Name') || '').split('--').pop(),
+        surrogate: resp.headers.get('Surrogate-Key'),
+      };
+    }));
+
+    assert.deepStrictEqual(results, [{
+      backendName: 'random',
+      body: {
+        file: 'Hello, world.\n',
       },
-    });
-    const respAWS = await fetch('https://deploy-test.anywhere.run/simple-package/simple-name@1.45.0/foo', {
-      headers: {
-        'x-ow-version-lock': 'env=amazonwebservices',
+      name: 'random',
+      status: 200,
+      surrogate: 'simple',
+    },
+    {
+      backendName: 'F_Openwhisk',
+      body: {
+        file: 'Hello, world.\n',
+        url: 'https://adobeioruntime.net/api/v1/web/helix/simple-package/simple-name@1.45.0/foo?testPackageParam=42&test-package-param=42',
       },
-    });
-    const respAzure = await fetch('https://deploy-test.anywhere.run/simple-package/simple-name@1.45.0/foo', {
-      headers: {
-        'x-ow-version-lock': 'env=azure',
+      name: 'openwhisk',
+      status: 200,
+      surrogate: 'simple',
+    },
+    {
+      backendName: 'F_AmazonWebServices',
+      body: {
+        file: 'Hello, world.\n',
+        url: 'https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/1.45.0/foo',
       },
-    });
-
-    assert.ok(respRandom.ok, 'Randomly assigned request is OK');
-    assert.ok(respOW.ok, 'OW request is not OK');
-    assert.ok(respAWS.ok, 'AWS request is not OK');
-    assert.ok(respAzure.ok, 'Azure request is not OK');
-
-    await respRandom.text();
-    await respOW.text();
-    await respAWS.text();
-    await respAzure.text();
-
-    assert.ok(respOW.headers.get('X-Backend-Name'), 'OW: X-Backend-Name Header is missing');
-    assert.ok(respAWS.headers.get('X-Backend-Name'), 'AWS: X-Backend-Name Header is missing');
-    assert.ok(respAzure.headers.get('X-Backend-Name'), 'Azure: X-Backend-Name Header is missing');
-
-    assert.ok(respOW.headers.get('X-Backend-Name').indexOf('Openwhisk') > 0,
-      `OW: X-Backend-Name Header is wrong:${respOW.headers.get('X-Backend-Name')}`);
-
-    assert.ok(respAWS.headers.get('X-Backend-Name').indexOf('AmazonWebServices') > 0,
-      `AWS: X-Backend-Name Header is wrong:${respOW.headers.get('X-Backend-Name')}`);
-
-    assert.ok(respAzure.headers.get('X-Backend-Name').indexOf('Azure') > 0,
-      `Azure: X-Backend-Name Header is wrong:${respOW.headers.get('X-Backend-Name')}`);
-
-    assert.equal(respAWS.headers.get('Surrogate-Key'), 'simple', 'AWS: Surrogate-Key not propagated');
-    assert.equal(respOW.headers.get('Surrogate-Key'), 'simple', 'OW: Surrogate-Key not propagated');
-    assert.equal(respAzure.headers.get('Surrogate-Key'), 'simple', 'Azure: Surrogate-Key not propagated');
+      name: 'amazonwebservices',
+      status: 200,
+      surrogate: 'simple',
+    },
+    {
+      backendName: 'F_Azure',
+      body: {
+        file: 'Hello, world.\n',
+        url: 'https://deploy-helix.azurewebsites.net/api/simple-package/simple-name/1.45.0/foo',
+      },
+      name: 'azure',
+      status: 200,
+      surrogate: 'simple',
+    },
+    ]);
   }).timeout(250000);
 });
