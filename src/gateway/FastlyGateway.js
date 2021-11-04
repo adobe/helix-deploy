@@ -109,6 +109,29 @@ class FastlyGateway {
     return [...init, ...set, ...increment].join('\n') + [backendvcl, ...middle, fallback].join(' else ');
   }
 
+  /**
+   * Generates a VCL snippet (for each package deployed) that lists all package parameter
+   * names and looks up their values from the secret edge dictionary.
+   * @returns {string} VCL snippet to look up package parameters from edge dict
+   */
+  listPackageParamsVCL() {
+    const pre = `
+    if (obj.status == 600 && req.url.path ~ "^/${this.cfg.packageName}/") {
+      set obj.status = 200;
+      set obj.response = "OK";
+      synthetic
+        {"{"}
+`;
+    const post = `
+    {"}"};
+}`;
+    const middle = Object.keys(this.cfg.packageParams).map((paramname, index) => `
+      {""${paramname}":""} json.escape(table.lookup(package_secrets, "${this.cfg.packageName}.${paramname}")) {""${Object.keys(this.cfg.packageParams).length >= index + 1 ? ',' : ''} "}
+    `).join('\n');
+
+    return pre + middle + post;
+  }
+
   setURLVCL() {
     const pre = `
 declare local var.package STRING;
@@ -285,6 +308,16 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
         write_only: 'false',
       });
 
+      await this._fastly.writeDictionary(newversion, 'tokens', {
+        name: 'aliases',
+        write_only: 'false',
+      });
+
+      await this._fastly.writeDictionary(newversion, 'packageparams', {
+        name: 'aliases',
+        write_only: 'true',
+      });
+
       if (this._cfg.checkinterval > 0) {
       // set up health checks
         await Promise.all(this._deployers
@@ -339,6 +372,27 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
             return this._fastly.updateBackend(newversion, backend.name, backend);
           }
         }));
+
+      await this._fastly.writeSnippet(newversion, 'packageparams.auth', {
+        name: 'packageparams.auth',
+        priority: 9,
+        dynamic: 0,
+        type: 'recv',
+        content: `
+if (req.http.Authorization) {
+  if(time.is_after(std.time(table.lookup(tokens, regsub(req.http.Authorization, "^Bearer ", ""), "expired"), std.integer2time(0)), time.start)) {
+    error 600 "Get Package Params";
+  }
+}`,
+      });
+
+      await this._fastly.writeSnippet(newversion, `${this.cfg.packageName}.params`, {
+        name: `${this.cfg.packageName}.params`,
+        priority: 10,
+        dynamic: 0,
+        type: 'error',
+        content: this.listPackageParamsVCL(),
+      });
 
       await this._fastly.writeSnippet(newversion, 'backend', {
         name: 'backend',
