@@ -78,6 +78,7 @@ module.exports = class Bundler {
         // the following are imported by the universal adapter and are assumed to be available
         './params.json',
         'aws-sdk',
+        'fs/promises',
         '@google-cloud/secret-manager',
         '@google-cloud/storage',
         '@google-cloud/functions',

@@ -152,21 +152,28 @@ function filterActions(fns, now, {
 }
 
 async function validateBundle(bundlePath, invoke = false) {
-  const opts = {
-    invoke,
-  };
-  const child = fork(path.resolve(__dirname, 'template', 'validate-bundle.js'), [bundlePath, JSON.stringify(opts)]);
-  const ret = await new Promise((resolve, reject) => {
-    child.on('message', resolve);
-    child.on('error', reject);
-    child.on('exit', (code) => {
-      resolve(JSON.stringify({
-        status: 'error',
-        error: `Child process stopped with exit code ${code}`,
-      }));
+  try {
+    const opts = {
+      invoke,
+    };
+    const child = fork(path.resolve(__dirname, 'template', 'validate-bundle.js'), [bundlePath, JSON.stringify(opts)]);
+    const ret = await new Promise((resolve, reject) => {
+      child.on('message', resolve);
+      child.on('error', reject);
+      child.on('exit', (code) => {
+        resolve(JSON.stringify({
+          status: 'error',
+          error: `Child process stopped with exit code ${code}`,
+        }));
+      });
     });
-  });
-  return JSON.parse(ret);
+    return JSON.parse(ret);
+  } catch (e) {
+    return {
+      status: 'error',
+      error: e.message,
+    };
+  }
 }
 
 module.exports = {
