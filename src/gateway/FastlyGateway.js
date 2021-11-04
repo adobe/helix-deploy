@@ -309,12 +309,12 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
       });
 
       await this._fastly.writeDictionary(newversion, 'tokens', {
-        name: 'aliases',
+        name: 'tokens',
         write_only: 'false',
       });
 
       await this._fastly.writeDictionary(newversion, 'packageparams', {
-        name: 'aliases',
+        name: 'packageparams',
         write_only: 'true',
       });
 
