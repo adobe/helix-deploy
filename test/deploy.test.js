@@ -94,7 +94,7 @@ describe('Deploy Test', () => {
     await assert.rejects(builder.run(), /Error: aborted due to errors during deploy/);
   }).timeout(10000);
 
-  it('deploys a web action', async () => {
+  async function deploy(buildOpts) {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'web-action'), testRoot);
 
     nock(process.env.WSK_APIHOST)
@@ -110,13 +110,7 @@ describe('Deploy Test', () => {
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
-      .prepare([
-        '--target', 'wsk',
-        '--verbose',
-        '--deploy',
-        '--test', '/foo',
-        '--directory', testRoot,
-      ]);
+      .prepare(buildOpts);
     builder.cfg._logger = new TestLogger();
 
     const res = await builder.run();
@@ -129,6 +123,27 @@ describe('Deploy Test', () => {
 
     const out = builder.cfg.log.output;
     assert.ok(out.indexOf('$ curl "https://example.com/api/v1/web/foobar/default/simple-project"') > 0);
+  }
+
+  it('deploys a web action', async () => {
+    await deploy([
+      '--target', 'wsk',
+      '--verbose',
+      '--deploy',
+      '--test', '/foo',
+      '--directory', testRoot,
+    ]);
+  }).timeout(10000);
+
+  it('deploys a web action (rollup)', async () => {
+    await deploy([
+      '--bundler', 'rollup',
+      '--target', 'wsk',
+      '--verbose',
+      '--deploy',
+      '--test', '/foo',
+      '--directory', testRoot,
+    ]);
   }).timeout(10000);
 
   it('tests a web action with redirect', async () => {

@@ -12,102 +12,79 @@
 
 const path = require('path');
 const fse = require('fs-extra');
-const rollup = require('rollup');
+const webpack = require('webpack');
 const chalk = require('chalk');
-const archiver = require('archiver');
-const semver = require('semver');
-const { nodeResolve } = require('@rollup/plugin-node-resolve');
-const commonjs = require('@rollup/plugin-commonjs');
-const alias = require('@rollup/plugin-alias');
-const pluginJson = require('@rollup/plugin-json');
-const { terser } = require('rollup-plugin-terser');
-const { validateBundle } = require('./utils.js');
-const { dependencies } = require('../package.json');
+const BaseBundler = require('./BaseBundler.js');
 
 /**
  * Creates the action bundle
  */
-module.exports = class Bundler {
-  /**
-   * Simple string substitute. Replaces all `${key}` occurrences from the given object.
-   * @param {string} str string to substitute
-   * @param {object} props properties
-   */
-  static substitute(str, props) {
-    return Object.entries(props).reduce((p, [key, value]) => {
-      const r = new RegExp(`\\$\\{${key}\\}`, 'g');
-      return p.replace(r, value);
-    }, str);
-  }
-
-  constructor() {
-    Object.assign(this, {
-      cfg: {},
-    });
-  }
-
-  withConfig(cfg) {
-    this.cfg = cfg;
-    return this;
-  }
-
-  // eslint-disable-next-line class-methods-use-this,no-empty-function
+module.exports = class WebpackBundler extends BaseBundler {
   async init() {
+    if (this.cfg.esm) {
+      throw new Error('Webpack bundler does not support ESM builds.');
+    }
   }
 
-  async getRollupConfig() {
+  async getWebpackConfig() {
     const { cfg } = this;
-    /**
-     * @type {import('rollup').RollupOptions}
-     */
     const opts = {
-      input: cfg.adapterFile || path.resolve(__dirname, 'template', cfg.esm ? 'index.mjs' : 'index.js'),
+      target: 'node',
+      mode: 'development',
+      // the universal adapter is the entry point
+      entry: cfg.adapterFile || path.resolve(__dirname, 'template', 'index.js'),
       output: {
-        file: cfg.bundle,
-        name: 'main',
-        format: cfg.esm ? 'es' : 'cjs',
-        preferConst: true,
-        externalLiveBindings: false,
-        // inlineDynamicImports: true,
-        exports: 'default',
+        path: cfg.cwd,
+        filename: path.relative(cfg.cwd, cfg.bundle),
+        library: 'main',
+        libraryTarget: 'umd',
       },
-      // shimMissingExports: false,
-      treeshake: false,
-      external: [
+      devtool: false,
+      externals: [
         ...cfg.externals,
         // the following are imported by the universal adapter and are assumed to be available
         './params.json',
         'aws-sdk',
-        'fs/promises',
         '@google-cloud/secret-manager',
         '@google-cloud/storage',
-        '@google-cloud/functions',
-      ],
-      plugins: [
-        pluginJson({
-          preferConst: true,
-        }),
-        nodeResolve({
-          preferBuiltins: true,
-        }),
-        commonjs({
-          ignoreTryCatch: (id) => id !== './main.js',
-        }),
-        alias({
-          entries: [
-            { find: './main.js', replacement: cfg.file },
-          ],
-        }),
-      ],
+      ].reduce((obj, ext) => {
+        // this makes webpack to ignore the module and just leave it as normal require.
+        // eslint-disable-next-line no-param-reassign
+        obj[ext] = `commonjs2 ${ext}`;
+        return obj;
+      }, {}),
+      module: {
+        rules: [{
+          test: /\.mjs$/,
+          type: 'javascript/auto',
+        }],
+      },
+      resolve: {
+        mainFields: ['main', 'module'],
+        extensions: ['.wasm', '.js', '.mjs', '.json'],
+        alias: {
+          // the main.js is imported in the universal adapter and is _the_ action entry point
+          './main.js': cfg.file,
+        },
+      },
+      node: {
+        __dirname: true,
+        __filename: false,
+      },
+      plugins: [],
     };
     if (cfg.minify) {
-      opts.plugins.push(terser());
+      opts.optimization = {
+        minimize: cfg.minify,
+      };
+    }
+    if (cfg.modulePaths && cfg.modulePaths.length > 0) {
+      opts.resolve.modules = cfg.modulePaths;
     }
 
-    // if (cfg.modulePaths && cfg.modulePaths.length > 0) {
-    //   opts.resolve.modules = cfg.modulePaths;
-    // }
-
+    if (cfg.progressHandler) {
+      opts.plugins.push(new webpack.ProgressPlugin(cfg.progressHandler));
+    }
     return opts;
   }
 
@@ -119,17 +96,33 @@ module.exports = class Bundler {
     if (!cfg.depFile) {
       throw Error('dependencies info path is undefined');
     }
+    const m = cfg.minify ? 'minified ' : '';
+    if (!cfg.progressHandler) {
+      cfg.log.info(`--: creating ${m}bundle using webpack ...`);
+    }
+    const config = await this.getWebpackConfig();
+    const compiler = webpack(config);
+    const stats = await new Promise((resolve, reject) => {
+      compiler.run((err, s) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(s);
+        }
+      });
+    });
+    cfg.log.debug(stats.toString({
+      chunks: false,
+      colors: true,
+    }));
 
-    cfg.log.info(`--: creating ${cfg.esm ? 'esm ' : ''}${cfg.minify ? 'minified ' : ''}bundle using rollup...`);
-    const config = await this.getRollupConfig();
-    const bundle = await rollup.rollup(config);
-
-    const { output } = await bundle.generate(config.output);
-    await this.resolveDependencyInfos(output);
-    await bundle.write(config.output);
-    await bundle.close();
-    cfg.log.info(chalk`{green ok:} created bundle {yellow ${config.output.file}}`);
-    return { };
+    await this.resolveDependencyInfos(stats);
+    // write dependencies info file
+    await fse.writeJson(cfg.depFile, cfg.dependencies, { spaces: 2 });
+    if (!cfg.progressHandler) {
+      cfg.log.info(chalk`{green ok:} created bundle {yellow ${config.output.filename}}`);
+    }
+    return stats;
   }
 
   /**
@@ -144,170 +137,59 @@ module.exports = class Bundler {
    *   ...
    * }
    */
-  async resolveDependencyInfos(output) {
+  async resolveDependencyInfos(stats) {
+    const { cfg } = this;
+
+    // get list of dependencies
     const depsByFile = {};
     const resolved = {};
-    await Promise.all(output.filter((chunkOrAsset) => chunkOrAsset.type !== 'asset').map(async (chunk) => {
-      const deps = {};
-      depsByFile[chunk.name] = deps;
-      await Promise.all(Object.keys(chunk.modules).map(async (modulePath) => {
-        const segs = modulePath.split('/');
-        let idx = segs.lastIndexOf('node_modules');
-        if (idx >= 0) {
-          idx += 1;
-          if (segs[idx].charAt(0) === '@') {
-            idx += 1;
-          }
-          segs.splice(idx + 1);
-          const dir = path.resolve('/', ...segs);
 
-          try {
-            if (!resolved[dir]) {
-              const pkgJson = await fse.readJson(path.resolve(dir, 'package.json'));
-              const id = `${pkgJson.name}:${pkgJson.version}`;
-              resolved[dir] = {
-                id,
-                name: pkgJson.name,
-                version: pkgJson.version,
-              };
+    const jsonStats = stats.toJson({
+      chunks: true,
+      chunkModules: true,
+    });
+
+    await Promise.all(jsonStats.chunks
+      .map(async (chunk) => {
+        const chunkName = chunk.names[0];
+        const deps = {};
+        depsByFile[chunkName] = deps;
+
+        await Promise.all(chunk.modules.map(async (mod) => {
+          const segs = mod.identifier.split('/');
+          let idx = segs.lastIndexOf('node_modules');
+          if (idx >= 0) {
+            idx += 1;
+            if (segs[idx].charAt(0) === '@') {
+              idx += 1;
             }
-            const dep = resolved[dir];
-            deps[dep.id] = dep;
-          } catch (e) {
-            // ignore
+            segs.splice(idx + 1);
+            const dir = path.resolve('/', ...segs);
+
+            try {
+              if (!resolved[dir]) {
+                const pkgJson = await fse.readJson(path.resolve(dir, 'package.json'));
+                const id = `${pkgJson.name}:${pkgJson.version}`;
+                resolved[dir] = {
+                  id,
+                  name: pkgJson.name,
+                  version: pkgJson.version,
+                };
+              }
+              const dep = resolved[dir];
+              deps[dep.id] = dep;
+            } catch (e) {
+              // ignore
+            }
           }
-        }
+        }));
       }));
-    }));
 
     // sort the deps
     Object.entries(depsByFile)
       .forEach(([scriptFile, deps]) => {
-        this.cfg.dependencies[scriptFile] = Object.values(deps)
+        cfg.dependencies[scriptFile] = Object.values(deps)
           .sort((d0, d1) => d0.name.localeCompare(d1.name));
       });
-  }
-
-  async validateBundle() {
-    const { cfg } = this;
-    cfg.log.info('--: validating bundle ...');
-    const result = await validateBundle(cfg.bundle);
-    if (result.error) {
-      cfg.log.error(chalk`{red error:}`, result.error);
-      throw Error(`Validation failed: ${result.error}`);
-    }
-    cfg.log.info(chalk`{green ok:} bundle can be loaded and has a {gray main()} function.`);
-  }
-
-  async createArchive() {
-    const { cfg } = this;
-    if (!cfg.zipFile) {
-      throw Error('zip path is undefined');
-    }
-    return new Promise((resolve, reject) => {
-      // create zip file for package
-      const output = fse.createWriteStream(cfg.zipFile);
-      const archive = archiver('zip');
-      cfg.log.info('--: creating zip file ...');
-
-      let hadErrors = false;
-      output.on('close', () => {
-        if (!hadErrors) {
-          cfg.log.debug(` ${archive.pointer()} total bytes`);
-          const relZip = path.relative(process.cwd(), cfg.zipFile);
-          cfg.log.info(chalk`{green ok:} created action: {yellow ${relZip}}.`);
-          resolve({
-            path: cfg.zipFile,
-            size: archive.pointer(),
-          });
-        }
-      });
-      archive.on('entry', (data) => {
-        cfg.log.debug(` - ${data.name}`);
-      });
-      archive.on('warning', (err) => {
-        hadErrors = true;
-        reject(err);
-      });
-      archive.on('error', (err) => {
-        hadErrors = true;
-        reject(err);
-      });
-
-      const packageJson = {
-        name: cfg.baseName,
-        // make sure the version string is valid, so that `npm install` works
-        version: semver.valid(cfg.version.replace(/_/g, '.')) ? cfg.version.replace(/_/g, '.') : `0.0.0+${cfg.version}`,
-        description: `Universal Action of ${cfg.name}`,
-        main: 'index.js',
-        type: cfg.esm ? 'module' : 'script',
-        license: 'Apache-2.0',
-        dependencies: {
-          // google cloud installs these dependencies at deploy time
-          // all other environments ignore them – this allows us to
-          // avoid bundling something that only google needs
-          '@google-cloud/secret-manager': dependencies['@google-cloud/secret-manager'],
-          '@google-cloud/storage': dependencies['@google-cloud/storage'],
-        },
-      };
-      archive.pipe(output);
-      this.updateArchive(archive, packageJson).then(() => {
-        archive.finalize();
-      }).catch(reject);
-    });
-  }
-
-  get functionJson() {
-    return {
-      bindings: [
-        {
-          authLevel: 'anonymous',
-          type: 'httpTrigger',
-          direction: 'in',
-          name: 'req',
-          route: `${this.cfg.packageName}/${this.cfg.name.replace('@', '/')}/{path1?}/{path2?}/{path3?}/{path4?}/{path5?}`,
-          methods: [
-            'get',
-            'post',
-            'put',
-          ],
-        },
-        {
-          type: 'http',
-          direction: 'out',
-          name: 'res',
-        },
-      ],
-    };
-  }
-
-  async updateArchive(archive, packageJson) {
-    const { cfg } = this;
-    archive.file(cfg.bundle, { name: 'index.js' });
-    cfg.statics.forEach(([src, name]) => {
-      try {
-        if (fse.lstatSync(src)
-          .isDirectory()) {
-          archive.directory(src, name);
-        } else {
-          archive.file(src, { name });
-        }
-      } catch (e) {
-        throw Error(`error with static file: ${e.message}`);
-      }
-    });
-    cfg.modules.forEach((mod) => {
-      archive.directory(path.resolve(cfg.cwd, `node_modules/${mod}`), `node_modules/${mod}`);
-    });
-
-    archive.append(JSON.stringify(packageJson, null, '  '), { name: 'package.json' });
-    // azure functions manifest
-    archive.append(JSON.stringify(this.functionJson, null, '  '), { name: 'function.json' });
-
-    if (cfg.esm) {
-      archive.directory('esm-adapter');
-      archive.append('{}', { name: 'esm-adapter/package.json' });
-      archive.file(path.resolve(__dirname, 'template', 'aws-esm-adapter.js'), { name: 'esm-adapter/index.js' });
-    }
   }
 };

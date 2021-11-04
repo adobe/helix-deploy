@@ -58,13 +58,14 @@ async function assertZipEntries(zipPath, entries) {
 
 const PROJECT_SIMPLE = path.resolve(__dirname, 'fixtures', 'simple');
 
+const PROJECT_SIMPLE_ROOTDIR = path.resolve(__dirname, 'fixtures', 'simple-rootdir');
+
 describe('Build Test', () => {
   let testRoot;
   let origPwd;
 
   beforeEach(async () => {
     testRoot = await createTestRoot();
-    await fse.copy(PROJECT_SIMPLE, testRoot);
     origPwd = process.cwd();
   });
 
@@ -73,7 +74,8 @@ describe('Build Test', () => {
     await fse.remove(testRoot);
   });
 
-  async function generate(buildArgs) {
+  async function generate(buildArgs, testProject = PROJECT_SIMPLE) {
+    await fse.copy(testProject, testRoot);
     // need to change .cwd() for yargs to pickup `wsk` in package.json
     process.chdir(testRoot);
     process.env.WSK_AUTH = 'foobar';
@@ -139,11 +141,23 @@ describe('Build Test', () => {
     assert.deepEqual(result.response.body, '{"url":"https://localhost/api/v1/web/namespace/package/name@version","file":"Hello, world.\\n"}');
   }
 
-  it('generates the bundle', async () => {
+  it('generates the bundle (webpack)', async () => {
     await generate([]);
   }).timeout(5000);
 
-  it('generates the bundle (esm)', async () => {
-    await generate(['--esm']);
+  it('generates the bundle (rollup)', async () => {
+    await generate(['--bundler', 'rollup'], PROJECT_SIMPLE_ROOTDIR);
+  }).timeout(5000);
+
+  it('generates the bundle (esm, webpack) fails', async () => {
+    await assert.rejects(generate(['--esm']), Error('Webpack bundler does not support ESM builds.'));
+  }).timeout(5000);
+
+  it('rejects unknown bundler', async () => {
+    await assert.rejects(generate(['--bundler', 'foobar']), Error('Invalid no bundler found for: foobar. Valid options are: webpack,rollup'));
+  }).timeout(5000);
+
+  it('generates the bundle (esm, rollup)', async () => {
+    await generate(['--esm', '--bundler', 'rollup'], PROJECT_SIMPLE_ROOTDIR);
   }).timeout(5000);
 });
