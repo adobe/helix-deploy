@@ -33,7 +33,7 @@
     "@adobe/helix-universal": "adobe/helix-universal#edge-deploy"
   },
   "dependencies": {
-    "@adobe/fastly-native-promises": "1.24.0",
+    "@adobe/fastly-native-promises": "2.0.0",
     "@adobe/helix-fetch": "3.0.0",
     "@aws-sdk/client-apigatewayv2": "3.39.0",
     "@aws-sdk/client-lambda": "3.39.0",
