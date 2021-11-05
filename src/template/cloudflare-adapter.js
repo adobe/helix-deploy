@@ -12,7 +12,7 @@
 /* eslint-env serviceworker */
 
 async function handler(event) {
-  console.log(event);
+  // console.log(event);
   const { request } = event;
   // eslint-disable-next-line import/no-unresolved,global-require
   const { main } = require('./main.js');

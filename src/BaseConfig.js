@@ -199,6 +199,7 @@ class BaseConfig {
       .withCleanupPatch(argv.cleanupPatch)
       .withCleanupMinor(argv.cleanupMinor)
       .withCleanupMajor(argv.cleanupMajor)
+      .withPackageToken(argv.packageToken)
       .withProperties(argv.property);
   }
 
@@ -507,6 +508,11 @@ class BaseConfig {
     return this;
   }
 
+  withPackageToken(value) {
+    this.packageToken = value;
+    return this;
+  }
+
   get log() {
     if (!this._logger) {
       // poor men's logging...
@@ -709,6 +715,11 @@ class BaseConfig {
           }
           return value;
         },
+      })
+      .option('package-token', {
+        description: 'Protects access to the gateway-stored package parameters with this token. leave empty to generate random token.',
+        type: 'string',
+        default: crypto.randomBytes(32).toString('base64'),
       })
       .option('params', {
         alias: 'p',
