@@ -10,7 +10,6 @@
  * governing permissions and limitations under the License.
  */
 /* eslint-env serviceworker */
-/* global globalThis */
 
 async function handler(event) {
   console.log(event);
