@@ -75,6 +75,21 @@ class FastlyGateway {
     return this.cfg.log;
   }
 
+  async updatePackage() {
+    this.log.info('--: updating app (package) parameters on Fastly gateway ...');
+
+    const packageparams = Object
+      .entries(this.cfg.packageParams)
+      .map(([key, value]) => ({
+        item_key: `${this.cfg.packageName}.${key}`,
+        item_value: value,
+        op: 'upsert',
+      }));
+
+    await this._fastly.bulkUpdateDictItems(undefined, 'packageparams', ...packageparams);
+    this._fastly.discard();
+  }
+
   selectBackendVCL() {
     // declare a local variable for each backend
     const init = this._deployers.map((deployer) => `declare local var.${deployer.name.toLowerCase()} INTEGER;`);
