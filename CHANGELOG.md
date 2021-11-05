@@ -1,3 +1,80 @@
+# [4.12.0](https://github.com/adobe/helix-deploy/compare/v4.11.6...v4.12.0) (2021-11-02)
+
+
+### Features
+
+* add function state check ([#329](https://github.com/adobe/helix-deploy/issues/329)) ([33c4456](https://github.com/adobe/helix-deploy/commit/33c44565c20e4ebfacfbb300557d7615932569bf)), closes [#328](https://github.com/adobe/helix-deploy/issues/328)
+
+## [4.11.6](https://github.com/adobe/helix-deploy/compare/v4.11.5...v4.11.6) (2021-11-02)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([a39e9b1](https://github.com/adobe/helix-deploy/commit/a39e9b195e0a2f5087647b9e27afa3cf91b56088))
+* **gateway:** increase backend health threshold and window ([37cd539](https://github.com/adobe/helix-deploy/commit/37cd5394274202ab353e07af5f5bf393d071d553))
+
+## [4.11.5](https://github.com/adobe/helix-deploy/compare/v4.11.4...v4.11.5) (2021-10-18)
+
+
+### Bug Fixes
+
+* force release ([71d65ab](https://github.com/adobe/helix-deploy/commit/71d65abab0bce163a8db4bc4371dfe7a67143834))
+
+## [4.11.4](https://github.com/adobe/helix-deploy/compare/v4.11.3...v4.11.4) (2021-10-16)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([88ba0d9](https://github.com/adobe/helix-deploy/commit/88ba0d95db38411dbb03a6cbd60997c6fa96fb12))
+
+## [4.11.3](https://github.com/adobe/helix-deploy/compare/v4.11.2...v4.11.3) (2021-10-15)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-fetch to v3 ([7bface6](https://github.com/adobe/helix-deploy/commit/7bface67138c8530190b17adc169ff5a5aade89f))
+
+## [4.11.2](https://github.com/adobe/helix-deploy/compare/v4.11.1...v4.11.2) (2021-10-09)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([082697e](https://github.com/adobe/helix-deploy/commit/082697e8bebab62f156b39c05887765e0c345c5e))
+
+## [4.11.1](https://github.com/adobe/helix-deploy/compare/v4.11.0...v4.11.1) (2021-10-02)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([952bfa9](https://github.com/adobe/helix-deploy/commit/952bfa9bedd1123edaf3e48ef1be57f383049cf8))
+
+# [4.11.0](https://github.com/adobe/helix-deploy/compare/v4.10.0...v4.11.0) (2021-09-27)
+
+
+### Features
+
+* add options to select params manager ([#312](https://github.com/adobe/helix-deploy/issues/312)) ([a3829a8](https://github.com/adobe/helix-deploy/commit/a3829a8651c1d9a8bbe10c7310e41fa24418a2aa))
+
+# [4.10.0](https://github.com/adobe/helix-deploy/compare/v4.9.11...v4.10.0) (2021-09-27)
+
+
+### Bug Fixes
+
+* use node 14 by default ([0f46220](https://github.com/adobe/helix-deploy/commit/0f462209061a191f0ee598e0f6cd75025f0f043d)), closes [#309](https://github.com/adobe/helix-deploy/issues/309)
+
+
+### Features
+
+* also store package params in secrets store ([d74956b](https://github.com/adobe/helix-deploy/commit/d74956b2e40549b9525404bddbab9613a55bfde4)), closes [#308](https://github.com/adobe/helix-deploy/issues/308)
+
+## [4.9.11](https://github.com/adobe/helix-deploy/compare/v4.9.10...v4.9.11) (2021-09-20)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([#303](https://github.com/adobe/helix-deploy/issues/303)) ([340dd5e](https://github.com/adobe/helix-deploy/commit/340dd5e5b8eec64e185aaed632e2ebc1ddb413d3))
+* only select wsk if namespace is present in env or props ([#304](https://github.com/adobe/helix-deploy/issues/304)) ([cdf2e15](https://github.com/adobe/helix-deploy/commit/cdf2e153eddb627d3cd328c9e3c17920057437fe))
+
 ## [4.9.10](https://github.com/adobe/helix-deploy/compare/v4.9.9...v4.9.10) (2021-09-14)
 
 

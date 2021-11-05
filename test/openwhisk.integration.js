@@ -62,7 +62,7 @@ describe('OpenWhisk Integration Test', () => {
     const out = builder.cfg._logger.output;
     const { auth, namespace } = builder._deployers.wsk._cfg;
     assert.ok(out.indexOf(`ok: 200
-{"url":"https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0/foo","file":"Hello, world.\\n"}`) > 0, out);
+{"url":"https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0/foo?testPackageParam=42&test-package-param=42","file":"Hello, world.\\n"}`) > 0, out);
 
     // try to invoke via openwhisk api
     const { fetch } = fetchContext();
@@ -84,7 +84,7 @@ describe('OpenWhisk Integration Test', () => {
     ret.body = JSON.parse(ret.body);
     assert.deepEqual(ret.body, {
       file: 'Hello, world.\n',
-      url: `https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0?foo=bar`,
+      url: `https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0?testPackageParam=42&test-package-param=42&foo=bar`,
     });
     assert.equal(resp.status, 200);
   }).timeout(20000);

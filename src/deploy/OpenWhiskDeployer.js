@@ -74,7 +74,7 @@ class OpenWhiskDeployer extends BaseDeployer {
   }
 
   ready() {
-    return !!this._cfg.apiHost && !!this._cfg.auth && !!this._cfg.namespace;
+    return !!this._cfg.apiHost && !!this._cfg.auth && !!this._cfg.propsNamespace;
   }
 
   validate() {

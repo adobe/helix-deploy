@@ -51,6 +51,11 @@ const {
   SSMClient,
   PutParameterCommand,
 } = require('@aws-sdk/client-ssm');
+const {
+  SecretsManagerClient,
+  PutSecretValueCommand,
+} = require('@aws-sdk/client-secrets-manager');
+
 const path = require('path');
 const fse = require('fs-extra');
 const crypto = require('crypto');
@@ -146,6 +151,9 @@ class AWSDeployer extends BaseDeployer {
         region: this._cfg.region,
       });
       this._ssm = new SSMClient({
+        region: this._cfg.region,
+      });
+      this._sm = new SecretsManagerClient({
         region: this._cfg.region,
       });
     }
@@ -435,20 +443,42 @@ class AWSDeployer extends BaseDeployer {
 
   async updatePackage() {
     const { cfg } = this;
-    this.log.info('--: updating app (package) parameters ...');
-    const commands = Object
-      .entries(cfg.packageParams)
-      .map(([key, value]) => this._ssm.send(new PutParameterCommand({
-        Name: `/helix-deploy/${cfg.packageName}/${key}`,
-        Value: value,
-        Type: 'SecureString',
-        DataType: 'text',
-        Overwrite: true,
-      })));
+    let found = false;
+    if (this._cfg.parameterMgr.includes('secret')) {
+      found = true;
+      this.log.info('--: updating app (package) parameters (secrets mananger)...');
+      const SecretId = `/helix-deploy/${cfg.packageName}/all`;
+      try {
+        await this._sm.send(new PutSecretValueCommand({
+          SecretId,
+          SecretString: JSON.stringify(cfg.packageParams),
+        }));
+      } catch (e) {
+        this.log.error(chalk`{red error:} unable to update value of '${SecretId}'`);
+        throw e;
+      }
+    }
 
-    await Promise.all(commands);
+    if (this._cfg.parameterMgr.includes('system')) {
+      found = true;
+      this.log.info('--: updating app (package) parameters (param store)...');
+      const commands = Object
+        .entries(cfg.packageParams)
+        .map(([key, value]) => this._ssm.send(new PutParameterCommand({
+          Name: `/helix-deploy/${cfg.packageName}/${key}`,
+          Value: value,
+          Type: 'SecureString',
+          DataType: 'text',
+          Overwrite: true,
+        })));
+      await Promise.all(commands);
+    }
 
-    this.log.info('parameters updated');
+    if (!found) {
+      throw Error(`Unable to update package parameters. invalid manager specified: ${this._cfg.parameterMgr}`);
+    }
+
+    this.log.info(chalk`{green ok}: parameters updated.`);
   }
 
   async cleanUpBuckets() {
@@ -659,6 +689,31 @@ class AWSDeployer extends BaseDeployer {
     }
   }
 
+  async checkFunctionReady() {
+    let tries = 3;
+    while (tries > 0) {
+      try {
+        tries -= 1;
+        this.log.info(chalk`--: checking function state ...`);
+        const { Configuration } = await this._lambda.send(new GetFunctionCommand({
+          FunctionName: this._functionARN,
+        }));
+        if (Configuration.State !== 'Active') {
+          this.log.warn(chalk`{yellow warn:} function is {blue ${Configuration.State}} and last update was {blue ${Configuration.LastUpdateStatus}}.`);
+        } else {
+          this.log.info(chalk`{green ok:} function is {blue ${Configuration.State}} and last update was {blue ${Configuration.LastUpdateStatus}}.`);
+          return;
+        }
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+      } catch (e) {
+        this.log.error(chalk`{red error}: error checking function state`);
+        throw e;
+      }
+    }
+    this.log.warn(chalk`{yellow warn:} function is not active yet, which might lead to failed requests.`);
+  }
+
   async validateAdditionalTasks() {
     if (this._cfg.cleanUpBuckets || this._cfg.cleanUpIntegrations) {
       // disable auto build if no deploy
@@ -686,6 +741,7 @@ class AWSDeployer extends BaseDeployer {
       await this.createLambda();
       await this.createAPI();
       await this.deleteS3Bucket();
+      await this.checkFunctionReady();
     } catch (err) {
       this.log.error(`Unable to deploy Lambda function: ${err.message}`, err);
       throw err;
