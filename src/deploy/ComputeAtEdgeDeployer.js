@@ -156,11 +156,12 @@ service_id = ""
       .map(([key, value]) => ({
         item_key: key,
         item_value: value,
-        op: 'upsert',
+        op: 'update',
       }));
 
     await this._fastly.bulkUpdateDictItems(undefined, 'secrets', ...functionparams);
     await this._fastly.updateDictItem(undefined, 'secrets', '_token', this.cfg.packageToken);
+    console.log('package', `https://${this._cfg.fastlyGateway}/${this.cfg.packageName}/`);
     await this._fastly.updateDictItem(undefined, 'secrets', '_package', `https://${this._cfg.fastlyGateway}/${this.cfg.packageName}/`);
 
     this._fastly.discard();
