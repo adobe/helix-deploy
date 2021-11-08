@@ -21,6 +21,10 @@ const gateway = new FastlyGateway({
   },
   packageName: 'simple-package',
   name: 'simple',
+  packageParams: {
+    FOO: 'bar',
+    HEY: 'ho',
+  },
 });
 
 let ops = [];
@@ -67,5 +71,10 @@ describe('Unit Tests for Fastly Gateway', () => {
       item_value: '@ci999',
       op: 'upsert',
     });
+  });
+
+  it('Generates correct package parameter JSON', () => {
+    const vcl = gateway.listPackageParamsVCL();
+    console.log(vcl);
   });
 });
