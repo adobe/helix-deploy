@@ -10,13 +10,84 @@
  * governing permissions and limitations under the License.
  */
 /* eslint-env serviceworker */
+/* global Dictionary */
 
 async function handler(event) {
-  const { request } = event;
-  return new Response(`fastly ${request.url}`);
+  try {
+    const { request } = event;
+    console.log('Fastly Adapter is here');
+    let packageParams;
+    // eslint-disable-next-line import/no-unresolved,global-require
+    const { main } = require('./main.js');
+    const context = {
+      resolver: null,
+      pathInfo: {
+        suffix: request.url.replace(/\?.*/, ''),
+      },
+      runtime: {
+        name: 'compute-at-edge',
+        // region: request.cf.colo,
+      },
+      func: {
+        name: null,
+        package: null,
+        version: null,
+        fqn: null,
+        app: null,
+      },
+      invocation: {
+        id: null,
+        deadline: null,
+        transactionId: null,
+        requestId: null,
+      },
+      env: new Proxy(new Dictionary('secrets'), {
+        get: (target, prop) => {
+          try {
+            return target.get(prop);
+          } catch {
+            if (packageParams) {
+              return packageParams[prop];
+            }
+            const url = target.get('_package');
+            const token = target.get('_token');
+            console.log(`Getting secrets from ${url} with ${token}`);
+            return fetch(url, {
+              backend: 'gateway',
+              headers: {
+                authorization: `Bearer ${token}`,
+              },
+            }).then((response) => {
+              if (response.ok) {
+                console.log('response is ok...');
+                return response.json().then((json) => {
+                  console.log('json received');
+                  packageParams = json;
+                  return packageParams[target];
+                }).catch((error) => {
+                  console.error(`Unable to parse JSON: ${error.message}`);
+                });
+              }
+              console.error(`HTTP status is not ok: ${response.status}`);
+              return undefined;
+            }).catch((err) => {
+              console.error(`Unable to fetch parames: ${err.message}`);
+            });
+          }
+        },
+      }),
+      storage: null,
+    };
+    const response = await main(request, context);
+    return response;
+  } catch (e) {
+    console.log(e.message);
+    return new Response(`Error: ${e.message}`, { status: 500 });
+  }
 }
 
 function fastly() {
+  console.log('checking for fastly environment');
   /* eslint-disable-next-line no-undef */
   if (CacheOverride) {
     return handler;

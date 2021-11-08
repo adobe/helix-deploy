@@ -19,6 +19,7 @@ class ComputeAtEdgeConfig {
       .withServiceID(argv.computeServiceId)
       .withAuth(argv.fastlyAuth)
       .withCoralogixToken(argv.coralogixToken)
+      .withFastlyGateway(argv.fastlyGateway)
       .withCoralogixApp(argv.computeCoralogixApp);
   }
 
@@ -42,6 +43,11 @@ class ComputeAtEdgeConfig {
     return this;
   }
 
+  withFastlyGateway(value) {
+    this.fastlyGateway = value;
+    return this;
+  }
+
   static yarg(yargs) {
     return yargs
       .group(['compute-service-id', 'fastly-auth', 'coralogix-token', 'compute-coralogix-app'], 'Fastly Compute@Edge Options')
@@ -57,6 +63,11 @@ class ComputeAtEdgeConfig {
       })
       .option('coralogix-token', {
         description: 'the Coralogix token (to enable logging)',
+        type: 'string',
+        default: '',
+      })
+      .option('fastly-gateway', {
+        description: 'the hostname of the Fastly gateway for package params',
         type: 'string',
         default: '',
       })

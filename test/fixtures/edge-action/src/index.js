@@ -12,6 +12,10 @@
 const { Response, fetch } = require('@adobe/helix-fetch');
 
 module.exports.main = async function main(req, context) {
-  const backendresponse = await fetch(`https://httpbin.org/status/${req.url.split('/').pop()}`);
+  console.log(req.url, `https://httpbin.org/status/${req.url.split('/').pop()}`);
+  const backendresponse = await fetch(`https://httpbin.org/status/${req.url.split('/').pop()}`, {
+    backend: 'httpbin.org',
+  });
+  console.log(await backendresponse.text());
   return new Response(`ok: ${await context.env.HEY} ${await context.env.FOO} – ${backendresponse.status}`);
 };

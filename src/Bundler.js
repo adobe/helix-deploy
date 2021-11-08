@@ -89,6 +89,7 @@ module.exports = class Bundler {
         alias: {
           // the main.js is imported in the universal adapter and is _the_ action entry point
           './main.js': cfg.file,
+          // 'psl': path.resolve(__dirname, '../node_modules/psl/dist/psl.js'), // inlined data
           '@adobe/helix-fetch': path.resolve(__dirname, 'template/polyfills/helix-fetch.js'),
         },
         /*         fallback: {

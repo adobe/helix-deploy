@@ -400,6 +400,13 @@ module.exports = class ActionBuilder {
       await this._gateways.fastly.updateLinks(cfg.links, cfg.version);
     }
 
+    if (this._gateways.fastly
+      && this._gateways.fastly.updateable()
+      && cfg.packageParams && cfg.packageToken) {
+      this._gateways.fastly.init();
+      await this._gateways.fastly.updatePackage();
+    }
+
     if (cfg.deploy) {
       await this.validateDeployers();
       return Object.entries(this._deployers).reduce((p, [name, dep]) => {

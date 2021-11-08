@@ -48,8 +48,13 @@ async function handler(event) {
 }
 
 function cloudflare() {
-  if (caches.default) {
-    return handler;
+  console.log('checking for cloudflare environment');
+  try {
+    if (caches && caches.default) {
+      return handler;
+    }
+  } catch {
+    return false;
   }
   return false;
 }

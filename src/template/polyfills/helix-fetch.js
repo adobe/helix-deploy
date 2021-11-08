@@ -10,9 +10,9 @@
  * governing permissions and limitations under the License.
  */
 /* eslint-env serviceworker */
+
 module.exports = {
-  // replacing helix-fetch with the built-in edge worker API
-  // TODO: fastly will need to import @fastly/js-compute for this to work
+  // replacing helix-fetch with the built-in APIs
   fetch,
   Request,
   Response,

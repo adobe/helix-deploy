@@ -87,7 +87,7 @@ class FastlyGateway {
       }));
 
     await this._fastly.bulkUpdateDictItems(undefined, 'packageparams', ...packageparams);
-    await this._fastly.updateDictItem(undefined, 'tokens', this._cfg.packageToken, `${Math.floor(Date.now() / 1000) + (365 * 24 * 3600)}`);
+    await this._fastly.updateDictItem(undefined, 'tokens', this.cfg.packageToken, `${Math.floor(Date.now() / 1000) + (365 * 24 * 3600)}`);
     this._fastly.discard();
   }
 
@@ -136,14 +136,12 @@ class FastlyGateway {
       set obj.status = 200;
       set obj.response = "OK";
       synthetic
-        {"{"}
-`;
-    const post = `
-    {"}"};
+        {"{"}`;
+    const post = `{"}"};
 }`;
-    const middle = Object.keys(this.cfg.packageParams).map((paramname, index) => `
-      {""${paramname}":""} json.escape(table.lookup(packageparams, "${this.cfg.packageName}.${paramname}")) {""${Object.keys(this.cfg.packageParams).length >= index + 1 ? ',' : ''} "}
-    `).join('\n');
+    const middle = Object
+      .keys(this.cfg.packageParams)
+      .map((paramname, index) => `{""${paramname}":""} json.escape(table.lookup(packageparams, "${this.cfg.packageName}.${paramname}")) {""${Object.keys(this.cfg.packageParams).length >= index + 1 ? ',' : ''} "}`).join('\n');
 
     return pre + middle + post;
   }

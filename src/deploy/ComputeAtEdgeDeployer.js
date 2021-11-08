@@ -47,7 +47,7 @@ class ComputeAtEdgeDeployer extends BaseDeployer {
 
   init() {
     if (this.ready() && !this._fastly) {
-      this._fastly = Fastly(this._cfg.auth, this._cfg.service);
+      this._fastly = Fastly(this._cfg.auth, this._cfg.service, 60000);
     }
   }
 
@@ -117,7 +117,53 @@ service_id = ""
 
     await this._fastly.transact(async (version) => {
       await this._fastly.writePackage(version, buf);
+
+      await this._fastly.writeDictionary(version, 'secrets', {
+        name: 'secrets',
+        write_only: 'true',
+      });
+
+      const host = this._cfg.fastlyGateway;
+      console.log('Host', host);
+      const backend = {
+        hostname: host,
+        ssl_cert_hostname: host,
+        ssl_sni_hostname: host,
+        address: host,
+        override_host: host,
+        name: 'gateway',
+        error_threshold: 0,
+        first_byte_timeout: 60000,
+        weight: 100,
+        connect_timeout: 5000,
+        port: 443,
+        between_bytes_timeout: 10000,
+        shield: '', // 'bwi-va-us',
+        max_conn: 200,
+        use_ssl: true,
+      };
+      await this._fastly.writeBackend(version, 'gateway', backend);
     }, true);
+  }
+
+  async updatePackage() {
+    this.log.info('--: updating app (gateway) config ...');
+
+    this.init();
+
+    const functionparams = Object
+      .entries(this.cfg.params)
+      .map(([key, value]) => ({
+        item_key: key,
+        item_value: value,
+        op: 'upsert',
+      }));
+
+    await this._fastly.bulkUpdateDictItems(undefined, 'secrets', ...functionparams);
+    await this._fastly.updateDictItem(undefined, 'secrets', '_token', this.cfg.packageToken);
+    await this._fastly.updateDictItem(undefined, 'secrets', '_package', `https://${this._cfg.fastlyGateway}/${this.cfg.packageName}/`);
+
+    this._fastly.discard();
   }
 }
 
