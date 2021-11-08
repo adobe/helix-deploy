@@ -137,8 +137,10 @@ class FastlyGateway {
     if (obj.status == 600 && req.url.path ~ "^/${this.cfg.packageName}/") {
       set obj.status = 200;
       set obj.response = "OK";
-      synthetic {"{"}`;
-    const post = `{"}"};
+      synthetic {"{"}
+`;
+    const post = `
+    {"}"};
 }`;
     const middle = Object
       .keys(this.cfg.packageParams)
