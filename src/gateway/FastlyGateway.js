@@ -86,7 +86,9 @@ class FastlyGateway {
         op: 'upsert',
       }));
 
-    await this._fastly.bulkUpdateDictItems(undefined, 'packageparams', ...packageparams);
+    if (packageparams.length !== 0) {
+      await this._fastly.bulkUpdateDictItems(undefined, 'packageparams', ...packageparams);
+    }
     await this._fastly.updateDictItem(undefined, 'tokens', this.cfg.packageToken, `${Math.floor(Date.now() / 1000) + (365 * 24 * 3600)}`);
     this._fastly.discard();
   }
