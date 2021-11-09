@@ -123,7 +123,9 @@ class BaseDeployer {
         // eslint-disable-next-line no-param-reassign
         retry404 -= 1;
         // eslint-disable-next-line no-await-in-loop
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        await new Promise((resolve) => {
+          setTimeout(resolve, 1500);
+        });
       } else {
         // this.log.info(`${chalk.red('error:')} test failed: ${ret.status} ${body}`);
         throw new Error(`test failed: ${ret.status} ${body}`);
