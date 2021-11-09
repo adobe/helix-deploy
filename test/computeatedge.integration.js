@@ -42,12 +42,13 @@ describe('Fastly Compute@Edge Integration Test', () => {
         '--deploy',
         '--target', 'c@e',
         '--compute-service-id', '1yv1Wl7NQCFmNBkW4L8htc',
+        '--compute-test-domain', 'possibly-working-sawfish',
         '--package.params', 'HEY=ho',
         '--package.params', 'ZIP=zap',
         '--update-package', 'true',
         '--fastly-gateway', 'deploy-test.anywhere.run',
         '-p', 'FOO=bar',
-        '--test', '/foo',
+        '--test', '/201',
         '--directory', testRoot,
         '--entryFile', 'src/index.js',
       ]);
@@ -55,7 +56,7 @@ describe('Fastly Compute@Edge Integration Test', () => {
 
     const res = await builder.run();
     assert.ok(res);
-    // const out = builder.cfg._logger.output;
-    // assert.ok(out.indexOf('https://default--simple-project.rockerduck.workers.dev') > 0, out);
+    const out = builder.cfg._logger.output;
+    assert.ok(out.indexOf('possibly-working-sawfish.edgecompute.app') > 0, out);
   }).timeout(10000000);
 });

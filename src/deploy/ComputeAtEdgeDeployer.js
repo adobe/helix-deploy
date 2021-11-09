@@ -166,6 +166,21 @@ service_id = ""
 
     this._fastly.discard();
   }
+
+  get fullFunctionName() {
+    return `${this.cfg.packageName}--${this.cfg.name}`
+      .replace(/\./g, '_')
+      .replace('@', '_');
+  }
+
+  async test() {
+    return this._cfg.testDomain
+      ? this.testRequest({
+        url: `https://${this.fullFunctionName}.${this._cfg.testDomain}.edgecompute.app`,
+        retry404: 0,
+      })
+      : undefined;
+  }
 }
 
 ComputeAtEdgeDeployer.Config = ComputeAtEdgeConfig;

@@ -20,6 +20,7 @@ class ComputeAtEdgeConfig {
       .withAuth(argv.fastlyAuth)
       .withCoralogixToken(argv.coralogixToken)
       .withFastlyGateway(argv.fastlyGateway)
+      .withComputeDomain(argv.computeTestDomain)
       .withCoralogixApp(argv.computeCoralogixApp);
   }
 
@@ -48,11 +49,21 @@ class ComputeAtEdgeConfig {
     return this;
   }
 
+  withComputeDomain(value) {
+    this.testDomain = value;
+    return this;
+  }
+
   static yarg(yargs) {
     return yargs
-      .group(['compute-service-id', 'fastly-auth', 'coralogix-token', 'compute-coralogix-app'], 'Fastly Compute@Edge Options')
+      .group(['compute-service-id', 'compute-domain', 'fastly-auth', 'coralogix-token', 'compute-coralogix-app'], 'Fastly Compute@Edge Options')
       .option('compute-service-id', {
         description: 'the Fastly Service to deploy the action to',
+        type: 'string',
+        default: '',
+      })
+      .option('compute-test-domain', {
+        description: 'the domain name of the Compute@Edge service (used for testing)',
         type: 'string',
         default: '',
       })
