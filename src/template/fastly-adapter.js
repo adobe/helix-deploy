@@ -47,11 +47,12 @@ async function handler(event) {
             return target.get(prop);
           } catch {
             if (packageParams) {
+              console.log('Using cached params');
               return packageParams[prop];
             }
             const url = target.get('_package');
             const token = target.get('_token');
-            console.log(`Getting secrets from ${url} with ${token}`);
+            // console.log(`Getting secrets from ${url} with ${token}`);
             return fetch(url, {
               backend: 'gateway',
               headers: {
@@ -59,11 +60,11 @@ async function handler(event) {
               },
             }).then((response) => {
               if (response.ok) {
-                console.log('response is ok...');
-                return response.json().then((json) => {
-                  console.log('json received');
-                  packageParams = json;
-                  return packageParams[target];
+                // console.log('response is ok...');
+                return response.text().then((json) => {
+                  // console.log('json received: ' + json);
+                  packageParams = JSON.parse(json);
+                  return packageParams[prop];
                 }).catch((error) => {
                   console.error(`Unable to parse JSON: ${error.message}`);
                 });
