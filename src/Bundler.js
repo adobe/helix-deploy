@@ -460,8 +460,8 @@ module.exports = class Bundler {
 
     archive.append(JSON.stringify(packageJson, null, '  '), { name: 'package.json' });
     archive.append(`
-account_id = "b4adf6cfdac0918eb6aa5ad033da0747"
-name = "helix-universal-test"
+account_id = "fakefakefake"
+name = "${this.cfg.packageName}/${this.cfg.name}"
 type = "javascript"
 workers_dev = true
 `, { name: 'wrangler.toml' });
