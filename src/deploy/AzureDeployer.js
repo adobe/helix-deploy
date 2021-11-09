@@ -178,19 +178,23 @@ class AzureDeployer extends BaseDeployer {
     const { cfg } = this;
     this.log.info('--: updating app (package) parameters ...');
 
-    const result = await this._client.webApps.listApplicationSettings(this._app.resourceGroup,
-      this._cfg.appName);
+    const result = await this._client.webApps.listApplicationSettings(
+      this._app.resourceGroup,
+      this._cfg.appName,
+    );
 
     const update = {
       ...cfg.packageParams,
       ...result.properties,
     };
 
-    await this._client.webApps.updateApplicationSettings(this._app.resourceGroup,
+    await this._client.webApps.updateApplicationSettings(
+      this._app.resourceGroup,
       this._cfg.appName,
       {
         properties: update,
-      });
+      },
+    );
 
     this.log.info(`${Object.keys(update).length} package parameters have been updated.`);
   }

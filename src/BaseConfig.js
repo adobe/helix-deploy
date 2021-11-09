@@ -662,8 +662,10 @@ class BaseConfig {
         type: 'object',
         default: {},
       })
-      .group(['cleanup-ci', 'cleanup-patch', 'cleanup-minor', 'cleanup-major'],
-        'Cleanup Old Deployments: automatically delete redundant versions older than specified. \n  Use a pattern like 7d or 1m to specify time frames.\n  Use a simple number like --cleanup-ci=5 to retain the last five CI builds')
+      .group(
+        ['cleanup-ci', 'cleanup-patch', 'cleanup-minor', 'cleanup-major'],
+        'Cleanup Old Deployments: automatically delete redundant versions older than specified. \n  Use a pattern like 7d or 1m to specify time frames.\n  Use a simple number like --cleanup-ci=5 to retain the last five CI builds',
+      )
       .option('cleanup-ci', {
         description: 'Automatically delete redundant CI versions',
         coerce: coerceDate,
