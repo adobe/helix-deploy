@@ -144,7 +144,7 @@ class FastlyGateway {
 }`;
     const middle = Object
       .keys(this.cfg.packageParams)
-      .map((paramname, index) => `"'${paramname}':'" json.escape(table.lookup(packageparams, "${this.cfg.packageName}.${paramname}")) "'${(index + 1) < Object.keys(this.cfg.packageParams).length ? ',' : ''}"`).join(' + ');
+      .map((paramname, index) => `"%22${paramname}%22:%22" json.escape(table.lookup(packageparams, "${this.cfg.packageName}.${paramname}")) "%22${(index + 1) < Object.keys(this.cfg.packageParams).length ? ',' : ''}"`).join(' + ');
 
     return pre + middle + post;
   }
