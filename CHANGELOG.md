@@ -1,3 +1,17 @@
+## [4.12.2](https://github.com/adobe/helix-deploy/compare/v4.12.1...v4.12.2) (2021-11-06)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([6fde9d0](https://github.com/adobe/helix-deploy/commit/6fde9d06bc7313548112c21737394c4986490ce5))
+
+## [4.12.1](https://github.com/adobe/helix-deploy/compare/v4.12.0...v4.12.1) (2021-11-05)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/fastly-native-promises to v2 ([#330](https://github.com/adobe/helix-deploy/issues/330)) ([80256dd](https://github.com/adobe/helix-deploy/commit/80256ddcdb173e67bfd6f5eebd1e873f6c385852))
+
 # [4.12.0](https://github.com/adobe/helix-deploy/compare/v4.11.6...v4.12.0) (2021-11-02)
 
 
