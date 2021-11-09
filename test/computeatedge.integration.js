@@ -32,7 +32,7 @@ describe('Fastly Compute@Edge Integration Test', () => {
     await fse.remove(testRoot);
   });
 
-  it('Deploy an pure action to Compute@Edge', async () => {
+  it('Deploy a pure action to Compute@Edge', async () => {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'edge-action'), testRoot);
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
