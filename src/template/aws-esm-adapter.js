@@ -10,18 +10,11 @@
  * governing permissions and limitations under the License.
  */
 
-// eslint-disable-next-line no-underscore-dangle
-global.__rootdir = __dirname;
+'use strict';
 
-const {
-  openwhisk,
-  aws,
-  google,
-  azure,
-} = require('@adobe/helix-universal').adapter;
+const index = import('../index.js');
 
-module.exports = Object.assign(azure, {
-  main: openwhisk,
-  lambda: aws,
-  google,
-});
+exports.handler = async (...args) => {
+  const { default: { lambda } } = await index;
+  return lambda(...args);
+};

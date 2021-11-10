@@ -10,17 +10,15 @@
  * governing permissions and limitations under the License.
  */
 
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { adapter } from '@adobe/helix-universal';
+const { openwhisk, aws, google, azure } = adapter;
+
 // eslint-disable-next-line no-underscore-dangle
-global.__rootdir = __dirname;
+global.__rootdir = dirname(fileURLToPath(import.meta.url));
 
-const {
-  openwhisk,
-  aws,
-  google,
-  azure,
-} = require('@adobe/helix-universal').adapter;
-
-module.exports = Object.assign(azure, {
+export default Object.assign(azure, {
   main: openwhisk,
   lambda: aws,
   google,

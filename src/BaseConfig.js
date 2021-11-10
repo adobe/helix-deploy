@@ -87,6 +87,8 @@ class BaseConfig {
       updatedBy: null,
       targets: [],
       functionURL: '',
+      esm: false,
+      bundler: 'webpack',
       format: {
         aws: DEFAULT_ACTION_FORMAT,
       },
@@ -164,6 +166,8 @@ class BaseConfig {
       .withTarget(argv.target)
       .withBuild(argv.build)
       .withMinify(argv.minify)
+      .withESM(argv.esm)
+      .withBundler(argv.bundler)
       .withDelete(argv.delete)
       .withDeploy(argv.deploy)
       .withTest(argv.test)
@@ -234,6 +238,16 @@ class BaseConfig {
 
   withMinify(enable) {
     this.minify = enable;
+    return this;
+  }
+
+  withESM(enable) {
+    this.esm = enable;
+    return this;
+  }
+
+  withBundler(bundler) {
+    this.bundler = bundler;
     return this;
   }
 
@@ -572,9 +586,19 @@ class BaseConfig {
         default: false,
       })
 
-      .group(['minify', 'static', 'entryFile', 'externals', 'modules', 'adapterFile'], 'Build Options')
+      .group(['minify', 'static', 'entryFile', 'externals', 'modules', 'adapterFile', 'esm', 'bundler'], 'Build Options')
       .option('minify', {
         description: 'Minify the final bundle',
+        type: 'boolean',
+        default: false,
+      })
+      .option('bundler', {
+        description: 'Select bundler backend (webpack, rollup)',
+        type: 'string',
+        default: 'webpack',
+      })
+      .option('esm', {
+        description: 'Produce EcmaScript Module (experimental)',
         type: 'boolean',
         default: false,
       })
@@ -598,7 +622,7 @@ class BaseConfig {
         description: 'Specifies the adapter file (the exported module).',
       })
       .option('externals', {
-        description: 'Defines the externals for webpack.',
+        description: 'Defines the externals for the bundler.',
         type: 'array',
         default: [],
       })

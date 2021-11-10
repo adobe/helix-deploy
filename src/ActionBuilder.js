@@ -15,8 +15,15 @@ const fs = require('fs');
 const fse = require('fs-extra');
 const chalk = require('chalk');
 const git = require('isomorphic-git');
-const Bundler = require('./Bundler');
+const WebpackBundler = require('./Bundler');
+const RollupBundler = require('./RollupBundler');
 const { version } = require('../package.json');
+
+const Bundlers = {
+  webpack: WebpackBundler,
+  rollup: RollupBundler,
+};
+
 /**
  * Returns the `origin` remote url or `''` if none is defined.
  *
@@ -184,7 +191,8 @@ module.exports = class ActionBuilder {
       cfg.zipFile = path.resolve(cfg.distDir, cfg.packageName, `${cfg.name}.zip`);
     }
     if (!cfg.bundle) {
-      cfg.bundle = path.resolve(cfg.distDir, cfg.packageName, `${cfg.name}-bundle.cjs`);
+      const ext = cfg.esm ? '.mjs' : '.cjs';
+      cfg.bundle = path.resolve(cfg.distDir, cfg.packageName, `${cfg.name}-bundle${ext}`);
     }
     if (!cfg.depFile) {
       cfg.depFile = path.resolve(cfg.distDir, cfg.packageName, `${cfg.name}-dependencies.json`);
@@ -334,7 +342,11 @@ module.exports = class ActionBuilder {
     await this.validate();
     await this.validateAdditionalTasks();
 
-    const bundler = new Bundler().withConfig(cfg);
+    const BundlerClass = Bundlers[cfg.bundler];
+    if (!BundlerClass) {
+      throw Error(`Invalid no bundler found for: ${cfg.bundler}. Valid options are: ${Object.keys(Bundlers)}`);
+    }
+    const bundler = new BundlerClass().withConfig(cfg);
     await bundler.init();
 
     if (cfg.build) {

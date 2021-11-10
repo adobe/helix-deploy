@@ -26,6 +26,8 @@ describe('CLI Test', () => {
     assert.deepEqual(builder.cfg.targets, ['auto']);
     assert.equal(builder.cfg.build, true);
     assert.equal(builder.cfg.minify, false);
+    assert.equal(builder.cfg.esm, false);
+    assert.equal(builder.cfg.bundler, 'webpack');
     assert.equal(builder.cfg.test, undefined);
     assert.equal(builder.cfg.showHints, true);
     assert.equal(builder.cfg.nodeVersion, '14');
@@ -77,6 +79,18 @@ describe('CLI Test', () => {
     const builder = new CLI()
       .prepare(['--minify']);
     assert.equal(builder.cfg.minify, true);
+  });
+
+  it('sets esm flag', () => {
+    const builder = new CLI()
+      .prepare(['--esm']);
+    assert.equal(builder.cfg.esm, true);
+  });
+
+  it('sets bundler', () => {
+    const builder = new CLI()
+      .prepare(['--bundler', 'rollup']);
+    assert.equal(builder.cfg.bundler, 'rollup');
   });
 
   it('sets test flag', () => {
