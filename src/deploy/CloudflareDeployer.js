@@ -26,18 +26,13 @@ class CloudflareDeployer extends BaseDeployer {
   }
 
   ready() {
-    return !!this._cfg.auth && !!this._cfg.accountID;
+    return !!this._cfg.auth && !!this._cfg.accountID && !!this.cfg.edgeBundle;
   }
 
   validate() {
     if (!this.ready()) {
       throw new Error('Cloudflare target needs email, token, and account ID');
     }
-  }
-
-  async init() {
-    this.log.debug('Cloudflare Deployer ready');
-    // nothing to do here
   }
 
   get fullFunctionName() {

@@ -36,7 +36,7 @@ class ComputeAtEdgeDeployer extends BaseDeployer {
   }
 
   ready() {
-    return !!this._cfg.service && !!this._cfg.auth;
+    return !!this._cfg.service && !!this._cfg.auth && !!this.cfg.edgeBundle;
   }
 
   validate() {
@@ -76,13 +76,15 @@ service_id = ""
 
     return new Promise((resolve, reject) => {
       const child = fork(
-        path.resolve(__dirname,
+        path.resolve(
+          __dirname,
           '..',
           '..',
           'node_modules',
           '@fastly',
           'js-compute',
-          'js-compute-runtime-cli.js'),
+          'js-compute-runtime-cli.js',
+        ),
         [this.cfg.edgeBundle, 'bin/main.wasm'],
         {
           cwd: bundleDir,

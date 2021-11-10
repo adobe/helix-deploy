@@ -9,19 +9,26 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+/* eslint-disable no-await-in-loop */
 
 const path = require('path');
 const fs = require('fs');
 const fse = require('fs-extra');
 const chalk = require('chalk');
 const git = require('isomorphic-git');
-const WebpackBundler = require('./Bundler');
-const RollupBundler = require('./RollupBundler');
+const WebpackBundler = require('./bundler/WebpackBundler');
+const EdgeBundler = require('./bundler/EdgeBundler');
+const RollupBundler = require('./bundler/RollupBundler');
 const { version } = require('../package.json');
 
 const Bundlers = {
-  webpack: WebpackBundler,
-  rollup: RollupBundler,
+  node: {
+    webpack: WebpackBundler,
+    rollup: RollupBundler,
+  },
+  edge: {
+    webpack: EdgeBundler,
+  },
 };
 
 /**
@@ -265,6 +272,30 @@ module.exports = class ActionBuilder {
     this.validated = true;
   }
 
+  async validateBundlers() {
+    if (this.validated) {
+      return;
+    }
+    // disable edge build
+
+    const { cfg } = this;
+    this.bundlers = [];
+    cfg.archs.forEach((arch) => {
+      const bnds = Bundlers[arch];
+      if (!bnds) {
+        throw Error(`Invalid arch '${arch}' specified. Valid options are: ${Object.keys(Bundlers)}`);
+      }
+      const BundlerClass = bnds[cfg.bundler];
+      if (!BundlerClass) {
+        throw Error(`Invalid bundler '${cfg.bundler}' for '${arch}'. Valid options are: ${Object.keys(bnds)}`);
+      }
+      this.bundlers.push(new BundlerClass().withConfig(cfg));
+    });
+    for (const bundler of this.bundlers) {
+      await bundler.init();
+    }
+  }
+
   async execute(fnName, msg, ...args) {
     const { cfg } = this;
     const deps = Object.values(this._deployers)
@@ -344,18 +375,14 @@ module.exports = class ActionBuilder {
     cfg.log.info(chalk`{grey universal-action-builder v${version}}`);
     await this.validate();
     await this.validateAdditionalTasks();
-
-    const BundlerClass = Bundlers[cfg.bundler];
-    if (!BundlerClass) {
-      throw Error(`Invalid no bundler found for: ${cfg.bundler}. Valid options are: ${Object.keys(Bundlers)}`);
-    }
-    const bundler = new BundlerClass().withConfig(cfg);
-    await bundler.init();
+    await this.validateBundlers();
 
     if (cfg.build) {
-      await bundler.createBundle();
-      await bundler.createArchive();
-      await bundler.validateBundle();
+      for (const bundler of this.bundlers) {
+        await bundler.createBundle();
+        await bundler.createArchive();
+        await bundler.validateBundle();
+      }
     }
 
     if (cfg.updatePackage) {
@@ -369,7 +396,9 @@ module.exports = class ActionBuilder {
         const relZip = path.relative(process.cwd(), cfg.zipFile);
         cfg.log.info(chalk`{green ok:} using: {yellow ${relZip}}.`);
         cfg.dependencies = await fse.readJson(cfg.depFile);
-        await bundler.validateBundle();
+        for (const bundler of this.bundlers) {
+          await bundler.validateBundle();
+        }
       }
       await this.deploy();
     }

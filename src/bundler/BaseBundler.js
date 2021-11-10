@@ -15,11 +15,11 @@ const fse = require('fs-extra');
 const chalk = require('chalk');
 const archiver = require('archiver');
 const semver = require('semver');
-const { validateBundle } = require('./utils.js');
-const { dependencies } = require('../package.json');
+const { validateBundle } = require('../utils.js');
+const { dependencies } = require('../../package.json');
 
 /**
- * Creates the action bundle
+ * Base for all bundlers
  */
 module.exports = class BaseBundler {
   /**
@@ -167,12 +167,15 @@ module.exports = class BaseBundler {
     });
 
     archive.append(JSON.stringify(packageJson, null, '  '), { name: 'package.json' });
-    archive.append(`
-account_id = "fakefakefake"
-name = "${this.cfg.packageName}/${this.cfg.name}"
-type = "javascript"
-workers_dev = true
-`, { name: 'wrangler.toml' });
+
+    // edge function stuff
+    archive.append([
+      'account_id = "fakefakefake"',
+      `name = "${this.cfg.packageName}/${this.cfg.name}"`,
+      'type = "javascript"',
+      'workers_dev = true',
+    ].join('\n'), { name: 'wrangler.toml' });
+
     // azure functions manifest
     archive.append(JSON.stringify(this.functionJson, null, '  '), { name: 'function.json' });
 

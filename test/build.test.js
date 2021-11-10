@@ -155,7 +155,7 @@ describe('Build Test', () => {
   }).timeout(5000);
 
   it('rejects unknown bundler', async () => {
-    await assert.rejects(generate(['--bundler', 'foobar']), Error('Invalid no bundler found for: foobar. Valid options are: webpack,rollup'));
+    await assert.rejects(generate(['--bundler', 'foobar']), Error('Invalid bundler \'foobar\' for \'node\'. Valid options are: webpack,rollup'));
   }).timeout(5000);
 
   it('generates the bundle (esm, rollup)', async () => {
@@ -188,6 +188,8 @@ describe('Edge Build Test', () => {
     const builder = new CLI()
       .prepare([
         '--target', 'wsk',
+        '--arch', 'node',
+        '--arch', 'edge', // todo: allow to only generate the edge bundle
         '--verbose',
         '--directory', testRoot,
         '--entryFile', 'index.js',

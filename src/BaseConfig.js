@@ -88,6 +88,7 @@ class BaseConfig {
       targets: [],
       functionURL: '',
       esm: false,
+      archs: ['node', 'edge'],
       bundler: 'webpack',
       format: {
         aws: DEFAULT_ACTION_FORMAT,
@@ -164,6 +165,7 @@ class BaseConfig {
       .withVerbose(argv.verbose)
       .withDirectory(argv.directory)
       .withTarget(argv.target)
+      .withArch(argv.arch)
       .withBuild(argv.build)
       .withMinify(argv.minify)
       .withESM(argv.esm)
@@ -222,6 +224,16 @@ class BaseConfig {
     value.forEach((v) => {
       v.split(',').forEach((t) => {
         this.targets.push(t.trim());
+      });
+    });
+    return this;
+  }
+
+  withArch(value) {
+    this.archs = [];
+    value.forEach((v) => {
+      v.split(',').forEach((t) => {
+        this.archs.push(t.trim());
       });
     });
     return this;
@@ -604,7 +616,7 @@ class BaseConfig {
         default: 'webpack',
       })
       .option('esm', {
-        description: 'Produce EcmaScript Module (experimental)',
+        description: 'Produce EcmaScript Module (experimental, disables edge arch)',
         type: 'boolean',
         default: false,
       })
@@ -631,6 +643,12 @@ class BaseConfig {
         description: 'Defines the externals for the bundler.',
         type: 'array',
         default: [],
+      })
+      .option('arch', {
+        description: 'Select archs(s) for bundles (node,edge).',
+        type: 'string',
+        default: ['node'],
+        array: true,
       })
 
       .group(['target', 'hints'], 'Deploy Options')
