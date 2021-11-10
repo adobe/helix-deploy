@@ -15,8 +15,8 @@ const fse = require('fs-extra');
 const chalk = require('chalk');
 const archiver = require('archiver');
 const semver = require('semver');
-const { validateBundle } = require('./utils.js');
-const { dependencies } = require('../package.json');
+const { validateBundle } = require('../utils.js');
+const { dependencies } = require('../../package.json');
 
 /**
  * Creates the action bundle
@@ -174,7 +174,7 @@ module.exports = class BaseBundler {
     if (cfg.esm) {
       archive.directory('esm-adapter');
       archive.append('{}', { name: 'esm-adapter/package.json' });
-      archive.file(path.resolve(__dirname, 'template', 'aws-esm-adapter.js'), { name: 'esm-adapter/index.js' });
+      archive.file(path.resolve(__dirname, '..', 'template', 'aws-esm-adapter.js'), { name: 'esm-adapter/index.js' });
     }
   }
 };

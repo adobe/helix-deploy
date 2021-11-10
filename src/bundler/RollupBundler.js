@@ -31,7 +31,7 @@ module.exports = class Bundler extends BaseBundler {
      * @type {import('rollup').RollupOptions}
      */
     const opts = {
-      input: cfg.adapterFile || path.resolve(__dirname, 'template', cfg.esm ? 'index.mjs' : 'index.js'),
+      input: cfg.adapterFile || path.resolve(__dirname, '..', 'template', cfg.esm ? 'index.mjs' : 'index.js'),
       output: {
         file: cfg.bundle,
         name: 'main',
