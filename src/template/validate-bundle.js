@@ -9,18 +9,24 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-// eslint-disable-next-line no-underscore-dangle
-global.__rootdir = __dirname;
+async function run(bundlePath, opts) {
+  const result = {
+  };
+  try {
+    const bundle = await import(bundlePath);
+    const main = bundle.default?.main;
+    if (!main || typeof main !== 'function') {
+      throw Error('Action has no main() function.');
+    }
+    if (opts.invoke) {
+      result.response = await main({});
+    }
+    result.status = 'ok';
+  } catch (e) {
+    result.status = 'error';
+    result.error = `${e.message}\n${e.stack}`;
+  }
+  process.send(JSON.stringify(result));
+}
 
-const {
-  openwhisk,
-  aws,
-  google,
-  azure,
-} = require('@adobe/helix-universal').adapter;
-
-module.exports = Object.assign(azure, {
-  main: openwhisk,
-  lambda: aws,
-  google,
-});
+run(process.argv[2], JSON.parse(process.argv[3])).then(process.stdout).catch(process.stderr);

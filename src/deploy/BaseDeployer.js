@@ -37,9 +37,7 @@ class BaseDeployer {
   getOrCreateFetchContext() {
     if (!this._fetchContext) {
       this._fetchContext = process.env.HELIX_FETCH_FORCE_HTTP1
-        ? fetchAPI.context({
-          alpnProtocols: [fetchAPI.ALPN_HTTP1_1],
-        })
+        ? fetchAPI.h1()
         : fetchAPI.context();
     }
     return this._fetchContext;
@@ -109,6 +107,8 @@ class BaseDeployer {
       if (ret.ok) {
         this.log.info(`id: ${chalk.grey(id)}`);
         this.log.info(`${chalk.green('ok:')} ${ret.status}`);
+        this.log.debug(chalk.grey(JSON.stringify(ret.headers.plain(), null, 2)));
+        this.log.debug('');
         this.log.debug(chalk.grey(body));
         return;
       }
@@ -123,7 +123,9 @@ class BaseDeployer {
         // eslint-disable-next-line no-param-reassign
         retry404 -= 1;
         // eslint-disable-next-line no-await-in-loop
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        await new Promise((resolve) => {
+          setTimeout(resolve, 1500);
+        });
       } else {
         // this.log.info(`${chalk.red('error:')} test failed: ${ret.status} ${body}`);
         throw new Error(`test failed: ${ret.status} ${body}`);

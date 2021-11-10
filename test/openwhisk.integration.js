@@ -61,8 +61,8 @@ describe('OpenWhisk Integration Test', () => {
     assert.ok(res);
     const out = builder.cfg._logger.output;
     const { auth, namespace } = builder._deployers.wsk._cfg;
-    assert.ok(out.indexOf(`ok: 200
-{"url":"https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0/foo?testPackageParam=42&test-package-param=42","file":"Hello, world.\\n"}`) > 0, out);
+    assert.ok(out.indexOf('ok: 200') > 0, out);
+    assert.ok(out.indexOf(`{"url":"https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0/foo?testPackageParam=42&test-package-param=42","file":"Hello, world.\\n"}`) > 0, out);
 
     // try to invoke via openwhisk api
     const { fetch } = fetchContext();

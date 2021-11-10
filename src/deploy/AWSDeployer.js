@@ -223,7 +223,7 @@ class AWSDeployer extends BaseDeployer {
       Environment: {
         Variables: cfg.params,
       },
-      Handler: 'index.lambda',
+      Handler: cfg.esm ? 'esm-adapter/index.handler' : 'index.lambda',
     };
 
     this.log.info(`--: using lambda role "${this._cfg.role}"`);
@@ -705,7 +705,9 @@ class AWSDeployer extends BaseDeployer {
           return;
         }
         // eslint-disable-next-line no-await-in-loop
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        await new Promise((resolve) => {
+          setTimeout(resolve, 1500);
+        });
       } catch (e) {
         this.log.error(chalk`{red error}: error checking function state`);
         throw e;

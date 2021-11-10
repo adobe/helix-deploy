@@ -9,6 +9,9 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+const { fork } = require('child_process');
+const path = require('path');
+
 /**
  * @typedef {object} VersionCoordinates
  * @property {number} ci - CI build number
@@ -41,6 +44,7 @@
  * @property {VersionCoordinates} version - version of the action
  * @property {Date} updated - timestamp of the update of the action
  */
+
 /**
  * Filters a list of named actions according
  * to maximum age or number of versions.
@@ -147,4 +151,32 @@ function filterActions(fns, now, {
     ...cleanmajorbyage, ...cleanmajorbycount];
 }
 
-module.exports = { filterActions };
+async function validateBundle(bundlePath, invoke = false) {
+  try {
+    const opts = {
+      invoke,
+    };
+    const child = fork(path.resolve(__dirname, 'template', 'validate-bundle.js'), [bundlePath, JSON.stringify(opts)]);
+    const ret = await new Promise((resolve, reject) => {
+      child.on('message', resolve);
+      child.on('error', reject);
+      child.on('exit', (code) => {
+        resolve(JSON.stringify({
+          status: 'error',
+          error: `Child process stopped with exit code ${code}`,
+        }));
+      });
+    });
+    return JSON.parse(ret);
+  } catch (e) {
+    return {
+      status: 'error',
+      error: e.message,
+    };
+  }
+}
+
+module.exports = {
+  filterActions,
+  validateBundle,
+};

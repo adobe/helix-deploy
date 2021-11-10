@@ -18,7 +18,7 @@ const crypto = require('crypto');
 const path = require('path');
 const yauzl = require('yauzl');
 const fse = require('fs-extra');
-
+const { validateBundle } = require('../src/utils.js');
 const CLI = require('../src/cli.js');
 
 async function createTestRoot() {
@@ -59,13 +59,14 @@ async function assertZipEntries(zipPath, entries) {
 const PROJECT_SIMPLE = path.resolve(__dirname, 'fixtures', 'simple');
 const PROJECT_PURE = path.resolve(__dirname, 'fixtures', 'pure-action');
 
+const PROJECT_SIMPLE_ROOTDIR = path.resolve(__dirname, 'fixtures', 'simple-rootdir');
+
 describe('Build Test', () => {
   let testRoot;
   let origPwd;
 
   beforeEach(async () => {
     testRoot = await createTestRoot();
-    await fse.copy(PROJECT_SIMPLE, testRoot);
     origPwd = process.cwd();
   });
 
@@ -74,7 +75,8 @@ describe('Build Test', () => {
     await fse.remove(testRoot);
   });
 
-  it('generates the bundle', async () => {
+  async function generate(buildArgs, testProject = PROJECT_SIMPLE) {
+    await fse.copy(testProject, testRoot);
     // need to change .cwd() for yargs to pickup `wsk` in package.json
     process.chdir(testRoot);
     process.env.WSK_AUTH = 'foobar';
@@ -83,6 +85,7 @@ describe('Build Test', () => {
     process.env.__OW_ACTION_NAME = '/namespace/package/name@version';
     const builder = new CLI()
       .prepare([
+        ...buildArgs,
         '--target', 'wsk',
         '--verbose',
         '--directory', testRoot,
@@ -134,12 +137,30 @@ describe('Build Test', () => {
     });
 
     // execute main script
-    // eslint-disable-next-line global-require,import/no-dynamic-require
-    const { main } = require(path.resolve(zipDir, 'index.js'));
-    const ret = await main({});
-    assert.deepEqual(await ret.body, '{"url":"https://localhost/api/v1/web/namespace/package/name@version","file":"Hello, world.\\n"}');
-  })
-    .timeout(5000);
+    const result = await validateBundle(path.resolve(zipDir, 'index.js'), true);
+    assert.strictEqual(result.error, undefined);
+    assert.deepEqual(result.response.body, '{"url":"https://localhost/api/v1/web/namespace/package/name@version","file":"Hello, world.\\n"}');
+  }
+
+  it('generates the bundle (webpack)', async () => {
+    await generate([]);
+  }).timeout(5000);
+
+  it('generates the bundle (rollup)', async () => {
+    await generate(['--bundler', 'rollup'], PROJECT_SIMPLE_ROOTDIR);
+  }).timeout(5000);
+
+  it('generates the bundle (esm, webpack) fails', async () => {
+    await assert.rejects(generate(['--esm']), Error('Webpack bundler does not support ESM builds.'));
+  }).timeout(5000);
+
+  it('rejects unknown bundler', async () => {
+    await assert.rejects(generate(['--bundler', 'foobar']), Error('Invalid no bundler found for: foobar. Valid options are: webpack,rollup'));
+  }).timeout(5000);
+
+  it('generates the bundle (esm, rollup)', async () => {
+    await generate(['--esm', '--bundler', 'rollup'], PROJECT_SIMPLE_ROOTDIR);
+  }).timeout(5000);
 });
 
 describe('Edge Build Test', () => {

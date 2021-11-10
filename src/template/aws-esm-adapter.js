@@ -9,18 +9,12 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-// eslint-disable-next-line no-underscore-dangle
-global.__rootdir = __dirname;
 
-const {
-  openwhisk,
-  aws,
-  google,
-  azure,
-} = require('@adobe/helix-universal').adapter;
+'use strict';
 
-module.exports = Object.assign(azure, {
-  main: openwhisk,
-  lambda: aws,
-  google,
-});
+const index = import('../index.js');
+
+exports.handler = async (...args) => {
+  const { default: { lambda } } = await index;
+  return lambda(...args);
+};
