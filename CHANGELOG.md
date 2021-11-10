@@ -1,3 +1,10 @@
+# [4.13.0](https://github.com/adobe/helix-deploy/compare/v4.12.2...v4.13.0) (2021-11-10)
+
+
+### Features
+
+* option to use rollup as bundler that supports ESM modules ([186ceaa](https://github.com/adobe/helix-deploy/commit/186ceaad5dbcaa931335f2dc519e4cb4cc0c5d31)), closes [#228](https://github.com/adobe/helix-deploy/issues/228) [#227](https://github.com/adobe/helix-deploy/issues/227)
+
 ## [4.12.2](https://github.com/adobe/helix-deploy/compare/v4.12.1...v4.12.2) (2021-11-06)
 
 
