@@ -32,7 +32,7 @@ module.exports = class WebpackBundler extends BaseBundler {
       target: 'node',
       mode: 'development',
       // the universal adapter is the entry point
-      entry: cfg.adapterFile || path.resolve(__dirname, 'template', 'index.js'),
+      entry: cfg.adapterFile || path.resolve(__dirname, '..', 'template', 'index.js'),
       output: {
         path: cfg.cwd,
         filename: path.relative(cfg.cwd, cfg.bundle),

@@ -15,8 +15,8 @@ const fs = require('fs');
 const fse = require('fs-extra');
 const chalk = require('chalk');
 const git = require('isomorphic-git');
-const WebpackBundler = require('./Bundler');
-const RollupBundler = require('./RollupBundler');
+const WebpackBundler = require('./bundler/WebpackBundler');
+const RollupBundler = require('./bundler/RollupBundler');
 const { version } = require('../package.json');
 
 const Bundlers = {
