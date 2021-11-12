@@ -160,7 +160,7 @@ describe('Build Test', () => {
 
   it('generates the bundle (esm, rollup)', async () => {
     await generate(['--esm', '--bundler', 'rollup'], PROJECT_SIMPLE_ROOTDIR);
-  }).timeout(5000);
+  }).timeout(15000);
 });
 
 describe('Edge Build Test', () => {
