@@ -38,6 +38,7 @@ async function assertZipEntries(zipPath, entries) {
     }, (err, zipfile) => {
       if (err) {
         reject(err);
+        return;
       }
       zipfile.readEntry();
       zipfile
