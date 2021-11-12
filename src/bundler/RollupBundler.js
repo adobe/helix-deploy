@@ -154,7 +154,7 @@ module.exports = class Bundler extends BaseBundler {
     Object.entries(depsByFile)
       .forEach(([scriptFile, deps]) => {
         // map 'index' to 'main', in order to be compatible with rollup
-        if (scriptFile === 'index') {
+        if (scriptFile === 'node-index') {
           // eslint-disable-next-line no-param-reassign
           scriptFile = 'main';
         }
