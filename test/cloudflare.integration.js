@@ -41,6 +41,8 @@ describe('Cloudflare Integration Test', () => {
         '--verbose',
         '--deploy',
         '--target', 'cloudflare',
+        '--arch', 'edge',
+        '--arch', 'node', // TODO: make obsolete
         '--cloudflare-email', 'lars@trieloff.net',
         '--cloudflare-account-id', 'b4adf6cfdac0918eb6aa5ad033da0747',
         '--cloudflare-test-domain', 'rockerduck',
