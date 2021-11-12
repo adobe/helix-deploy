@@ -75,6 +75,24 @@ class FastlyGateway {
     return this.cfg.log;
   }
 
+  async updatePackage() {
+    this.log.info('--: updating app (package) parameters on Fastly gateway ...');
+
+    const packageparams = Object
+      .entries(this.cfg.packageParams)
+      .map(([key, value]) => ({
+        item_key: `${this.cfg.packageName}.${key}`,
+        item_value: value,
+        op: 'update',
+      }));
+
+    if (packageparams.length !== 0) {
+      await this._fastly.bulkUpdateDictItems(undefined, 'packageparams', ...packageparams);
+    }
+    await this._fastly.updateDictItem(undefined, 'tokens', this.cfg.packageToken, `${Math.floor(Date.now() / 1000) + (365 * 24 * 3600)}`);
+    this._fastly.discard();
+  }
+
   selectBackendVCL() {
     // declare a local variable for each backend
     const init = this._deployers.map((deployer) => `declare local var.${deployer.name.toLowerCase()} INTEGER;`);
@@ -107,6 +125,28 @@ class FastlyGateway {
     }`;
 
     return [...init, ...set, ...increment].join('\n') + [backendvcl, ...middle, fallback].join(' else ');
+  }
+
+  /**
+   * Generates a VCL snippet (for each package deployed) that lists all package parameter
+   * names and looks up their values from the secret edge dictionary.
+   * @returns {string} VCL snippet to look up package parameters from edge dict
+   */
+  listPackageParamsVCL() {
+    const pre = `
+    if (obj.status == 600 && req.url.path ~ "^/${this.cfg.packageName}/") {
+      set obj.status = 200;
+      set obj.response = "OK";
+      set obj.http.content-type = "application/json";
+      synthetic "{" + `;
+    const post = `+ "}";
+    return(deliver);
+}`;
+    const middle = Object
+      .keys(this.cfg.packageParams)
+      .map((paramname, index) => `"%22${paramname}%22:%22" json.escape(table.lookup(packageparams, "${this.cfg.packageName}.${paramname}")) "%22${(index + 1) < Object.keys(this.cfg.packageParams).length ? ',' : ''}"`).join(' + ');
+
+    return pre + middle + post;
   }
 
   setURLVCL() {
@@ -285,6 +325,16 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
         write_only: 'false',
       });
 
+      await this._fastly.writeDictionary(newversion, 'tokens', {
+        name: 'tokens',
+        write_only: 'false',
+      });
+
+      await this._fastly.writeDictionary(newversion, 'packageparams', {
+        name: 'packageparams',
+        write_only: 'true',
+      });
+
       if (this._cfg.checkinterval > 0) {
       // set up health checks
         await Promise.all(this._deployers
@@ -339,6 +389,27 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
             return this._fastly.updateBackend(newversion, backend.name, backend);
           }
         }));
+
+      await this._fastly.writeSnippet(newversion, 'packageparams.auth', {
+        name: 'packageparams.auth',
+        priority: 9,
+        dynamic: 0,
+        type: 'recv',
+        content: `
+if (req.http.Authorization) {
+  if(time.is_after(std.time(table.lookup(tokens, regsub(req.http.Authorization, "^Bearer ", ""), "expired"), std.integer2time(0)), time.start)) {
+    error 600 "Get Package Params";
+  }
+}`,
+      });
+
+      await this._fastly.writeSnippet(newversion, `${this.cfg.packageName}.params`, {
+        name: `${this.cfg.packageName}.params`,
+        priority: 10,
+        dynamic: 0,
+        type: 'error',
+        content: this.listPackageParamsVCL(),
+      });
 
       await this._fastly.writeSnippet(newversion, 'backend', {
         name: 'backend',

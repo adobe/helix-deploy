@@ -24,6 +24,11 @@ class BaseDeployer {
     return this.cfg.log;
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  async init() {
+    // nothing to do
+  }
+
   ready() {
     return this.cfg && false;
   }

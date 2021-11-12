@@ -38,6 +38,7 @@ async function assertZipEntries(zipPath, entries) {
     }, (err, zipfile) => {
       if (err) {
         reject(err);
+        return;
       }
       zipfile.readEntry();
       zipfile
@@ -57,6 +58,7 @@ async function assertZipEntries(zipPath, entries) {
 }
 
 const PROJECT_SIMPLE = path.resolve(__dirname, 'fixtures', 'simple');
+const PROJECT_PURE = path.resolve(__dirname, 'fixtures', 'pure-action');
 
 const PROJECT_SIMPLE_ROOTDIR = path.resolve(__dirname, 'fixtures', 'simple-rootdir');
 
@@ -143,7 +145,7 @@ describe('Build Test', () => {
 
   it('generates the bundle (webpack)', async () => {
     await generate([]);
-  }).timeout(5000);
+  }).timeout(15000);
 
   it('generates the bundle (rollup)', async () => {
     await generate(['--bundler', 'rollup'], PROJECT_SIMPLE_ROOTDIR);
@@ -154,10 +156,85 @@ describe('Build Test', () => {
   }).timeout(5000);
 
   it('rejects unknown bundler', async () => {
-    await assert.rejects(generate(['--bundler', 'foobar']), Error('Invalid no bundler found for: foobar. Valid options are: webpack,rollup'));
+    await assert.rejects(generate(['--bundler', 'foobar']), Error('Invalid bundler \'foobar\' for \'node\'. Valid options are: webpack,rollup'));
   }).timeout(5000);
 
   it('generates the bundle (esm, rollup)', async () => {
     await generate(['--esm', '--bundler', 'rollup'], PROJECT_SIMPLE_ROOTDIR);
-  }).timeout(5000);
+  }).timeout(15000);
+});
+
+describe('Edge Build Test', () => {
+  let testRoot;
+  let origPwd;
+
+  beforeEach(async () => {
+    testRoot = await createTestRoot();
+    await fse.copy(PROJECT_PURE, testRoot);
+    origPwd = process.cwd();
+  });
+
+  afterEach(async () => {
+    process.chdir(origPwd);
+    await fse.remove(testRoot);
+  });
+
+  it('generates the bundle', async () => {
+    // need to change .cwd() for yargs to pickup `wsk` in package.json
+    process.chdir(testRoot);
+    process.env.WSK_AUTH = 'foobar';
+    process.env.WSK_NAMESPACE = 'foobar';
+    process.env.WSK_APIHOST = 'https://example.com';
+    process.env.__OW_ACTION_NAME = '/namespace/package/name@version';
+    const builder = new CLI()
+      .prepare([
+        '--target', 'wsk',
+        '--arch', 'node',
+        '--arch', 'edge', // todo: allow to only generate the edge bundle
+        '--verbose',
+        '--directory', testRoot,
+        '--entryFile', 'index.js',
+      ]);
+
+    await builder.run();
+
+    await assertZipEntries(path.resolve(testRoot, 'dist', 'default', 'simple-project.zip'), [
+      'index.js',
+      'package.json',
+    ]);
+
+    // unzip action again
+    const zipFile = path.resolve(testRoot, 'dist', 'default', 'simple-project.zip');
+    const zipDir = path.resolve(testRoot, 'dist', 'extracted');
+    await new Promise((resolve, reject) => {
+      yauzl.open(zipFile, { lazyEntries: true }, (err, zipfile) => {
+        if (err) {
+          reject(err);
+        }
+        zipfile.readEntry();
+        zipfile
+          .on('end', resolve)
+          .on('error', reject)
+          .on('entry', (entry) => {
+            if (/\/$/.test(entry.fileName)) {
+              zipfile.readEntry();
+            } else {
+              // file entry
+              zipfile.openReadStream(entry, (er, readStream) => {
+                if (er) {
+                  throw err;
+                }
+                readStream.on('end', () => {
+                  zipfile.readEntry();
+                });
+                const p = path.resolve(zipDir, entry.fileName);
+                fse.ensureFileSync(p);
+                readStream.pipe(fse.createWriteStream(p));
+              });
+            }
+          });
+      });
+    });
+  })
+    .timeout(50000);
 });

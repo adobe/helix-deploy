@@ -20,6 +20,8 @@ const OpenWhiskDeployer = require('./deploy/OpenWhiskDeployer');
 const AWSDeployer = require('./deploy/AWSDeployer');
 const AzureDeployer = require('./deploy/AzureDeployer');
 const GoogleDeployer = require('./deploy/GoogleDeployer');
+const CloudflareDeployer = require('./deploy/CloudflareDeployer');
+const ComputeAtEdgeDeployer = require('./deploy/ComputeAtEdgeDeployer');
 const FastlyGateway = require('./gateway/FastlyGateway');
 
 const PLUGINS = [
@@ -27,6 +29,8 @@ const PLUGINS = [
   AWSDeployer,
   AzureDeployer,
   GoogleDeployer,
+  CloudflareDeployer,
+  ComputeAtEdgeDeployer,
   FastlyGateway,
 ];
 

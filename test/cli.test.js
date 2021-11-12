@@ -24,6 +24,7 @@ describe('CLI Test', () => {
     assert.equal(builder.cfg.verbose, false);
     assert.equal(builder.cfg.deploy, false);
     assert.deepEqual(builder.cfg.targets, ['auto']);
+    assert.deepEqual(builder.cfg.archs, ['node']);
     assert.equal(builder.cfg.build, true);
     assert.equal(builder.cfg.minify, false);
     assert.equal(builder.cfg.esm, false);
@@ -67,6 +68,18 @@ describe('CLI Test', () => {
     const builder = new CLI()
       .prepare(['--target=aws,wsk']);
     assert.deepEqual(builder.cfg.targets, ['aws', 'wsk']);
+  });
+
+  it('sets archs', () => {
+    const builder = new CLI()
+      .prepare(['--arch=node', '--arch=edge']);
+    assert.deepEqual(builder.cfg.archs, ['node', 'edge']);
+  });
+
+  it('sets archs with csv', () => {
+    const builder = new CLI()
+      .prepare(['--arch=node,edge']);
+    assert.deepEqual(builder.cfg.archs, ['node', 'edge']);
   });
 
   it('clears build flag', () => {

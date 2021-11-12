@@ -31,7 +31,7 @@ module.exports = class Bundler extends BaseBundler {
      * @type {import('rollup').RollupOptions}
      */
     const opts = {
-      input: cfg.adapterFile || path.resolve(__dirname, '..', 'template', cfg.esm ? 'index.mjs' : 'index.js'),
+      input: cfg.adapterFile || path.resolve(__dirname, '..', 'template', cfg.esm ? 'node-index.mjs' : 'node-index.js'),
       output: {
         file: cfg.bundle,
         name: 'main',
@@ -154,7 +154,7 @@ module.exports = class Bundler extends BaseBundler {
     Object.entries(depsByFile)
       .forEach(([scriptFile, deps]) => {
         // map 'index' to 'main', in order to be compatible with rollup
-        if (scriptFile === 'index') {
+        if (scriptFile === 'node-index') {
           // eslint-disable-next-line no-param-reassign
           scriptFile = 'main';
         }

@@ -1,5 +1,5 @@
 # Helix Deploy
-> A multi-cloud deployment tool for serverless functions running on AWS Lambda, Adobe I/O Runtime, Azure Functions, and Google Cloud Functions. Write once, run everywhere.
+> A multi-cloud deployment tool for serverless and edge-compute functions running on AWS Lambda, Adobe I/O Runtime, Azure Functions, Google Cloud Functions, Cloudflare Workers, and Fastly Compute@Edge. Write once, run everywhere.
 
 ## Status
 [![GitHub license](https://img.shields.io/github/license/adobe/helix-deploy.svg)](https://github.com/adobe/helix-deploy/blob/main/LICENSE.txt)

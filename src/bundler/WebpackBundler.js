@@ -17,7 +17,7 @@ const chalk = require('chalk');
 const BaseBundler = require('./BaseBundler.js');
 
 /**
- * Creates the action bundle
+ * Webpack based bundler
  */
 module.exports = class WebpackBundler extends BaseBundler {
   async init() {
@@ -32,12 +32,13 @@ module.exports = class WebpackBundler extends BaseBundler {
       target: 'node',
       mode: 'development',
       // the universal adapter is the entry point
-      entry: cfg.adapterFile || path.resolve(__dirname, '..', 'template', 'index.js'),
+      entry: cfg.adapterFile || path.resolve(__dirname, '..', 'template', 'node-index.js'),
       output: {
         path: cfg.cwd,
         filename: path.relative(cfg.cwd, cfg.bundle),
         library: 'main',
         libraryTarget: 'umd',
+        globalObject: 'globalThis',
       },
       devtool: false,
       externals: [
@@ -88,17 +89,14 @@ module.exports = class WebpackBundler extends BaseBundler {
     return opts;
   }
 
-  async createBundle() {
+  async createWebpackBundle(arch) {
     const { cfg } = this;
-    if (!cfg.bundle) {
-      throw Error('bundle path is undefined');
-    }
     if (!cfg.depFile) {
       throw Error('dependencies info path is undefined');
     }
     const m = cfg.minify ? 'minified ' : '';
     if (!cfg.progressHandler) {
-      cfg.log.info(`--: creating ${m}bundle using webpack ...`);
+      cfg.log.info(`--: creating ${arch} ${m}bundle using webpack ...`);
     }
     const config = await this.getWebpackConfig();
     const compiler = webpack(config);
@@ -120,9 +118,16 @@ module.exports = class WebpackBundler extends BaseBundler {
     // write dependencies info file
     await fse.writeJson(cfg.depFile, cfg.dependencies, { spaces: 2 });
     if (!cfg.progressHandler) {
-      cfg.log.info(chalk`{green ok:} created bundle {yellow ${config.output.filename}}`);
+      cfg.log.info(chalk`{green ok:} created ${arch} bundle {yellow ${config.output.filename}}`);
     }
     return stats;
+  }
+
+  async createBundle() {
+    if (!this.cfg.bundle) {
+      throw Error('bundle path is undefined');
+    }
+    return this.createWebpackBundle('node');
   }
 
   /**
