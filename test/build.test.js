@@ -40,9 +40,6 @@ async function assertZipEntries(zipPath, entries) {
         reject(err);
         return;
       }
-      if (!zipfile) {
-        reject(new Error(`zipfile at ${zipPath} does not exist`));
-      }
       zipfile.readEntry();
       zipfile
         .on('entry', (entry) => {
