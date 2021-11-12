@@ -144,7 +144,7 @@ describe('Build Test', () => {
 
   it('generates the bundle (webpack)', async () => {
     await generate([]);
-  }).timeout(5000);
+  }).timeout(15000);
 
   it('generates the bundle (rollup)', async () => {
     await generate(['--bundler', 'rollup'], PROJECT_SIMPLE_ROOTDIR);
