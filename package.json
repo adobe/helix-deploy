@@ -31,7 +31,7 @@
     "require": "test/setup-env.js"
   },
   "peerDependencies": {
-    "@adobe/helix-universal": "adobe/helix-universal#edge-deploy"
+    "@adobe/helix-universal": ">=1.6.0"
   },
   "dependencies": {
     "@adobe/fastly-native-promises": "2.0.0",
