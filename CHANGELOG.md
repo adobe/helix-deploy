@@ -1,3 +1,38 @@
+# [4.14.0](https://github.com/adobe/helix-deploy/compare/v4.13.0...v4.14.0) (2021-11-12)
+
+
+### Bug Fixes
+
+* **bundler:** add browser-based shims as fallbacks for node core API when running in edge compute ([8f54188](https://github.com/adobe/helix-deploy/commit/8f541884f456c6c28dcb252a4fb97b88c355c272))
+* **bundler:** exclude google storage dependency (included in Google Runtime) ([024f09f](https://github.com/adobe/helix-deploy/commit/024f09f2a123b8f23643f7a894a0e195515113a9))
+* **bundler:** use `globalThis` for increased compatibility with Cloudflare Workers ([8fef7bf](https://github.com/adobe/helix-deploy/commit/8fef7bf86ef0dd42e2b209d9774df3af6402adb1))
+* **cloudflare:** remove hard-coded account id ([3a11aa1](https://github.com/adobe/helix-deploy/commit/3a11aa1602b4766c7327029a521f03068ef2824e))
+* **fastly:** fix package param code ([c77fe82](https://github.com/adobe/helix-deploy/commit/c77fe82c5b5cff3cc27efaeb57ecb2043acbb66e))
+* **fastly:** fix test domain subdomain ([ec60b2a](https://github.com/adobe/helix-deploy/commit/ec60b2a527ac8946ee5e6b44045e4ceedf8aec51))
+* **gateway:** do not attempt to perform empty updates ([e99f4be](https://github.com/adobe/helix-deploy/commit/e99f4be0af2c6a82ee098f88399b16c7d59bd027))
+* **gateway:** do not create duplicate dictionaries ([2ca6eca](https://github.com/adobe/helix-deploy/commit/2ca6eca36af22b74a3eacb43ea3a9adbda869bb8))
+* **gateway:** further massaging of gateway syntax ([4935538](https://github.com/adobe/helix-deploy/commit/49355385adfeb9589ff676e23fa0077a6682208b))
+* **gateway:** set content type of synthetic response ([873ea06](https://github.com/adobe/helix-deploy/commit/873ea067c7ff42e598605e7e0fb0d576fec51b07))
+* **gateway:** tweak synthetic syntax, again ([00f47e3](https://github.com/adobe/helix-deploy/commit/00f47e3cdc820333a56bdf1bc6524474a90d2eed))
+* **gateway:** use correct dictionary name ([91d219e](https://github.com/adobe/helix-deploy/commit/91d219e7deefb43d69850d7022cfe5aba1c894da))
+* **gateway:** use correct number of commas in JSON ([3250f6c](https://github.com/adobe/helix-deploy/commit/3250f6c2b11bd63541e8d45d28cdd55301f7bd75))
+* **template:** better check for existence of `addEventListener` ([c5d8568](https://github.com/adobe/helix-deploy/commit/c5d85684edb130a473930516b617b4a78214801d))
+
+
+### Features
+
+* **bundler:** add working cloudflare support ([09635c2](https://github.com/adobe/helix-deploy/commit/09635c2c13679e401bcc6d2b9bebe0208399b38b))
+* **cloudflare:** add support for `context.env` in wrapper ([ecc0e7b](https://github.com/adobe/helix-deploy/commit/ecc0e7bda6a55a43b81c81e0279813688889c599))
+* **cloudflare:** create KV store for package params, use env vars for action params ([d63144d](https://github.com/adobe/helix-deploy/commit/d63144d8569e3ef71f96b9eb41cdc1dfbc0aae25))
+* **cloudflare:** deploy edge script as cloudflare worker script ([66ed931](https://github.com/adobe/helix-deploy/commit/66ed931101e3b560f665d3b9d0f151c18facc72b))
+* **cloudflare:** minimal wrapper script ([bb56dcd](https://github.com/adobe/helix-deploy/commit/bb56dcd7ea5967ddccbc1aa354e43d63873d735a))
+* **fastly:** create bundle and deploy to compute at edge ([476a605](https://github.com/adobe/helix-deploy/commit/476a605e7f19aec316e093d82f7f411f2fbc0a85))
+* **fastly:** use parameters from edge dictionary ([0c586a7](https://github.com/adobe/helix-deploy/commit/0c586a78b0c0a2aa2314f914d562a5008338c568))
+* **gateway:** add basic support for package parameters in gateway ([36519e4](https://github.com/adobe/helix-deploy/commit/36519e40a1a24b4a329318b97557d06797ed8cd2))
+* **gateway:** set shared secret (token) for package parameters ([adcbd92](https://github.com/adobe/helix-deploy/commit/adcbd92b27a91ffb44a8f115da7230a6095fe37f))
+* **gateway:** update package parameters in dictionary ([5315dd4](https://github.com/adobe/helix-deploy/commit/5315dd46098cd5d4ed1c0d8eb391487d6c2dad5a))
+* **template:** support service worker API as main entry point for Fastly/Cloudflare ([ba0ec25](https://github.com/adobe/helix-deploy/commit/ba0ec25b148de242ae207e4013641dac9223df22))
+
 # [4.13.0](https://github.com/adobe/helix-deploy/compare/v4.12.2...v4.13.0) (2021-11-10)
 
 
