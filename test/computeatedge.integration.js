@@ -41,8 +41,8 @@ describe('Fastly Compute@Edge Integration Test', () => {
         '--verbose',
         '--deploy',
         '--target', 'c@e',
-        '--arch', 'edge',
         '--arch', 'node', // TODO: make obsolete
+        '--arch', 'edge',
         '--compute-service-id', '1yv1Wl7NQCFmNBkW4L8htc',
         '--compute-test-domain', 'possibly-working-sawfish',
         '--package.params', 'HEY=ho',

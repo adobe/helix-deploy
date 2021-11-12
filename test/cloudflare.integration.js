@@ -32,7 +32,7 @@ describe('Cloudflare Integration Test', () => {
     await fse.remove(testRoot);
   });
 
-  it('Deploy an pure action to Cloudflare', async () => {
+  it('Deploy a pure action to Cloudflare', async () => {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'edge-action'), testRoot);
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
@@ -41,8 +41,8 @@ describe('Cloudflare Integration Test', () => {
         '--verbose',
         '--deploy',
         '--target', 'cloudflare',
-        '--arch', 'edge',
         '--arch', 'node', // TODO: make obsolete
+        '--arch', 'edge',
         '--cloudflare-email', 'lars@trieloff.net',
         '--cloudflare-account-id', 'b4adf6cfdac0918eb6aa5ad033da0747',
         '--cloudflare-test-domain', 'rockerduck',
