@@ -178,7 +178,7 @@ service_id = ""
   async test() {
     return this._cfg.testDomain
       ? this.testRequest({
-        url: `https://${this.fullFunctionName}.${this._cfg.testDomain}.edgecompute.app`,
+        url: `https://${this._cfg.testDomain}.edgecompute.app`,
         retry404: 0,
       })
       : undefined;
