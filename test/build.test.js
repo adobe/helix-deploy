@@ -149,7 +149,7 @@ describe('Build Test', () => {
 
   it('generates the bundle (rollup)', async () => {
     await generate(['--bundler', 'rollup'], PROJECT_SIMPLE_ROOTDIR);
-  }).timeout(5000);
+  }).timeout(15000);
 
   it('generates the bundle (esm, webpack) fails', async () => {
     await assert.rejects(generate(['--esm']), Error('Webpack bundler does not support ESM builds.'));
