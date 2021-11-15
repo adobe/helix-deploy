@@ -14,6 +14,7 @@ const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
 const path = require('path');
 const fs = require('fs');
 const semver = require('semver');
+const chalk = require('chalk');
 const BaseDeployer = require('./BaseDeployer');
 const GoogleConfig = require('./GoogleConfig.js');
 const { filterActions } = require('../utils.js');
@@ -59,7 +60,7 @@ class GoogleDeployer extends BaseDeployer {
         projectId: this._cfg.projectID,
       });
     } catch (e) {
-      this.log.error(`Unable to authenticate with Google: ${e.message}`);
+      this.log.error(chalk`{red error:} Unable to authenticate with Google: ${e.message}`);
       throw e;
     }
   }
@@ -82,9 +83,9 @@ class GoogleDeployer extends BaseDeployer {
         },
         secretId,
       });
-      this.log.info(`Created secret ${secret.name}`);
+      this.log.info(`--: Created secret ${secret.name}`);
     } catch {
-      this.log.info('Using existing secret');
+      this.log.info('--: Using existing secret');
       [secret] = await this._secretclient.getSecret({
         name: `${parent}/secrets/${secretId}`,
       });
@@ -98,7 +99,7 @@ class GoogleDeployer extends BaseDeployer {
       },
     });
 
-    this.log.info(`Added secret version ${version.name}`);
+    this.log.info(chalk`{green ok}: Added secret version ${version.name}`);
 
     /*
     const [retversion] = await this._secretclient.accessSecretVersion({
@@ -191,23 +192,23 @@ class GoogleDeployer extends BaseDeployer {
           function: func,
         });
 
-        this.log.info('updating existing function');
+        this.log.info('--: updating existing function');
         const [res] = await op.promise();
         this._function = res;
-        this.log.info('function deployed');
+        this.log.info(chalk`{green ok:} function deployed`);
       } else {
         const [op] = await this._client.createFunction({
           location: `projects/${this._cfg.projectID}/locations/${this._cfg.region}`,
           function: func,
         });
 
-        this.log.info('creating function, please wait (Google deployments are slow).');
+        this.log.info('--: creating function, please wait (Google deployments are slow).');
         const [res] = await op.promise();
         this._function = res;
-        this.log.info('function deployed');
+        this.log.info(chalk`{green ok:} function deployed`);
       }
 
-      this.log.info('enabling unauthenticated requests');
+      this.log.info('--: enabling unauthenticated requests');
       await this._client.setIamPolicy({
         resource: name,
         policy: {
@@ -222,11 +223,8 @@ class GoogleDeployer extends BaseDeployer {
         },
       });
     } catch (err) {
-      this.log.error(err);
-      // eslint-disable-next-line max-len
-      this.log.error('bad request:', err.metadata.internalRepr.get('google.rpc.badrequest-bin').toString());
-      // eslint-disable-next-line max-len
-      this.log.error('details:', err.metadata.internalRepr.get('grpc-status-details-bin').toString());
+      this.log.error(chalk`{red error:} bad request: ${err.metadata.internalRepr.get('google.rpc.badrequest-bin').toString()}`);
+      this.log.error(chalk`{red error:} details: ${err.metadata.internalRepr.get('grpc-status-details-bin').toString()}`);
       throw err;
     }
 
@@ -239,8 +237,7 @@ class GoogleDeployer extends BaseDeployer {
       await this.createFunction();
     } catch (err) {
       const message = err.metadata ? err.metadata.get('grpc-status-details-bin')[0].toString() : err.message;
-      this.log.error(`Unable to deploy Google Cloud function: ${message}`, err.metadata);
-
+      this.log.error(chalk`{red error:} Unable to deploy Google Cloud function: ${message}`, err.metadata);
       throw err;
     }
   }
@@ -299,15 +296,14 @@ class GoogleDeployer extends BaseDeployer {
         },
         versionspec,
       ).map((fn) => {
-        this.log.info(`Cleaning up outdated function '${fn.fqName}`);
+        this.log.info(`--: Cleaning up outdated function '${fn.fqName}`);
 
         return this._client.deleteFunction({
           name: fn.fqName,
         });
       }));
     } catch (e) {
-      this.log.error('Cleanup failed, proceeding anyway.');
-      this.log.error(e);
+      this.log.error(chalk`{red error:} Cleanup failed, proceeding anyway.`, e);
     }
   }
 

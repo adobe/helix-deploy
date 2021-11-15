@@ -282,7 +282,7 @@ describe('Deploy Test', () => {
 
     const out = builder.cfg.log.output;
     assert.ok(out.indexOf('$ curl "https://example.com/api/v1/web/foobar/test-package/simple-project"') > 0);
-  }).timeout(5000);
+  }).timeout(15000);
 
   it.skip('deploys a pure action', async () => {
     await fse.copy(path.resolve(__dirname, 'fixtures', 'pure-action'), testRoot);

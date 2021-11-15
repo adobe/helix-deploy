@@ -423,29 +423,32 @@ module.exports = class ActionBuilder {
       await this.runCleanup();
     }
 
+    // update gateway
     if (this._gateways.fastly && this._gateways.fastly.ready()) {
-      await this.validateDeployers();
-      Object.values(this._deployers).forEach((d) => {
-        this._gateways.fastly.withDeployer(d);
-      });
+      Object.values(this._deployers)
+        .filter((deployer) => !deployer.noGatewayBackend)
+        .forEach((deplyer) => {
+          this._gateways.fastly.withDeployer(deplyer);
+        });
 
-      this._gateways.fastly.init();
-      await this._gateways.fastly.deploy();
-    }
+      const updateLinks = cfg.links && cfg.links.length;
+      const updatePackage = cfg.updatePackage && cfg.packageParams && cfg.packageToken;
 
-    if (this._gateways.fastly
-      && this._gateways.fastly.updateable()
-      && cfg.links && cfg.links.length) {
-      await this.validateDeployers();
-      this._gateways.fastly.init();
-      await this._gateways.fastly.updateLinks(cfg.links, cfg.version);
-    }
+      // links and package also need a deployed gateway
+      if ((updateLinks || updatePackage || cfg.deploy)) {
+        this._gateways.fastly.init();
+        if (this._gateways.fastly.canDeploy()) {
+          await this._gateways.fastly.deploy();
+        }
+      }
 
-    if (this._gateways.fastly
-      && this._gateways.fastly.updateable()
-      && cfg.packageParams && cfg.packageToken) {
-      this._gateways.fastly.init();
-      await this._gateways.fastly.updatePackage();
+      if (updateLinks) {
+        await this._gateways.fastly.updateLinks(cfg.links, cfg.version);
+      }
+
+      if (updatePackage) {
+        await this._gateways.fastly.updatePackage();
+      }
     }
 
     if (cfg.deploy) {

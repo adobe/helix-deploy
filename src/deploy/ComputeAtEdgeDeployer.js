@@ -32,6 +32,7 @@ class ComputeAtEdgeDeployer extends BaseDeployer {
       name: 'Fastly Compute@Edge',
       _cfg: config,
       _fastly: null,
+      noGatewayBackend: true,
     });
   }
 

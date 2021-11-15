@@ -22,6 +22,7 @@ class CloudflareDeployer extends BaseDeployer {
       id: 'cloudflare',
       name: 'Cloudflare',
       _cfg: config,
+      noGatewayBackend: true,
     });
   }
 
