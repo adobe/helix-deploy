@@ -385,11 +385,6 @@ module.exports = class ActionBuilder {
       }
     }
 
-    if (cfg.updatePackage) {
-      await this.validateDeployers();
-      await this.updatePackage();
-    }
-
     if (cfg.deploy) {
       await this.validateDeployers();
       if (!cfg.build) {
@@ -401,6 +396,11 @@ module.exports = class ActionBuilder {
         }
       }
       await this.deploy();
+    }
+
+    if (cfg.updatePackage) {
+      await this.validateDeployers();
+      await this.updatePackage();
     }
 
     if (cfg.delete) {
