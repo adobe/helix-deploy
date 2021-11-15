@@ -306,18 +306,19 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
   }
 
   async deploy() {
-    this.log.info('Set up Fastly Gateway');
+    this.log.info(chalk`--: Set up {yellow Fastly} Gateway`);
 
     await this._fastly.transact(async (newversion) => {
       await this.enableLogging(newversion);
 
-      this.log.info('create condition');
+      this.log.info('--: create condition');
       await this._fastly.writeCondition(newversion, 'false', {
         name: 'false',
         statement: 'false',
         type: 'request',
       });
 
+      this.log.info('--: create dictionaries');
       await this._fastly.writeDictionary(newversion, 'priorities', {
         name: 'priorities',
         write_only: 'false',
@@ -339,7 +340,8 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
       });
 
       if (this._cfg.checkinterval > 0 && this._cfg.checkpath) {
-      // set up health checks
+        this.log.info('--: setup health-check');
+        // set up health checks
         await Promise.all(this._deployers
           .map((deployer) => ({
             check_interval: this._cfg.checkinterval,
@@ -386,6 +388,7 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
           return retval;
         })
         .map(async (backend) => {
+          this.log.info(`--: create backend ${backend}`);
           try {
             return await this._fastly.createBackend(newversion, backend);
           } catch (e) {
@@ -393,6 +396,7 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
           }
         }));
 
+      this.log.info('--: write VLC snippets');
       await this._fastly.writeSnippet(newversion, 'packageparams.auth', {
         name: 'packageparams.auth',
         priority: 9,
@@ -496,6 +500,7 @@ set resp.http.Surrogate-Control = resp.http.X-Surrogate-Control;`,
     }, true);
 
     this._fastly.discard();
+    this.log.info(chalk`{green ok}: Set up {yellow Fastly} Gateway done.`);
   }
 }
 
