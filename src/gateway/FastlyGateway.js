@@ -10,6 +10,7 @@
  * governing permissions and limitations under the License.
  */
 const Fastly = require('@adobe/fastly-native-promises');
+const chalk = require('chalk');
 const {
   toString, vcl, time, req, res, str, concat,
 } = require('@adobe/fastly-native-promises').loghelpers;
@@ -29,7 +30,7 @@ class FastlyGateway {
   }
 
   ready() {
-    return !!this._cfg.service && !!this._cfg.auth && !!this._cfg.checkpath;
+    return !!this._cfg.service && !!this._cfg.auth;
   }
 
   /**
@@ -42,7 +43,7 @@ class FastlyGateway {
   }
 
   async updateLinks(links, version) {
-    this.log.info(`Updating links on the Gateway for version ${version}`);
+    this.log.info(`--: updating links on the Gateway for version ${version}...`);
     const fakeDeployer = new BaseDeployer({
       links, version, log: this.log,
     });
@@ -58,6 +59,7 @@ class FastlyGateway {
 
     await this._fastly.bulkUpdateDictItems(undefined, 'aliases', ...versionstrings);
     this._fastly.discard();
+    this.log.info(chalk`{green ok:} updated links on the Gateway for version ${version}.`);
   }
 
   init() {
@@ -91,6 +93,7 @@ class FastlyGateway {
     }
     await this._fastly.updateDictItem(undefined, 'tokens', this.cfg.packageToken, `${Math.floor(Date.now() / 1000) + (365 * 24 * 3600)}`);
     this._fastly.discard();
+    this.log.info(chalk`{green ok:} updating app (package) parameters on Fastly gateway.`);
   }
 
   selectBackendVCL() {
@@ -335,7 +338,7 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
         write_only: 'true',
       });
 
-      if (this._cfg.checkinterval > 0) {
+      if (this._cfg.checkinterval > 0 && this._cfg.checkpath) {
       // set up health checks
         await Promise.all(this._deployers
           .map((deployer) => ({
@@ -346,7 +349,7 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
             method: 'GET',
             initial: 1,
             name: `${deployer.name}Check`,
-            path: deployer.basePath + this._cfg.checkpath,
+            path: `${deployer.basePath}${this._cfg.checkpath}`,
             threshold: 2,
             timeout: 5000,
             window: 3,

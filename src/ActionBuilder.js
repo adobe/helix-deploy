@@ -385,6 +385,11 @@ module.exports = class ActionBuilder {
       }
     }
 
+    if (cfg.updatePackage) {
+      await this.validateDeployers();
+      await this.updatePackage();
+    }
+
     if (cfg.deploy) {
       await this.validateDeployers();
       if (!cfg.build) {
@@ -396,11 +401,6 @@ module.exports = class ActionBuilder {
         }
       }
       await this.deploy();
-    }
-
-    if (cfg.updatePackage) {
-      await this.validateDeployers();
-      await this.updatePackage();
     }
 
     if (cfg.delete) {
@@ -443,6 +443,7 @@ module.exports = class ActionBuilder {
 
     if (this._gateways.fastly
       && this._gateways.fastly.updateable()
+      && cfg.updatePackage
       && cfg.packageParams && cfg.packageToken) {
       this._gateways.fastly.init();
       await this._gateways.fastly.updatePackage();
