@@ -1,3 +1,10 @@
+## [4.14.1](https://github.com/adobe/helix-deploy/compare/v4.14.0...v4.14.1) (2021-11-15)
+
+
+### Bug Fixes
+
+* update package in gateway is missing dicts ([854b87e](https://github.com/adobe/helix-deploy/commit/854b87e929dcbdc22bbc33d03f60dcf3dcd82a7b))
+
 # [4.14.0](https://github.com/adobe/helix-deploy/compare/v4.13.0...v4.14.0) (2021-11-12)
 
 
