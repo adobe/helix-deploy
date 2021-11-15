@@ -362,6 +362,7 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
 
         // set up backends
         await Promise.all(this._deployers
+          .filter((deployer) => !deployer.noGatewayBackend)
           .map((deployer) => ({
             hostname: deployer.host,
             ssl_cert_hostname: deployer.host,
@@ -382,7 +383,7 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
           }))
           .map((backend) => {
             const retval = backend;
-            if (this._cfg.checkinterval > 0) {
+            if (this._cfg.checkinterval > 0 && this._cfg.checkpath) {
               retval.healthcheck = `${backend.name}Check`;
             }
             return retval;
