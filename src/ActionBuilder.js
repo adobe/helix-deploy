@@ -425,19 +425,21 @@ module.exports = class ActionBuilder {
 
     // update gateway
     if (this._gateways.fastly && this._gateways.fastly.ready()) {
+      Object.values(this._deployers)
+        .filter((deployer) => !deployer.noGatewayBackend)
+        .forEach((deplyer) => {
+          this._gateways.fastly.withDeployer(deplyer);
+        });
+
       const updateLinks = cfg.links && cfg.links.length;
       const updatePackage = cfg.updatePackage && cfg.packageParams && cfg.packageToken;
 
       // links and package also need a deployed gateway
-      if (updateLinks || updatePackage || cfg.deploy) {
-        await this.validateDeployers();
-        Object.values(this._deployers)
-          .forEach((d) => {
-            this._gateways.fastly.withDeployer(d);
-          });
-
+      if ((updateLinks || updatePackage || cfg.deploy)) {
         this._gateways.fastly.init();
-        await this._gateways.fastly.deploy();
+        if (this._gateways.fastly.canDeploy()) {
+          await this._gateways.fastly.deploy();
+        }
       }
 
       if (updateLinks) {

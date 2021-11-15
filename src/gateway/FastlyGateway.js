@@ -33,13 +33,8 @@ class FastlyGateway {
     return !!this._cfg.service && !!this._cfg.auth;
   }
 
-  /**
-   * A weaker version of `ready` that works without a check path
-   * and checks whether links can be updated.
-   * @returns boolean true if links can be updated
-   */
-  updateable() {
-    return !!this._cfg.service && !!this._cfg.auth;
+  canDeploy() {
+    return this.ready() && this._deployers.length > 0;
   }
 
   async updateLinks(links, version) {
@@ -362,7 +357,6 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
 
         // set up backends
         await Promise.all(this._deployers
-          .filter((deployer) => !deployer.noGatewayBackend)
           .map((deployer) => ({
             hostname: deployer.host,
             ssl_cert_hostname: deployer.host,
@@ -389,7 +383,7 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
             return retval;
           })
           .map(async (backend) => {
-            this.log.info(`--: create backend ${backend.hostname}`);
+            this.log.info(`--: create backend ${backend.name} -> ${backend.hostname}`);
             try {
               return await this._fastly.createBackend(newversion, backend);
             } catch (e) {
