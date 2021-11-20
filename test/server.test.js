@@ -34,6 +34,21 @@ describe('Server Test', () => {
     await server.stop();
   });
 
+  it('it can start set the xfh header', async () => {
+    const main = (req) => new Response(`hello: ${req.headers.get('x-forwarded-host')}`);
+    const server = new DevelopmentServer(main)
+      .withPort(0)
+      .withXFH('localhost:{port}');
+    await server.init();
+    server.params.TEST_PARAM = 'foo';
+    await server.start();
+
+    const res = await chai.request(`http://localhost:${server.server.address().port}`)
+      .get('/');
+    chai.expect(res.text).to.be.equal(`hello: localhost:${server.server.address().port}`);
+    await server.stop();
+  });
+
   it('it can post json body', async () => {
     const main = async (req) => {
       const body = await req.json();
