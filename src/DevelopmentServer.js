@@ -70,10 +70,16 @@ module.exports = class DevelopmentServer {
     this._main = main;
     this._cwd = process.cwd();
     this._port = process.env.WEBSERVER_PORT || 3000;
+    this._xfh = 'helix-pages.anywhere.run';
   }
 
   withPort(value) {
     this._port = value;
+    return this;
+  }
+
+  withXFH(value) {
+    this._xfh = value;
     return this;
   }
 
@@ -131,21 +137,21 @@ module.exports = class DevelopmentServer {
    */
   async start() {
     this.app = express();
-    this.app.use(rawBody());
-    this.app.use(addRequestHeader('x-forwarded-host', 'helix-pages.anywhere.run'));
-    this.app.all('*', this._handler);
     await new Promise((resolve, reject) => {
       try {
         this.server = this.app.listen(this._port, () => {
           this._port = this.server.address().port;
           // eslint-disable-next-line no-console
-          console.log(`Started development server on port ${this._port}`);
+          console.log(`Started development server at http://localhost:${this._port}/`);
           resolve();
         });
       } catch (e) {
         reject(e);
       }
     });
+    this.app.use(rawBody());
+    this.app.use(addRequestHeader('x-forwarded-host', this._xfh.replace('{port}', this._port)));
+    this.app.all('*', this._handler);
   }
 
   /**
