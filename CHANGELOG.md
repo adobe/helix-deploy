@@ -1,3 +1,10 @@
+# [4.15.0](https://github.com/adobe/helix-deploy/compare/v4.14.1...v4.15.0) (2021-11-20)
+
+
+### Features
+
+* improve development server setup ([#338](https://github.com/adobe/helix-deploy/issues/338)) ([9d2b44a](https://github.com/adobe/helix-deploy/commit/9d2b44a6a8d14953fe351dd0b8362ebdfd4a9a6b))
+
 ## [4.14.1](https://github.com/adobe/helix-deploy/compare/v4.14.0...v4.14.1) (2021-11-15)
 
 
