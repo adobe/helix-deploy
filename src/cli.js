@@ -12,7 +12,7 @@
 
 /* eslint-disable no-console */
 const yargs = require('yargs');
-const chalk = require('chalk');
+const chalk = require('chalk-template');
 
 const BaseConfig = require('./BaseConfig.js');
 
@@ -80,7 +80,7 @@ class CLI {
         console.log(JSON.stringify(res, null, 2));
       }
     } catch (err) {
-      console.log(`${chalk.red('error:')} ${err.message}`);
+      console.log(chalk`{red error:} ${err.message}`);
       process.exitCode = 1;
     }
   }

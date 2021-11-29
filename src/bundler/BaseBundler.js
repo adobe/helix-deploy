@@ -12,7 +12,7 @@
 
 const path = require('path');
 const fse = require('fs-extra');
-const chalk = require('chalk');
+const chalk = require('chalk-template');
 const archiver = require('archiver');
 const semver = require('semver');
 const { validateBundle } = require('../utils.js');
@@ -62,7 +62,7 @@ module.exports = class BaseBundler {
       cfg.log.error(chalk`{red error:}`, result.error);
       throw Error(`Validation failed: ${result.error}`);
     }
-    cfg.log.info(chalk`{green ok:} bundle can be loaded and has a {gray main()} function.`);
+    cfg.log.info(chalk`{green ok:} bundle can be loaded and has a {grey main()} function.`);
   }
 
   async createArchive() {

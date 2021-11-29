@@ -14,7 +14,7 @@
 const path = require('path');
 const fs = require('fs');
 const fse = require('fs-extra');
-const chalk = require('chalk');
+const chalk = require('chalk-template');
 const git = require('isomorphic-git');
 const WebpackBundler = require('./bundler/WebpackBundler');
 const EdgeBundler = require('./bundler/EdgeBundler');
@@ -310,7 +310,7 @@ module.exports = class ActionBuilder {
         // eslint-disable-next-line no-await-in-loop
         await dep[fnName](...args);
       } catch (e) {
-        cfg.log.error(`${chalk.red('error:')} ${dep.name} - ${e.message}`);
+        cfg.log.error(chalk`{red error:} ${dep.name} - ${e.message}`);
         errors.push(e);
       }
     }
@@ -338,7 +338,7 @@ module.exports = class ActionBuilder {
   async updateLinks() {
     const { cfg } = this;
     if (cfg.baseName === cfg.name) {
-      cfg.log.warn(`${chalk.yellow('warn:')} unable to create version links. unsupported action name format. should be: "name@version"`);
+      cfg.log.warn(chalk`{yellow warn:} unable to create version links. unsupported action name format. should be: "name@version"`);
       return false;
     }
     return this.execute('updateLinks', 'updating links on ');

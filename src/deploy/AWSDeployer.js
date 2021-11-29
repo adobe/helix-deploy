@@ -10,7 +10,7 @@
  * governing permissions and limitations under the License.
  */
 /* eslint-disable no-await-in-loop,no-restricted-syntax */
-const chalk = require('chalk');
+const chalk = require('chalk-template');
 const {
   S3Client,
   CreateBucketCommand,
@@ -422,7 +422,7 @@ class AWSDeployer extends BaseDeployer {
       // ignore, most likely the permission already exists
     }
 
-    this.log.info(chalk`{green ok:} function deployed: ${chalk.blueBright(this._functionURL)}`);
+    this.log.info(chalk`{green ok:} function deployed: {blueBright ${this._functionURL}}`);
   }
 
   async test() {
@@ -530,7 +530,7 @@ class AWSDeployer extends BaseDeployer {
     });
     const unused = [];
     if (filter) {
-      this.log.info(chalk`Integrations / Routes for {gray ${filter}}`);
+      this.log.info(chalk`Integrations / Routes for {grey ${filter}}`);
     } else {
       this.log.info('Integrations / Routes');
     }

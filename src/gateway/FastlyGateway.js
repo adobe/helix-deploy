@@ -10,7 +10,7 @@
  * governing permissions and limitations under the License.
  */
 const Fastly = require('@adobe/fastly-native-promises');
-const chalk = require('chalk');
+const chalk = require('chalk-template');
 const {
   toString, vcl, time, req, res, str, concat,
 } = require('@adobe/fastly-native-promises').loghelpers;

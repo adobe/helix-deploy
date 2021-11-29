@@ -13,7 +13,7 @@
 const path = require('path');
 const fse = require('fs-extra');
 const rollup = require('rollup');
-const chalk = require('chalk');
+const chalk = require('chalk-template');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const commonjs = require('@rollup/plugin-commonjs');
 const alias = require('@rollup/plugin-alias');

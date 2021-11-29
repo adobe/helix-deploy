@@ -10,7 +10,7 @@
  * governing permissions and limitations under the License.
  */
 const path = require('path');
-const chalk = require('chalk');
+const chalk = require('chalk-template');
 const semver = require('semver');
 const fetchAPI = require('@adobe/helix-fetch');
 
@@ -99,7 +99,7 @@ class BaseDeployer {
     while (retry404 >= 0) {
       // eslint-disable-next-line no-param-reassign
       const testUrl = `${url}${this.cfg.testPath || ''}`;
-      this.log.info(`--: requesting: ${chalk.blueBright(testUrl)} ...`);
+      this.log.info(chalk`--: requesting: {blueBright ${testUrl}} ...`);
       // eslint-disable-next-line no-await-in-loop
       const ret = await this.fetch(testUrl, {
         headers,
@@ -110,21 +110,21 @@ class BaseDeployer {
       const body = await ret.text();
       const id = idHeader ? ret.headers.get(idHeader) : 'n/a';
       if (ret.ok) {
-        this.log.info(`id: ${chalk.grey(id)}`);
-        this.log.info(`${chalk.green('ok:')} ${ret.status}`);
-        this.log.debug(chalk.grey(JSON.stringify(ret.headers.plain(), null, 2)));
+        this.log.info(chalk`id: {grey ${id}}`);
+        this.log.info(chalk`{green ok:} ${ret.status}`);
+        this.log.debug(chalk`{grey ${JSON.stringify(ret.headers.plain(), null, 2)}}`);
         this.log.debug('');
-        this.log.debug(chalk.grey(body));
+        this.log.debug(chalk`{grey ${body}}`);
         return;
       }
       if (ret.status === 302 || ret.status === 301) {
-        this.log.info(`${chalk.green('ok:')} ${ret.status}`);
-        this.log.debug(chalk.grey(`Location: ${ret.headers.get('location')}`));
+        this.log.info(chalk`{green ok:} ${ret.status}`);
+        this.log.debug(chalk`{grey Location: ${ret.headers.get('location')}`);
         return;
       }
-      this.log.info(`id: ${chalk.grey(id)}`);
+      this.log.info(chalk`id: {grey ${id}}`);
       if ((ret.status === 404 || ret.status === 500) && retry404) {
-        this.log.info(`${chalk.yellow('warn:')} ${ret.status} (retry)`);
+        this.log.info(chalk`{yellow warn:} ${ret.status} (retry)`);
         // eslint-disable-next-line no-param-reassign
         retry404 -= 1;
         // eslint-disable-next-line no-await-in-loop
@@ -132,7 +132,7 @@ class BaseDeployer {
           setTimeout(resolve, 1500);
         });
       } else {
-        // this.log.info(`${chalk.red('error:')} test failed: ${ret.status} ${body}`);
+        // this.log.info(chalk`{red error:} test failed: ${ret.status} ${body}`);
         throw new Error(`test failed: ${ret.status} ${body}`);
       }
     }
@@ -164,7 +164,7 @@ class BaseDeployer {
       if (link === 'major' || link === 'minor') {
         if (!s) {
           // eslint-disable-next-line no-underscore-dangle
-          this.log.warn(`${chalk.yellow('warn:')} unable to create version sequences. error while parsing version: ${this.cfg.version}`);
+          this.log.warn(chalk`{yellow warn:} unable to create version sequences. error while parsing version: ${this.cfg.version}`);
           return;
         }
         if (link === 'major') {

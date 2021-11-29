@@ -13,7 +13,7 @@
 const path = require('path');
 const fse = require('fs-extra');
 const webpack = require('webpack');
-const chalk = require('chalk');
+const chalk = require('chalk-template');
 const BaseBundler = require('./BaseBundler.js');
 
 /**

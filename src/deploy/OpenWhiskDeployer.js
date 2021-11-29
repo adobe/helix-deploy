@@ -15,7 +15,7 @@ const ow = require('openwhisk');
 const os = require('os');
 const fse = require('fs-extra');
 const path = require('path');
-const chalk = require('chalk');
+const chalk = require('chalk-template');
 const dotenv = require('dotenv');
 
 const BaseDeployer = require('./BaseDeployer');
@@ -88,7 +88,7 @@ class OpenWhiskDeployer extends BaseDeployer {
 
   getOpenwhiskClient() {
     if (!this._cfg.apiHost || !this._cfg.auth || !this._cfg.namespace) {
-      throw Error(chalk`\nMissing OpenWhisk credentials. Make sure you have a {grey .wskprops} in your home directory.\nYou can also set {grey WSK_NAMESPACE}, {gray WSK_AUTH} and {gray WSK_API_HOST} environment variables.`);
+      throw Error(chalk`\nMissing OpenWhisk credentials. Make sure you have a {grey .wskprops} in your home directory.\nYou can also set {grey WSK_NAMESPACE}, {grey WSK_AUTH} and {grey WSK_API_HOST} environment variables.`);
     }
     return ow({
       apihost: this._cfg.apiHost,
@@ -117,7 +117,7 @@ class OpenWhiskDeployer extends BaseDeployer {
         });
         this.log.info(chalk`{green ok:} package created. ${res.namespace}/${res.name}`);
       } else {
-        this.log.error(`${chalk.red('error: ')} ${e.message}`);
+        this.log.error(chalk`{red error:} ${e.message}`);
       }
     }
 
@@ -187,7 +187,7 @@ class OpenWhiskDeployer extends BaseDeployer {
         fn = openwhisk.packages.create.bind(openwhisk.packages);
         verb = 'created';
       } else {
-        this.log.error(`${chalk.red('error: ')} ${e.message}`);
+        this.log.error(chalk`{red error:} ${e.message}`);
       }
     }
 
@@ -203,9 +203,9 @@ class OpenWhiskDeployer extends BaseDeployer {
           parameters,
         },
       });
-      this.log.info(`${chalk.green('ok:')} ${verb} package ${chalk.whiteBright(`/${result.namespace}/${result.name}`)}`);
+      this.log.info(chalk`{green ok:} ${verb} package {whiteBright /${result.namespace}/${result.name}}`);
     } catch (e) {
-      this.log.error(`${chalk.red('error: failed processing package: ')} ${e.stack}`);
+      this.log.error(chalk`{red error: failed processing package: } ${e.stack}`);
       throw Error('abort.');
     }
   }
@@ -270,10 +270,10 @@ class OpenWhiskDeployer extends BaseDeployer {
       try {
         this.log.debug(`creating sequence: ${options.name} -> ${options.action.exec.components[0]}`);
         const result = await openwhisk.actions.update(options);
-        this.log.info(`${chalk.green('ok:')} created sequence ${chalk.whiteBright(`/${result.namespace}/${result.name}`)} -> ${chalk.whiteBright(fqn)}`);
+        this.log.info(chalk`{green ok:} created sequence {whiteBright /${result.namespace}/${result.name}} -> {whiteBright ${fqn}}`);
       } catch (e) {
         hasErrors = true;
-        this.log.error(`${chalk.red('error:')} failed creating sequence: ${e.message}`);
+        this.log.error(chalk`{red error:} failed creating sequence: ${e.message}`);
       }
     }));
     if (hasErrors) {

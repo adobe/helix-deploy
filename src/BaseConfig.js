@@ -12,7 +12,7 @@
 const crypto = require('crypto');
 const path = require('path');
 const fse = require('fs-extra');
-const chalk = require('chalk');
+const chalk = require('chalk-template');
 const dotenv = require('dotenv');
 
 // eslint-disable-next-line no-template-curly-in-string
