@@ -12,6 +12,6 @@
  * governing permissions and limitations under the License.
  */
 
-const CLI = require('./cli.js');
+import CLI from './cli.js';
 
 new CLI().run(process.argv.slice(2));

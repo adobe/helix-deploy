@@ -13,20 +13,14 @@
 /* eslint-env mocha */
 /* eslint-disable no-underscore-dangle */
 
-const assert = require('assert');
-const crypto = require('crypto');
-const path = require('path');
-const yauzl = require('yauzl');
-const fse = require('fs-extra');
-const { validateBundle } = require('../src/utils.js');
-const CLI = require('../src/cli.js');
+import assert from 'assert';
+import path from 'path';
+import yauzl from 'yauzl';
+import fse from 'fs-extra';
+import { validateBundle } from '../src/utils.js';
+import { createTestRoot } from './utils.js';
 
-async function createTestRoot() {
-  const dir = path.resolve(__dirname, 'tmp', crypto.randomBytes(16)
-    .toString('hex'));
-  await fse.ensureDir(dir);
-  return dir;
-}
+import CLI from '../src/cli.js';
 
 async function assertZipEntries(zipPath, entries) {
   // check zip
@@ -57,10 +51,10 @@ async function assertZipEntries(zipPath, entries) {
   });
 }
 
-const PROJECT_SIMPLE = path.resolve(__dirname, 'fixtures', 'simple');
-const PROJECT_PURE = path.resolve(__dirname, 'fixtures', 'pure-action');
-
-const PROJECT_SIMPLE_ROOTDIR = path.resolve(__dirname, 'fixtures', 'simple-rootdir');
+const PROJECT_SIMPLE = path.resolve(__rootdir, 'test', 'fixtures', 'simple');
+const PROJECT_PURE = path.resolve(__rootdir, 'test', 'fixtures', 'pure-action');
+const PROJECT_SIMPLE_ROOTDIR = path.resolve(__rootdir, 'test', 'fixtures', 'simple-rootdir');
+const PROJECT_SIMPLE_ESM = path.resolve(__rootdir, 'test', 'fixtures', 'simple-esm');
 
 describe('Build Test', () => {
   let testRoot;
@@ -147,8 +141,16 @@ describe('Build Test', () => {
     await generate([]);
   }).timeout(15000);
 
+  it('generates the bundle (webpack, esm project)', async () => {
+    await generate([], PROJECT_SIMPLE_ESM);
+  }).timeout(15000);
+
   it('generates the bundle (rollup)', async () => {
     await generate(['--bundler', 'rollup'], PROJECT_SIMPLE_ROOTDIR);
+  }).timeout(15000);
+
+  it('generates the bundle (rollup, esm-project)', async () => {
+    await generate(['--bundler', 'rollup'], PROJECT_SIMPLE_ESM);
   }).timeout(15000);
 
   it('generates the bundle (esm, webpack) fails', async () => {
@@ -161,6 +163,10 @@ describe('Build Test', () => {
 
   it('generates the bundle (esm, rollup)', async () => {
     await generate(['--esm', '--bundler', 'rollup'], PROJECT_SIMPLE_ROOTDIR);
+  }).timeout(15000);
+
+  it('generates the bundle (esm, rollup, esm project)', async () => {
+    await generate(['--esm', '--bundler', 'rollup'], PROJECT_SIMPLE_ESM);
   }).timeout(15000);
 });
 

@@ -9,8 +9,25 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+import fs from 'fs';
+import path from 'path';
 
-module.exports = {
-  root: true,
-  extends: '@adobe/helix',
+export default () => {
+  try {
+    const hello = path.resolve(__rootdir, 'files', 'hello.txt');
+    const data = fs.readFileSync(hello, 'utf-8');
+    // eslint-disable-next-line no-console
+    console.log(hello, data);
+    return data;
+  } catch (e) {
+    return `
+${e.message}
+${e.stack}
+${__dirname}
+${__filename}
+${process.cwd()}
+${require.main.path}
+${process.platform === 'win32'}
+`;
+  }
 };

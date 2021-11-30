@@ -13,14 +13,14 @@
 /* eslint-env mocha */
 /* eslint-disable no-underscore-dangle */
 
-const assert = require('assert');
-const path = require('path');
-const fse = require('fs-extra');
-const nock = require('nock');
-const { createTestRoot, TestLogger } = require('./utils');
+import assert from 'assert';
+import path from 'path';
+import fse from 'fs-extra';
+import nock from 'nock';
+import { createTestRoot, TestLogger } from './utils.js';
 
-const CLI = require('../src/cli.js');
-const BaseDeployer = require('../src/deploy/BaseDeployer');
+import CLI from '../src/cli.js';
+import BaseDeployer from '../src/deploy/BaseDeployer.js';
 
 describe('Deploy Test', () => {
   let testRoot;
@@ -46,7 +46,7 @@ describe('Deploy Test', () => {
   });
 
   it('reports nice error if no wsk props are set', async () => {
-    await fse.copy(path.resolve(__dirname, 'fixtures', 'web-action'), testRoot);
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'web-action'), testRoot);
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
       .prepare([
@@ -63,7 +63,7 @@ describe('Deploy Test', () => {
   }).timeout(5000);
 
   it('reports error configured namespace does not match wsk namespace', async () => {
-    await fse.copy(path.resolve(__dirname, 'fixtures', 'web-action'), testRoot);
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'web-action'), testRoot);
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
       .prepare([
@@ -78,7 +78,7 @@ describe('Deploy Test', () => {
   });
 
   it('doesnt reports error configured namespace does not match wsk namespace for non wsk deployments', async () => {
-    await fse.copy(path.resolve(__dirname, 'fixtures', 'web-action'), testRoot);
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'web-action'), testRoot);
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
       .prepare([
@@ -95,7 +95,7 @@ describe('Deploy Test', () => {
   }).timeout(10000);
 
   async function deploy(buildOpts) {
-    await fse.copy(path.resolve(__dirname, 'fixtures', 'web-action'), testRoot);
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'web-action'), testRoot);
 
     nock(process.env.WSK_APIHOST)
       // .log(console.log)
@@ -147,7 +147,7 @@ describe('Deploy Test', () => {
   }).timeout(10000);
 
   it('tests a web action with redirect', async () => {
-    await fse.copy(path.resolve(__dirname, 'fixtures', 'web-action'), testRoot);
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'web-action'), testRoot);
 
     nock(process.env.WSK_APIHOST)
       .get('/api/v1/namespaces/foobar/packages/default')
@@ -174,7 +174,7 @@ describe('Deploy Test', () => {
   }).timeout(10000);
 
   it('tests can send headers', async () => {
-    await fse.copy(path.resolve(__dirname, 'fixtures', 'web-action'), testRoot);
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'web-action'), testRoot);
 
     nock(process.env.WSK_APIHOST)
       .get('/api/v1/web/foobar/default/simple-project/foo')
@@ -251,7 +251,7 @@ describe('Deploy Test', () => {
   }).timeout(3000);
 
   it('deploys a web action with package', async () => {
-    await fse.copy(path.resolve(__dirname, 'fixtures', 'web-action-with-package'), testRoot);
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'web-action-with-package'), testRoot);
 
     nock(process.env.WSK_APIHOST)
       .get('/api/v1/namespaces/foobar/packages/test-package')
@@ -285,7 +285,7 @@ describe('Deploy Test', () => {
   }).timeout(15000);
 
   it.skip('deploys a pure action', async () => {
-    await fse.copy(path.resolve(__dirname, 'fixtures', 'pure-action'), testRoot);
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'pure-action'), testRoot);
 
     nock(process.env.WSK_APIHOST)
       // .log(console.log)
@@ -324,7 +324,7 @@ describe('Deploy Test', () => {
   });
 
   it.skip('deploys a pure action with package', async () => {
-    await fse.copy(path.resolve(__dirname, 'fixtures', 'pure-action-with-package'), testRoot);
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'pure-action-with-package'), testRoot);
 
     nock(process.env.WSK_APIHOST)
       // .log(console.log)

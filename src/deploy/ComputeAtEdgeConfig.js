@@ -9,7 +9,7 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-class ComputeAtEdgeConfig {
+export default class ComputeAtEdgeConfig {
   constructor() {
     Object.assign(this, {});
   }
@@ -89,5 +89,3 @@ class ComputeAtEdgeConfig {
       });
   }
 }
-
-module.exports = ComputeAtEdgeConfig;

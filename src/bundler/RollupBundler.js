@@ -10,21 +10,26 @@
  * governing permissions and limitations under the License.
  */
 
-const path = require('path');
-const fse = require('fs-extra');
-const rollup = require('rollup');
-const chalk = require('chalk');
-const { nodeResolve } = require('@rollup/plugin-node-resolve');
-const commonjs = require('@rollup/plugin-commonjs');
-const alias = require('@rollup/plugin-alias');
-const pluginJson = require('@rollup/plugin-json');
-const { terser } = require('rollup-plugin-terser');
-const BaseBundler = require('./BaseBundler.js');
+import path from 'path';
+import fse from 'fs-extra';
+import { fileURLToPath } from 'url';
+import { rollup } from 'rollup';
+import chalk from 'chalk';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+import alias from '@rollup/plugin-alias';
+import pluginJson from '@rollup/plugin-json';
+import { terser } from 'rollup-plugin-terser';
+
+import BaseBundler from './BaseBundler.js';
+
+// eslint-disable-next-line no-underscore-dangle
+const __dirname = path.resolve(fileURLToPath(import.meta.url), '..');
 
 /**
  * Creates the action bundle using rollup
  */
-module.exports = class Bundler extends BaseBundler {
+export default class Bundler extends BaseBundler {
   async getRollupConfig() {
     const { cfg } = this;
     /**
@@ -92,7 +97,7 @@ module.exports = class Bundler extends BaseBundler {
 
     cfg.log.info(`--: creating ${cfg.esm ? 'esm ' : ''}${cfg.minify ? 'minified ' : ''}bundle using rollup...`);
     const config = await this.getRollupConfig();
-    const bundle = await rollup.rollup(config);
+    const bundle = await rollup(config);
 
     const { output } = await bundle.generate(config.output);
     await this.resolveDependencyInfos(output);
@@ -162,4 +167,4 @@ module.exports = class Bundler extends BaseBundler {
           .sort((d0, d1) => d0.name.localeCompare(d1.name));
       });
   }
-};
+}

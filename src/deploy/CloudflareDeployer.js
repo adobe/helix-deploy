@@ -9,13 +9,13 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-const path = require('path');
-const fs = require('fs');
-const FormData = require('form-data');
-const BaseDeployer = require('./BaseDeployer');
-const CloudflareConfig = require('./CloudflareConfig');
+import path from 'path';
+import fs from 'fs';
+import FormData from 'form-data';
+import BaseDeployer from './BaseDeployer.js';
+import CloudflareConfig from './CloudflareConfig.js';
 
-class CloudflareDeployer extends BaseDeployer {
+export default class CloudflareDeployer extends BaseDeployer {
   constructor(baseConfig, config) {
     super(baseConfig);
     Object.assign(this, {
@@ -142,4 +142,3 @@ class CloudflareDeployer extends BaseDeployer {
 }
 
 CloudflareDeployer.Config = CloudflareConfig;
-module.exports = CloudflareDeployer;

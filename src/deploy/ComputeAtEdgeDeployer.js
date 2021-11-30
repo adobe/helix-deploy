@@ -9,14 +9,18 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-const { fork } = require('child_process');
-const path = require('path');
-const fs = require('fs/promises');
-const tar = require('tar');
-const getStream = require('get-stream');
-const Fastly = require('@adobe/fastly-native-promises');
-const BaseDeployer = require('./BaseDeployer');
-const ComputeAtEdgeConfig = require('./ComputeAtEdgeConfig');
+import { fork } from 'child_process';
+import { fileURLToPath } from 'url';
+import path from 'path';
+import fs from 'fs/promises';
+import tar from 'tar';
+import getStream from 'get-stream';
+import Fastly from '@adobe/fastly-native-promises';
+import BaseDeployer from './BaseDeployer.js';
+import ComputeAtEdgeConfig from './ComputeAtEdgeConfig.js';
+
+// eslint-disable-next-line no-underscore-dangle
+const __dirname = path.resolve(fileURLToPath(import.meta.url), '..');
 
 /**
  * The class ComputeAtEdgeDeployer deploys to Fastly's Compute(at)Edge (WASM) runtime.
@@ -24,7 +28,7 @@ const ComputeAtEdgeConfig = require('./ComputeAtEdgeConfig');
  * and not confused with the FastlyGateway (which only routes requests, but
  * does not handle them.)
  */
-class ComputeAtEdgeDeployer extends BaseDeployer {
+export default class ComputeAtEdgeDeployer extends BaseDeployer {
   constructor(baseConfig, config) {
     super(baseConfig);
     Object.assign(this, {
@@ -187,4 +191,3 @@ service_id = ""
 }
 
 ComputeAtEdgeDeployer.Config = ComputeAtEdgeConfig;
-module.exports = ComputeAtEdgeDeployer;

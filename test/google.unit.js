@@ -10,9 +10,11 @@
  * governing permissions and limitations under the License.
  */
 /* eslint-env mocha */
-const assert = require('assert');
-const testdata = require('./fixtures/google-allfns.json');
-const { filterFunctions } = require('../src/deploy/GoogleDeployer');
+import assert from 'assert';
+import testdata from './fixtures/google-allfns.js';
+import GoogleDeployer from '../src/deploy/GoogleDeployer.js';
+
+const { filterFunctions } = GoogleDeployer;
 
 describe('Google Integration Tests', () => {
   it('Test function filter for no version', () => {

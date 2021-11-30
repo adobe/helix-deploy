@@ -9,11 +9,11 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-const crypto = require('crypto');
-const path = require('path');
-const fse = require('fs-extra');
-const chalk = require('chalk');
-const dotenv = require('dotenv');
+import crypto from 'crypto';
+import path from 'path';
+import fse from 'fs-extra';
+import chalk from 'chalk';
+import dotenv from 'dotenv';
 
 // eslint-disable-next-line no-template-curly-in-string
 const DEFAULT_ACTION_FORMAT = '/${packageName}/${baseName}/${version}';
@@ -41,7 +41,7 @@ function coerceDate(value) {
  * @field baseName Name of the function w/o the version. eg `my-action`
  * @field packageName Name of the function package. eg `my-package`
  */
-class BaseConfig {
+export default class BaseConfig {
   constructor() {
     Object.assign(this, {
       cwd: process.cwd(),
@@ -806,5 +806,3 @@ class BaseConfig {
       });
   }
 }
-
-module.exports = BaseConfig;

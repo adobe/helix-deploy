@@ -9,15 +9,18 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+import { fileURLToPath } from 'url';
+import path from 'path';
+import webpack from 'webpack';
+import WebpackBundler from './WebpackBundler.js';
 
-const path = require('path');
-const webpack = require('webpack');
-const WebpackBundler = require('./WebpackBundler.js');
+// eslint-disable-next-line no-underscore-dangle
+const __dirname = path.resolve(fileURLToPath(import.meta.url), '..');
 
 /**
  * Creates the action bundle
  */
-module.exports = class EdgeBundler extends WebpackBundler {
+export default class EdgeBundler extends WebpackBundler {
   async getWebpackConfig() {
     const { cfg } = this;
     const opts = {
@@ -115,4 +118,4 @@ module.exports = class EdgeBundler extends WebpackBundler {
     }
     return this.createWebpackBundle('edge');
   }
-};
+}
