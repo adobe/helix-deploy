@@ -51,8 +51,11 @@ export default class EdgeBundler extends WebpackBundler {
       }, {}),
       module: {
         rules: [{
-          test: /\.mjs$/,
+          test: /\.js$/,
           type: 'javascript/auto',
+        }, {
+          test: /\.mjs$/,
+          type: 'javascript/esm',
         }],
       },
       resolve: {
