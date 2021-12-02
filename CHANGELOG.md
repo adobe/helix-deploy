@@ -1,3 +1,15 @@
+# [5.0.0](https://github.com/adobe/helix-deploy/compare/v4.15.1...v5.0.0) (2021-12-02)
+
+
+### Features
+
+* convert to ESM ([2946721](https://github.com/adobe/helix-deploy/commit/294672121135f32495cc48e58f636553b3473489))
+
+
+### BREAKING CHANGES
+
+* exported APIs only available through ESM
+
 ## [4.15.1](https://github.com/adobe/helix-deploy/compare/v4.15.0...v4.15.1) (2021-11-20)
 
 
