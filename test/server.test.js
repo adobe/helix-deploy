@@ -12,13 +12,13 @@
 
 /* eslint-env mocha */
 
-const chai = require('chai');
-const chaiHttp = require('chai-http');
-const { Response } = require('@adobe/helix-fetch');
+import chai from 'chai';
+import chaiHttp from 'chai-http';
+import { Response } from '@adobe/helix-fetch';
+
+import DevelopmentServer from '../src/DevelopmentServer.js';
 
 chai.use(chaiHttp);
-
-const DevelopmentServer = require('../src/DevelopmentServer.js');
 
 describe('Server Test', () => {
   it('it can start an stop the server', async () => {

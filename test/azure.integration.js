@@ -12,11 +12,12 @@
 
 /* eslint-env mocha */
 /* eslint-disable no-underscore-dangle */
-const assert = require('assert');
-const fse = require('fs-extra');
-const path = require('path');
-const { createTestRoot, TestLogger } = require('./utils');
-const CLI = require('../src/cli.js');
+import assert from 'assert';
+import fse from 'fs-extra';
+import path from 'path';
+import { createTestRoot, TestLogger } from './utils.js';
+
+import CLI from '../src/cli.js';
 
 describe('Azure Integration Test', () => {
   let testRoot;
@@ -33,7 +34,7 @@ describe('Azure Integration Test', () => {
   });
 
   it('Deploy to Azure (for real)', async () => {
-    await fse.copy(path.resolve(__dirname, 'fixtures', 'simple'), testRoot);
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple'), testRoot);
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()

@@ -12,19 +12,18 @@
 
 /* eslint-env mocha */
 /* eslint-disable no-underscore-dangle */
-const assert = require('assert');
-const fse = require('fs-extra');
-const path = require('path');
-const fetchAPI = require('@adobe/helix-fetch');
-const { createTestRoot, TestLogger } = require('./utils');
-const CLI = require('../src/cli.js');
+import assert from 'assert';
+import fse from 'fs-extra';
+import path from 'path';
+import { context, h1 } from '@adobe/helix-fetch';
+import { createTestRoot, TestLogger } from './utils.js';
+
+import CLI from '../src/cli.js';
 
 function fetchContext() {
   return process.env.HELIX_FETCH_FORCE_HTTP1
-    ? fetchAPI.context({
-      alpnProtocols: [fetchAPI.ALPN_HTTP1_1],
-    })
-    : fetchAPI;
+    ? h1()
+    : context();
 }
 
 describe('OpenWhisk Integration Test', () => {
@@ -42,7 +41,7 @@ describe('OpenWhisk Integration Test', () => {
   });
 
   it('Deploy to OpenWhisk (for real)', async () => {
-    await fse.copy(path.resolve(__dirname, 'fixtures', 'simple'), testRoot);
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple'), testRoot);
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()

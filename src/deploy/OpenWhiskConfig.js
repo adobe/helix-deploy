@@ -14,7 +14,7 @@
  * @field {string} actionName Action as it would be deployed (package + name)
  * @field {boolean} packageShared If package is shared.
  */
-class OpenWhiskConfig {
+export default class OpenWhiskConfig {
   constructor() {
     Object.assign(this, {
       namespace: '',
@@ -52,5 +52,3 @@ class OpenWhiskConfig {
       });
   }
 }
-
-module.exports = OpenWhiskConfig;

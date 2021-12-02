@@ -13,9 +13,8 @@
 /* eslint-env mocha */
 /* eslint-disable no-underscore-dangle,no-template-curly-in-string */
 
-const assert = require('assert');
-
-const ActionBuilder = require('../src/ActionBuilder.js');
+import assert from 'assert';
+import ActionBuilder from '../src/ActionBuilder.js';
 
 describe('ActionBuilder Test', () => {
   it('substitute replaces single string', async () => {

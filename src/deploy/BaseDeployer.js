@@ -9,12 +9,12 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-const path = require('path');
-const chalk = require('chalk');
-const semver = require('semver');
-const fetchAPI = require('@adobe/helix-fetch');
+import path from 'path';
+import chalk from 'chalk';
+import semver from 'semver';
+import { h1, context } from '@adobe/helix-fetch';
 
-class BaseDeployer {
+export default class BaseDeployer {
   constructor(cfg) {
     this.isDeployer = true;
     this.cfg = cfg;
@@ -42,8 +42,8 @@ class BaseDeployer {
   getOrCreateFetchContext() {
     if (!this._fetchContext) {
       this._fetchContext = process.env.HELIX_FETCH_FORCE_HTTP1
-        ? fetchAPI.h1()
-        : fetchAPI.context();
+        ? h1()
+        : context();
     }
     return this._fetchContext;
   }
@@ -179,5 +179,3 @@ class BaseDeployer {
     return sfx;
   }
 }
-
-module.exports = BaseDeployer;

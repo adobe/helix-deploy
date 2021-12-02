@@ -11,11 +11,11 @@
  */
 
 /* eslint-env mocha */
-const assert = require('assert');
-const BaseConfig = require('../src/BaseConfig.js');
-const AWSConfig = require('../src/deploy/AWSConfig.js');
-const AWSDeployer = require('../src/deploy/AWSDeployer.js');
-const ActionBuilder = require('../src/ActionBuilder.js');
+import assert from 'assert';
+import BaseConfig from '../src/BaseConfig.js';
+import AWSConfig from '../src/deploy/AWSConfig.js';
+import AWSDeployer from '../src/deploy/AWSDeployer.js';
+import ActionBuilder from '../src/ActionBuilder.js';
 
 describe('AWS Deployer Test', () => {
   it('sets the default lambda name', async () => {

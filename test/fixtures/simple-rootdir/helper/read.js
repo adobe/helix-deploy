@@ -10,7 +10,6 @@
  * governing permissions and limitations under the License.
  */
 
-/* global __rootdir */
 const fs = require('fs');
 const path = require('path');
 

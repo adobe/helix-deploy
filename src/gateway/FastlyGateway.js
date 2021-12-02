@@ -9,15 +9,16 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-const Fastly = require('@adobe/fastly-native-promises');
-const chalk = require('chalk');
+import Fastly from '@adobe/fastly-native-promises';
+import chalk from 'chalk';
+import FastlyConfig from './FastlyConfig.js';
+import BaseDeployer from '../deploy/BaseDeployer.js';
+
 const {
   toString, vcl, time, req, res, str, concat,
-} = require('@adobe/fastly-native-promises').loghelpers;
-const FastlyConfig = require('./FastlyConfig.js');
-const BaseDeployer = require('../deploy/BaseDeployer.js');
+} = Fastly.loghelpers;
 
-class FastlyGateway {
+export default class FastlyGateway {
   constructor(baseConfig, config) {
     Object.assign(this, {
       cfg: baseConfig,
@@ -505,4 +506,3 @@ if (req.url ~ "^/([^/]+)/([^/@_]+)([@_]([^/@_?]+)+)?(.*$)") {
 }
 
 FastlyGateway.Config = FastlyConfig;
-module.exports = FastlyGateway;

@@ -9,25 +9,24 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-const crypto = require('crypto');
-const path = require('path');
-const fse = require('fs-extra');
-const util = require('util');
+import crypto from 'crypto';
+import path from 'path';
+import fse from 'fs-extra';
+import util from 'util';
 
-async function createTestRoot() {
-  const dir = path.resolve(__dirname, 'tmp', crypto.randomBytes(16)
+export async function createTestRoot() {
+  const dir = path.resolve(__rootdir, 'test', 'tmp', crypto.randomBytes(16)
     .toString('hex'));
   await fse.ensureDir(dir);
   return dir;
 }
-exports.createTestRoot = createTestRoot;
 
 const ANSI_REGEXP = RegExp([
   '[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:[a-zA-Z\\d]*(?:;[a-zA-Z\\d]*)*)?\\u0007)',
   '(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PRZcf-ntqry=><~]))',
 ].join('|'), 'g');
 
-class TestLogger {
+export class TestLogger {
   constructor() {
     this.messages = [];
   }
@@ -58,5 +57,3 @@ class TestLogger {
     this._log('error', ...args);
   }
 }
-
-exports.TestLogger = TestLogger;

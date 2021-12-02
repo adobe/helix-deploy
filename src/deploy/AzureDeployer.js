@@ -9,13 +9,14 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-const msRestNodeAuth = require('@azure/ms-rest-nodeauth');
-const { WebSiteManagementClient } = require('@azure/arm-appservice');
-const fs = require('fs');
-const BaseDeployer = require('./BaseDeployer');
-const AzureConfig = require('./AzureConfig.js');
+import msRestNodeAuth from '@azure/ms-rest-nodeauth';
+import { WebSiteManagementClient } from '@azure/arm-appservice';
 
-class AzureDeployer extends BaseDeployer {
+import fs from 'fs';
+import BaseDeployer from './BaseDeployer.js';
+import AzureConfig from './AzureConfig.js';
+
+export default class AzureDeployer extends BaseDeployer {
   constructor(baseConfig, config) {
     super(baseConfig);
     Object.assign(this, {
@@ -229,4 +230,3 @@ class AzureDeployer extends BaseDeployer {
 }
 
 AzureDeployer.Config = AzureConfig;
-module.exports = AzureDeployer;

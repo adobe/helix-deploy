@@ -9,17 +9,17 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-const { CloudFunctionsServiceClient } = require('@google-cloud/functions');
-const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
-const path = require('path');
-const fs = require('fs');
-const semver = require('semver');
-const chalk = require('chalk');
-const BaseDeployer = require('./BaseDeployer');
-const GoogleConfig = require('./GoogleConfig.js');
-const { filterActions } = require('../utils.js');
+import { CloudFunctionsServiceClient } from '@google-cloud/functions';
+import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
+import path from 'path';
+import fs from 'fs';
+import semver from 'semver';
+import chalk from 'chalk';
+import BaseDeployer from './BaseDeployer.js';
+import GoogleConfig from './GoogleConfig.js';
+import { filterActions } from '../utils.js';
 
-class GoogleDeployer extends BaseDeployer {
+export default class GoogleDeployer extends BaseDeployer {
   constructor(baseConfig, config) {
     super(baseConfig);
     Object.assign(this, {
@@ -344,4 +344,3 @@ class GoogleDeployer extends BaseDeployer {
 }
 
 GoogleDeployer.Config = GoogleConfig;
-module.exports = GoogleDeployer;

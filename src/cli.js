@@ -11,18 +11,18 @@
  */
 
 /* eslint-disable no-console */
-const yargs = require('yargs');
-const chalk = require('chalk');
-
-const BaseConfig = require('./BaseConfig.js');
-
-const OpenWhiskDeployer = require('./deploy/OpenWhiskDeployer');
-const AWSDeployer = require('./deploy/AWSDeployer');
-const AzureDeployer = require('./deploy/AzureDeployer');
-const GoogleDeployer = require('./deploy/GoogleDeployer');
-const CloudflareDeployer = require('./deploy/CloudflareDeployer');
-const ComputeAtEdgeDeployer = require('./deploy/ComputeAtEdgeDeployer');
-const FastlyGateway = require('./gateway/FastlyGateway');
+import yargs from 'yargs';
+import chalk from 'chalk';
+import { config as envConfig } from 'dotenv';
+import BaseConfig from './BaseConfig.js';
+import OpenWhiskDeployer from './deploy/OpenWhiskDeployer.js';
+import AWSDeployer from './deploy/AWSDeployer.js';
+import AzureDeployer from './deploy/AzureDeployer.js';
+import GoogleDeployer from './deploy/GoogleDeployer.js';
+import CloudflareDeployer from './deploy/CloudflareDeployer.js';
+import ComputeAtEdgeDeployer from './deploy/ComputeAtEdgeDeployer.js';
+import FastlyGateway from './gateway/FastlyGateway.js';
+import ActionBuilder from './ActionBuilder.js';
 
 const PLUGINS = [
   OpenWhiskDeployer,
@@ -34,11 +34,9 @@ const PLUGINS = [
   FastlyGateway,
 ];
 
-const defaultConfig = require('./config/adobeioruntime-node10.js');
+envConfig();
 
-require('dotenv').config();
-
-class CLI {
+export default class CLI {
   constructor() {
     this._yargs = yargs()
       .pkgConf('wsk')
@@ -48,18 +46,11 @@ class CLI {
     this._yargs.help();
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  createBuilder() {
-    // eslint-disable-next-line global-require
-    const ActionBuilder = require('./ActionBuilder.js');
-    return new ActionBuilder();
-  }
-
   prepare(args) {
     const argv = this._yargs.parse(args);
 
     if (argv.externals.length === 0) {
-      argv.externals = defaultConfig.externals;
+      argv.externals = [/^openwhisk(\/.*)?$/];
     }
 
     const config = new BaseConfig().configure(argv);
@@ -68,7 +59,7 @@ class CLI {
       return new PluginClass(config, pluginConfig);
     });
 
-    return this.createBuilder()
+    return new ActionBuilder()
       .withConfig(config)
       .withPlugins(plugins);
   }
@@ -85,5 +76,3 @@ class CLI {
     }
   }
 }
-
-module.exports = CLI;

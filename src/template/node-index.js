@@ -9,15 +9,16 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-// eslint-disable-next-line no-underscore-dangle
-global.__rootdir = __dirname;
-
+const { dirname } = require('path');
 const {
   openwhisk,
   aws,
   google,
   azure,
 } = require('@adobe/helix-universal').adapter;
+
+// eslint-disable-next-line no-underscore-dangle
+global.__rootdir = dirname(__filename); // __dirname is transformed by webpack, __filename isn't
 
 module.exports = Object.assign(azure, {
   main: openwhisk,

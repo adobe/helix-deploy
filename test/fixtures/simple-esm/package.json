@@ -1,0 +1,30 @@
+{
+  "name": "simple-project",
+  "version": "1.45.0",
+  "description": "Simple Test Project",
+  "private": true,
+  "license": "Apache-2.0",
+  "main": "index.js",
+  "type": "module",
+  "dependencies": {
+    "@adobe/helix-fetch": "2.0.0"
+  },
+  "wsk": {
+    "namespace": "helix",
+    "name": "simple-package/simple-name@${version}",
+    "params-file": [
+      "test.env"
+    ],
+    "package": {
+      "name": "simple-package",
+      "params": {
+        "test-package-param": "42"
+      }
+    },
+    "static": [
+      "files/hello.txt",
+      ["files/hello.txt", "morefiles/foo.txt"],
+      ["files", "evenmorefiles"]
+    ]
+  }
+}

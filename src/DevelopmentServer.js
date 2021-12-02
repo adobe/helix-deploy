@@ -9,12 +9,16 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-const fse = require('fs-extra');
-const path = require('path');
-const express = require('express');
+import { createRequire } from 'module';
+import fse from 'fs-extra';
+import path from 'path';
+import express from 'express';
+import ActionBuilder from './ActionBuilder.js';
+import BaseConfig from './BaseConfig.js';
+
+// load proxyquire specially since it doesn't support ESM yet.
+const require = createRequire(import.meta.url);
 const proxyquire = require('proxyquire').noCallThru();
-const ActionBuilder = require('./ActionBuilder');
-const BaseConfig = require('./BaseConfig.js');
 
 function rawBody() {
   return (req, res, next) => {
@@ -61,7 +65,7 @@ function addRequestHeader(name, value) {
  *
  * @type {DevelopmentServer}
  */
-module.exports = class DevelopmentServer {
+export default class DevelopmentServer {
   /**
    * Creates a new development server using the given universal function.
    * @param {UniversalFunction} main - The universal function
@@ -169,4 +173,4 @@ module.exports = class DevelopmentServer {
       });
     });
   }
-};
+}
