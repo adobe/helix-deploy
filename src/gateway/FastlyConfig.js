@@ -9,7 +9,7 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-class FastlyConfig {
+export default class FastlyConfig {
   constructor() {
     Object.assign(this, {
       service: null,
@@ -94,5 +94,3 @@ class FastlyConfig {
       });
   }
 }
-
-module.exports = FastlyConfig;

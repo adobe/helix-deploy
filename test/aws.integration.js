@@ -12,12 +12,14 @@
 
 /* eslint-env mocha */
 /* eslint-disable no-underscore-dangle */
-const assert = require('assert');
-const fse = require('fs-extra');
-const path = require('path');
-const { context, ALPN_HTTP1_1 } = require('@adobe/helix-fetch');
-const { createTestRoot, TestLogger } = require('./utils');
-const CLI = require('../src/cli.js');
+import assert from 'assert';
+import fse from 'fs-extra';
+import path from 'path';
+import { ALPN_HTTP1_1, context } from '@adobe/helix-fetch';
+
+import { createTestRoot, TestLogger } from './utils.js';
+
+import CLI from '../src/cli.js';
 
 const { fetch } = context({
   alpnProtocols: [ALPN_HTTP1_1],
@@ -38,7 +40,7 @@ describe('AWS Integration Test', () => {
   });
 
   it('Deploy to AWS (for real)', async () => {
-    await fse.copy(path.resolve(__dirname, 'fixtures', 'simple'), testRoot);
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple'), testRoot);
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
@@ -67,7 +69,7 @@ describe('AWS Integration Test', () => {
   }).timeout(50000);
 
   it('Update links to AWS (for real)', async () => {
-    await fse.copy(path.resolve(__dirname, 'fixtures', 'simple'), testRoot);
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple'), testRoot);
 
     const version = `ci${process.env.CIRCLE_BUILD_NUM || Date.now()}`;
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json

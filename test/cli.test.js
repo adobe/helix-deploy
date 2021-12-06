@@ -13,10 +13,9 @@
 /* eslint-env mocha */
 /* eslint-disable no-underscore-dangle */
 
-const assert = require('assert');
-const path = require('path');
-
-const CLI = require('../src/cli.js');
+import assert from 'assert';
+import path from 'path';
+import CLI from '../src/cli.js';
 
 describe('CLI Test', () => {
   it('has correct defaults with no arguments', () => {
@@ -240,7 +239,7 @@ describe('CLI Test', () => {
   });
 
   it('can add params from json file', async () => {
-    const file = path.resolve(__dirname, 'fixtures/test-params.json');
+    const file = path.resolve(__rootdir, 'test', 'fixtures', 'test-params.json');
     const builder = new CLI()
       .prepare(['-f', file]);
     await builder.validate();
@@ -254,7 +253,7 @@ describe('CLI Test', () => {
   });
 
   it('can add params from env file', () => {
-    const file = path.resolve(__dirname, 'fixtures/test-params.env');
+    const file = path.resolve(__rootdir, 'test', 'fixtures', 'test-params.env');
     const builder = new CLI()
       .prepare(['-f', file]);
     assert.deepEqual(builder.cfg.params, {
@@ -264,7 +263,7 @@ describe('CLI Test', () => {
   });
 
   it('can add params from env file with references', async () => {
-    const file = path.resolve(__dirname, 'fixtures/test-params-file.env');
+    const file = path.resolve(__rootdir, 'test', 'fixtures', 'test-params-file.env');
     const builder = new CLI()
       .prepare(['-f', file]);
     await builder.validate();
@@ -277,7 +276,7 @@ describe('CLI Test', () => {
   });
 
   it('can add package params from json file', async () => {
-    const file = path.resolve(__dirname, 'fixtures/test-params.json');
+    const file = path.resolve(__rootdir, 'test', 'fixtures', 'test-params.json');
     const builder = new CLI()
       .prepare(['--package.params-file', file]);
     await builder.validate();
@@ -291,7 +290,7 @@ describe('CLI Test', () => {
   });
 
   it('can add package params from env file', () => {
-    const file = path.resolve(__dirname, 'fixtures/test-params.env');
+    const file = path.resolve(__rootdir, 'test', 'fixtures', 'test-params.env');
     const builder = new CLI()
       .prepare(['--package.params-file', file]);
     assert.deepEqual(builder.cfg.packageParams, {
@@ -301,19 +300,19 @@ describe('CLI Test', () => {
   });
 
   it('can add package params throws error if file not found', () => {
-    const file = path.resolve(__dirname, 'fixtures/test-params1.env');
+    const file = path.resolve(__rootdir, 'test', 'fixtures', 'test-params1.env');
     assert.throws(() => new CLI().prepare(['--package.params-file', file, '--update-package']));
   });
 
   it('can add package params shows warn if file not when not updating package', () => {
-    const file = path.resolve(__dirname, 'fixtures/test-params1.env');
+    const file = path.resolve(__rootdir, 'test', 'fixtures', 'test-params1.env');
     const builder = new CLI()
       .prepare(['--package.params-file', file]);
     assert.deepEqual(builder.cfg.packageParams, {});
   });
 
   it('can add params from env file with references', async () => {
-    const file = path.resolve(__dirname, 'fixtures/test-params-file.env');
+    const file = path.resolve(__rootdir, 'test', 'fixtures', 'test-params-file.env');
     const builder = new CLI()
       .prepare(['--package.params-file', file]);
     await builder.validate();

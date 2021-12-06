@@ -11,15 +11,15 @@
  */
 /* eslint-disable no-await-in-loop */
 
-const path = require('path');
-const fs = require('fs');
-const fse = require('fs-extra');
-const chalk = require('chalk-template');
-const git = require('isomorphic-git');
-const WebpackBundler = require('./bundler/WebpackBundler');
-const EdgeBundler = require('./bundler/EdgeBundler');
-const RollupBundler = require('./bundler/RollupBundler');
-const { version } = require('../package.json');
+import path from 'path';
+import fs from 'fs';
+import fse from 'fs-extra';
+import chalk from 'chalk-template';
+import git from 'isomorphic-git';
+import WebpackBundler from './bundler/WebpackBundler.js';
+import EdgeBundler from './bundler/EdgeBundler.js';
+import RollupBundler from './bundler/RollupBundler.js';
+import pkgJson from './package.cjs';
 
 const Bundlers = {
   node: {
@@ -62,7 +62,7 @@ async function getCurrentRevision(dir) {
   }
 }
 
-module.exports = class ActionBuilder {
+export default class ActionBuilder {
   /**
    * Iterates the given params and resolves potential file references.
    * @param {object} params the params
@@ -372,7 +372,7 @@ module.exports = class ActionBuilder {
 
   async _run() {
     const { cfg } = this;
-    cfg.log.info(chalk`{grey universal-action-builder v${version}}`);
+    cfg.log.info(chalk`{grey universal-action-builder v${pkgJson.version}}`);
     await this.validate();
     await this.validateAdditionalTasks();
     await this.validateBundlers();
@@ -466,4 +466,4 @@ module.exports = class ActionBuilder {
     await this.runAdditionalTasks();
     return '';
   }
-};
+}

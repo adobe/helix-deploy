@@ -12,11 +12,12 @@
 
 /* eslint-env mocha */
 /* eslint-disable no-underscore-dangle */
-const assert = require('assert');
-const fse = require('fs-extra');
-const path = require('path');
-const { createTestRoot, TestLogger } = require('./utils');
-const CLI = require('../src/cli.js');
+import assert from 'assert';
+import fse from 'fs-extra';
+import path from 'path';
+import { createTestRoot, TestLogger } from './utils.js';
+
+import CLI from '../src/cli.js';
 
 describe('Google Integration Test', () => {
   let testRoot;
@@ -33,7 +34,7 @@ describe('Google Integration Test', () => {
   });
 
   it('Deploy an older version to Google', async () => {
-    await fse.copy(path.resolve(__dirname, 'fixtures', 'simple-but-older'), testRoot);
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple-but-older'), testRoot);
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
       .prepare([
@@ -61,7 +62,7 @@ describe('Google Integration Test', () => {
   }).timeout(10000000);
 
   it('Deploy a newer version to Google and clean up', async () => {
-    await fse.copy(path.resolve(__dirname, 'fixtures', 'simple'), testRoot);
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple'), testRoot);
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
       .prepare([
@@ -90,7 +91,7 @@ describe('Google Integration Test', () => {
   }).timeout(10000000);
 
   it('Deploy Simple Status action to Google', async () => {
-    await fse.copy(path.resolve(__dirname, 'fixtures', 'status'), testRoot);
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'status'), testRoot);
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()

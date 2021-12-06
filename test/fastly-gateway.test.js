@@ -11,9 +11,8 @@
  */
 /* eslint-env mocha */
 /* eslint-disable no-console */
-const assert = require('assert');
-
-const FastlyGateway = require('../src/gateway/FastlyGateway.js', {});
+import assert from 'assert';
+import FastlyGateway from '../src/gateway/FastlyGateway.js';
 
 const gateway = new FastlyGateway({
   log: {

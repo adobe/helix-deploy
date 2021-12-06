@@ -12,11 +12,12 @@
 
 /* eslint-env mocha */
 /* eslint-disable no-underscore-dangle */
-const assert = require('assert');
-const fse = require('fs-extra');
-const path = require('path');
-const { createTestRoot, TestLogger } = require('./utils');
-const CLI = require('../src/cli.js');
+import assert from 'assert';
+import fse from 'fs-extra';
+import path from 'path';
+import { createTestRoot, TestLogger } from './utils.js';
+
+import CLI from '../src/cli.js';
 
 describe('Cloudflare Integration Test', () => {
   let testRoot;
@@ -33,7 +34,7 @@ describe('Cloudflare Integration Test', () => {
   });
 
   it('Deploy a pure action to Cloudflare', async () => {
-    await fse.copy(path.resolve(__dirname, 'fixtures', 'edge-action'), testRoot);
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'edge-action'), testRoot);
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
       .prepare([

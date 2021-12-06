@@ -13,7 +13,7 @@
 // eslint-disable-next-line no-template-curly-in-string
 const DEFAULT_LAMBDA_FORMAT = '${packageName}--${baseName}';
 
-class AWSConfig {
+export default class AWSConfig {
   constructor() {
     Object.assign(this, {
       region: '',
@@ -125,5 +125,3 @@ class AWSConfig {
       });
   }
 }
-
-module.exports = AWSConfig;

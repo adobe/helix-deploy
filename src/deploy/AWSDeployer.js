@@ -10,60 +10,47 @@
  * governing permissions and limitations under the License.
  */
 /* eslint-disable no-await-in-loop,no-restricted-syntax */
-const chalk = require('chalk-template');
-const {
-  S3Client,
-  CreateBucketCommand,
+import chalk from 'chalk-template';
+import {
+  CreateBucketCommand, DeleteBucketCommand, DeleteObjectCommand, DeleteObjectsCommand,
   ListBucketsCommand,
-  ListObjectsV2Command,
-  PutObjectCommand,
-  DeleteBucketCommand,
-  DeleteObjectCommand,
-  DeleteObjectsCommand,
-} = require('@aws-sdk/client-s3');
-const {
-  LambdaClient,
-  CreateFunctionCommand,
-  GetFunctionCommand,
-  UpdateFunctionConfigurationCommand,
-  UpdateFunctionCodeCommand,
-  GetAliasCommand,
-  PublishVersionCommand,
-  CreateAliasCommand,
-  UpdateAliasCommand,
+  ListObjectsV2Command, PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
+
+import {
   AddPermissionCommand,
-} = require('@aws-sdk/client-lambda');
-const {
+  CreateAliasCommand,
+  CreateFunctionCommand, GetAliasCommand,
+  GetFunctionCommand,
+  LambdaClient, PublishVersionCommand, UpdateAliasCommand, UpdateFunctionCodeCommand,
+  UpdateFunctionConfigurationCommand,
+} from '@aws-sdk/client-lambda';
+
+import {
   ApiGatewayV2Client,
-  GetApisCommand,
-  GetApiCommand,
-  GetStagesCommand,
-  GetIntegrationsCommand,
   CreateApiCommand,
+  CreateIntegrationCommand, CreateRouteCommand,
   CreateStageCommand,
-  CreateIntegrationCommand,
   DeleteIntegrationCommand,
-  CreateRouteCommand,
-  GetRoutesCommand,
-  UpdateRouteCommand,
-} = require('@aws-sdk/client-apigatewayv2');
-const {
-  SSMClient,
-  PutParameterCommand,
-} = require('@aws-sdk/client-ssm');
-const {
-  SecretsManagerClient,
-  PutSecretValueCommand,
-} = require('@aws-sdk/client-secrets-manager');
+  GetApiCommand,
+  GetApisCommand,
+  GetIntegrationsCommand, GetRoutesCommand,
+  GetStagesCommand, UpdateRouteCommand,
+} from '@aws-sdk/client-apigatewayv2';
 
-const path = require('path');
-const fse = require('fs-extra');
-const crypto = require('crypto');
-const BaseDeployer = require('./BaseDeployer');
-const ActionBuilder = require('../ActionBuilder.js');
-const AWSConfig = require('./AWSConfig.js');
+import { PutParameterCommand, SSMClient } from '@aws-sdk/client-ssm';
 
-class AWSDeployer extends BaseDeployer {
+import { PutSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
+
+import path from 'path';
+import fse from 'fs-extra';
+import crypto from 'crypto';
+import BaseDeployer from './BaseDeployer.js';
+import ActionBuilder from '../ActionBuilder.js';
+import AWSConfig from './AWSConfig.js';
+
+export default class AWSDeployer extends BaseDeployer {
   constructor(baseConfig, config) {
     super(baseConfig);
 
@@ -752,4 +739,3 @@ class AWSDeployer extends BaseDeployer {
 }
 
 AWSDeployer.Config = AWSConfig;
-module.exports = AWSDeployer;

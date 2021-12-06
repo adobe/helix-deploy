@@ -9,19 +9,22 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fse from 'fs-extra';
+import chalk from 'chalk-template';
+import archiver from 'archiver';
+import semver from 'semver';
+import { validateBundle } from '../utils.js';
+import pkgJson from '../package.cjs';
 
-const path = require('path');
-const fse = require('fs-extra');
-const chalk = require('chalk-template');
-const archiver = require('archiver');
-const semver = require('semver');
-const { validateBundle } = require('../utils.js');
-const { dependencies } = require('../../package.json');
+// eslint-disable-next-line no-underscore-dangle
+const __dirname = path.resolve(fileURLToPath(import.meta.url), '..');
 
 /**
  * Base for all bundlers
  */
-module.exports = class BaseBundler {
+export default class BaseBundler {
   /**
    * Simple string substitute. Replaces all `${key}` occurrences from the given object.
    * @param {string} str string to substitute
@@ -112,8 +115,8 @@ module.exports = class BaseBundler {
           // google cloud installs these dependencies at deploy time
           // all other environments ignore them – this allows us to
           // avoid bundling something that only google needs
-          '@google-cloud/secret-manager': dependencies['@google-cloud/secret-manager'],
-          '@google-cloud/storage': dependencies['@google-cloud/storage'],
+          '@google-cloud/secret-manager': pkgJson.dependencies['@google-cloud/secret-manager'],
+          '@google-cloud/storage': pkgJson.dependencies['@google-cloud/storage'],
         },
       };
       archive.pipe(output);
@@ -186,4 +189,4 @@ module.exports = class BaseBundler {
       archive.file(path.resolve(__dirname, '..', 'template', 'aws-esm-adapter.js'), { name: 'esm-adapter/index.js' });
     }
   }
-};
+}

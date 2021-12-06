@@ -9,17 +9,20 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+import { fileURLToPath } from 'url';
+import path from 'path';
+import fse from 'fs-extra';
+import webpack from 'webpack';
+import chalk from 'chalk-template';
+import BaseBundler from './BaseBundler.js';
 
-const path = require('path');
-const fse = require('fs-extra');
-const webpack = require('webpack');
-const chalk = require('chalk-template');
-const BaseBundler = require('./BaseBundler.js');
+// eslint-disable-next-line no-underscore-dangle
+const __dirname = path.resolve(fileURLToPath(import.meta.url), '..');
 
 /**
  * Webpack based bundler
  */
-module.exports = class WebpackBundler extends BaseBundler {
+export default class WebpackBundler extends BaseBundler {
   async init() {
     if (this.cfg.esm) {
       throw new Error('Webpack bundler does not support ESM builds.');
@@ -33,6 +36,7 @@ module.exports = class WebpackBundler extends BaseBundler {
       mode: 'development',
       // the universal adapter is the entry point
       entry: cfg.adapterFile || path.resolve(__dirname, '..', 'template', 'node-index.js'),
+      context: cfg.cwd,
       output: {
         path: cfg.cwd,
         filename: path.relative(cfg.cwd, cfg.bundle),
@@ -56,8 +60,11 @@ module.exports = class WebpackBundler extends BaseBundler {
       }, {}),
       module: {
         rules: [{
-          test: /\.mjs$/,
+          test: /\.js$/,
           type: 'javascript/auto',
+        }, {
+          test: /\.mjs$/,
+          type: 'javascript/esm',
         }],
       },
       resolve: {
@@ -197,4 +204,4 @@ module.exports = class WebpackBundler extends BaseBundler {
           .sort((d0, d1) => d0.name.localeCompare(d1.name));
       });
   }
-};
+}

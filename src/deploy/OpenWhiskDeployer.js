@@ -10,18 +10,16 @@
  * governing permissions and limitations under the License.
  */
 /* eslint-disable no-underscore-dangle */
+import ow from 'openwhisk';
+import os from 'os';
+import fse from 'fs-extra';
+import path from 'path';
+import chalk from 'chalk-template';
+import dotenv from 'dotenv';
+import BaseDeployer from './BaseDeployer.js';
+import OpenWhiskConfig from './OpenWhiskConfig.js';
 
-const ow = require('openwhisk');
-const os = require('os');
-const fse = require('fs-extra');
-const path = require('path');
-const chalk = require('chalk-template');
-const dotenv = require('dotenv');
-
-const BaseDeployer = require('./BaseDeployer');
-const OpenWhiskConfig = require('./OpenWhiskConfig.js');
-
-class OpenWhiskDeployer extends BaseDeployer {
+export default class OpenWhiskDeployer extends BaseDeployer {
   constructor(baseConfig, config) {
     super(baseConfig);
 
@@ -283,4 +281,3 @@ class OpenWhiskDeployer extends BaseDeployer {
 }
 
 OpenWhiskDeployer.Config = OpenWhiskConfig;
-module.exports = OpenWhiskDeployer;

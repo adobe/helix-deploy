@@ -9,8 +9,12 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-const { fork } = require('child_process');
-const path = require('path');
+import { fileURLToPath } from 'url';
+import { fork } from 'child_process';
+import path from 'path';
+
+// eslint-disable-next-line no-underscore-dangle
+const __dirname = path.resolve(fileURLToPath(import.meta.url), '..');
 
 /**
  * @typedef {object} VersionCoordinates
@@ -54,7 +58,7 @@ const path = require('path');
  * @param {VersionSpec} versionspec - which version is current
  * @returns {NamedAction[]} - a list of actions that can safely be deleted
  */
-function filterActions(fns, now, {
+export function filterActions(fns, now, {
   ciAge, patchAge, minorAge, majorAge, ciNum, patchNum, minorNum, majorNum,
 } = {}, { patchVersion, minorVersion, majorVersion } = {}) {
   // sort by updated date
@@ -151,7 +155,7 @@ function filterActions(fns, now, {
     ...cleanmajorbyage, ...cleanmajorbycount];
 }
 
-async function validateBundle(bundlePath, invoke = false) {
+export async function validateBundle(bundlePath, invoke = false) {
   try {
     const opts = {
       invoke,
@@ -175,8 +179,3 @@ async function validateBundle(bundlePath, invoke = false) {
     };
   }
 }
-
-module.exports = {
-  filterActions,
-  validateBundle,
-};
