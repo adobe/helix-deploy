@@ -13,7 +13,7 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import fse from 'fs-extra';
 import webpack from 'webpack';
-import chalk from 'chalk';
+import chalk from 'chalk-template';
 import BaseBundler from './BaseBundler.js';
 
 // eslint-disable-next-line no-underscore-dangle

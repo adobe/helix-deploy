@@ -10,7 +10,7 @@
  * governing permissions and limitations under the License.
  */
 import Fastly from '@adobe/fastly-native-promises';
-import chalk from 'chalk';
+import chalk from 'chalk-template';
 import FastlyConfig from './FastlyConfig.js';
 import BaseDeployer from '../deploy/BaseDeployer.js';
 

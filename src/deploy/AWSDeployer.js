@@ -10,7 +10,7 @@
  * governing permissions and limitations under the License.
  */
 /* eslint-disable no-await-in-loop,no-restricted-syntax */
-import chalk from 'chalk';
+import chalk from 'chalk-template';
 import {
   CreateBucketCommand, DeleteBucketCommand, DeleteObjectCommand, DeleteObjectsCommand,
   ListBucketsCommand,
@@ -409,7 +409,7 @@ export default class AWSDeployer extends BaseDeployer {
       // ignore, most likely the permission already exists
     }
 
-    this.log.info(chalk`{green ok:} function deployed: ${chalk.blueBright(this._functionURL)}`);
+    this.log.info(chalk`{green ok:} function deployed: {blueBright ${this._functionURL}}`);
   }
 
   async test() {
@@ -517,7 +517,7 @@ export default class AWSDeployer extends BaseDeployer {
     });
     const unused = [];
     if (filter) {
-      this.log.info(chalk`Integrations / Routes for {gray ${filter}}`);
+      this.log.info(chalk`Integrations / Routes for {grey ${filter}}`);
     } else {
       this.log.info('Integrations / Routes');
     }

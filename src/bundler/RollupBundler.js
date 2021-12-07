@@ -14,7 +14,7 @@ import path from 'path';
 import fse from 'fs-extra';
 import { fileURLToPath } from 'url';
 import { rollup } from 'rollup';
-import chalk from 'chalk';
+import chalk from 'chalk-template';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import alias from '@rollup/plugin-alias';

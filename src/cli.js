@@ -12,7 +12,7 @@
 
 /* eslint-disable no-console */
 import yargs from 'yargs';
-import chalk from 'chalk';
+import chalk from 'chalk-template';
 import { config as envConfig } from 'dotenv';
 import BaseConfig from './BaseConfig.js';
 import OpenWhiskDeployer from './deploy/OpenWhiskDeployer.js';
@@ -71,7 +71,7 @@ export default class CLI {
         console.log(JSON.stringify(res, null, 2));
       }
     } catch (err) {
-      console.log(`${chalk.red('error:')} ${err.message}`);
+      console.log(chalk`{red error:} ${err.message}`);
       process.exitCode = 1;
     }
   }

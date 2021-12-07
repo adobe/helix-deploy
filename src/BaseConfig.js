@@ -12,7 +12,7 @@
 import crypto from 'crypto';
 import path from 'path';
 import fse from 'fs-extra';
-import chalk from 'chalk';
+import chalk from 'chalk-template';
 import dotenv from 'dotenv';
 
 // eslint-disable-next-line no-template-curly-in-string
