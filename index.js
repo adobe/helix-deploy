@@ -9,16 +9,8 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-const ActionBuilder = require('./src/ActionBuilder.js');
-const Bundler = require('./src/bundler/WebpackBundler.js');
-const BaseConfig = require('./src/BaseConfig.js');
-const CLI = require('./src/cli.js');
-const DevelopmentServer = require('./src/DevelopmentServer.js');
-
-module.exports = {
-  ActionBuilder,
-  Bundler,
-  BaseConfig,
-  CLI,
-  DevelopmentServer,
-};
+export { default as ActionBuilder } from './src/ActionBuilder.js';
+export { default as Bundler } from './src/bundler/WebpackBundler.js';
+export { default as BaseConfig } from './src/BaseConfig.js';
+export { default as CLI } from './src/cli.js';
+export { default as DevelopmentServer } from './src/DevelopmentServer.js';
