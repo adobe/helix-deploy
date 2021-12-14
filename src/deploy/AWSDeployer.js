@@ -238,9 +238,10 @@ export default class AWSDeployer extends BaseDeployer {
     // update existing function
     if (baseARN) {
       await this.checkFunctionReady(baseARN);
-      this.log.info(chalk`--: updating existing Lambda function {yellow ${functionName}}`);
+      this.log.info(chalk`--: updating existing Lambda function configuration {yellow ${functionName}}`);
       await this._lambda.send(new UpdateFunctionConfigurationCommand(functionConfig));
       await this.checkFunctionReady(baseARN);
+      this.log.info('--: updating Lambda function code...');
       await this._lambda.send(new UpdateFunctionCodeCommand({
         FunctionName: functionName,
         ...functionConfig.Code,
