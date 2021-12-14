@@ -1,3 +1,10 @@
+## [5.0.3](https://github.com/adobe/helix-deploy/compare/v5.0.2...v5.0.3) (2021-12-14)
+
+
+### Bug Fixes
+
+* wait for aws states completed between deploy steps ([#348](https://github.com/adobe/helix-deploy/issues/348)) ([9cf29ee](https://github.com/adobe/helix-deploy/commit/9cf29ee9807d6334fb951a2a21532ea56b7f9e72))
+
 ## [5.0.2](https://github.com/adobe/helix-deploy/compare/v5.0.1...v5.0.2) (2021-12-11)
 
 
