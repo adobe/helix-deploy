@@ -1,3 +1,10 @@
+## [5.0.5](https://github.com/adobe/helix-deploy/compare/v5.0.4...v5.0.5) (2022-01-03)
+
+
+### Bug Fixes
+
+* use fixed import conditions ([#350](https://github.com/adobe/helix-deploy/issues/350)) ([28464d2](https://github.com/adobe/helix-deploy/commit/28464d245229236ff15bad6e20278ce5ebd8594b))
+
 ## [5.0.4](https://github.com/adobe/helix-deploy/compare/v5.0.3...v5.0.4) (2022-01-03)
 
 
