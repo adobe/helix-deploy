@@ -1,3 +1,10 @@
+## [5.0.4](https://github.com/adobe/helix-deploy/compare/v5.0.3...v5.0.4) (2022-01-03)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([#349](https://github.com/adobe/helix-deploy/issues/349)) ([ab4ceda](https://github.com/adobe/helix-deploy/commit/ab4cedaf66372443c401d0a476af3b5f11860c4b))
+
 ## [5.0.3](https://github.com/adobe/helix-deploy/compare/v5.0.2...v5.0.3) (2021-12-14)
 
 
