@@ -381,6 +381,10 @@ export default class ActionBuilder {
       for (const bundler of this.bundlers) {
         await bundler.createBundle();
         await bundler.createArchive();
+      }
+    }
+    if (cfg.build || cfg.test !== undefined || cfg.testBundle !== undefined) {
+      for (const bundler of this.bundlers) {
         await bundler.validateBundle();
       }
     }
@@ -408,7 +412,7 @@ export default class ActionBuilder {
       await this.delete();
     }
 
-    if (typeof cfg.test === 'string' || Object.keys(cfg.testParams).length) {
+    if (cfg.test !== undefined || Object.keys(cfg.testParams).length) {
       await this.validateDeployers();
       await this.test();
     }

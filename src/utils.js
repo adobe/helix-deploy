@@ -155,12 +155,9 @@ export function filterActions(fns, now, {
     ...cleanmajorbyage, ...cleanmajorbycount];
 }
 
-export async function validateBundle(bundlePath, invoke = false) {
+export async function validateBundle(bundlePath, cfg) {
   try {
-    const opts = {
-      invoke,
-    };
-    const child = fork(path.resolve(__dirname, 'template', 'validate-bundle.js'), [bundlePath, JSON.stringify(opts)]);
+    const child = fork(path.resolve(__dirname, 'template', 'validate-bundle.js'), [bundlePath, JSON.stringify(cfg)]);
     const ret = await new Promise((resolve, reject) => {
       child.on('message', resolve);
       child.on('error', reject);
