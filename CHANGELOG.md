@@ -1,3 +1,10 @@
+# [5.1.0](https://github.com/adobe/helix-deploy/compare/v5.0.6...v5.1.0) (2022-01-12)
+
+
+### Features
+
+* use lambda adapter to validate bundle and execute it ([#354](https://github.com/adobe/helix-deploy/issues/354)) ([c48b4f0](https://github.com/adobe/helix-deploy/commit/c48b4f0dfcae09fd784212b770bcdc7246a7d332)), closes [#353](https://github.com/adobe/helix-deploy/issues/353)
+
 ## [5.0.6](https://github.com/adobe/helix-deploy/compare/v5.0.5...v5.0.6) (2022-01-11)
 
 
