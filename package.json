@@ -44,7 +44,7 @@
     "@aws-sdk/client-s3": "3.46.0",
     "@aws-sdk/client-secrets-manager": "3.46.0",
     "@aws-sdk/client-ssm": "3.46.0",
-    "@azure/arm-appservice": "10.0.0",
+    "@azure/arm-appservice": "9.0.0",
     "@azure/ms-rest-nodeauth": "3.1.1",
     "@fastly/js-compute": "0.2.1",
     "@google-cloud/functions": "1.2.0",
