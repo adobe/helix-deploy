@@ -9,6 +9,9 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+// eslint-disable-next-line import/no-extraneous-dependencies
+const { Response } = require('@adobe/helix-fetch');
+
 module.exports.main = function main() {
-  return 'ok';
+  return new Response();
 };
