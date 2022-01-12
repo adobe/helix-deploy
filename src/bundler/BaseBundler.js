@@ -12,7 +12,7 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fse from 'fs-extra';
-import chalk from 'chalk';
+import chalk from 'chalk-template';
 import archiver from 'archiver';
 import semver from 'semver';
 import { validateBundle } from '../utils.js';
@@ -60,12 +60,15 @@ export default class BaseBundler {
   async validateBundle() {
     const { cfg } = this;
     cfg.log.info('--: validating bundle ...');
-    const result = await validateBundle(cfg.bundle);
+    const result = await validateBundle(cfg.bundle, cfg);
     if (result.error) {
-      cfg.log.error(chalk`{red error:}`, result.error);
       throw Error(`Validation failed: ${result.error}`);
     }
-    cfg.log.info(chalk`{green ok:} bundle can be loaded and has a {gray main()} function.`);
+    if (result.response) {
+      cfg.log.info(chalk`{green ok:} bundle can be loaded and {grey lambda()} function can be executed.`);
+    } else {
+      cfg.log.info(chalk`{green ok:} bundle can be loaded and has a {grey lambda()} function.`);
+    }
   }
 
   async createArchive() {

@@ -1,3 +1,45 @@
+## [5.0.6](https://github.com/adobe/helix-deploy/compare/v5.0.5...v5.0.6) (2022-01-11)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([#352](https://github.com/adobe/helix-deploy/issues/352)) ([ee411f3](https://github.com/adobe/helix-deploy/commit/ee411f3c03993f23eecbd024eff8d2a7e0b97ab7))
+
+## [5.0.5](https://github.com/adobe/helix-deploy/compare/v5.0.4...v5.0.5) (2022-01-03)
+
+
+### Bug Fixes
+
+* use fixed import conditions ([#350](https://github.com/adobe/helix-deploy/issues/350)) ([28464d2](https://github.com/adobe/helix-deploy/commit/28464d245229236ff15bad6e20278ce5ebd8594b))
+
+## [5.0.4](https://github.com/adobe/helix-deploy/compare/v5.0.3...v5.0.4) (2022-01-03)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([#349](https://github.com/adobe/helix-deploy/issues/349)) ([ab4ceda](https://github.com/adobe/helix-deploy/commit/ab4cedaf66372443c401d0a476af3b5f11860c4b))
+
+## [5.0.3](https://github.com/adobe/helix-deploy/compare/v5.0.2...v5.0.3) (2021-12-14)
+
+
+### Bug Fixes
+
+* wait for aws states completed between deploy steps ([#348](https://github.com/adobe/helix-deploy/issues/348)) ([9cf29ee](https://github.com/adobe/helix-deploy/commit/9cf29ee9807d6334fb951a2a21532ea56b7f9e72))
+
+## [5.0.2](https://github.com/adobe/helix-deploy/compare/v5.0.1...v5.0.2) (2021-12-11)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([b898a1d](https://github.com/adobe/helix-deploy/commit/b898a1da4e06a20cb616cf524458a98608124e6c))
+
+## [5.0.1](https://github.com/adobe/helix-deploy/compare/v5.0.0...v5.0.1) (2021-12-07)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([eca546c](https://github.com/adobe/helix-deploy/commit/eca546ce271ba6c6d37fcf1572f5d1d0f5c068b2))
+
 # [5.0.0](https://github.com/adobe/helix-deploy/compare/v4.15.1...v5.0.0) (2021-12-02)
 
 

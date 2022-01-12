@@ -14,7 +14,7 @@ import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 import path from 'path';
 import fs from 'fs';
 import semver from 'semver';
-import chalk from 'chalk';
+import chalk from 'chalk-template';
 import BaseDeployer from './BaseDeployer.js';
 import GoogleConfig from './GoogleConfig.js';
 import { filterActions } from '../utils.js';

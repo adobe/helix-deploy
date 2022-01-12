@@ -72,3 +72,9 @@ The project's committers will release to the [Adobe organization on npmjs.org](h
 Please contact the [Adobe Open Source Advisory Board](https://git.corp.adobe.com/OpenSourceAdvisoryBoard/discuss/issues) to get access to the npmjs organization.
 
 The release process is fully automated using `semantic-release`, increasing the version numbers, etc. based on the contents of the commit messages found.
+
+# Managing Secrets
+
+## Azure
+
+The Azure deployment is using an application secret that is expiring on a regular basis. To update the secret, refer to the [Azure Active Directory Documentation on configuring access policies on resources](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal#option-2-create-a-new-application-secret)

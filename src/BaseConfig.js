@@ -12,7 +12,7 @@
 import crypto from 'crypto';
 import path from 'path';
 import fse from 'fs-extra';
-import chalk from 'chalk';
+import chalk from 'chalk-template';
 import dotenv from 'dotenv';
 
 // eslint-disable-next-line no-template-curly-in-string
@@ -58,6 +58,7 @@ export default class BaseConfig {
       nodeVersion: null,
       deploy: false,
       test: null,
+      testBundle: null,
       testUrl: null,
       testParams: {},
       testHeaders: {},
@@ -173,6 +174,7 @@ export default class BaseConfig {
       .withDelete(argv.delete)
       .withDeploy(argv.deploy)
       .withTest(argv.test)
+      .withTestBundle(argv.testBundle)
       .withTestParams(argv.testParams)
       .withTestHeaders(argv.testHeaders)
       .withTestUrl(argv.testUrl)
@@ -276,6 +278,11 @@ export default class BaseConfig {
 
   withTest(enable) {
     this.test = enable;
+    return this;
+  }
+
+  withTestBundle(enable) {
+    this.testBundle = enable;
     return this;
   }
 
@@ -572,7 +579,7 @@ export default class BaseConfig {
         default: '.',
       })
 
-      .group(['help', 'build', 'deploy', 'test', 'update-package', 'version-link', 'delete'], 'Operation Options')
+      .group(['help', 'build', 'deploy', 'test', 'test-bundle', 'update-package', 'version-link', 'delete'], 'Operation Options')
       .option('build', {
         description: 'Build the deployment package',
         type: 'boolean',
@@ -585,6 +592,10 @@ export default class BaseConfig {
       })
       .option('test', {
         description: 'Invoke action after deployment. Can be relative url or "true"',
+        type: 'string',
+      })
+      .option('test-bundle', {
+        description: 'Invoke bundle after build. Can be relative url or "true". Defaults to the same as --test',
         type: 'string',
       })
       .option('version-link', {

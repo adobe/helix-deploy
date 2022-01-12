@@ -14,7 +14,7 @@
 import path from 'path';
 import fs from 'fs';
 import fse from 'fs-extra';
-import chalk from 'chalk';
+import chalk from 'chalk-template';
 import git from 'isomorphic-git';
 import WebpackBundler from './bundler/WebpackBundler.js';
 import EdgeBundler from './bundler/EdgeBundler.js';
@@ -310,7 +310,7 @@ export default class ActionBuilder {
         // eslint-disable-next-line no-await-in-loop
         await dep[fnName](...args);
       } catch (e) {
-        cfg.log.error(`${chalk.red('error:')} ${dep.name} - ${e.message}`);
+        cfg.log.error(chalk`{red error:} ${dep.name} - ${e.message}`);
         errors.push(e);
       }
     }
@@ -338,7 +338,7 @@ export default class ActionBuilder {
   async updateLinks() {
     const { cfg } = this;
     if (cfg.baseName === cfg.name) {
-      cfg.log.warn(`${chalk.yellow('warn:')} unable to create version links. unsupported action name format. should be: "name@version"`);
+      cfg.log.warn(chalk`{yellow warn:} unable to create version links. unsupported action name format. should be: "name@version"`);
       return false;
     }
     return this.execute('updateLinks', 'updating links on ');
@@ -381,6 +381,10 @@ export default class ActionBuilder {
       for (const bundler of this.bundlers) {
         await bundler.createBundle();
         await bundler.createArchive();
+      }
+    }
+    if (cfg.build || cfg.test !== undefined || cfg.testBundle !== undefined) {
+      for (const bundler of this.bundlers) {
         await bundler.validateBundle();
       }
     }
@@ -408,7 +412,7 @@ export default class ActionBuilder {
       await this.delete();
     }
 
-    if (typeof cfg.test === 'string' || Object.keys(cfg.testParams).length) {
+    if (cfg.test !== undefined || Object.keys(cfg.testParams).length) {
       await this.validateDeployers();
       await this.test();
     }

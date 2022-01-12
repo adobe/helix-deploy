@@ -10,7 +10,7 @@
  * governing permissions and limitations under the License.
  */
 /* eslint-disable no-await-in-loop,no-restricted-syntax */
-import chalk from 'chalk';
+import chalk from 'chalk-template';
 import {
   CreateBucketCommand, DeleteBucketCommand, DeleteObjectCommand, DeleteObjectsCommand,
   ListBucketsCommand,
@@ -215,26 +215,41 @@ export default class AWSDeployer extends BaseDeployer {
 
     this.log.info(`--: using lambda role "${this._cfg.role}"`);
 
+    // check if function already exists
+    let baseARN;
     try {
-      this.log.info(`--: updating existing Lambda function ${functionName}`);
-      await this._lambda.send(new GetFunctionCommand({
+      this.log.info(chalk`--: checking existing Lambda function {yellow ${functionName}}`);
+      const { Configuration: { FunctionArn } } = await this._lambda.send(new GetFunctionCommand({
         FunctionName: functionName,
       }));
-      await this._lambda.send(new UpdateFunctionConfigurationCommand(functionConfig));
-      await this._lambda.send(new UpdateFunctionCodeCommand({
-        FunctionName: functionName,
-        ...functionConfig.Code,
-      }));
+      baseARN = FunctionArn;
+      this.log.info(chalk`{green ok}: exist {yellow ${FunctionArn}}`);
     } catch (e) {
       if (e.name === 'ResourceNotFoundException') {
-        this.log.info(`--: creating new Lambda function ${functionName}`);
+        this.log.info(chalk`{green ok}: does not exist yet.`);
+        this.log.info(chalk`--: creating new Lambda function {yellow ${functionName}}`);
         await this._lambda.send(new CreateFunctionCommand(functionConfig));
       } else {
-        this.log.error(`Unable to verify existence of Lambda function ${functionName}`);
+        this.log.error(chalk`Unable to verify existence of Lambda function {yellow ${functionName}}`);
         throw e;
       }
     }
 
+    // update existing function
+    if (baseARN) {
+      await this.checkFunctionReady(baseARN);
+      this.log.info(chalk`--: updating existing Lambda function configuration {yellow ${functionName}}`);
+      await this._lambda.send(new UpdateFunctionConfigurationCommand(functionConfig));
+      await this.checkFunctionReady(baseARN);
+      this.log.info('--: updating Lambda function code...');
+      await this._lambda.send(new UpdateFunctionCodeCommand({
+        FunctionName: functionName,
+        ...functionConfig.Code,
+      }));
+    }
+    await this.checkFunctionReady(baseARN);
+
+    this.log.info('--: publishing new version');
     const versiondata = await this._lambda.send(new PublishVersionCommand({
       FunctionName: functionName,
     }));
@@ -242,22 +257,23 @@ export default class AWSDeployer extends BaseDeployer {
     this._functionARN = versiondata.FunctionArn;
     // eslint-disable-next-line prefer-destructuring
     this._accountId = this._functionARN.split(':')[4];
-
     const versionNum = versiondata.Version;
+    this.log.info(chalk`{green ok}: version {yellow ${versionNum}} published.`);
+
     try {
       await this._lambda.send(new GetAliasCommand({
         FunctionName: functionName,
         Name: functionVersion,
       }));
 
-      this.log.info(`--: updating existing alias ${functionName}:${functionVersion} to v${versionNum}`);
+      this.log.info(chalk`--: updating existing alias {yellow ${functionName}:${functionVersion}} to version {yellow ${versionNum}}`);
       const updatedata = await this._lambda.send(new UpdateAliasCommand({
         FunctionName: functionName,
         Name: functionVersion,
         FunctionVersion: versionNum,
       }));
-
       this._aliasARN = updatedata.AliasArn;
+      this.log.info(chalk`{green ok}: alias {yellow ${this._aliasARN}} updated.`);
     } catch (e) {
       if (e.name === 'ResourceNotFoundException') {
         this.log.info(`--: creating new alias ${functionName}:${functionVersion} at v${versionNum}`);
@@ -267,6 +283,7 @@ export default class AWSDeployer extends BaseDeployer {
           FunctionVersion: versionNum,
         }));
         this._aliasARN = createdata.AliasArn;
+        this.log.info(chalk`{green ok}: alias {yellow ${this._aliasARN}} created.`);
       } else {
         this.log.error(`Unable to verify existence of Lambda alias ${functionName}:${functionVersion}`);
         throw e;
@@ -409,7 +426,7 @@ export default class AWSDeployer extends BaseDeployer {
       // ignore, most likely the permission already exists
     }
 
-    this.log.info(chalk`{green ok:} function deployed: ${chalk.blueBright(this._functionURL)}`);
+    this.log.info(chalk`{green ok:} function deployed: {blueBright ${this._functionURL}}`);
   }
 
   async test() {
@@ -517,7 +534,7 @@ export default class AWSDeployer extends BaseDeployer {
     });
     const unused = [];
     if (filter) {
-      this.log.info(chalk`Integrations / Routes for {gray ${filter}}`);
+      this.log.info(chalk`Integrations / Routes for {grey ${filter}}`);
     } else {
       this.log.info('Integrations / Routes');
     }
@@ -676,17 +693,17 @@ export default class AWSDeployer extends BaseDeployer {
     }
   }
 
-  async checkFunctionReady() {
+  async checkFunctionReady(arn) {
     let tries = 3;
     while (tries > 0) {
       try {
         tries -= 1;
         this.log.info(chalk`--: checking function state ...`);
         const { Configuration } = await this._lambda.send(new GetFunctionCommand({
-          FunctionName: this._functionARN,
+          FunctionName: arn ?? this._functionARN,
         }));
-        if (Configuration.State !== 'Active') {
-          this.log.warn(chalk`{yellow warn:} function is {blue ${Configuration.State}} and last update was {blue ${Configuration.LastUpdateStatus}}.`);
+        if (Configuration.State !== 'Active' || Configuration.LastUpdateStatus === 'InProgress') {
+          this.log.info(chalk`{yellow !!:} function is {blue ${Configuration.State}} and last update was {blue ${Configuration.LastUpdateStatus}} (retry...)`);
         } else {
           this.log.info(chalk`{green ok:} function is {blue ${Configuration.State}} and last update was {blue ${Configuration.LastUpdateStatus}}.`);
           return;
