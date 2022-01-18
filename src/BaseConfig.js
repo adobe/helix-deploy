@@ -664,7 +664,7 @@ export default class BaseConfig {
 
       .group(['target', 'hints'], 'Deploy Options')
       .option('target', {
-        description: 'Select target(s) for test, deploy, update-package actions (wsk,aws,azure,google,auto)',
+        description: 'Select target(s) for test, deploy, update-package actions (wsk,aws,google,auto)',
         type: 'string',
         default: ['auto'],
         array: true,

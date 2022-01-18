@@ -1,9 +1,3 @@
 {
-  "extends": ["github>adobe/helix-shared"],
-  "packageRules": [
-    {
-      "packageNames": ["@azure/arm-appservice"],
-      "allowedVersions": "<10.0.0"
-    }
-  ]
+  "extends": ["github>adobe/helix-shared"]
 }

@@ -182,9 +182,6 @@ export default class BaseBundler {
       'workers_dev = true',
     ].join('\n'), { name: 'wrangler.toml' });
 
-    // azure functions manifest
-    archive.append(JSON.stringify(this.functionJson, null, '  '), { name: 'function.json' });
-
     // this allows to use a cjs loader for the esm modules. but it still doesn't work on AWS
     if (cfg.esm) {
       archive.directory('esm-adapter');

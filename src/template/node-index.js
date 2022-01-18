@@ -14,14 +14,13 @@ const {
   openwhisk,
   aws,
   google,
-  azure,
 } = require('@adobe/helix-universal').adapter;
 
 // eslint-disable-next-line no-underscore-dangle
 global.__rootdir = dirname(__filename); // __dirname is transformed by webpack, __filename isn't
 
-module.exports = Object.assign(azure, {
+module.exports = {
   main: openwhisk,
   lambda: aws,
   google,
-});
+};
