@@ -1,3 +1,15 @@
+# [6.0.0](https://github.com/adobe/helix-deploy/compare/v5.1.0...v6.0.0) (2022-01-18)
+
+
+### Bug Fixes
+
+* remove support for Azure deployments ([#359](https://github.com/adobe/helix-deploy/issues/359)) ([14322ef](https://github.com/adobe/helix-deploy/commit/14322ef5dd51224f538f0f32f8116cccde4c26d6))
+
+
+### BREAKING CHANGES
+
+* azure support dropped.
+
 # [5.1.0](https://github.com/adobe/helix-deploy/compare/v5.0.6...v5.1.0) (2022-01-12)
 
 
