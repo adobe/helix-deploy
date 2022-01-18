@@ -53,85 +53,139 @@ Operation Options
       --build           Build the deployment package   [boolean] [default: true]
       --deploy          Automatically deploy to specified targets
                                                       [boolean] [default: false]
-      --test            Invoke action after deployment. Can be relative url.
-                                                                        [string]
+      --test            Invoke action after deployment. Can be relative url or "
+                        true"                                           [string]
+      --test-bundle     Invoke bundle after build. Can be relative url or "true"
+                        . Defaults to the same as --test                [string]
       --update-package  Create or update package with params.
                                                       [boolean] [default: false]
-  -l, --version-link    Create symlinks (sequences) after deployment. "major"
-                        and "minor" will create respective version links [array]
+  -l, --version-link    Create symlinks (sequences) after deployment. "major" an
+                        d "minor" will create respective version links   [array]
       --delete          Delete the action from OpenWhisk. Implies no-build
                                                       [boolean] [default: false]
 
 Build Options
-      --minify     Minify the final bundle            [boolean] [default: false]
-  -s, --static     Includes a static file into the archive [array] [default: []]
-      --entryFile  Specifies the entry file.           [default: "src/index.js"]
-      --externals  Defines the externals for webpack.      [array] [default: []]
-  -m, --modules    Include a node_module as is.            [array] [default: []]
+      --minify       Minify the final bundle          [boolean] [default: false]
+  -s, --static       Includes a static file into the archive
+                                                           [array] [default: []]
+      --entryFile    Specifies the entry file (the universal function).
+                                                       [default: "src/index.js"]
+      --externals    Defines the externals for the bundler.[array] [default: []]
+  -m, --modules      Include a node_module as is.          [array] [default: []]
+      --adapterFile  Specifies the adapter file (the exported module).
+      --esm          Produce EcmaScript Module (experimental, disables edge arch
+                     )                                [boolean] [default: false]
+      --bundler      Select bundler backend (webpack, rollup)
+                                                   [string] [default: "webpack"]
 
 Deploy Options
-      --target             Select target(s) for test, deploy, update-package
-                           actions (wsk,aws,azure,google,auto)
-                                                     [array] [default: ["auto"]]
+      --target             Select target(s) for test, deploy, update-package act
+                           ions (wsk,aws,google,auto)[array] [default: ["auto"]]
       --hints, --no-hints  Show additional hints for deployment
                                                        [boolean] [default: true]
 
 Test Options
-      --target       Select target(s) for test, deploy, update-package actions
-                     (wsk,aws,azure,google,auto)     [array] [default: ["auto"]]
-      --test-params  Invoke openwhisk action after deployment with the given
-                     params.                               [array] [default: []]
+      --target        Select target(s) for test, deploy, update-package actions
+                      (wsk,aws,google,auto)          [array] [default: ["auto"]]
+      --test-params   Invoke openwhisk action after deployment with the given pa
+                      rams.                                [array] [default: []]
+      --test-url      Test url to use after deployment, in case --test is not an
+                       url.                                             [string]
+      --test-headers  Test headers to send in test requests.
+                                                           [array] [default: []]
 
 Link Options
-      --target       Select target(s) for test, deploy, update-package actions
-                     (wsk,aws,azure,google,auto)     [array] [default: ["auto"]]
+      --target       Select target(s) for test, deploy, update-package actions (
+                     wsk,aws,google,auto)            [array] [default: ["auto"]]
       --linkPackage  Package name for version links                     [string]
 
 Update Package Options
       --package.params       OpenWhisk package params.     [array] [default: []]
       --package.params-file  OpenWhisk package params file.[array] [default: []]
 
+Cleanup Old Deployments: automatically delete redundant versions older than spe
+cified.
+  Use a pattern like 7d or 1m to specify time frames.
+  Use a simple number like --cleanup-ci=5 to retain the last five CI builds
+      --cleanup-ci     Automatically delete redundant CI versions
+      --cleanup-patch  Automatically delete redundant patch versions. At least o
+                       ne patch version for each minor version will be kept.
+      --cleanup-minor  Automatically delete redundant minor versions. At least o
+                       ne minor version for each major version will be kept.
+      --cleanup-major  Automatically delete redundant major versions.
+
 General Action Options
       --name          Action name. Can be prefixed with package.
       --package.name  Action package name.                              [string]
-      --node-version  Specifies the node.js version to use in the serverless
-                      runtime                                    [default: "12"]
+      --node-version  Specifies the node.js version to use in the serverless run
+                      time                                       [default: "14"]
   -p, --params        Include the given action param. can be json or env.
                                                            [array] [default: []]
   -f, --params-file   Include the given action param from a file; can be json or
-                      env.                                 [array] [default: []]
+                       env.                                [array] [default: []]
       --updated-by    user that updated the action or sequence.         [string]
-      --updated-at    unix timestamp when the action or sequence was updated
-                      (defaults to the current time).
-                                               [number] [default: 1611635868339]
+      --updated-at    unix timestamp when the action or sequence was updated (de
+                      faults to the current time).
+                                               [number] [default: 1642491741896]
       --web-secure    Annotates the action with require-whisk-auth. leave empty
                       to generate random token.                         [string]
-  -t, --timeout       the timeout limit in milliseconds after which the action
-                      is terminated                             [default: 60000]
+  -t, --timeout       the timeout limit in milliseconds after which the action i
+                      s terminated                              [default: 60000]
       --pkgVersion    Version use in the embedded package.json.
       --memory        the maximum memory LIMIT in MB for the action
-      --concurrency   the maximum intra-container concurrent activation LIMIT
-                      for the action
+      --concurrency   the maximum intra-container concurrent activation LIMIT fo
+                      r the action
 
 OpenWhisk Action Options
-      --namespace       OpenWhisk namespace. Needs to match the namespace
-                        provided with the openwhisk credentials.
+      --namespace       OpenWhisk namespace. Needs to match the namespace provid
+                        ed with the openwhisk credentials.
       --package.shared  OpenWhisk package scope.      [boolean] [default: false]
 
 AWS Deployment Options
-      --aws-region           the AWS region to deploy lambda functions to
+      --aws-region                the AWS region to deploy lambda functions to
                                                           [string] [default: ""]
-      --aws-api              the AWS API Gateway name. (id, "auto" or "create")
-                                                      [string] [default: "auto"]
-      --aws-role             the AWS role ARN to execute lambda functions with
-                                                          [string] [default: ""]
-      --aws-cleanup-buckets  Cleans up stray temporary S3 buckets
+      --aws-api                   the AWS API Gateway name. (id, "auto" or "crea
+                                  te")                [string] [default: "auto"]
+      --aws-role                  the AWS role ARN to execute lambda functions w
+                                  ith                     [string] [default: ""]
+      --aws-cleanup-buckets       Cleans up stray temporary S3 buckets
                                                       [boolean] [default: false]
-      --aws-create-routes    Create routes for function (usually not needed due
-                             to proxy function).      [boolean] [default: false]
+      --aws-cleanup-integrations  Cleans up unused integrations
+                                                      [boolean] [default: false]
+      --aws-create-routes         Create routes for function (usually not needed
+                                   due to proxy function).
+                                                      [boolean] [default: false]
 
-Azure Deployment Options
-      --azure-app  the Azure function app to deploy to    [string] [default: ""]
+Google Deployment Options
+      --google-project-id  the Google Cloud project to deploy to. Optional when
+                           the key file is a JSON file    [string] [default: ""]
+      --google-key-file    full path to the a .json, .pem, or .p12 key downloade
+                           d from the Google Developers Console
+                                                          [string] [default: ""]
+      --google-email       the Google  account email address. Required when usin
+                           g a .pem or .p12 credential file
+                                                          [string] [default: ""]
+
+Cloudflare Workers Deployment Options
+      --cloudflare-account-id   the Cloudflare account ID to deploy to
+                                                          [string] [default: ""]
+      --cloudflare-auth         the Cloudflare API token from https://dash.cloud
+                                flare.com/profile/api-tokens
+                                                          [string] [default: ""]
+      --cloudflare-email        the Cloudflare email address belonging to the au
+                                thentication token        [string] [default: ""]
+      --cloudflare-test-domain  the *.workers.dev subdomain to use for testing d
+                                eployed scripts           [string] [default: ""]
+
+Fastly Compute@Edge Options
+      --compute-service-id     the Fastly Service to deploy the action to
+                                                          [string] [default: ""]
+      --compute-domain
+      --fastly-auth            the Fastly token           [string] [default: ""]
+      --coralogix-token        the Coralogix token (to enable logging)
+                                                          [string] [default: ""]
+      --compute-coralogix-app  the Application name
+                                            [string] [default: "fastly-compute"]
 
 Fastly Gateway Options
       --fastly-service-id  the Fastly Service to use as a gateway
@@ -139,12 +193,40 @@ Fastly Gateway Options
       --fastly-auth        the Fastly token               [string] [default: ""]
       --checkpath          the path to check as part of the Fastly health check
                                                           [string] [default: ""]
+      --coralogix-token    the Coralogix token (to enable logging)
+                                                          [string] [default: ""]
+      --coralogix-app      the Application name
+                                         [string] [default: "universal-runtime"]
 
 Options:
-      --format    Action formats
+      --arch                   Select archs(s) for bundles (node,edge).
+                                                     [array] [default: ["node"]]
+      --format                 Action formats
                      [default: {"aws":"/${packageName}/${baseName}/${version}"}]
-      --property  Additional properties that can be used in formats.
-                                                                   [default: {}]
+      --property               Additional properties that can be used in formats
+                               .                                   [default: {}]
+      --package-token          Protects access to the gateway-stored package par
+                               ameters with this token. leave empty to generate
+                               random token.
+              [string] [default: "gXhVnUf6kIqZ64Xr0E4nTnlGBrKOrybQA7Ifx1S/2CA="]
+      --aws-parameter-manager  Manager to use for storing package params. (eithe
+                               r "secret" for Secrets Manager or "system" for Sy
+                               stem Manager)
+                                          [array] [default: ["secret","system"]]
+      --aws-lambda-format      Format to use to create lambda functions (note th
+                               at all dots ('.') will be replaced with underscor
+                               es.
+                               [string] [default: "${packageName}--${baseName}"]
+      --google-region          the Google Cloud region to deploy in
+                                                          [string] [default: ""]
+      --compute-test-domain    the domain name of the Compute@Edge service (used
+                                for testing)              [string] [default: ""]
+      --fastly-gateway         the hostname of the Fastly gateway for package pa
+                               rams                       [string] [default: ""]
+      --checkinterval          the interval in milliseconds that each Fastly POP
+                                should perform a health check. Set to 0 to disab
+                               le health checks entirely.
+                                                     [number] [default: 6000000]
 ```
 
 With no arguments,the `hedy` just bundles your code into the respective `action.zip`:
