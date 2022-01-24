@@ -24,6 +24,8 @@ export default class AWSConfig {
       createRoutes: false,
       lambdaFormat: DEFAULT_LAMBDA_FORMAT,
       parameterMgr: ['system', 'secret'],
+      createAuthorizer: '',
+      attachAuthorizer: '',
     });
   }
 
@@ -33,6 +35,8 @@ export default class AWSConfig {
       .withAWSRole(argv.awsRole)
       .withAWSApi(argv.awsApi)
       .withAWSLambdaFormat(argv.awsLambdaFormat)
+      .withAWSCreateAuthorizer(argv.awsCreateAuthorizer)
+      .withAWSAttachAuthorizer(argv.awsAttachAuthorizer)
       .withAWSCleanUpBuckets(argv.awsCleanupBuckets)
       .withAWSCleanUpIntegrations(argv.awsCleanupIntegrations)
       .withAWSCreateRoutes(argv.awsCreateRoutes)
@@ -79,9 +83,20 @@ export default class AWSConfig {
     return this;
   }
 
+  withAWSCreateAuthorizer(value) {
+    this.createAuthorizer = value;
+    return this;
+  }
+
+  withAWSAttachAuthorizer(value) {
+    this.attachAuthorizer = value;
+    return this;
+  }
+
   static yarg(yargs) {
     return yargs
-      .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-cleanup-integrations', 'aws-create-routes'], 'AWS Deployment Options')
+      .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-cleanup-integrations',
+        'aws-create-routes', 'aws-create-authorizer', 'aws-attach-authorizer'], 'AWS Deployment Options')
       .option('aws-region', {
         description: 'the AWS region to deploy lambda functions to',
         type: 'string',
@@ -112,6 +127,15 @@ export default class AWSConfig {
         description: 'Format to use to create lambda functions (note that all dots (\'.\') will be replaced with underscores.',
         type: 'string',
         default: DEFAULT_LAMBDA_FORMAT,
+      })
+      .option('aws-create-authorizer', {
+        // eslint-disable-next-line no-template-curly-in-string
+        description: 'Authorizer to create or update during linking. The string can contain placeholders (note that all dots (\'.\'). Example "helix-authorizer_${version}".',
+        type: 'string',
+      })
+      .option('aws-attach-authorizer', {
+        description: 'Attach authorizer to linked route.',
+        type: 'string',
       })
       .option('aws-cleanup-buckets', {
         description: 'Cleans up stray temporary S3 buckets',
