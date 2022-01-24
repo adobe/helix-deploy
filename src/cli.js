@@ -41,7 +41,9 @@ export default class CLI {
       .env('HLX');
     BaseConfig.yarg(this._yargs);
     PLUGINS.forEach((PluginClass) => PluginClass.Config.yarg(this._yargs));
-    this._yargs.help();
+    this._yargs
+      .wrap(Math.min(120, this._yargs.terminalWidth()))
+      .help();
   }
 
   prepare(args) {

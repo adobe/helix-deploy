@@ -96,7 +96,8 @@ export default class AWSConfig {
   static yarg(yargs) {
     return yargs
       .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-cleanup-integrations',
-        'aws-create-routes', 'aws-create-authorizer', 'aws-attach-authorizer'], 'AWS Deployment Options')
+        'aws-create-routes', 'aws-create-authorizer', 'aws-attach-authorizer', 'aws-lambda-format',
+        'aws-parameter-manager'], 'AWS Deployment Options')
       .option('aws-region', {
         description: 'the AWS region to deploy lambda functions to',
         type: 'string',
@@ -129,12 +130,14 @@ export default class AWSConfig {
         default: DEFAULT_LAMBDA_FORMAT,
       })
       .option('aws-create-authorizer', {
-        // eslint-disable-next-line no-template-curly-in-string
-        description: 'Authorizer to create or update during linking. The string can contain placeholders (note that all dots (\'.\'). Example "helix-authorizer_${version}".',
+        description: 'Creates API Gateway authorizer using lambda authorization with this function and the specified name. '
+          + 'The string can contain placeholders (note that all dots (\'.\') are replaced with underscores. '
+          // eslint-disable-next-line no-template-curly-in-string
+          + 'Example: "helix-authorizer_${version}".',
         type: 'string',
       })
       .option('aws-attach-authorizer', {
-        description: 'Attach authorizer to linked route.',
+        description: 'Attach specified authorizer to routes during linking.',
         type: 'string',
       })
       .option('aws-cleanup-buckets', {
