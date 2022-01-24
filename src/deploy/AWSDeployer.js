@@ -782,7 +782,7 @@ export default class AWSDeployer extends BaseDeployer {
           Action: 'lambda:InvokeFunction',
           SourceArn: sourceArn,
           Principal: 'apigateway.amazonaws.com',
-          StatementId: crypto.createHash('md5').update(aliasArn + sourceArn).digest('hex'),
+          StatementId: crypto.createHash('sha256').update(aliasArn + sourceArn).digest('hex'),
         }));
         this.log.info(chalk`{green ok:} added invoke permissions for ${sourceArn}`);
       } catch (e) {
