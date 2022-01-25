@@ -29,14 +29,14 @@ import {
 
 import {
   ApiGatewayV2Client,
-  CreateApiCommand,
+  CreateApiCommand, CreateAuthorizerCommand,
   CreateIntegrationCommand, CreateRouteCommand,
   CreateStageCommand,
   DeleteIntegrationCommand,
   GetApiCommand,
-  GetApisCommand,
+  GetApisCommand, GetAuthorizersCommand,
   GetIntegrationsCommand, GetRoutesCommand,
-  GetStagesCommand, UpdateRouteCommand,
+  GetStagesCommand, UpdateAuthorizerCommand, UpdateRouteCommand,
 } from '@aws-sdk/client-apigatewayv2';
 
 import { PutParameterCommand, SSMClient } from '@aws-sdk/client-ssm';
@@ -366,6 +366,20 @@ export default class AWSDeployer extends BaseDeployer {
     return routes;
   }
 
+  async fetchAuthorizers(ApiId) {
+    let nextToken;
+    const authorizers = [];
+    do {
+      const res = await this._api.send(new GetAuthorizersCommand({
+        ApiId,
+        NextToken: nextToken,
+      }));
+      authorizers.push(...res.Items);
+      nextToken = res.NextToken;
+    } while (nextToken);
+    return authorizers;
+  }
+
   async createAPI() {
     const { cfg } = this;
     const { ApiId, ApiEndpoint } = await this.initApiId();
@@ -404,8 +418,12 @@ export default class AWSDeployer extends BaseDeployer {
       const { IntegrationId } = integration;
       this.log.info('--: fetching existing routes...');
       const routes = await this.fetchRoutes(ApiId);
-      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY ${this.functionPath}/{path+}`);
-      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY ${this.functionPath}`);
+      const routeParams = {
+        ApiId,
+        Target: `integrations/${IntegrationId}`,
+      };
+      await this.createOrUpdateRoute(routes, routeParams, `ANY ${this.functionPath}/{path+}`);
+      await this.createOrUpdateRoute(routes, routeParams, `ANY ${this.functionPath}`);
     }
 
     // setup permissions for entire package.
@@ -581,25 +599,24 @@ export default class AWSDeployer extends BaseDeployer {
     this.log.info(chalk`{green ok}: deleted ${unused.length} unused integrations.`);
   }
 
-  async createOrUpdateRoute(routes, ApiId, IntegrationId, RouteKey) {
+  async createOrUpdateRoute(routes, routeParams, RouteKey) {
     const existing = routes.find((r) => r.RouteKey === RouteKey);
+    const auth = routeParams.AuthorizerId ? chalk` {yellow (${routeParams.AuthorizerId})}` : '';
     if (existing) {
       this.log.info(chalk`--: updating route for: {blue ${existing.RouteKey}}...`);
       const res = await this._api.send(new UpdateRouteCommand({
-        ApiId,
-        RouteId: existing.RouteId,
+        ...routeParams,
         RouteKey,
-        Target: `integrations/${IntegrationId}`,
+        RouteId: existing.RouteId,
       }));
-      this.log.info(chalk`{green ok}: updated route for: {blue ${res.RouteKey}}`);
+      this.log.info(chalk`{green ok}: updated route for: {blue ${res.RouteKey}}${auth}`);
     } else {
       this.log.info(chalk`--: creating route for: {blue ${RouteKey}}...`);
       const res = await this._api.send(new CreateRouteCommand({
-        ApiId,
+        ...routeParams,
         RouteKey,
-        Target: `integrations/${IntegrationId}`,
       }));
-      this.log.info(chalk`{green ok}: created route for: {blue ${res.RouteKey}}`);
+      this.log.info(chalk`{green ok}: created route for: {blue ${res.RouteKey}}${auth}`);
     }
   }
 
@@ -609,20 +626,22 @@ export default class AWSDeployer extends BaseDeployer {
         FunctionName: functionName,
         Name: name,
       }));
-      this.log.info(chalk`--: updating alias for: {blue ${name}}...`);
+      this.log.info(chalk`--: updating alias {blue ${name}}...`);
       await this._lambda.send(new UpdateAliasCommand({
         FunctionName: functionName,
         Name: name,
         FunctionVersion: functionVersion,
       }));
+      this.log.info(chalk`{green ok:} updated alias {blue ${name}} to version {yellow ${functionVersion}}.`);
     } catch (e) {
       if (e.name === 'ResourceNotFoundException') {
-        this.log.info(chalk`--: creating alias for: {blue ${name}}...`);
+        this.log.info(chalk`--: creating alias {blue ${name}}...`);
         await this._lambda.send(new CreateAliasCommand({
           FunctionName: functionName,
           Name: name,
           FunctionVersion: functionVersion,
         }));
+        this.log.info(chalk`{green ok:} created alias {blue ${name}} for version {yellow ${functionVersion}}.`);
       } else {
         this.log.error(`Unable to verify existence of Lambda alias ${name}`);
         throw e;
@@ -673,16 +692,33 @@ export default class AWSDeployer extends BaseDeployer {
     const { IntegrationId } = integration;
 
     // get all the routes
-    this.log.info(chalk`--: patching routes ...`);
+    this.log.info(chalk`--: fetching routes ...`);
     const routes = await this.fetchRoutes(ApiId);
+    const routeParams = {
+      ApiId,
+      Target: `integrations/${IntegrationId}`,
+      AuthorizerId: undefined,
+      AuthorizationType: 'NONE',
+    };
+    if (this._cfg.attachAuthorizer) {
+      this.log.info(chalk`--: fetching authorizers...`);
+      const authorizers = await this.fetchAuthorizers(ApiId);
+      const authorizer = authorizers.find((info) => info.Name === this._cfg.attachAuthorizer);
+      if (!authorizer) {
+        throw Error(`Specified authorizer ${this._cfg.attachAuthorizer} does not exist in api ${ApiId}.`);
+      }
+      routeParams.AuthorizerId = authorizer.AuthorizerId;
+      routeParams.AuthorizationType = 'CUSTOM';
+      this.log.info(chalk`{green ok:} configuring routes with authorizer {blue ${this._cfg.attachAuthorizer}} {yellow ${authorizer.AuthorizerId}}`);
+    }
 
     // create routes for each symlink
     const sfx = this.getLinkVersions();
 
     for (const suffix of sfx) {
       // check if route already exists
-      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}`);
-      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}/{path+}`);
+      await this.createOrUpdateRoute(routes, routeParams, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}`);
+      await this.createOrUpdateRoute(routes, routeParams, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}/{path+}`);
 
       // create or update alias
       await this.createOrUpdateAlias(suffix.replace('.', '_'), functionName, incrementalVersion);
@@ -690,6 +726,68 @@ export default class AWSDeployer extends BaseDeployer {
 
     if (cleanup) {
       await this.cleanUpIntegrations(functionName);
+    }
+
+    await this.updateAuthorizers(ApiId, functionName, aliasArn);
+  }
+
+  async updateAuthorizers(ApiId, functionName, aliasArn) {
+    const cfg = this._cfg;
+    if (!cfg.createAuthorizer) {
+      return;
+    }
+
+    const AUTH_URI_PREFIX = `arn:aws:apigateway:${cfg.region}:lambda:path/2015-03-31/functions/`;
+    const accountId = aliasArn.split(':')[4];
+    this.log.info(chalk`--: patching authorizers...`);
+    const authorizers = await this.fetchAuthorizers(ApiId);
+    const versions = this.getLinkVersions();
+    for (const version of versions) {
+      const props = {
+        ...this.cfg,
+        ...this.cfg.properties,
+        // overwrite version with link name
+        version,
+      };
+      const authorizerName = ActionBuilder.substitute(cfg.createAuthorizer, props).replace(/\./g, '_');
+      const existing = authorizers.find((info) => info.Name === authorizerName) || {};
+      let { AuthorizerId } = existing;
+      if (AuthorizerId) {
+        const res = await this._api.send(new UpdateAuthorizerCommand({
+          ApiId,
+          AuthorizerId,
+          AuthorizerUri: `${AUTH_URI_PREFIX}${aliasArn}/invocations`,
+        }));
+        this.log.info(chalk`{green ok}: updated authorizer: {blue ${res.Name}}`);
+      } else {
+        const res = await this._api.send(new CreateAuthorizerCommand({
+          ApiId,
+          AuthorizerPayloadFormatVersion: '2.0',
+          AuthorizerType: 'REQUEST',
+          AuthorizerUri: `${AUTH_URI_PREFIX}${aliasArn}/invocations`,
+          AuthorizerResultTtlInSeconds: 0,
+          EnableSimpleResponses: true,
+          IdentitySource: ['$request.header.Authorization'],
+          Name: authorizerName,
+        }));
+        AuthorizerId = res.AuthorizerId;
+        this.log.info(chalk`{green ok}: created authorizer: {blue ${res.Name}}`);
+      }
+
+      // add permission to alias for the API Gateway is allowed to invoke the authorized function
+      try {
+        const sourceArn = `arn:aws:execute-api:${this._cfg.region}:${accountId}:${ApiId}/authorizers/${AuthorizerId}`;
+        await this._lambda.send(new AddPermissionCommand({
+          FunctionName: aliasArn,
+          Action: 'lambda:InvokeFunction',
+          SourceArn: sourceArn,
+          Principal: 'apigateway.amazonaws.com',
+          StatementId: crypto.createHash('sha256').update(aliasArn + sourceArn).digest('hex'),
+        }));
+        this.log.info(chalk`{green ok:} added invoke permissions for ${sourceArn}`);
+      } catch (e) {
+        // ignore, most likely the permission already exists
+      }
     }
   }
 

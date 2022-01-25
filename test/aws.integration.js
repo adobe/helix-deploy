@@ -98,16 +98,83 @@ describe('AWS Integration Test', () => {
     console.log('testing if v1 link works...');
     let ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo');
     assert.ok(ret.ok);
-    assert.equal(ret.status, 200);
+    assert.strictEqual(ret.status, 200);
     let text = await ret.text();
-    assert.equal(text.trim(), '{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo","file":"Hello, world.\\n"}');
+    assert.strictEqual(text.trim(), '{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo","file":"Hello, world.\\n"}');
 
     // eslint-disable-next-line no-console
     console.log('testing if ci link works...');
     ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo');
     assert.ok(ret.ok);
-    assert.equal(ret.status, 200);
+    assert.strictEqual(ret.status, 200);
     text = await ret.text();
-    assert.equal(text.trim(), '{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo","file":"Hello, world.\\n"}');
+    assert.strictEqual(text.trim(), '{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo","file":"Hello, world.\\n"}');
+  }).timeout(50000);
+
+  it('Deploy authorizer and link it', async () => {
+    const testRoot1 = path.resolve(testRoot, 'authorizer');
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple-authorizer'), testRoot1);
+    await fse.ensureDir(testRoot1);
+    const testRoot2 = path.resolve(testRoot, 'simple');
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple'), testRoot2);
+    await fse.ensureDir(testRoot2);
+
+    // build and link authorizer
+    const version = `ci${process.env.CIRCLE_BUILD_NUM || Date.now()}`;
+    process.chdir(testRoot1);
+    let builder = new CLI()
+      .prepare([
+        '--verbose',
+        '--deploy',
+        '--pkgVersion', version,
+        '-l', 'ci',
+        '--target', 'aws',
+        '--aws-region', 'us-east-1',
+        '--aws-api', 'lqmig3v5eb',
+        '--aws-role', 'arn:aws:iam::118435662149:role/service-role/helix-service-role-ogu32wiz',
+        '--directory', testRoot1,
+        '--entryFile', 'index.js',
+      ]);
+    builder.cfg._logger = new TestLogger();
+
+    let res = await builder.run();
+    assert.ok(res);
+    let out = builder.cfg._logger.output;
+    assert.ok(/.*updated authorizer: helix-simple-test-authorizer_ci.*/sg.test(out), out);
+
+    // now link authorizer to simple package route
+    process.chdir(testRoot2);
+    builder = new CLI()
+      .prepare([
+        '--verbose',
+        '--no-build',
+        '-l', 'ci',
+        '--target', 'aws',
+        '--aws-attach-authorizer', 'helix-simple-test-authorizer_ci',
+        '--aws-region', 'us-east-1',
+        '--aws-role', 'arn:aws:iam::118435662149:role/service-role/helix-service-role-ogu32wiz',
+        '--aws-api', 'lqmig3v5eb',
+        '--directory', testRoot2,
+      ]);
+    builder.cfg._logger = new TestLogger();
+    res = await builder.run();
+    out = builder.cfg._logger.output;
+    assert.ok(/.*configuring routes with authorizer helix-simple-test-authorizer_ci.*/sg.test(out), out);
+
+    // eslint-disable-next-line no-console
+    console.log('invoking w/o token should fail');
+    let ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo');
+    assert.strictEqual(ret.status, 401);
+
+    // eslint-disable-next-line no-console
+    console.log('invoking with token token should succeed');
+    ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo', {
+      headers: {
+        authorization: 'test',
+      },
+    });
+    const text = await ret.text();
+    assert.strictEqual(ret.status, 200);
+    assert.strictEqual(text.trim(), '{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo","file":"Hello, world.\\n"}');
   }).timeout(50000);
 });
