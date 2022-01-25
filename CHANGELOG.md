@@ -1,3 +1,10 @@
+# [6.1.0](https://github.com/adobe/helix-deploy/compare/v6.0.1...v6.1.0) (2022-01-25)
+
+
+### Features
+
+* add AWS lambda authorizers support ([#362](https://github.com/adobe/helix-deploy/issues/362)) ([72e4def](https://github.com/adobe/helix-deploy/commit/72e4def53c5cb175447d97b70ec1de17161c1f78)), closes [#261](https://github.com/adobe/helix-deploy/issues/261) [#260](https://github.com/adobe/helix-deploy/issues/260)
+
 ## [6.0.1](https://github.com/adobe/helix-deploy/compare/v6.0.0...v6.0.1) (2022-01-24)
 
 
