@@ -13,13 +13,13 @@
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { adapter } from '@adobe/helix-universal';
-const { openwhisk, aws, google, azure } = adapter;
+const { openwhisk, aws, google } = adapter;
 
 // eslint-disable-next-line no-underscore-dangle
 global.__rootdir = dirname(fileURLToPath(import.meta.url));
 
-export default Object.assign(azure, {
+export default {
   main: openwhisk,
   lambda: aws,
   google,
-});
+};

@@ -53,7 +53,6 @@ describe('Gateway Integration Test', () => {
         '--target', 'wsk',
         '--target', 'aws',
         '--target', 'google',
-        '--target', 'azure',
         '--aws-region', 'us-east-1',
         '--aws-api', 'lqmig3v5eb',
         '--aws-role', 'arn:aws:iam::118435662149:role/helix-lambda-role',
@@ -61,7 +60,6 @@ describe('Gateway Integration Test', () => {
         '--google-email', 'cloud-functions-dev@helix-225321.iam.gserviceaccount.com',
         '--google-project-id', 'helix-225321',
         '--google-region', 'us-central1',
-        '--azure-app', 'deploy-helix',
         '--package.params', 'HEY=ho',
         '--update-package', 'true',
         '--check-interval', 30000000,
@@ -85,7 +83,7 @@ describe('Gateway Integration Test', () => {
     assert.ok(out.indexOf(`{"url":"https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0/foo?testPackageParam=42&test-package-param=42","file":"Hello, world.\\n"}`) > 0, out);
 
     const { fetch } = fetchContext();
-    const results = await Promise.all(['random', 'openwhisk', 'amazonwebservices', 'azure'].map(async (name) => {
+    const results = await Promise.all(['random', 'openwhisk', 'amazonwebservices'].map(async (name) => {
       const headers = {};
       if (name !== 'random') {
         headers['x-ow-version-lock'] = `env=${name}`;
@@ -137,16 +135,6 @@ describe('Gateway Integration Test', () => {
         url: 'https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/1.45.0/foo',
       },
       name: 'amazonwebservices',
-      status: 200,
-      surrogate: 'simple',
-    },
-    {
-      backendName: 'F_Azure',
-      body: {
-        file: 'Hello, world.\n',
-        url: 'https://deploy-helix.azurewebsites.net/api/simple-package/simple-name/1.45.0/foo',
-      },
-      name: 'azure',
       status: 200,
       surrogate: 'simple',
     },

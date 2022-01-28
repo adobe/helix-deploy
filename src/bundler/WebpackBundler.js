@@ -74,6 +74,8 @@ export default class WebpackBundler extends BaseBundler {
           // the main.js is imported in the universal adapter and is _the_ action entry point
           './main.js': cfg.file,
         },
+        // use fixed conditions to omit the `development` condition.
+        conditionNames: ['node', 'require'],
       },
       node: {
         __dirname: true,

@@ -60,12 +60,15 @@ export default class BaseBundler {
   async validateBundle() {
     const { cfg } = this;
     cfg.log.info('--: validating bundle ...');
-    const result = await validateBundle(cfg.bundle);
+    const result = await validateBundle(cfg.bundle, cfg);
     if (result.error) {
-      cfg.log.error(chalk`{red error:}`, result.error);
       throw Error(`Validation failed: ${result.error}`);
     }
-    cfg.log.info(chalk`{green ok:} bundle can be loaded and has a {grey main()} function.`);
+    if (result.response) {
+      cfg.log.info(chalk`{green ok:} bundle can be loaded and {grey lambda()} function can be executed.`);
+    } else {
+      cfg.log.info(chalk`{green ok:} bundle can be loaded and has a {grey lambda()} function.`);
+    }
   }
 
   async createArchive() {
@@ -178,9 +181,6 @@ export default class BaseBundler {
       'type = "javascript"',
       'workers_dev = true',
     ].join('\n'), { name: 'wrangler.toml' });
-
-    // azure functions manifest
-    archive.append(JSON.stringify(this.functionJson, null, '  '), { name: 'function.json' });
 
     // this allows to use a cjs loader for the esm modules. but it still doesn't work on AWS
     if (cfg.esm) {

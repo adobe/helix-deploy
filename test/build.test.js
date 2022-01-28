@@ -74,14 +74,10 @@ describe('Build Test', () => {
     await fse.copy(testProject, testRoot);
     // need to change .cwd() for yargs to pickup `wsk` in package.json
     process.chdir(testRoot);
-    process.env.WSK_AUTH = 'foobar';
-    process.env.WSK_NAMESPACE = 'foobar';
-    process.env.WSK_APIHOST = 'https://example.com';
-    process.env.__OW_ACTION_NAME = '/namespace/package/name@version';
     const builder = new CLI()
       .prepare([
         ...buildArgs,
-        '--target', 'wsk',
+        '--target', 'aws',
         '--verbose',
         '--directory', testRoot,
         '--entryFile', 'index.js',
@@ -132,13 +128,32 @@ describe('Build Test', () => {
     });
 
     // execute main script
-    const result = await validateBundle(path.resolve(zipDir, 'index.js'), true);
+    const result = await validateBundle(path.resolve(zipDir, 'index.js'), {
+      ...builder.cfg,
+      testBundle: true,
+    });
     assert.strictEqual(result.error, undefined);
-    assert.deepEqual(result.response.body, '{"url":"https://localhost/api/v1/web/namespace/package/name@version","file":"Hello, world.\\n"}');
+    assert.deepEqual(result.response.body, '{"url":"https://localhost/simple-package/simple-name/1.45.0","file":"Hello, world.\\n"}');
   }
 
   it('generates the bundle (webpack)', async () => {
     await generate([]);
+  }).timeout(15000);
+
+  it('invalid bundle fails the build', async () => {
+    await fse.copy(PROJECT_SIMPLE, testRoot);
+    // need to change .cwd() for yargs to pickup `wsk` in package.json
+    process.chdir(testRoot);
+    const builder = new CLI()
+      .prepare([
+        '--target', 'aws',
+        '--verbose',
+        '--directory', testRoot,
+        '--entryFile', 'index.js',
+        '--test-bundle', '/fail',
+      ]);
+
+    await assert.rejects(builder.run(), new Error('Validation failed: 500'));
   }).timeout(15000);
 
   it('generates the bundle (webpack, esm project)', async () => {

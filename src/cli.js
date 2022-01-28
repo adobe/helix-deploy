@@ -17,7 +17,6 @@ import { config as envConfig } from 'dotenv';
 import BaseConfig from './BaseConfig.js';
 import OpenWhiskDeployer from './deploy/OpenWhiskDeployer.js';
 import AWSDeployer from './deploy/AWSDeployer.js';
-import AzureDeployer from './deploy/AzureDeployer.js';
 import GoogleDeployer from './deploy/GoogleDeployer.js';
 import CloudflareDeployer from './deploy/CloudflareDeployer.js';
 import ComputeAtEdgeDeployer from './deploy/ComputeAtEdgeDeployer.js';
@@ -27,7 +26,6 @@ import ActionBuilder from './ActionBuilder.js';
 const PLUGINS = [
   OpenWhiskDeployer,
   AWSDeployer,
-  AzureDeployer,
   GoogleDeployer,
   CloudflareDeployer,
   ComputeAtEdgeDeployer,
@@ -43,7 +41,9 @@ export default class CLI {
       .env('HLX');
     BaseConfig.yarg(this._yargs);
     PLUGINS.forEach((PluginClass) => PluginClass.Config.yarg(this._yargs));
-    this._yargs.help();
+    this._yargs
+      .wrap(Math.min(120, this._yargs.terminalWidth()))
+      .help();
   }
 
   prepare(args) {

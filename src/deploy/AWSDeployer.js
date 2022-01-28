@@ -29,14 +29,14 @@ import {
 
 import {
   ApiGatewayV2Client,
-  CreateApiCommand,
+  CreateApiCommand, CreateAuthorizerCommand,
   CreateIntegrationCommand, CreateRouteCommand,
   CreateStageCommand,
   DeleteIntegrationCommand,
   GetApiCommand,
-  GetApisCommand,
+  GetApisCommand, GetAuthorizersCommand,
   GetIntegrationsCommand, GetRoutesCommand,
-  GetStagesCommand, UpdateRouteCommand,
+  GetStagesCommand, UpdateAuthorizerCommand, UpdateRouteCommand,
 } from '@aws-sdk/client-apigatewayv2';
 
 import { PutParameterCommand, SSMClient } from '@aws-sdk/client-ssm';
@@ -215,26 +215,41 @@ export default class AWSDeployer extends BaseDeployer {
 
     this.log.info(`--: using lambda role "${this._cfg.role}"`);
 
+    // check if function already exists
+    let baseARN;
     try {
-      this.log.info(`--: updating existing Lambda function ${functionName}`);
-      await this._lambda.send(new GetFunctionCommand({
+      this.log.info(chalk`--: checking existing Lambda function {yellow ${functionName}}`);
+      const { Configuration: { FunctionArn } } = await this._lambda.send(new GetFunctionCommand({
         FunctionName: functionName,
       }));
-      await this._lambda.send(new UpdateFunctionConfigurationCommand(functionConfig));
-      await this._lambda.send(new UpdateFunctionCodeCommand({
-        FunctionName: functionName,
-        ...functionConfig.Code,
-      }));
+      baseARN = FunctionArn;
+      this.log.info(chalk`{green ok}: exist {yellow ${FunctionArn}}`);
     } catch (e) {
       if (e.name === 'ResourceNotFoundException') {
-        this.log.info(`--: creating new Lambda function ${functionName}`);
+        this.log.info(chalk`{green ok}: does not exist yet.`);
+        this.log.info(chalk`--: creating new Lambda function {yellow ${functionName}}`);
         await this._lambda.send(new CreateFunctionCommand(functionConfig));
       } else {
-        this.log.error(`Unable to verify existence of Lambda function ${functionName}`);
+        this.log.error(chalk`Unable to verify existence of Lambda function {yellow ${functionName}}`);
         throw e;
       }
     }
 
+    // update existing function
+    if (baseARN) {
+      await this.checkFunctionReady(baseARN);
+      this.log.info(chalk`--: updating existing Lambda function configuration {yellow ${functionName}}`);
+      await this._lambda.send(new UpdateFunctionConfigurationCommand(functionConfig));
+      await this.checkFunctionReady(baseARN);
+      this.log.info('--: updating Lambda function code...');
+      await this._lambda.send(new UpdateFunctionCodeCommand({
+        FunctionName: functionName,
+        ...functionConfig.Code,
+      }));
+    }
+    await this.checkFunctionReady(baseARN);
+
+    this.log.info('--: publishing new version');
     const versiondata = await this._lambda.send(new PublishVersionCommand({
       FunctionName: functionName,
     }));
@@ -242,22 +257,23 @@ export default class AWSDeployer extends BaseDeployer {
     this._functionARN = versiondata.FunctionArn;
     // eslint-disable-next-line prefer-destructuring
     this._accountId = this._functionARN.split(':')[4];
-
     const versionNum = versiondata.Version;
+    this.log.info(chalk`{green ok}: version {yellow ${versionNum}} published.`);
+
     try {
       await this._lambda.send(new GetAliasCommand({
         FunctionName: functionName,
         Name: functionVersion,
       }));
 
-      this.log.info(`--: updating existing alias ${functionName}:${functionVersion} to v${versionNum}`);
+      this.log.info(chalk`--: updating existing alias {yellow ${functionName}:${functionVersion}} to version {yellow ${versionNum}}`);
       const updatedata = await this._lambda.send(new UpdateAliasCommand({
         FunctionName: functionName,
         Name: functionVersion,
         FunctionVersion: versionNum,
       }));
-
       this._aliasARN = updatedata.AliasArn;
+      this.log.info(chalk`{green ok}: alias {yellow ${this._aliasARN}} updated.`);
     } catch (e) {
       if (e.name === 'ResourceNotFoundException') {
         this.log.info(`--: creating new alias ${functionName}:${functionVersion} at v${versionNum}`);
@@ -267,6 +283,7 @@ export default class AWSDeployer extends BaseDeployer {
           FunctionVersion: versionNum,
         }));
         this._aliasARN = createdata.AliasArn;
+        this.log.info(chalk`{green ok}: alias {yellow ${this._aliasARN}} created.`);
       } else {
         this.log.error(`Unable to verify existence of Lambda alias ${functionName}:${functionVersion}`);
         throw e;
@@ -349,6 +366,20 @@ export default class AWSDeployer extends BaseDeployer {
     return routes;
   }
 
+  async fetchAuthorizers(ApiId) {
+    let nextToken;
+    const authorizers = [];
+    do {
+      const res = await this._api.send(new GetAuthorizersCommand({
+        ApiId,
+        NextToken: nextToken,
+      }));
+      authorizers.push(...res.Items);
+      nextToken = res.NextToken;
+    } while (nextToken);
+    return authorizers;
+  }
+
   async createAPI() {
     const { cfg } = this;
     const { ApiId, ApiEndpoint } = await this.initApiId();
@@ -387,8 +418,12 @@ export default class AWSDeployer extends BaseDeployer {
       const { IntegrationId } = integration;
       this.log.info('--: fetching existing routes...');
       const routes = await this.fetchRoutes(ApiId);
-      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY ${this.functionPath}/{path+}`);
-      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY ${this.functionPath}`);
+      const routeParams = {
+        ApiId,
+        Target: `integrations/${IntegrationId}`,
+      };
+      await this.createOrUpdateRoute(routes, routeParams, `ANY ${this.functionPath}/{path+}`);
+      await this.createOrUpdateRoute(routes, routeParams, `ANY ${this.functionPath}`);
     }
 
     // setup permissions for entire package.
@@ -564,25 +599,24 @@ export default class AWSDeployer extends BaseDeployer {
     this.log.info(chalk`{green ok}: deleted ${unused.length} unused integrations.`);
   }
 
-  async createOrUpdateRoute(routes, ApiId, IntegrationId, RouteKey) {
+  async createOrUpdateRoute(routes, routeParams, RouteKey) {
     const existing = routes.find((r) => r.RouteKey === RouteKey);
+    const auth = routeParams.AuthorizerId ? chalk` {yellow (${routeParams.AuthorizerId})}` : '';
     if (existing) {
       this.log.info(chalk`--: updating route for: {blue ${existing.RouteKey}}...`);
       const res = await this._api.send(new UpdateRouteCommand({
-        ApiId,
-        RouteId: existing.RouteId,
+        ...routeParams,
         RouteKey,
-        Target: `integrations/${IntegrationId}`,
+        RouteId: existing.RouteId,
       }));
-      this.log.info(chalk`{green ok}: updated route for: {blue ${res.RouteKey}}`);
+      this.log.info(chalk`{green ok}: updated route for: {blue ${res.RouteKey}}${auth}`);
     } else {
       this.log.info(chalk`--: creating route for: {blue ${RouteKey}}...`);
       const res = await this._api.send(new CreateRouteCommand({
-        ApiId,
+        ...routeParams,
         RouteKey,
-        Target: `integrations/${IntegrationId}`,
       }));
-      this.log.info(chalk`{green ok}: created route for: {blue ${res.RouteKey}}`);
+      this.log.info(chalk`{green ok}: created route for: {blue ${res.RouteKey}}${auth}`);
     }
   }
 
@@ -592,20 +626,22 @@ export default class AWSDeployer extends BaseDeployer {
         FunctionName: functionName,
         Name: name,
       }));
-      this.log.info(chalk`--: updating alias for: {blue ${name}}...`);
+      this.log.info(chalk`--: updating alias {blue ${name}}...`);
       await this._lambda.send(new UpdateAliasCommand({
         FunctionName: functionName,
         Name: name,
         FunctionVersion: functionVersion,
       }));
+      this.log.info(chalk`{green ok:} updated alias {blue ${name}} to version {yellow ${functionVersion}}.`);
     } catch (e) {
       if (e.name === 'ResourceNotFoundException') {
-        this.log.info(chalk`--: creating alias for: {blue ${name}}...`);
+        this.log.info(chalk`--: creating alias {blue ${name}}...`);
         await this._lambda.send(new CreateAliasCommand({
           FunctionName: functionName,
           Name: name,
           FunctionVersion: functionVersion,
         }));
+        this.log.info(chalk`{green ok:} created alias {blue ${name}} for version {yellow ${functionVersion}}.`);
       } else {
         this.log.error(`Unable to verify existence of Lambda alias ${name}`);
         throw e;
@@ -656,16 +692,33 @@ export default class AWSDeployer extends BaseDeployer {
     const { IntegrationId } = integration;
 
     // get all the routes
-    this.log.info(chalk`--: patching routes ...`);
+    this.log.info(chalk`--: fetching routes ...`);
     const routes = await this.fetchRoutes(ApiId);
+    const routeParams = {
+      ApiId,
+      Target: `integrations/${IntegrationId}`,
+      AuthorizerId: undefined,
+      AuthorizationType: 'NONE',
+    };
+    if (this._cfg.attachAuthorizer) {
+      this.log.info(chalk`--: fetching authorizers...`);
+      const authorizers = await this.fetchAuthorizers(ApiId);
+      const authorizer = authorizers.find((info) => info.Name === this._cfg.attachAuthorizer);
+      if (!authorizer) {
+        throw Error(`Specified authorizer ${this._cfg.attachAuthorizer} does not exist in api ${ApiId}.`);
+      }
+      routeParams.AuthorizerId = authorizer.AuthorizerId;
+      routeParams.AuthorizationType = 'CUSTOM';
+      this.log.info(chalk`{green ok:} configuring routes with authorizer {blue ${this._cfg.attachAuthorizer}} {yellow ${authorizer.AuthorizerId}}`);
+    }
 
     // create routes for each symlink
     const sfx = this.getLinkVersions();
 
     for (const suffix of sfx) {
       // check if route already exists
-      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}`);
-      await this.createOrUpdateRoute(routes, ApiId, IntegrationId, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}/{path+}`);
+      await this.createOrUpdateRoute(routes, routeParams, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}`);
+      await this.createOrUpdateRoute(routes, routeParams, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}/{path+}`);
 
       // create or update alias
       await this.createOrUpdateAlias(suffix.replace('.', '_'), functionName, incrementalVersion);
@@ -674,19 +727,82 @@ export default class AWSDeployer extends BaseDeployer {
     if (cleanup) {
       await this.cleanUpIntegrations(functionName);
     }
+
+    await this.updateAuthorizers(ApiId, functionName, aliasArn);
   }
 
-  async checkFunctionReady() {
+  async updateAuthorizers(ApiId, functionName, aliasArn) {
+    const cfg = this._cfg;
+    if (!cfg.createAuthorizer) {
+      return;
+    }
+
+    const AUTH_URI_PREFIX = `arn:aws:apigateway:${cfg.region}:lambda:path/2015-03-31/functions/`;
+    const accountId = aliasArn.split(':')[4];
+    this.log.info(chalk`--: patching authorizers...`);
+    const authorizers = await this.fetchAuthorizers(ApiId);
+    const versions = this.getLinkVersions();
+    for (const version of versions) {
+      const props = {
+        ...this.cfg,
+        ...this.cfg.properties,
+        // overwrite version with link name
+        version,
+      };
+      const authorizerName = ActionBuilder.substitute(cfg.createAuthorizer, props).replace(/\./g, '_');
+      const existing = authorizers.find((info) => info.Name === authorizerName) || {};
+      let { AuthorizerId } = existing;
+      if (AuthorizerId) {
+        const res = await this._api.send(new UpdateAuthorizerCommand({
+          ApiId,
+          AuthorizerId,
+          AuthorizerUri: `${AUTH_URI_PREFIX}${aliasArn}/invocations`,
+          IdentitySource: this._cfg.identitySources,
+        }));
+        this.log.info(chalk`{green ok}: updated authorizer: {blue ${res.Name}}`);
+      } else {
+        const res = await this._api.send(new CreateAuthorizerCommand({
+          ApiId,
+          AuthorizerPayloadFormatVersion: '2.0',
+          AuthorizerType: 'REQUEST',
+          AuthorizerUri: `${AUTH_URI_PREFIX}${aliasArn}/invocations`,
+          AuthorizerResultTtlInSeconds: 0,
+          EnableSimpleResponses: true,
+          IdentitySource: this._cfg.identitySources,
+          Name: authorizerName,
+        }));
+        AuthorizerId = res.AuthorizerId;
+        this.log.info(chalk`{green ok}: created authorizer: {blue ${res.Name}}`);
+      }
+
+      // add permission to alias for the API Gateway is allowed to invoke the authorized function
+      try {
+        const sourceArn = `arn:aws:execute-api:${this._cfg.region}:${accountId}:${ApiId}/authorizers/${AuthorizerId}`;
+        await this._lambda.send(new AddPermissionCommand({
+          FunctionName: aliasArn,
+          Action: 'lambda:InvokeFunction',
+          SourceArn: sourceArn,
+          Principal: 'apigateway.amazonaws.com',
+          StatementId: crypto.createHash('sha256').update(aliasArn + sourceArn).digest('hex'),
+        }));
+        this.log.info(chalk`{green ok:} added invoke permissions for ${sourceArn}`);
+      } catch (e) {
+        // ignore, most likely the permission already exists
+      }
+    }
+  }
+
+  async checkFunctionReady(arn) {
     let tries = 3;
     while (tries > 0) {
       try {
         tries -= 1;
         this.log.info(chalk`--: checking function state ...`);
         const { Configuration } = await this._lambda.send(new GetFunctionCommand({
-          FunctionName: this._functionARN,
+          FunctionName: arn ?? this._functionARN,
         }));
-        if (Configuration.State !== 'Active') {
-          this.log.warn(chalk`{yellow warn:} function is {blue ${Configuration.State}} and last update was {blue ${Configuration.LastUpdateStatus}}.`);
+        if (Configuration.State !== 'Active' || Configuration.LastUpdateStatus === 'InProgress') {
+          this.log.info(chalk`{yellow !!:} function is {blue ${Configuration.State}} and last update was {blue ${Configuration.LastUpdateStatus}} (retry...)`);
         } else {
           this.log.info(chalk`{green ok:} function is {blue ${Configuration.State}} and last update was {blue ${Configuration.LastUpdateStatus}}.`);
           return;

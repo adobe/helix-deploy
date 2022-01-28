@@ -161,7 +161,6 @@ describe('Deploy Test', () => {
       .prepare([
         '--target', 'wsk',
         '--verbose',
-        '--no-build',
         '--test', '/foo',
         '--directory', testRoot,
       ]);
@@ -185,7 +184,6 @@ describe('Deploy Test', () => {
       .prepare([
         '--target', 'wsk',
         '--verbose',
-        '--no-build',
         '--test', '/foo',
         '--test-headers', 'x-foo-bar=test',
         '--directory', testRoot,
