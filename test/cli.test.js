@@ -391,4 +391,28 @@ describe('CLI Test', () => {
     assert.equal(builder.cfg.cleanupMinorNum, 0);
     assert.equal(builder.cfg.cleanupMajorNum, 1);
   });
+
+  it('sets aws defaults', async () => {
+    const builder = new CLI()
+      .prepare([
+        '--aws-region', 'us-east-2',
+        '--aws-role', 'somerole',
+        '--aws-api', 'someapi',
+      ]);
+    await builder.validate();
+    assert.deepStrictEqual(Object.fromEntries(Object.entries(builder._deployers.aws._cfg)), {
+      region: 'us-east-2',
+      role: 'somerole',
+      apiId: 'someapi',
+      cleanUpBuckets: false,
+      cleanUpIntegrations: false,
+      createRoutes: false,
+      // eslint-disable-next-line no-template-curly-in-string
+      lambdaFormat: '${packageName}--${baseName}',
+      parameterMgr: ['secret', 'system'],
+      createAuthorizer: undefined,
+      attachAuthorizer: undefined,
+      identitySources: ['$request.header.Authorization'],
+    });
+  });
 });

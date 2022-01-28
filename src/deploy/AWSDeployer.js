@@ -757,6 +757,7 @@ export default class AWSDeployer extends BaseDeployer {
           ApiId,
           AuthorizerId,
           AuthorizerUri: `${AUTH_URI_PREFIX}${aliasArn}/invocations`,
+          IdentitySource: this._cfg.identitySources,
         }));
         this.log.info(chalk`{green ok}: updated authorizer: {blue ${res.Name}}`);
       } else {
@@ -767,7 +768,7 @@ export default class AWSDeployer extends BaseDeployer {
           AuthorizerUri: `${AUTH_URI_PREFIX}${aliasArn}/invocations`,
           AuthorizerResultTtlInSeconds: 0,
           EnableSimpleResponses: true,
-          IdentitySource: ['$request.header.Authorization'],
+          IdentitySource: this._cfg.identitySources,
           Name: authorizerName,
         }));
         AuthorizerId = res.AuthorizerId;
