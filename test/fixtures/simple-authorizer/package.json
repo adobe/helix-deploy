@@ -5,14 +5,11 @@
   "private": true,
   "license": "Apache-2.0",
   "main": "index.js",
-  "dependencies": {
-    "@adobe/helix-fetch": "2.0.0"
-  },
   "wsk": {
     "namespace": "helix",
     "name": "simple-package/simple-authorizer@${version}",
     "adapterFile": "./index.js",
     "awsCreateAuthorizer": "helix-simple-test-authorizer_${version}",
-    "awsIdentitySource": "$request.headers.x-test-authorization"
+    "awsIdentitySource": "$request.header.x-test-authorization"
   }
 }

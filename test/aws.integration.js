@@ -170,7 +170,7 @@ describe('AWS Integration Test', () => {
     console.log('invoking with token token should succeed');
     ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo', {
       headers: {
-        authorization: 'test',
+        'x-test-authorization': 'test',
       },
     });
     const text = await ret.text();
