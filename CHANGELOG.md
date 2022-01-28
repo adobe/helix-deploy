@@ -1,3 +1,10 @@
+# [6.2.0](https://github.com/adobe/helix-deploy/compare/v6.1.0...v6.2.0) (2022-01-28)
+
+
+### Features
+
+* allow to set authorizer identity sources ([#363](https://github.com/adobe/helix-deploy/issues/363)) ([b4b6e30](https://github.com/adobe/helix-deploy/commit/b4b6e30f5e35449c123fcfe38fde851223fd3d4f))
+
 # [6.1.0](https://github.com/adobe/helix-deploy/compare/v6.0.1...v6.1.0) (2022-01-25)
 
 
