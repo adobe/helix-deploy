@@ -223,8 +223,8 @@ export default class GoogleDeployer extends BaseDeployer {
         },
       });
     } catch (err) {
-      this.log.error(chalk`{red error:} bad request: ${err.metadata.internalRepr.get('google.rpc.badrequest-bin').toString()}`);
-      this.log.error(chalk`{red error:} details: ${err.metadata.internalRepr.get('grpc-status-details-bin').toString()}`);
+      this.log.error(chalk`{red error:} bad request: ${err.metadata.internalRepr?.get('google.rpc.badrequest-bin')?.toString()}`);
+      this.log.error(chalk`{red error:} details: ${err.metadata.internalRepr?.get('grpc-status-details-bin')?.toString()}`);
       throw err;
     }
 
