@@ -16,9 +16,8 @@
  * Lambda event handler
  */
 async function handler(event) {
-  const { authorization } = event.headers;
   return {
-    isAuthorized: authorization === 'test',
+    isAuthorized: event.headers['x-test-authorization'] === 'test',
     context: {
       key: 'test',
     },

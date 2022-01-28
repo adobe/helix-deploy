@@ -26,6 +26,7 @@ export default class AWSConfig {
       parameterMgr: ['system', 'secret'],
       createAuthorizer: '',
       attachAuthorizer: '',
+      identitySources: ['$request.header.Authorization'],
     });
   }
 
@@ -37,6 +38,7 @@ export default class AWSConfig {
       .withAWSLambdaFormat(argv.awsLambdaFormat)
       .withAWSCreateAuthorizer(argv.awsCreateAuthorizer)
       .withAWSAttachAuthorizer(argv.awsAttachAuthorizer)
+      .withAWSIdentitySources(argv.awsIdentitySource)
       .withAWSCleanUpBuckets(argv.awsCleanupBuckets)
       .withAWSCleanUpIntegrations(argv.awsCleanupIntegrations)
       .withAWSCreateRoutes(argv.awsCreateRoutes)
@@ -93,6 +95,11 @@ export default class AWSConfig {
     return this;
   }
 
+  withAWSIdentitySources(value) {
+    this.identitySources = value;
+    return this;
+  }
+
   static yarg(yargs) {
     return yargs
       .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-cleanup-integrations',
@@ -135,6 +142,12 @@ export default class AWSConfig {
           // eslint-disable-next-line no-template-curly-in-string
           + 'Example: "helix-authorizer_${version}".',
         type: 'string',
+      })
+      .option('aws-identity-source', {
+        description: 'Identity source to used when creating the authorizer',
+        type: 'string',
+        array: true,
+        default: ['$request.header.Authorization'],
       })
       .option('aws-attach-authorizer', {
         description: 'Attach specified authorizer to routes during linking.',

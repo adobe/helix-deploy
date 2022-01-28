@@ -767,7 +767,7 @@ export default class AWSDeployer extends BaseDeployer {
           AuthorizerUri: `${AUTH_URI_PREFIX}${aliasArn}/invocations`,
           AuthorizerResultTtlInSeconds: 0,
           EnableSimpleResponses: true,
-          IdentitySource: ['$request.header.Authorization'],
+          IdentitySource: this._cfg.identitySources,
           Name: authorizerName,
         }));
         AuthorizerId = res.AuthorizerId;
