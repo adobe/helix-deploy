@@ -170,7 +170,9 @@ export default class DevelopmentServer {
       }
     });
     this.app.use(rawBody());
-    this.app.use(addRequestHeader('x-forwarded-host', this._xfh.replace('{port}', this._port)));
+    if (this._xfh) {
+      this.app.use(addRequestHeader('x-forwarded-host', this._xfh.replace('{port}', this._port)));
+    }
     this.app.all('*', this._handler);
   }
 
