@@ -87,6 +87,11 @@ export default class DevelopmentServer {
     return this;
   }
 
+  withDirectory(value) {
+    this._cwd = value;
+    return this;
+  }
+
   get port() {
     return this._port;
   }
@@ -102,23 +107,33 @@ export default class DevelopmentServer {
     // load the action params params
     let pkgJson = {};
     try {
-      pkgJson = await fse.readJson(path.resolve('package.json'));
+      pkgJson = await fse.readJson(path.resolve(this._cwd, 'package.json'));
     } catch (e) {
       // ignore
     }
     const config = new BaseConfig();
-    if (pkgJson.wsk && pkgJson.wsk['params-file']) {
-      config.withParamsFile(pkgJson.wsk['params-file']);
+    if (pkgJson.wsk) {
+      const withParamsFile = async (file) => {
+        if (!file) {
+          return;
+        }
+        // eslint-disable-next-line no-param-reassign
+        const files = (Array.isArray(file) ? file : [file]).map((f) => path.resolve(this._cwd, f));
+        await Promise.all(files.map(async (f) => {
+          if (await fse.exists(f)) {
+            config.withParamsFile(f);
+          }
+        }));
+      };
+
+      await withParamsFile(pkgJson.wsk?.package?.['params-file']);
+      config.withParams(pkgJson.wsk?.package?.params);
+      await withParamsFile(pkgJson.wsk?.['params-file']);
+      config.withParams(pkgJson.wsk?.params);
+      await withParamsFile(pkgJson.wsk?.dev?.['params-file']);
+      config.withParams(pkgJson.wsk?.dev?.params);
     }
-    if (pkgJson.wsk && pkgJson.wsk.package && pkgJson.wsk.package['params-file']) {
-      config.withParamsFile(pkgJson.wsk.package['params-file']);
-    }
-    if (pkgJson.wsk && pkgJson.wsk['dev-params-file']) {
-      const file = pkgJson.wsk['dev-params-file'];
-      if (await fse.exists(file)) {
-        config.withParamsFile(file);
-      }
-    }
+
     const builder = new ActionBuilder().withConfig(config);
     await builder.validate();
 
@@ -129,7 +144,8 @@ export default class DevelopmentServer {
       './main.js': {
         main: this._main,
       },
-      './google-package-params.js': () => (config.params),
+      './google-package-params.js': () => (config.params), // backward compatible
+      './google-secrets.js': () => (config.params),
     });
     this.params = config.params;
     return this;
@@ -154,7 +170,9 @@ export default class DevelopmentServer {
       }
     });
     this.app.use(rawBody());
-    this.app.use(addRequestHeader('x-forwarded-host', this._xfh.replace('{port}', this._port)));
+    if (this._xfh) {
+      this.app.use(addRequestHeader('x-forwarded-host', this._xfh.replace('{port}', this._port)));
+    }
     this.app.all('*', this._handler);
   }
 

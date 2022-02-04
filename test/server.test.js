@@ -12,6 +12,7 @@
 
 /* eslint-env mocha */
 
+import { resolve } from 'path';
 import chai from 'chai';
 import chaiHttp from 'chai-http';
 import { Response } from '@adobe/helix-fetch';
@@ -22,15 +23,38 @@ chai.use(chaiHttp);
 
 describe('Server Test', () => {
   it('it can start an stop the server', async () => {
-    const main = (req, ctx) => new Response(`hello: ${ctx.env.TEST_PARAM}`);
-    const server = new DevelopmentServer(main).withPort(0);
+    const main = (req, ctx) => {
+      const body = {};
+      Object.entries(ctx.env).forEach(([key, value]) => {
+        if (key.startsWith('TEST_') && key.endsWith('_PARAM')) {
+          body[key] = value;
+        }
+      });
+      return new Response(JSON.stringify(body), {
+        headers: {
+          'content-type': 'application/json',
+        },
+      });
+    };
+    const server = new DevelopmentServer(main)
+      .withPort(0)
+      .withDirectory(resolve(__rootdir, 'test', 'fixtures', 'server-test'));
     await server.init();
-    server.params.TEST_PARAM = 'foo';
+    server.params.TEST_DIRECT_PARAM = 'foo-direct-param';
     await server.start();
 
     const res = await chai.request(`http://localhost:${server.server.address().port}`)
       .get('/');
-    chai.expect(res.text).to.be.equal('hello: foo');
+    chai.expect(res.body).to.be.eql({
+      TEST_DEFAULT_PARAM: 'dev-default',
+      TEST_DEV_FILE_PARAM: 'foo-dev-file',
+      TEST_DEV_PARAM: 'foo-dev-param',
+      TEST_DIRECT_PARAM: 'foo-direct-param',
+      TEST_FILE_PARAM: 'foo-file',
+      TEST_PACKAGE_FILE_PARAM: 'foo-package-file',
+      TEST_PACKAGE_PARAM: 'foo-package-param',
+      TEST_PARAM: 'foo-param',
+    });
     await server.stop();
   });
 

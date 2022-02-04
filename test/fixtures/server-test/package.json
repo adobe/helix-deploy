@@ -1,0 +1,35 @@
+{
+  "name": "simple-project",
+  "version": "1.45.0",
+  "description": "Simple Test Project",
+  "private": true,
+  "wsk": {
+    "namespace": "helix",
+    "name": "simple-package/simple-name@${version}",
+    "params-file": [
+      "test.env"
+    ],
+    "params": {
+      "TEST_PARAM": "foo-param",
+      "TEST_DEFAULT_PARAM": "default"
+    },
+    "package": {
+      "name": "simple-package",
+      "params": {
+        "TEST_PACKAGE_PARAM": "foo-package-param"
+      },
+      "params-file": [
+        "test-package.env"
+      ]
+    },
+    "dev": {
+      "params": {
+        "TEST_DEV_PARAM": "foo-dev-param",
+        "TEST_DEFAULT_PARAM": "dev-default"
+      },
+      "params-file": [
+        "test-dev.env"
+      ]
+    }
+  }
+}
