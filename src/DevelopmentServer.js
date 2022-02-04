@@ -144,9 +144,7 @@ export default class DevelopmentServer {
       './main.js': {
         main: this._main,
       },
-      './google-package-params.js': () => (config.params), // backward compatible
-      './google-secrets.js': () => (config.params),
-    });
+    }).raw;
     this.params = config.params;
     return this;
   }
@@ -156,6 +154,11 @@ export default class DevelopmentServer {
    * @returns {Promise<void>}
    */
   async start() {
+    Object.entries(this.params).forEach(([key, value]) => {
+      if (!(key in process.env)) {
+        process.env[key] = value;
+      }
+    });
     this.app = express();
     await new Promise((resolve, reject) => {
       try {
