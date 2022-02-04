@@ -22,6 +22,16 @@ import DevelopmentServer from '../src/DevelopmentServer.js';
 chai.use(chaiHttp);
 
 describe('Server Test', () => {
+  let envCopy;
+
+  beforeEach(() => {
+    envCopy = { ...process.env };
+  });
+
+  afterEach(() => {
+    process.env = envCopy;
+  });
+
   it('it can start an stop the server', async () => {
     const main = (req, ctx) => {
       const body = {};
