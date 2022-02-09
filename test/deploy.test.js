@@ -144,7 +144,7 @@ describe('Deploy Test', () => {
       '--test', '/foo',
       '--directory', testRoot,
     ]);
-  }).timeout(10000);
+  }).timeout(20000);
 
   it('tests a web action with redirect', async () => {
     await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'web-action'), testRoot);
