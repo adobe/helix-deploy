@@ -162,7 +162,7 @@ describe('Build Test', () => {
 
   it('generates the bundle (rollup)', async () => {
     await generate(['--bundler', 'rollup'], PROJECT_SIMPLE_ROOTDIR);
-  }).timeout(15000);
+  }).timeout(20000);
 
   it('generates the bundle (rollup, esm-project)', async () => {
     await generate(['--bundler', 'rollup'], PROJECT_SIMPLE_ESM);
