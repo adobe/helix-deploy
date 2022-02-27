@@ -49,6 +49,14 @@ export default class CLI {
   prepare(args) {
     const argv = this._yargs.parse(args);
 
+    // apply '!important' args (override env).
+    Object.entries(argv).forEach(([key, value]) => {
+      const idx = key.indexOf('!important');
+      if (idx > 0) {
+        argv[key.substring(0, idx)] = value;
+      }
+    });
+
     if (argv.externals.length === 0) {
       argv.externals = [/^openwhisk(\/.*)?$/];
     }

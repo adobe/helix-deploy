@@ -18,6 +18,10 @@ import path from 'path';
 import CLI from '../src/cli.js';
 
 describe('CLI Test', () => {
+  afterEach(() => {
+    delete process.env.HLX_TEST;
+  });
+
   it('has correct defaults with no arguments', () => {
     const builder = new CLI().prepare();
     assert.equal(builder.cfg.verbose, false);
@@ -67,6 +71,28 @@ describe('CLI Test', () => {
     const builder = new CLI()
       .prepare(['--target=aws,wsk']);
     assert.deepEqual(builder.cfg.targets, ['aws', 'wsk']);
+  });
+
+  it('can use HLX env', () => {
+    process.env.HLX_TEST = 'env-test';
+    const builder = new CLI()
+      .prepare([]);
+    assert.deepEqual(builder.cfg.test, 'env-test');
+  });
+
+  it('cli wins over HLX env', () => {
+    process.env.HLX_TEST = 'env-test';
+    const builder = new CLI()
+      .prepare(['--test=cli-test']);
+    assert.deepEqual(builder.cfg.test, 'cli-test');
+  });
+
+  it('important wins', () => {
+    process.env.HLX_TEST = 'env-test';
+    const builder = new CLI()
+      .prepare(['--test!important', 'important-test']);
+
+    assert.deepEqual(builder.cfg.test, 'important-test');
   });
 
   it('sets archs', () => {
