@@ -1,3 +1,10 @@
+## [6.2.12](https://github.com/adobe/helix-deploy/compare/v6.2.11...v6.2.12) (2022-02-27)
+
+
+### Bug Fixes
+
+* add option to override env ([#382](https://github.com/adobe/helix-deploy/issues/382)) ([3fb9b26](https://github.com/adobe/helix-deploy/commit/3fb9b26e33564f814cfb6947e3ab2b22e07f914c))
+
 ## [6.2.11](https://github.com/adobe/helix-deploy/compare/v6.2.10...v6.2.11) (2022-02-26)
 
 
