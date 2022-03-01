@@ -26,7 +26,7 @@ function fetchContext() {
     : context();
 }
 
-describe('Gateway Integration Test', () => {
+describe.skip('Gateway Integration Test', () => {
   let testRoot;
   let origPwd;
 
