@@ -87,12 +87,23 @@ export default class FastlyGateway {
     if (packageparams.length !== 0) {
       await this._fastly.bulkUpdateDictItems(undefined, 'packageparams', ...packageparams);
     }
-    const dictinfo = this._fastly.readDictionary(undefined, 'tokens');
-    if (dictinfo.data.item_count > 500) {
-      // delete old tokens
-      console.log('delete old tokens');
+
+    try {
+      await this._fastly.updateDictItem(undefined, 'tokens', this.cfg.packageToken, `${Math.floor(Date.now() / 1000) + (365 * 24 * 3600)}`);
+    } catch (fe) {
+      if (fe.message.match('Exceeding max_dictionary_items')) {
+        const dictinfo = await this._fastly.readDictItems(undefined, 'tokens');
+        const items = dictinfo.data;
+        const outdated = items
+          .filter((item) => parseInt(item.item_value, 10) < new Date().getTime() / 1000);
+        const olds = items.slice(0, 5);
+        // cleanup all old and outdated tokens
+        await Promise.all([...outdated, ...olds].map((item) => this._fastly.deleteDictItem(undefined, 'tokens', item.item_key)));
+        // try again
+        await this._fastly.updateDictItem(undefined, 'tokens', this.cfg.packageToken, `${Math.floor(Date.now() / 1000) + (365 * 24 * 3600)}`);
+      }
     }
-    await this._fastly.updateDictItem(undefined, 'tokens', this.cfg.packageToken, `${Math.floor(Date.now() / 1000) + (365 * 24 * 3600)}`);
+
     this._fastly.discard();
     this.log.info(chalk`{green ok:} updating app (package) parameters on Fastly gateway.`);
   }
