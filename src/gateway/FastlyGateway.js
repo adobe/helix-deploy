@@ -87,6 +87,11 @@ export default class FastlyGateway {
     if (packageparams.length !== 0) {
       await this._fastly.bulkUpdateDictItems(undefined, 'packageparams', ...packageparams);
     }
+    const dictinfo = this._fastly.readDictionary(undefined, 'tokens');
+    if (dictinfo.data.item_count > 500) {
+      // delete old tokens
+      console.log('delete old tokens');
+    }
     await this._fastly.updateDictItem(undefined, 'tokens', this.cfg.packageToken, `${Math.floor(Date.now() / 1000) + (365 * 24 * 3600)}`);
     this._fastly.discard();
     this.log.info(chalk`{green ok:} updating app (package) parameters on Fastly gateway.`);
