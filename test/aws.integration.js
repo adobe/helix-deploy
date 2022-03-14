@@ -39,7 +39,7 @@ describe('AWS Integration Test', () => {
     await fse.remove(testRoot);
   });
 
-  it.only('Deploy to AWS (for real)', async () => {
+  it('Deploy to AWS (for real)', async () => {
     await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple'), testRoot);
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
