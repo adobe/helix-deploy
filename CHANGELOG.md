@@ -1,3 +1,10 @@
+## [6.2.15](https://github.com/adobe/helix-deploy/compare/v6.2.14...v6.2.15) (2022-03-14)
+
+
+### Bug Fixes
+
+* **gateway:** clean up old and outdated tokens when token dictionary is full ([f5adc57](https://github.com/adobe/helix-deploy/commit/f5adc5757595311192d724235fa83b9db703acf9))
+
 ## [6.2.14](https://github.com/adobe/helix-deploy/compare/v6.2.13...v6.2.14) (2022-03-05)
 
 
