@@ -33,7 +33,7 @@ describe('Google Integration Test', () => {
     await fse.remove(testRoot);
   });
 
-  it('Deploy an older version to Google', async () => {
+  it.skip('Deploy an older version to Google', async () => {
     await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple-but-older'), testRoot);
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
@@ -61,7 +61,7 @@ describe('Google Integration Test', () => {
     assert.ok(out.indexOf('{"url":"https://us-central1-helix-225321.cloudfunctions.net/simple-package--simple-name_1_44_9/foo","file":"Hello, world.\\n"}') > 0, out);
   }).timeout(10000000);
 
-  it('Deploy a newer version to Google and clean up', async () => {
+  it.skip('Deploy a newer version to Google and clean up', async () => {
     await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple'), testRoot);
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
@@ -90,7 +90,7 @@ describe('Google Integration Test', () => {
     assert.ok(out.indexOf('{"url":"https://us-central1-helix-225321.cloudfunctions.net/simple-package--simple-name_1_45_0/foo","file":"Hello, world.\\n"}') > 0, out);
   }).timeout(10000000);
 
-  it('Deploy Simple Status action to Google', async () => {
+  it.skip('Deploy Simple Status action to Google', async () => {
     await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'status'), testRoot);
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
