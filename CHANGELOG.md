@@ -1,3 +1,10 @@
+## [6.2.20](https://github.com/adobe/helix-deploy/compare/v6.2.19...v6.2.20) (2022-04-02)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([#393](https://github.com/adobe/helix-deploy/issues/393)) ([043bddd](https://github.com/adobe/helix-deploy/commit/043bddd122a0cf664ee055a7eafdaba215bf7105))
+
 ## [6.2.19](https://github.com/adobe/helix-deploy/compare/v6.2.18...v6.2.19) (2022-03-26)
 
 
