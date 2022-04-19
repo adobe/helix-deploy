@@ -19,7 +19,7 @@ import { createTestRoot, TestLogger } from './utils.js';
 
 import CLI from '../src/cli.js';
 
-describe('Cloudflare Integration Test', () => {
+describe.skip('Cloudflare Integration Test', () => {
   let testRoot;
   let origPwd;
 

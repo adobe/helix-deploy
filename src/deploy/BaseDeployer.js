@@ -153,7 +153,7 @@ export default class BaseDeployer {
   }
 
   /**
-   * Returns the link versions based on the configruation. eg ['v8', 'ci']
+   * Returns the link versions based on the configuration. eg ['v8', 'ci']
    */
   getLinkVersions() {
     const sfx = [];
@@ -164,7 +164,7 @@ export default class BaseDeployer {
       if (link === 'major' || link === 'minor') {
         if (!s) {
           // eslint-disable-next-line no-underscore-dangle
-          this.log.warn(chalk`{yellow warn:} unable to create version sequences. error while parsing version: ${this.cfg.version}`);
+          this.log.warn(chalk`{yellow warn:} Ignoring ${link} version link for ${this.cfg.version}. No semver format.`);
           return;
         }
         if (link === 'major') {
