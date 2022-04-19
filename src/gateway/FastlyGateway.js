@@ -54,7 +54,7 @@ export default class FastlyGateway {
       }));
 
     await this._fastly.bulkUpdateDictItems(undefined, 'aliases', ...versionstrings);
-    this._fastly.discard();
+    await this._fastly.discard();
     this.log.info(chalk`{green ok:} updated links on the Gateway for version ${version}.`);
   }
 
