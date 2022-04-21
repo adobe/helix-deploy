@@ -103,7 +103,7 @@ describe('AWS Integration Test', () => {
         console.log(`!!: ${ret.status} (retry)`);
         // eslint-disable-next-line no-await-in-loop
         await new Promise((resolve) => {
-          setTimeout(resolve, 1500);
+          setTimeout(resolve, 3000);
         });
       }
     }
@@ -175,7 +175,7 @@ describe('AWS Integration Test', () => {
         console.log(`!!: ${ret.status} !== 401 (retry)`);
         // eslint-disable-next-line no-await-in-loop
         await new Promise((resolve) => {
-          setTimeout(resolve, 1500);
+          setTimeout(resolve, 3000);
         });
       }
     }
