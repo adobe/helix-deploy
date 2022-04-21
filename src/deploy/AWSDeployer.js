@@ -228,7 +228,8 @@ export default class AWSDeployer extends BaseDeployer {
       if (e.name === 'ResourceNotFoundException') {
         this.log.info(chalk`{green ok}: does not exist yet.`);
         this.log.info(chalk`--: creating new Lambda function {yellow ${functionName}}`);
-        await this._lambda.send(new CreateFunctionCommand(functionConfig));
+        const res = await this._lambda.send(new CreateFunctionCommand(functionConfig));
+        baseARN = res.FunctionArn;
       } else {
         this.log.error(chalk`Unable to verify existence of Lambda function {yellow ${functionName}}`);
         throw e;
@@ -722,6 +723,22 @@ export default class AWSDeployer extends BaseDeployer {
       await this.createOrUpdateRoute(routes, routeParams, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}/{path+}`);
 
       await this.updateAuthorizers(ApiId, functionName, aliasArn);
+
+      // add permission to invoke function
+      const sourceArn = `arn:aws:execute-api:${this._cfg.region}:${this._accountId}:${ApiId}/*/*/${cfg.packageName}/${cfg.baseName}/${suffix}`;
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await this._lambda.send(new AddPermissionCommand({
+          FunctionName: aliasArn,
+          Action: 'lambda:InvokeFunction',
+          SourceArn: sourceArn,
+          Principal: 'apigateway.amazonaws.com',
+          StatementId: crypto.createHash('md5').update(aliasArn + sourceArn).digest('hex'),
+        }));
+        this.log.info(chalk`{green ok:} added invoke permissions for ${sourceArn}`);
+      } catch (e) {
+        // ignore, most likely the permission already exists
+      }
     }
   }
 

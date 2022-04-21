@@ -78,7 +78,6 @@ describe('AWS Integration Test', () => {
         '--verbose',
         '--deploy',
         '--pkgVersion', version,
-        '-l', 'major',
         '-l', 'ci',
         '--target', 'aws',
         '--aws-region', 'us-east-1',
@@ -91,23 +90,26 @@ describe('AWS Integration Test', () => {
 
     const res = await builder.run();
     assert.ok(res);
-    const out = builder.cfg._logger.output;
-    assert.ok(/.*deleted \d+ unused integrations.*/sg.test(out), out);
-
-    // eslint-disable-next-line no-console
-    console.log('testing if v1 link works...');
-    let ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo');
-    assert.ok(ret.ok);
-    assert.strictEqual(ret.status, 200);
-    let text = await ret.text();
-    assert.strictEqual(text.trim(), '{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo","file":"Hello, world.\\n"}');
 
     // eslint-disable-next-line no-console
     console.log('testing if ci link works...');
-    ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo');
+    let ret;
+
+    for (let tries = 3; tries >= 0; tries -= 1) {
+      // eslint-disable-next-line no-await-in-loop
+      ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo');
+      if (!ret.ok) {
+        // eslint-disable-next-line no-console
+        console.log(`!!: ${ret.status} (retry)`);
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((resolve) => {
+          setTimeout(resolve, 1500);
+        });
+      }
+    }
     assert.ok(ret.ok);
     assert.strictEqual(ret.status, 200);
-    text = await ret.text();
+    const text = await ret.text();
     assert.strictEqual(text.trim(), '{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo","file":"Hello, world.\\n"}');
   }).timeout(50000);
 
@@ -163,7 +165,21 @@ describe('AWS Integration Test', () => {
 
     // eslint-disable-next-line no-console
     console.log('invoking w/o token should fail');
-    let ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo');
+    let ret;
+
+    for (let tries = 3; tries >= 0; tries -= 1) {
+      // eslint-disable-next-line no-await-in-loop
+      ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo');
+      if (ret.status !== 401) {
+        // eslint-disable-next-line no-console
+        console.log(`!!: ${ret.status} !== 401 (retry)`);
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((resolve) => {
+          setTimeout(resolve, 1500);
+        });
+      }
+    }
+
     assert.strictEqual(ret.status, 401);
 
     // eslint-disable-next-line no-console
