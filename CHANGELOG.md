@@ -1,3 +1,10 @@
+## [6.2.26](https://github.com/adobe/helix-deploy/compare/v6.2.25...v6.2.26) (2022-04-22)
+
+
+### Reverts
+
+* Revert "fix(aws): link integration to v alias of function (#401)" ([ec6d70b](https://github.com/adobe/helix-deploy/commit/ec6d70bf5735ef3991497a1b13b0c63aaa42ce60)), closes [#401](https://github.com/adobe/helix-deploy/issues/401)
+
 ## [6.2.25](https://github.com/adobe/helix-deploy/compare/v6.2.24...v6.2.25) (2022-04-22)
 
 
