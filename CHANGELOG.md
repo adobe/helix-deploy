@@ -1,3 +1,10 @@
+## [6.2.25](https://github.com/adobe/helix-deploy/compare/v6.2.24...v6.2.25) (2022-04-22)
+
+
+### Bug Fixes
+
+* **aws:** link integration to v alias of function ([#401](https://github.com/adobe/helix-deploy/issues/401)) ([1a46a0e](https://github.com/adobe/helix-deploy/commit/1a46a0e3543d460c5fc3378b8bcf2e3ff837c5d4))
+
 ## [6.2.24](https://github.com/adobe/helix-deploy/compare/v6.2.23...v6.2.24) (2022-04-19)
 
 
