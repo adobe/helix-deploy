@@ -86,8 +86,24 @@ describe('AWS Integration Test', () => {
     builder.cfg._logger = new TestLogger();
 
     await builder.run();
-    const out = builder.cfg._logger.output;
-    assert.ok(out.indexOf('ANY /simple-package/simple-name/v1/{path+}') >= 0, out);
+
+    let ret;
+    for (let tries = 3; tries >= 0; tries -= 1) {
+      // eslint-disable-next-line no-await-in-loop
+      ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo');
+      if (ret.status !== 200) {
+        // eslint-disable-next-line no-console
+        console.log(`!!: ${ret.status} !== 401 (retry)`);
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((resolve) => {
+          setTimeout(resolve, 3000);
+        });
+      }
+    }
+    assert.ok(ret.ok);
+    assert.strictEqual(ret.status, 200);
+    const text = await ret.text();
+    assert.strictEqual(text.trim(), '{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo","file":"Hello, world.\\n"}');
   }).timeout(50000);
 
   it('Deploy CI and update links to AWS (for real)', async () => {
