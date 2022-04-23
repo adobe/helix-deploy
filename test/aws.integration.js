@@ -71,6 +71,28 @@ describe('AWS Integration Test', () => {
   it('Update links to AWS (for real)', async () => {
     await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple'), testRoot);
 
+    process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
+    const builder = new CLI()
+      .prepare([
+        '--no-build',
+        '--no-hints',
+        '--verbose',
+        '--target', 'aws',
+        '-l', 'major', '-l', 'minor',
+        '--aws-region', 'us-east-1',
+        '--aws-api', 'lqmig3v5eb',
+        '--aws-role', 'arn:aws:iam::118435662149:role/service-role/helix-service-role-ogu32wiz',
+      ]);
+    builder.cfg._logger = new TestLogger();
+
+    await builder.run();
+    const out = builder.cfg._logger.output;
+    assert.ok(out.indexOf('ANY /simple-package/simple-name/v1/{path+}') >= 0, out);
+  }).timeout(50000);
+
+  it('Deploy CI and update links to AWS (for real)', async () => {
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple'), testRoot);
+
     const version = `ci${process.env.CIRCLE_BUILD_NUM || Date.now()}`;
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
