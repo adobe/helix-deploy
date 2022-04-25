@@ -71,6 +71,44 @@ describe('AWS Integration Test', () => {
   it('Update links to AWS (for real)', async () => {
     await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple'), testRoot);
 
+    process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
+    const builder = new CLI()
+      .prepare([
+        '--no-build',
+        '--no-hints',
+        '--verbose',
+        '--target', 'aws',
+        '-l', 'major', '-l', 'minor',
+        '--aws-region', 'us-east-1',
+        '--aws-api', 'lqmig3v5eb',
+        '--aws-role', 'arn:aws:iam::118435662149:role/service-role/helix-service-role-ogu32wiz',
+      ]);
+    builder.cfg._logger = new TestLogger();
+
+    await builder.run();
+
+    let ret;
+    for (let tries = 3; tries >= 0; tries -= 1) {
+      // eslint-disable-next-line no-await-in-loop
+      ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo');
+      if (ret.status !== 200) {
+        // eslint-disable-next-line no-console
+        console.log(`!!: ${ret.status} !== 401 (retry)`);
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((resolve) => {
+          setTimeout(resolve, 3000);
+        });
+      }
+    }
+    assert.ok(ret.ok);
+    assert.strictEqual(ret.status, 200);
+    const text = await ret.text();
+    assert.strictEqual(text.trim(), '{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo","file":"Hello, world.\\n"}');
+  }).timeout(50000);
+
+  it('Deploy CI and update links to AWS (for real)', async () => {
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple'), testRoot);
+
     const version = `ci${process.env.CIRCLE_BUILD_NUM || Date.now()}`;
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
@@ -78,7 +116,6 @@ describe('AWS Integration Test', () => {
         '--verbose',
         '--deploy',
         '--pkgVersion', version,
-        '-l', 'major',
         '-l', 'ci',
         '--target', 'aws',
         '--aws-region', 'us-east-1',
@@ -91,23 +128,26 @@ describe('AWS Integration Test', () => {
 
     const res = await builder.run();
     assert.ok(res);
-    const out = builder.cfg._logger.output;
-    assert.ok(/.*deleted \d+ unused integrations.*/sg.test(out), out);
-
-    // eslint-disable-next-line no-console
-    console.log('testing if v1 link works...');
-    let ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo');
-    assert.ok(ret.ok);
-    assert.strictEqual(ret.status, 200);
-    let text = await ret.text();
-    assert.strictEqual(text.trim(), '{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo","file":"Hello, world.\\n"}');
 
     // eslint-disable-next-line no-console
     console.log('testing if ci link works...');
-    ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo');
+    let ret;
+
+    for (let tries = 3; tries >= 0; tries -= 1) {
+      // eslint-disable-next-line no-await-in-loop
+      ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo');
+      if (!ret.ok) {
+        // eslint-disable-next-line no-console
+        console.log(`!!: ${ret.status} (retry)`);
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((resolve) => {
+          setTimeout(resolve, 3000);
+        });
+      }
+    }
     assert.ok(ret.ok);
     assert.strictEqual(ret.status, 200);
-    text = await ret.text();
+    const text = await ret.text();
     assert.strictEqual(text.trim(), '{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo","file":"Hello, world.\\n"}');
   }).timeout(50000);
 
@@ -163,7 +203,21 @@ describe('AWS Integration Test', () => {
 
     // eslint-disable-next-line no-console
     console.log('invoking w/o token should fail');
-    let ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo');
+    let ret;
+
+    for (let tries = 3; tries >= 0; tries -= 1) {
+      // eslint-disable-next-line no-await-in-loop
+      ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo');
+      if (ret.status !== 401) {
+        // eslint-disable-next-line no-console
+        console.log(`!!: ${ret.status} !== 401 (retry)`);
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((resolve) => {
+          setTimeout(resolve, 3000);
+        });
+      }
+    }
+
     assert.strictEqual(ret.status, 401);
 
     // eslint-disable-next-line no-console

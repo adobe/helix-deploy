@@ -228,7 +228,8 @@ export default class AWSDeployer extends BaseDeployer {
       if (e.name === 'ResourceNotFoundException') {
         this.log.info(chalk`{green ok}: does not exist yet.`);
         this.log.info(chalk`--: creating new Lambda function {yellow ${functionName}}`);
-        await this._lambda.send(new CreateFunctionCommand(functionConfig));
+        const res = await this._lambda.send(new CreateFunctionCommand(functionConfig));
+        baseARN = res.FunctionArn;
       } else {
         this.log.error(chalk`Unable to verify existence of Lambda function {yellow ${functionName}}`);
         throw e;
@@ -627,21 +628,23 @@ export default class AWSDeployer extends BaseDeployer {
         Name: name,
       }));
       this.log.info(chalk`--: updating alias {blue ${name}}...`);
-      await this._lambda.send(new UpdateAliasCommand({
+      const res = await this._lambda.send(new UpdateAliasCommand({
         FunctionName: functionName,
         Name: name,
         FunctionVersion: functionVersion,
       }));
       this.log.info(chalk`{green ok:} updated alias {blue ${name}} to version {yellow ${functionVersion}}.`);
+      return res.AliasArn;
     } catch (e) {
       if (e.name === 'ResourceNotFoundException') {
         this.log.info(chalk`--: creating alias {blue ${name}}...`);
-        await this._lambda.send(new CreateAliasCommand({
+        const res = await this._lambda.send(new CreateAliasCommand({
           FunctionName: functionName,
           Name: name,
           FunctionVersion: functionVersion,
         }));
         this.log.info(chalk`{green ok:} created alias {blue ${name}} for version {yellow ${functionVersion}}.`);
+        return res.AliasArn;
       } else {
         this.log.error(`Unable to verify existence of Lambda alias ${name}`);
         throw e;
@@ -654,9 +657,7 @@ export default class AWSDeployer extends BaseDeployer {
     const { ApiId } = await this.initApiId();
     const functionVersion = cfg.version.replace(/\./g, '_');
 
-    // get function alias
     let res;
-    let aliasArn;
     let incrementalVersion;
     try {
       this.log.info(chalk`--: fetching alias ...`);
@@ -664,71 +665,97 @@ export default class AWSDeployer extends BaseDeployer {
         FunctionName: functionName,
         Name: functionVersion,
       }));
-      aliasArn = res.AliasArn;
       incrementalVersion = res.FunctionVersion;
-      this.log.info(chalk`{green ok}: ${aliasArn}`);
+      // eslint-disable-next-line prefer-destructuring
+      this._accountId = res.AliasArn.split(':')[4];
+      this.log.info(chalk`{green ok}: ${functionName}@${functionVersion} => ${incrementalVersion}`);
     } catch (e) {
       this.log.error(chalk`{red error}: Unable to create link to function ${functionName}`);
       throw e;
     }
 
-    // find integration
-    let integration = await this.findIntegration(ApiId, aliasArn);
-    let cleanup = false;
-    if (integration) {
-      this.log.info(`--: using existing integration "${integration.IntegrationId}" for "${aliasArn}"`);
-    } else {
-      integration = await this._api.send(new CreateIntegrationCommand({
-        ApiId,
-        IntegrationMethod: 'POST',
-        IntegrationType: 'AWS_PROXY',
-        IntegrationUri: aliasArn,
-        PayloadFormatVersion: '2.0',
-        TimeoutInMillis: Math.min(cfg.timeout, 30000),
-      }));
-      this.log.info(chalk`{green ok:} created new integration "${integration.IntegrationId}" for "${aliasArn}"`);
-      cleanup = true;
-    }
-    const { IntegrationId } = integration;
-
     // get all the routes
     this.log.info(chalk`--: fetching routes ...`);
     const routes = await this.fetchRoutes(ApiId);
-    const routeParams = {
-      ApiId,
-      Target: `integrations/${IntegrationId}`,
-      AuthorizerId: undefined,
-      AuthorizationType: 'NONE',
-    };
-    if (this._cfg.attachAuthorizer) {
-      this.log.info(chalk`--: fetching authorizers...`);
-      const authorizers = await this.fetchAuthorizers(ApiId);
-      const authorizer = authorizers.find((info) => info.Name === this._cfg.attachAuthorizer);
-      if (!authorizer) {
-        throw Error(`Specified authorizer ${this._cfg.attachAuthorizer} does not exist in api ${ApiId}.`);
-      }
-      routeParams.AuthorizerId = authorizer.AuthorizerId;
-      routeParams.AuthorizationType = 'CUSTOM';
-      this.log.info(chalk`{green ok:} configuring routes with authorizer {blue ${this._cfg.attachAuthorizer}} {yellow ${authorizer.AuthorizerId}}`);
-    }
 
     // create routes for each symlink
     const sfx = this.getLinkVersions();
 
     for (const suffix of sfx) {
-      // check if route already exists
+      // create or update alias
+      const aliasArn = await this.createOrUpdateAlias(suffix.replace('.', '_'), functionName, incrementalVersion);
+
+      // find or create integration
+      let integration = await this.findIntegration(ApiId, aliasArn);
+      if (integration) {
+        this.log.info(`--: using existing integration "${integration.IntegrationId}" for "${aliasArn}"`);
+      } else {
+        integration = await this._api.send(new CreateIntegrationCommand({
+          ApiId,
+          IntegrationMethod: 'POST',
+          IntegrationType: 'AWS_PROXY',
+          IntegrationUri: aliasArn,
+          PayloadFormatVersion: '2.0',
+          TimeoutInMillis: Math.min(cfg.timeout, 30000),
+        }));
+        this.log.info(chalk`{green ok:} created new integration "${integration.IntegrationId}" for "${aliasArn}"`);
+      }
+      const { IntegrationId } = integration;
+
+      const routeParams = {
+        ApiId,
+        Target: `integrations/${IntegrationId}`,
+        AuthorizerId: undefined,
+        AuthorizationType: 'NONE',
+      };
+      if (this._cfg.attachAuthorizer) {
+        this.log.info(chalk`--: fetching authorizers...`);
+        const authorizers = await this.fetchAuthorizers(ApiId);
+        const authorizer = authorizers.find((info) => info.Name === this._cfg.attachAuthorizer);
+        if (!authorizer) {
+          throw Error(`Specified authorizer ${this._cfg.attachAuthorizer} does not exist in api ${ApiId}.`);
+        }
+        routeParams.AuthorizerId = authorizer.AuthorizerId;
+        routeParams.AuthorizationType = 'CUSTOM';
+        this.log.info(chalk`{green ok:} configuring routes with authorizer {blue ${this._cfg.attachAuthorizer}} {yellow ${authorizer.AuthorizerId}}`);
+      }
+
+      // create or update routes
       await this.createOrUpdateRoute(routes, routeParams, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}`);
       await this.createOrUpdateRoute(routes, routeParams, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}/{path+}`);
 
-      // create or update alias
-      await this.createOrUpdateAlias(suffix.replace('.', '_'), functionName, incrementalVersion);
-    }
+      await this.updateAuthorizers(ApiId, functionName, aliasArn);
 
-    if (cleanup) {
-      await this.cleanUpIntegrations(functionName);
+      // add permissions to invoke function (with and without path)
+      let sourceArn = `arn:aws:execute-api:${this._cfg.region}:${this._accountId}:${ApiId}/*/*/${cfg.packageName}/${cfg.baseName}/${suffix}`;
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await this._lambda.send(new AddPermissionCommand({
+          FunctionName: aliasArn,
+          Action: 'lambda:InvokeFunction',
+          SourceArn: sourceArn,
+          Principal: 'apigateway.amazonaws.com',
+          StatementId: crypto.createHash('md5').update(aliasArn + sourceArn).digest('hex'),
+        }));
+        this.log.info(chalk`{green ok:} added invoke permissions for ${sourceArn}`);
+      } catch (e) {
+        // ignore, most likely the permission already exists
+      }
+      sourceArn = `arn:aws:execute-api:${this._cfg.region}:${this._accountId}:${ApiId}/*/*/${cfg.packageName}/${cfg.baseName}/${suffix}/{path+}`;
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await this._lambda.send(new AddPermissionCommand({
+          FunctionName: aliasArn,
+          Action: 'lambda:InvokeFunction',
+          SourceArn: sourceArn,
+          Principal: 'apigateway.amazonaws.com',
+          StatementId: crypto.createHash('md5').update(aliasArn + sourceArn).digest('hex'),
+        }));
+        this.log.info(chalk`{green ok:} added invoke permissions for ${sourceArn}`);
+      } catch (e) {
+        // ignore, most likely the permission already exists
+      }
     }
-
-    await this.updateAuthorizers(ApiId, functionName, aliasArn);
   }
 
   async updateAuthorizers(ApiId, functionName, aliasArn) {
