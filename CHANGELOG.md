@@ -1,3 +1,10 @@
+## [6.2.27](https://github.com/adobe/helix-deploy/compare/v6.2.26...v6.2.27) (2022-04-25)
+
+
+### Bug Fixes
+
+* update links should link route to alias, not specific version ([#402](https://github.com/adobe/helix-deploy/issues/402)) ([45d7ea3](https://github.com/adobe/helix-deploy/commit/45d7ea31350f7027330a97dd3773404963f85149))
+
 ## [6.2.26](https://github.com/adobe/helix-deploy/compare/v6.2.25...v6.2.26) (2022-04-22)
 
 
