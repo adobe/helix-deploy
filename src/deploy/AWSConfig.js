@@ -27,6 +27,7 @@ export default class AWSConfig {
       createAuthorizer: '',
       attachAuthorizer: '',
       identitySources: ['$request.header.Authorization'],
+      deployTemplate: 'helix-deploy-template',
     });
   }
 
@@ -42,7 +43,8 @@ export default class AWSConfig {
       .withAWSCleanUpBuckets(argv.awsCleanupBuckets)
       .withAWSCleanUpIntegrations(argv.awsCleanupIntegrations)
       .withAWSCreateRoutes(argv.awsCreateRoutes)
-      .withAWSParamsManager(argv.awsParameterManager);
+      .withAWSParamsManager(argv.awsParameterManager)
+      .withAWSDeployTemplate(argv.awsDeployTemplate);
   }
 
   withAWSRegion(value) {
@@ -100,11 +102,16 @@ export default class AWSConfig {
     return this;
   }
 
+  withAWSDeployTemplate(value) {
+    this.deployTemplate = value;
+    return this;
+  }
+
   static yarg(yargs) {
     return yargs
       .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-cleanup-integrations',
         'aws-create-routes', 'aws-create-authorizer', 'aws-attach-authorizer', 'aws-lambda-format',
-        'aws-parameter-manager'], 'AWS Deployment Options')
+        'aws-parameter-manager', 'aws-deploy-template'], 'AWS Deployment Options')
       .option('aws-region', {
         description: 'the AWS region to deploy lambda functions to',
         type: 'string',
@@ -162,6 +169,11 @@ export default class AWSConfig {
         description: 'Cleans up unused integrations',
         type: 'boolean',
         default: false,
+      })
+      .option('aws-deploy-template', {
+        description: 'Name of the deploy S3 bucket template to use',
+        type: 'string',
+        default: 'helix-deploy-template',
       });
   }
 }

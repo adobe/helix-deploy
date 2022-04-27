@@ -13,8 +13,9 @@
 import chalk from 'chalk-template';
 import {
   CreateBucketCommand, DeleteBucketCommand, DeleteObjectCommand, DeleteObjectsCommand,
-  ListBucketsCommand,
+  GetBucketTaggingCommand, ListBucketsCommand,
   ListObjectsV2Command, PutObjectCommand,
+  PutPublicAccessBlockCommand, PutBucketTaggingCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
 
@@ -151,6 +152,44 @@ export default class AWSDeployer extends BaseDeployer {
       Bucket: this._bucket,
     }));
     this.log.info(chalk`{green ok:} bucket ${data.Location} created`);
+
+    const { deployTemplate } = this._cfg;
+    if (!deployTemplate) {
+      return;
+    }
+
+    let tags;
+    try {
+      // Obtain tags from template bucket
+      const result = await this._s3.send(new GetBucketTaggingCommand({
+        Bucket: deployTemplate,
+      }));
+      tags = result.TagSet;
+    } catch (e) {
+      this.log.warn(`Unable to obtain default tags from template bucket: ${this.bucket}`, e);
+      return;
+    }
+
+    // Block public access
+    await this._s3.send(new PutPublicAccessBlockCommand({
+      Bucket: this._bucket,
+      PublicAccessBlockConfiguration: {
+        BlockPublicAcls: true,
+        IgnorePublicAcls: true,
+        BlockPublicPolicy: true,
+        RestrictPublicBuckets: true,
+      },
+    }));
+    this.log.info(chalk`{green ok:} bucket ${data.Location} hidden from public`);
+
+    // Put required tags
+    await this._s3.send(new PutBucketTaggingCommand({
+      Bucket: this._bucket,
+      Tagging: {
+        TagSet: tags,
+      },
+    }));
+    this.log.info(chalk`{green ok:} added tags to bucket ${data.Location}`);
   }
 
   async uploadZIP() {
