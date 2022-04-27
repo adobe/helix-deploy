@@ -439,6 +439,7 @@ describe('CLI Test', () => {
       createAuthorizer: undefined,
       attachAuthorizer: undefined,
       identitySources: ['$request.header.Authorization'],
+      deployTemplate: 'helix-deploy-template',
     });
   });
 });

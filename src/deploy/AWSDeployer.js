@@ -51,11 +51,6 @@ import BaseDeployer from './BaseDeployer.js';
 import ActionBuilder from '../ActionBuilder.js';
 import AWSConfig from './AWSConfig.js';
 
-/**
- * Name of the deploy template bucket
- */
-const TEMPLATE_BUCKET = 'helix-deploy-template';
-
 export default class AWSDeployer extends BaseDeployer {
   constructor(baseConfig, config) {
     super(baseConfig);
@@ -158,11 +153,16 @@ export default class AWSDeployer extends BaseDeployer {
     }));
     this.log.info(chalk`{green ok:} bucket ${data.Location} created`);
 
+    const { deployTemplate } = this._cfg;
+    if (!deployTemplate) {
+      return;
+    }
+
     let tags;
     try {
       // Obtain tags from template bucket
       const result = await this._s3.send(new GetBucketTaggingCommand({
-        Bucket: TEMPLATE_BUCKET,
+        Bucket: deployTemplate,
       }));
       tags = result.TagSet;
     } catch (e) {
