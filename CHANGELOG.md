@@ -1,3 +1,10 @@
+## [6.2.29](https://github.com/adobe/helix-deploy/compare/v6.2.28...v6.2.29) (2022-04-27)
+
+
+### Bug Fixes
+
+* add tags to newly created polyfunc bucket ([#405](https://github.com/adobe/helix-deploy/issues/405)) ([db4286e](https://github.com/adobe/helix-deploy/commit/db4286ea579d91ee2ad8963b87f7fa6562f8947c))
+
 ## [6.2.28](https://github.com/adobe/helix-deploy/compare/v6.2.27...v6.2.28) (2022-04-25)
 
 
