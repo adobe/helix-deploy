@@ -3,8 +3,6 @@ executors:
   node14:
     docker:
       - image: cimg/node:14.19
-        environment:
-          NPM_CONFIG_PREFIX: "~/.npm-global"
     working_directory: ~/repo
 
 commands:
@@ -16,7 +14,7 @@ commands:
             - v2-dependencies-{{ arch }}-{{ checksum "package-lock.json" }}
       - run:
           name: install npm
-          command: sudo npm -g install npm
+          command: npm -g install npm
       - run:
           name: Installing Dependencies
           command: npm install
