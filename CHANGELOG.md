@@ -1,3 +1,10 @@
+## [6.2.36](https://github.com/adobe/helix-deploy/compare/v6.2.35...v6.2.36) (2022-05-23)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @google-cloud/functions to v2 ([#415](https://github.com/adobe/helix-deploy/issues/415)) ([8a9661c](https://github.com/adobe/helix-deploy/commit/8a9661c5510cb53be5cfd680076b6fec09e8abb5))
+
 ## [6.2.35](https://github.com/adobe/helix-deploy/compare/v6.2.34...v6.2.35) (2022-05-21)
 
 
