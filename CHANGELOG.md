@@ -1,3 +1,10 @@
+## [6.2.47](https://github.com/adobe/helix-deploy/compare/v6.2.46...v6.2.47) (2022-07-06)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/fastly-native-promises to v2.0.9 ([149f1e3](https://github.com/adobe/helix-deploy/commit/149f1e3a802d21cc5232f445078708a32d883720))
+
 ## [6.2.46](https://github.com/adobe/helix-deploy/compare/v6.2.45...v6.2.46) (2022-07-02)
 
 
