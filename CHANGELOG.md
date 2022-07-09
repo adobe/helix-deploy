@@ -1,3 +1,10 @@
+## [6.2.48](https://github.com/adobe/helix-deploy/compare/v6.2.47...v6.2.48) (2022-07-09)
+
+
+### Bug Fixes
+
+* **deps:** update dependency rollup to v2.76.0 ([6ee7c0f](https://github.com/adobe/helix-deploy/commit/6ee7c0f716f3e7c74ffaff99a5a7ed195d2566c0))
+
 ## [6.2.47](https://github.com/adobe/helix-deploy/compare/v6.2.46...v6.2.47) (2022-07-06)
 
 
