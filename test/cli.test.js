@@ -34,7 +34,7 @@ describe('CLI Test', () => {
     assert.equal(builder.cfg.bundler, 'webpack');
     assert.equal(builder.cfg.test, undefined);
     assert.equal(builder.cfg.showHints, true);
-    assert.equal(builder.cfg.nodeVersion, '14');
+    assert.equal(builder.cfg.nodeVersion, '16');
     assert.equal(builder.cfg.docker, null);
     assert.deepEqual(builder.cfg.modules, []);
     assert.equal(JSON.stringify([...builder.cfg.statics]).toString(), '[]');

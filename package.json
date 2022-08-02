@@ -23,8 +23,7 @@
   "scripts": {
     "lint": "eslint .",
     "test": "c8 mocha -i -g Integration",
-    "test-ci": "npm run lint && c8 mocha -i -g Integration && codecov",
-    "integration-ci": "c8 mocha -g Integration && codecov",
+    "integration-ci": "c8 mocha -g Integration",
     "semantic-release": "semantic-release",
     "prepare": "husky install"
   },

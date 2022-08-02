@@ -1,9 +1,11 @@
 version: 2.1
 executors:
-  node14:
+  node16:
     docker:
-      - image: cimg/node:14.20
-    working_directory: ~/repo
+      - image: cimg/node:16.16
+
+orbs:
+  codecov: codecov/codecov@3.2.3
 
 commands:
   setup:
@@ -31,14 +33,16 @@ commands:
 
 jobs:
   build:
-    executor: node14
-
+    executor: node16
     steps:
       - setup
       - run: mkdir junit
       - run:
+          name: Lint
+          command: npm run lint
+      - run:
           name: Test and Code Coverage
-          command: npm run test-ci
+          command: npm run test
       - run:
           name: Prepare .wskprops
           command: |
@@ -48,11 +52,9 @@ jobs:
       - run:
           name: Integration Test and Code Coverage
           command: npm run integration-ci
-
-
+      - codecov/upload
       - store_test_results:
           path: junit
-
       - store_artifacts:
           path: junit
 
