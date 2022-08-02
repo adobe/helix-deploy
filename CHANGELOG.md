@@ -1,3 +1,15 @@
+# [7.0.0](https://github.com/adobe/helix-deploy/compare/v6.2.50...v7.0.0) (2022-08-02)
+
+
+### Bug Fixes
+
+* **deps:** use node 16 by default ([e6fe94b](https://github.com/adobe/helix-deploy/commit/e6fe94b97010dc4e63e456e5b0e1625030d54c94))
+
+
+### BREAKING CHANGES
+
+* **deps:** node 16 is default version when deploying functions
+
 ## [6.2.50](https://github.com/adobe/helix-deploy/compare/v6.2.49...v6.2.50) (2022-07-23)
 
 
