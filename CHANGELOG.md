@@ -1,3 +1,10 @@
+## [7.0.3](https://github.com/adobe/helix-deploy/compare/v7.0.2...v7.0.3) (2022-08-13)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([616da00](https://github.com/adobe/helix-deploy/commit/616da005e4e71ebddf503992817a5f5f905f7470))
+
 ## [7.0.2](https://github.com/adobe/helix-deploy/compare/v7.0.1...v7.0.2) (2022-08-07)
 
 
