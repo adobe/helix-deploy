@@ -36,7 +36,7 @@
     "@adobe/helix-universal": ">=1.9.0"
   },
   "dependencies": {
-    "@adobe/fastly-native-promises": "2.0.9",
+    "@adobe/fastly-native-promises": "2.0.10",
     "@adobe/helix-fetch": "3.1.2",
     "@aws-sdk/client-apigatewayv2": "3.145.0",
     "@aws-sdk/client-lambda": "3.148.0",
