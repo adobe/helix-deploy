@@ -15,7 +15,7 @@
 import assert from 'assert';
 import fse from 'fs-extra';
 import path from 'path';
-import { ALPN_HTTP1_1, context } from '@adobe/helix-fetch';
+import { ALPN_HTTP1_1, context } from '@adobe/fetch';
 
 import { createTestRoot, TestLogger } from './utils.js';
 

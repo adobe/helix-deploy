@@ -15,7 +15,7 @@
 import assert from 'assert';
 import fse from 'fs-extra';
 import path from 'path';
-import { context, h1 } from '@adobe/helix-fetch';
+import { context, h1 } from '@adobe/fetch';
 import { createTestRoot, TestLogger } from './utils.js';
 
 import CLI from '../src/cli.js';

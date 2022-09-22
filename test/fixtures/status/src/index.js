@@ -12,7 +12,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 const wrap = require('@adobe/helix-shared-wrap');
 // eslint-disable-next-line import/no-extraneous-dependencies
-const { Response } = require('@adobe/helix-fetch');
+const { Response } = require('@adobe/fetch');
 const { logger } = require('@adobe/helix-universal-logger');
 const { report } = require('@adobe/helix-status');
 
