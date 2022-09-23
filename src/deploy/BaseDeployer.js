@@ -12,7 +12,7 @@
 import path from 'path';
 import chalk from 'chalk-template';
 import semver from 'semver';
-import { h1, context } from '@adobe/helix-fetch';
+import { h1, context } from '@adobe/fetch';
 
 export default class BaseDeployer {
   constructor(cfg) {

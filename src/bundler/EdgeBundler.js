@@ -65,7 +65,8 @@ export default class EdgeBundler extends WebpackBundler {
           // the main.js is imported in the universal adapter and is _the_ action entry point
           './main.js': cfg.file,
           // 'psl': path.resolve(__dirname, '../node_modules/psl/dist/psl.js'), // inlined data
-          '@adobe/helix-fetch': path.resolve(__dirname, '../template/polyfills/helix-fetch.js'),
+          '@adobe/fetch': path.resolve(__dirname, '../template/polyfills/fetch.js'),
+          '@adobe/helix-fetch': path.resolve(__dirname, '../template/polyfills/fetch.js'),
         },
         /*         fallback: {
           assert: require.resolve('assert'),

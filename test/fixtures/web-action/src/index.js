@@ -10,7 +10,7 @@
  * governing permissions and limitations under the License.
  */
 // eslint-disable-next-line import/no-extraneous-dependencies
-const { Response } = require('@adobe/helix-fetch');
+const { Response } = require('@adobe/fetch');
 
 module.exports.main = function main() {
   return new Response();

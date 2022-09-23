@@ -12,7 +12,7 @@
 /* eslint-env serviceworker */
 
 module.exports = {
-  // replacing helix-fetch with the built-in APIs
+  // replacing @adobe/fetch with the built-in APIs
   fetch,
   Request,
   Response,

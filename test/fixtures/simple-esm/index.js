@@ -9,7 +9,7 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-import { Response } from '@adobe/helix-fetch';
+import { Response } from '@adobe/fetch';
 import reader from './helper/read.js';
 
 export function main(req, context) {

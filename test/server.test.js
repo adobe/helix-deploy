@@ -15,7 +15,7 @@
 import { resolve } from 'path';
 import chai from 'chai';
 import chaiHttp from 'chai-http';
-import { Response } from '@adobe/helix-fetch';
+import { Response } from '@adobe/fetch';
 
 import DevelopmentServer from '../src/DevelopmentServer.js';
 
