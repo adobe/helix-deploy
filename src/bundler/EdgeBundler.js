@@ -66,6 +66,7 @@ export default class EdgeBundler extends WebpackBundler {
           './main.js': cfg.file,
           // 'psl': path.resolve(__dirname, '../node_modules/psl/dist/psl.js'), // inlined data
           '@adobe/fetch': path.resolve(__dirname, '../template/polyfills/fetch.js'),
+          '@adobe/helix-fetch': path.resolve(__dirname, '../template/polyfills/fetch.js'),
         },
         /*         fallback: {
           assert: require.resolve('assert'),
