@@ -1,3 +1,10 @@
+## [7.0.9](https://github.com/adobe/helix-deploy/compare/v7.0.8...v7.0.9) (2022-09-23)
+
+
+### Bug Fixes
+
+* @adobe/helix-fetch -> @adobe/fetch ([916fcfa](https://github.com/adobe/helix-deploy/commit/916fcfa4c476633309b985f63300ca877dd171bf))
+
 ## [7.0.8](https://github.com/adobe/helix-deploy/compare/v7.0.7...v7.0.8) (2022-09-19)
 
 
