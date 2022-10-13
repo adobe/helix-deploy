@@ -250,8 +250,12 @@ export default class AWSDeployer extends BaseDeployer {
         Variables: cfg.params,
       },
       Handler: cfg.esm ? 'esm-adapter/index.handler' : 'index.lambda',
+      Architectures: [
+        this._cfg.arch,
+      ],
     };
 
+    console.log(functionConfig);
     this.log.info(`--: using lambda role "${this._cfg.role}"`);
 
     // check if function already exists
