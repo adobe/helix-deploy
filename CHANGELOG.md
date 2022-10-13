@@ -1,3 +1,10 @@
+# [7.1.0](https://github.com/adobe/helix-deploy/compare/v7.0.13...v7.1.0) (2022-10-13)
+
+
+### Features
+
+* add support to specify architecture ([#456](https://github.com/adobe/helix-deploy/issues/456)) ([f1cc55e](https://github.com/adobe/helix-deploy/commit/f1cc55eb98a850365ff751b7874596b8a3bc3382)), closes [#452](https://github.com/adobe/helix-deploy/issues/452)
+
 ## [7.0.13](https://github.com/adobe/helix-deploy/compare/v7.0.12...v7.0.13) (2022-10-10)
 
 
