@@ -26,6 +26,7 @@ export default class AWSConfig {
       parameterMgr: ['system', 'secret'],
       createAuthorizer: '',
       attachAuthorizer: '',
+      arch: 'x86_64',
       identitySources: ['$request.header.Authorization'],
       deployTemplate: 'helix-deploy-template',
     });
@@ -36,6 +37,7 @@ export default class AWSConfig {
       .withAWSRegion(argv.awsRegion)
       .withAWSRole(argv.awsRole)
       .withAWSApi(argv.awsApi)
+      .withAWSArch(argv.awsArch)
       .withAWSLambdaFormat(argv.awsLambdaFormat)
       .withAWSCreateAuthorizer(argv.awsCreateAuthorizer)
       .withAWSAttachAuthorizer(argv.awsAttachAuthorizer)
@@ -59,6 +61,14 @@ export default class AWSConfig {
 
   withAWSApi(value) {
     this.apiId = value;
+    return this;
+  }
+
+  withAWSArch(value) {
+    if (value !== 'x86_64' && value !== 'arm64') {
+      throw new Error('unsupported arch. only x86_64 and arm64 are supported by AWS lambda');
+    }
+    this.arch = value;
     return this;
   }
 
@@ -111,7 +121,7 @@ export default class AWSConfig {
     return yargs
       .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-cleanup-integrations',
         'aws-create-routes', 'aws-create-authorizer', 'aws-attach-authorizer', 'aws-lambda-format',
-        'aws-parameter-manager', 'aws-deploy-template'], 'AWS Deployment Options')
+        'aws-parameter-manager', 'aws-deploy-template', 'aws-arch'], 'AWS Deployment Options')
       .option('aws-region', {
         description: 'the AWS region to deploy lambda functions to',
         type: 'string',
@@ -126,6 +136,11 @@ export default class AWSConfig {
         description: 'the AWS API Gateway name. (id, "auto" or "create")',
         type: 'string',
         default: 'auto',
+      })
+      .option('aws-arch', {
+        description: 'deployment architecture. either \'x86_64\' or \'arm64\'',
+        type: 'string',
+        default: 'x86_64',
       })
       .option('aws-create-routes', {
         description: 'Create routes for function (usually not needed due to proxy function).',

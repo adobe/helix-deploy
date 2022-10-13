@@ -424,12 +424,14 @@ describe('CLI Test', () => {
         '--aws-region', 'us-east-2',
         '--aws-role', 'somerole',
         '--aws-api', 'someapi',
+        '--aws-arch', 'arm64',
       ]);
     await builder.validate();
     assert.deepStrictEqual(Object.fromEntries(Object.entries(builder._deployers.aws._cfg)), {
       region: 'us-east-2',
       role: 'somerole',
       apiId: 'someapi',
+      arch: 'arm64',
       cleanUpBuckets: false,
       cleanUpIntegrations: false,
       createRoutes: false,
