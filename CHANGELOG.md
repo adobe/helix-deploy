@@ -1,3 +1,10 @@
+## [7.1.2](https://github.com/adobe/helix-deploy/compare/v7.1.1...v7.1.2) (2022-10-14)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/fetch to v3.2.1 ([bfdefcb](https://github.com/adobe/helix-deploy/commit/bfdefcb293068758c936066cecb04fc35794797e))
+
 ## [7.1.1](https://github.com/adobe/helix-deploy/compare/v7.1.0...v7.1.1) (2022-10-13)
 
 
