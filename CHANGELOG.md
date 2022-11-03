@@ -1,3 +1,10 @@
+# [7.2.0](https://github.com/adobe/helix-deploy/compare/v7.1.7...v7.2.0) (2022-11-03)
+
+
+### Features
+
+* **cli:** add options `--edge-externals` and `--serverless-externals` to exclude dependencies depending on architecture ([1d68958](https://github.com/adobe/helix-deploy/commit/1d68958d540221590b2ca5ef2ecfe332b5ecdfb2))
+
 ## [7.1.7](https://github.com/adobe/helix-deploy/compare/v7.1.6...v7.1.7) (2022-10-29)
 
 
