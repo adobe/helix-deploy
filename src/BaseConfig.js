@@ -55,6 +55,8 @@ export default class BaseConfig {
       env: null,
       verbose: false,
       externals: [],
+      edgeExternals: [],
+      serverlessExternals: [],
       nodeVersion: null,
       deploy: false,
       test: null,
@@ -191,6 +193,8 @@ export default class BaseConfig {
       .withEntryFile(argv.entryFile)
       .withAdapterFile(argv.adapterFile)
       .withExternals(argv.externals)
+      .withEdgeExternals(argv.edgeExternals)
+      .withServerlessExternals(argv.serverlessExternals)
       .withModules(argv.modules)
       .withWebSecure(argv.webSecure)
       .withUpdatePackage(argv.updatePackage)
@@ -323,6 +327,26 @@ export default class BaseConfig {
 
   withExternals(value) {
     this.externals = (Array.isArray(value) ? value : [value]).map((e) => {
+      if (typeof e === 'string' && e.startsWith('/') && e.endsWith('/')) {
+        return new RegExp(e.substring(1, e.length - 1));
+      }
+      return e;
+    });
+    return this;
+  }
+
+  withEdgeExternals(value) {
+    this.edgeExternals = (Array.isArray(value) ? value : [value]).map((e) => {
+      if (typeof e === 'string' && e.startsWith('/') && e.endsWith('/')) {
+        return new RegExp(e.substring(1, e.length - 1));
+      }
+      return e;
+    });
+    return this;
+  }
+
+  withServerlessExternals(value) {
+    this.serverlessExternals = (Array.isArray(value) ? value : [value]).map((e) => {
       if (typeof e === 'string' && e.startsWith('/') && e.endsWith('/')) {
         return new RegExp(e.substring(1, e.length - 1));
       }
@@ -615,7 +639,7 @@ export default class BaseConfig {
         default: false,
       })
 
-      .group(['minify', 'static', 'entryFile', 'externals', 'modules', 'adapterFile', 'esm', 'bundler'], 'Build Options')
+      .group(['minify', 'static', 'entryFile', 'externals', 'edge-externals', 'serverless-externals', 'modules', 'adapterFile', 'esm', 'bundler'], 'Build Options')
       .option('minify', {
         description: 'Minify the final bundle',
         type: 'boolean',
@@ -651,7 +675,17 @@ export default class BaseConfig {
         description: 'Specifies the adapter file (the exported module).',
       })
       .option('externals', {
-        description: 'Defines the externals for the bundler.',
+        description: 'Defines the externals for the bundler (these dependencies will not be bundled).',
+        type: 'array',
+        default: [],
+      })
+      .option('edge-externals', {
+        description: 'Defines the externals for the edge bundler (these dependencies will not be bundled for Cloudflare or Fastly).',
+        type: 'array',
+        default: [],
+      })
+      .option('serverless-externals', {
+        description: 'Defines the externals for the serverless bundler (these dependencies will not be bundled for AWS Lambda or Google Cloud Functions).',
         type: 'array',
         default: [],
       })

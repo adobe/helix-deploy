@@ -260,8 +260,13 @@ describe('CLI Test', () => {
 
   it('can add externals with regexp', () => {
     const builder = new CLI()
-      .prepare(['--externals', '/.*/']);
+      .prepare(['--externals', '/.*/',
+        '--edge-externals', '/node-.*/',
+        '--serverless-externals', '/cloudflare-.*/',
+      ]);
     assert.deepEqual(builder.cfg.externals, [/.*/]);
+    assert.deepEqual(builder.cfg.edgeExternals, [/node-.*/]);
+    assert.deepEqual(builder.cfg.serverlessExternals, [/cloudflare-.*/]);
   });
 
   it('can add params from json file', async () => {

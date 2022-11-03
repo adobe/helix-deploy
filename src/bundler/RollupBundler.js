@@ -50,6 +50,7 @@ export default class Bundler extends BaseBundler {
       treeshake: false,
       external: [
         ...cfg.externals,
+        ...cfg.serverlessExternals,
         // the following are imported by the universal adapter and are assumed to be available
         './params.json',
         'aws-sdk',
@@ -104,7 +105,7 @@ export default class Bundler extends BaseBundler {
     await bundle.write(config.output);
     await bundle.close();
     cfg.log.info(chalk`{green ok:} created bundle {yellow ${config.output.file}}`);
-    return { };
+    return {};
   }
 
   /**
