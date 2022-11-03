@@ -47,6 +47,7 @@ export default class WebpackBundler extends BaseBundler {
       devtool: false,
       externals: [
         ...cfg.externals,
+        ...cfg.serverlessExternals,
         // the following are imported by the universal adapter and are assumed to be available
         './params.json',
         'aws-sdk',

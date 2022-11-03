@@ -37,7 +37,8 @@ export default class EdgeBundler extends WebpackBundler {
       },
       devtool: false,
       externals: [
-        ...cfg.externals,
+        ...cfg.externals, // user defined externals for all platforms
+        ...cfg.edgeExternals, // user defined externals for edge compute
         // the following are imported by the universal adapter and are assumed to be available
         './params.json',
         'aws-sdk',
