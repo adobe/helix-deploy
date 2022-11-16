@@ -12,12 +12,15 @@
 /* eslint-disable no-await-in-loop,no-restricted-syntax */
 import chalk from 'chalk-template';
 import {
-  CreateBucketCommand, DeleteBucketCommand, DeleteObjectCommand, DeleteObjectsCommand,
-  GetBucketTaggingCommand, ListBucketsCommand,
-  ListObjectsV2Command, PutObjectCommand,
-  PutPublicAccessBlockCommand, PutBucketTaggingCommand,
+  DeleteObjectCommand,
+  PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
+
+import {
+  GetCallerIdentityCommand,
+  STSClient,
+} from '@aws-sdk/client-sts';
 
 import {
   AddPermissionCommand,
@@ -52,12 +55,17 @@ import ActionBuilder from '../ActionBuilder.js';
 import AWSConfig from './AWSConfig.js';
 
 export default class AWSDeployer extends BaseDeployer {
+  /**
+   * @param {BaseConfig} baseConfig
+   * @param {AWSConfig} config
+   */
   constructor(baseConfig, config) {
     super(baseConfig);
 
     Object.assign(this, {
       id: 'aws',
       name: 'AmazonWebServices',
+      /** @type AWSConfig */
       _cfg: config,
       _functionARN: '',
       _aliasARN: '',
@@ -127,7 +135,6 @@ export default class AWSDeployer extends BaseDeployer {
   }
 
   async init() {
-    this._bucket = `poly-func-maker-temp-${crypto.randomBytes(16).toString('hex')}`;
     if (this._cfg.region) {
       this._s3 = new S3Client({
         region: this._cfg.region,
@@ -147,49 +154,12 @@ export default class AWSDeployer extends BaseDeployer {
     }
   }
 
-  async createS3Bucket() {
-    const data = await this._s3.send(new CreateBucketCommand({
-      Bucket: this._bucket,
-    }));
-    this.log.info(chalk`{green ok:} bucket ${data.Location} created`);
-
-    const { deployTemplate } = this._cfg;
-    if (!deployTemplate) {
-      return;
-    }
-
-    let tags;
-    try {
-      // Obtain tags from template bucket
-      const result = await this._s3.send(new GetBucketTaggingCommand({
-        Bucket: deployTemplate,
-      }));
-      tags = result.TagSet;
-    } catch (e) {
-      this.log.warn(`Unable to obtain default tags from template bucket: ${this.bucket}`, e);
-      return;
-    }
-
-    // Block public access
-    await this._s3.send(new PutPublicAccessBlockCommand({
-      Bucket: this._bucket,
-      PublicAccessBlockConfiguration: {
-        BlockPublicAcls: true,
-        IgnorePublicAcls: true,
-        BlockPublicPolicy: true,
-        RestrictPublicBuckets: true,
-      },
-    }));
-    this.log.info(chalk`{green ok:} bucket ${data.Location} hidden from public`);
-
-    // Put required tags
-    await this._s3.send(new PutBucketTaggingCommand({
-      Bucket: this._bucket,
-      Tagging: {
-        TagSet: tags,
-      },
-    }));
-    this.log.info(chalk`{green ok:} added tags to bucket ${data.Location}`);
+  async initAccountId() {
+    const sts = new STSClient();
+    const ret = await sts.send(new GetCallerIdentityCommand());
+    this._accountId = ret.Account;
+    this._bucket = this._cfg.deployTemplate || `helix-deploy-bucket-${this._accountId}`;
+    this.log.info(chalk`{green ok:} initialized AWS deployer for account {yellow ${ret.Account}}`);
   }
 
   async uploadZIP() {
@@ -197,27 +167,24 @@ export default class AWSDeployer extends BaseDeployer {
     const relZip = path.relative(process.cwd(), cfg.zipFile);
 
     this.log.info(`--: uploading ${relZip} to S3 bucket ${this._bucket} ...`);
+    // ensure upload key is unique
+    this._key = `${path.basename(relZip)}-${crypto.randomBytes(16).toString('hex')}`;
     const uploadParams = {
       Bucket: this._bucket,
-      Key: relZip,
+      Key: this._key,
       Body: await fse.readFile(cfg.zipFile),
     };
 
     await this._s3.send(new PutObjectCommand(uploadParams));
-
-    this._key = relZip;
-    this.log.info(chalk`{green ok:} file uploaded`);
+    this.log.info(chalk`{green ok:} uploaded deploy package {blueBright s3://${this._bucket}/${this._key}}`);
   }
 
-  async deleteS3Bucket() {
+  async deleteZIP() {
     await this._s3.send(new DeleteObjectCommand({
       Bucket: this._bucket,
       Key: this._key,
     }));
-    await this._s3.send(new DeleteBucketCommand({
-      Bucket: this._bucket,
-    }));
-    this.log.info(chalk`{green ok:} bucket ${this._bucket} emptied and deleted`);
+    this.log.info(chalk`{green ok:} deleted deploy package {blueBright s3://${this._bucket}/${this._key}}.`);
   }
 
   async createLambda() {
@@ -255,7 +222,6 @@ export default class AWSDeployer extends BaseDeployer {
       ],
     };
 
-    console.log(functionConfig);
     this.log.info(`--: using lambda role "${this._cfg.role}"`);
 
     // check if function already exists
@@ -545,37 +511,6 @@ export default class AWSDeployer extends BaseDeployer {
     }
 
     this.log.info(chalk`{green ok}: parameters updated.`);
-  }
-
-  async cleanUpBuckets() {
-    this.log.info('--: cleaning up stray temporary S3 buckets ...');
-    let res = await this._s3.send(new ListBucketsCommand({}));
-    const helixBuckets = res.Buckets.filter((b) => b.Name.startsWith('poly-func-maker-temp-'));
-    if (helixBuckets.length === 0) {
-      this.log.info(chalk`{green ok}: no stray buckets found.`);
-    } else {
-      await Promise.all(helixBuckets.map(async (b) => {
-        // get all objects
-        res = await this._s3.send(new ListObjectsV2Command({
-          Bucket: b.Name,
-        }));
-        const keys = (res.Contents || []).map((c) => ({
-          Key: c.Key,
-        }));
-        if (keys.length) {
-          await this._s3.send(new DeleteObjectsCommand({
-            Bucket: b.Name,
-            Delete: {
-              Objects: keys,
-            },
-          }));
-        }
-        await this._s3.send(new DeleteBucketCommand({
-          Bucket: b.Name,
-        }));
-        this.log.info(chalk`{green ok}: deleted temporary bucket: ${b.Name}.`);
-      }));
-    }
   }
 
   async cleanUpIntegrations(filter) {
@@ -890,7 +825,7 @@ export default class AWSDeployer extends BaseDeployer {
   }
 
   async validateAdditionalTasks() {
-    if (this._cfg.cleanUpBuckets || this._cfg.cleanUpIntegrations) {
+    if (this._cfg.cleanUpIntegrations) {
       // disable auto build if no deploy
       if (!this.cfg.deploy) {
         this.cfg.build = false;
@@ -900,9 +835,6 @@ export default class AWSDeployer extends BaseDeployer {
   }
 
   async runAdditionalTasks() {
-    if (this._cfg.cleanUpBuckets) {
-      await this.cleanUpBuckets();
-    }
     if (this._cfg.cleanUpIntegrations) {
       await this.cleanUpIntegrations();
     }
@@ -911,11 +843,11 @@ export default class AWSDeployer extends BaseDeployer {
   async deploy() {
     try {
       this.log.info(`--: using aws region "${this._cfg.region}"`);
-      await this.createS3Bucket();
+      await this.initAccountId();
       await this.uploadZIP();
       await this.createLambda();
+      await this.deleteZIP();
       await this.createAPI();
-      await this.deleteS3Bucket();
       await this.checkFunctionReady();
     } catch (err) {
       this.log.error(`Unable to deploy Lambda function: ${err.message}`, err);
