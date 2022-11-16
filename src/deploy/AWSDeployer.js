@@ -158,7 +158,6 @@ export default class AWSDeployer extends BaseDeployer {
     const sts = new STSClient();
     const ret = await sts.send(new GetCallerIdentityCommand());
     this._accountId = ret.Account;
-    this._bucket = this._cfg.deployTemplate || `helix-deploy-bucket-${this._accountId}`;
     this.log.info(chalk`{green ok:} initialized AWS deployer for account {yellow ${ret.Account}}`);
   }
 
@@ -166,8 +165,8 @@ export default class AWSDeployer extends BaseDeployer {
     const { cfg } = this;
     const relZip = path.relative(process.cwd(), cfg.zipFile);
 
-    this.log.info(`--: uploading ${relZip} to S3 bucket ${this._bucket} ...`);
     // ensure upload key is unique
+    this._bucket = this._cfg.deployBucket || `helix-deploy-bucket-${this._accountId}`;
     this._key = `${path.basename(relZip)}-${crypto.randomBytes(16).toString('hex')}`;
     const uploadParams = {
       Bucket: this._bucket,
@@ -175,6 +174,7 @@ export default class AWSDeployer extends BaseDeployer {
       Body: await fse.readFile(cfg.zipFile),
     };
 
+    this.log.info(`--: uploading ${relZip} to S3 bucket ${this._bucket} ...`);
     await this._s3.send(new PutObjectCommand(uploadParams));
     this.log.info(chalk`{green ok:} uploaded deploy package {blueBright s3://${this._bucket}/${this._key}}`);
   }
