@@ -155,7 +155,9 @@ export default class AWSDeployer extends BaseDeployer {
   }
 
   async initAccountId() {
-    const sts = new STSClient();
+    const sts = new STSClient({
+      region: this._cfg.region,
+    });
     const ret = await sts.send(new GetCallerIdentityCommand());
     this._accountId = ret.Account;
     this.log.info(chalk`{green ok:} initialized AWS deployer for account {yellow ${ret.Account}}`);
