@@ -1,3 +1,10 @@
+# [7.3.0](https://github.com/adobe/helix-deploy/compare/v7.2.2...v7.3.0) (2022-11-17)
+
+
+### Features
+
+* use static deploy bucket ([#470](https://github.com/adobe/helix-deploy/issues/470)) ([dfe0a91](https://github.com/adobe/helix-deploy/commit/dfe0a91f3e8564213bfdc933a562433885c5625c)), closes [#469](https://github.com/adobe/helix-deploy/issues/469)
+
 ## [7.2.2](https://github.com/adobe/helix-deploy/compare/v7.2.1...v7.2.2) (2022-11-12)
 
 
