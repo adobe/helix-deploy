@@ -19,7 +19,6 @@ export default class AWSConfig {
       region: '',
       role: '',
       apiId: '',
-      cleanUpBuckets: false,
       cleanUpIntegrations: false,
       createRoutes: false,
       lambdaFormat: DEFAULT_LAMBDA_FORMAT,
@@ -28,7 +27,7 @@ export default class AWSConfig {
       attachAuthorizer: '',
       arch: 'x86_64',
       identitySources: ['$request.header.Authorization'],
-      deployTemplate: 'helix-deploy-template',
+      deployBucket: '',
     });
   }
 
@@ -42,11 +41,10 @@ export default class AWSConfig {
       .withAWSCreateAuthorizer(argv.awsCreateAuthorizer)
       .withAWSAttachAuthorizer(argv.awsAttachAuthorizer)
       .withAWSIdentitySources(argv.awsIdentitySource)
-      .withAWSCleanUpBuckets(argv.awsCleanupBuckets)
       .withAWSCleanUpIntegrations(argv.awsCleanupIntegrations)
       .withAWSCreateRoutes(argv.awsCreateRoutes)
       .withAWSParamsManager(argv.awsParameterManager)
-      .withAWSDeployTemplate(argv.awsDeployTemplate);
+      .withAWSDeployBucket(argv.awsDeployBucket);
   }
 
   withAWSRegion(value) {
@@ -74,11 +72,6 @@ export default class AWSConfig {
 
   withAWSLambdaFormat(value) {
     this.lambdaFormat = value;
-    return this;
-  }
-
-  withAWSCleanUpBuckets(value) {
-    this.cleanUpBuckets = value;
     return this;
   }
 
@@ -112,8 +105,8 @@ export default class AWSConfig {
     return this;
   }
 
-  withAWSDeployTemplate(value) {
-    this.deployTemplate = value;
+  withAWSDeployBucket(value) {
+    this.deployBucket = value;
     return this;
   }
 
@@ -175,20 +168,15 @@ export default class AWSConfig {
         description: 'Attach specified authorizer to routes during linking.',
         type: 'string',
       })
-      .option('aws-cleanup-buckets', {
-        description: 'Cleans up stray temporary S3 buckets',
-        type: 'boolean',
-        default: false,
-      })
       .option('aws-cleanup-integrations', {
         description: 'Cleans up unused integrations',
         type: 'boolean',
         default: false,
       })
-      .option('aws-deploy-template', {
-        description: 'Name of the deploy S3 bucket template to use',
+      .option('aws-deploy-bucket', {
+        description: 'Name of the deploy S3 bucket to use (default is helix-deploy-bucket-{accountId})',
         type: 'string',
-        default: 'helix-deploy-template',
+        default: '',
       });
   }
 }

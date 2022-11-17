@@ -437,7 +437,6 @@ describe('CLI Test', () => {
       role: 'somerole',
       apiId: 'someapi',
       arch: 'arm64',
-      cleanUpBuckets: false,
       cleanUpIntegrations: false,
       createRoutes: false,
       // eslint-disable-next-line no-template-curly-in-string
@@ -446,7 +445,7 @@ describe('CLI Test', () => {
       createAuthorizer: undefined,
       attachAuthorizer: undefined,
       identitySources: ['$request.header.Authorization'],
-      deployTemplate: 'helix-deploy-template',
+      deployBucket: '',
     });
   });
 });

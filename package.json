@@ -43,6 +43,7 @@
     "@aws-sdk/client-s3": "3.209.0",
     "@aws-sdk/client-secrets-manager": "3.209.0",
     "@aws-sdk/client-ssm": "3.209.0",
+    "@aws-sdk/client-sts": "3.211.0",
     "@fastly/js-compute": "0.5.4",
     "@google-cloud/functions": "2.2.3",
     "@google-cloud/secret-manager": "4.1.4",
