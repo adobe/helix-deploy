@@ -441,7 +441,7 @@ describe('CLI Test', () => {
       createRoutes: false,
       // eslint-disable-next-line no-template-curly-in-string
       lambdaFormat: '${packageName}--${baseName}',
-      parameterMgr: ['secret', 'system'],
+      parameterMgr: ['secret'],
       createAuthorizer: undefined,
       attachAuthorizer: undefined,
       identitySources: ['$request.header.Authorization'],
