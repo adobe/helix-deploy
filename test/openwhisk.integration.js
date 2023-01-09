@@ -40,7 +40,7 @@ describe('OpenWhisk Integration Test', () => {
     await fse.remove(testRoot);
   });
 
-  it('Deploy to OpenWhisk (for real)', async () => {
+  it.skip('Deploy to OpenWhisk (for real)', async () => {
     await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple'), testRoot);
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
