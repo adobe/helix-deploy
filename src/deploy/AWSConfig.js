@@ -22,7 +22,7 @@ export default class AWSConfig {
       cleanUpIntegrations: false,
       createRoutes: false,
       lambdaFormat: DEFAULT_LAMBDA_FORMAT,
-      parameterMgr: ['system', 'secret'],
+      parameterMgr: ['secret'],
       createAuthorizer: '',
       attachAuthorizer: '',
       arch: 'x86_64',
@@ -143,7 +143,7 @@ export default class AWSConfig {
       .option('aws-parameter-manager', {
         description: 'Manager to use for storing package params. (either "secret" for Secrets Manager or "system" for System Manager)',
         type: 'string',
-        default: ['secret', 'system'],
+        default: ['secret'],
         array: true,
       })
       .option('aws-lambda-format', {
