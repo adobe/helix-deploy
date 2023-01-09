@@ -19,7 +19,7 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import alias from '@rollup/plugin-alias';
 import pluginJson from '@rollup/plugin-json';
-import { terser } from 'rollup-plugin-terser';
+import terser from '@rollup/plugin-terser';
 
 import BaseBundler from './BaseBundler.js';
 
