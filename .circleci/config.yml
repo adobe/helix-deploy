@@ -1,8 +1,8 @@
 version: 2.1
 executors:
-  node16:
+  node18:
     docker:
-      - image: cimg/node:16.16
+      - image: cimg/node:18.2
 
 orbs:
   codecov: codecov/codecov@3.2.4
@@ -33,7 +33,7 @@ commands:
 
 jobs:
   build:
-    executor: node16
+    executor: node18
     steps:
       - setup
       - run: mkdir junit
