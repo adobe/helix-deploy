@@ -1,3 +1,10 @@
+## [7.3.11](https://github.com/adobe/helix-deploy/compare/v7.3.10...v7.3.11) (2023-01-13)
+
+
+### Bug Fixes
+
+* Use node 18 for circleci and AWS ([#483](https://github.com/adobe/helix-deploy/issues/483)) ([de3e110](https://github.com/adobe/helix-deploy/commit/de3e110e82b74a206d971f896096abf6d68f6236))
+
 ## [7.3.10](https://github.com/adobe/helix-deploy/compare/v7.3.9...v7.3.10) (2023-01-09)
 
 
