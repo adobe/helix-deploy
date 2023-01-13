@@ -1,3 +1,15 @@
+# [8.0.0](https://github.com/adobe/helix-deploy/compare/v7.3.11...v8.0.0) (2023-01-13)
+
+
+### Bug Fixes
+
+* default to node 18 ([b4ce4a7](https://github.com/adobe/helix-deploy/commit/b4ce4a7bf1bd2e6fbc24744d001a5b562563a53e))
+
+
+### BREAKING CHANGES
+
+* default node version is 18
+
 ## [7.3.11](https://github.com/adobe/helix-deploy/compare/v7.3.10...v7.3.11) (2023-01-13)
 
 
