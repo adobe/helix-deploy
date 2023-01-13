@@ -81,7 +81,7 @@ export default class FastlyGateway {
       .map(([key, value]) => ({
         item_key: `${this.cfg.packageName}.${key}`,
         item_value: value,
-        op: 'update',
+        op: 'upsert',
       }));
 
     if (packageparams.length !== 0) {

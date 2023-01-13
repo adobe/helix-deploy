@@ -188,7 +188,7 @@ describe('AWS Integration Test', () => {
       .prepare([
         '--verbose',
         '--no-build',
-        '-l', 'ci',
+        '-l', 'auth',
         '--target', 'aws',
         '--aws-attach-authorizer', 'helix-simple-test-authorizer_ci',
         '--aws-region', 'us-east-1',
@@ -207,7 +207,7 @@ describe('AWS Integration Test', () => {
 
     for (let tries = 3; tries >= 0; tries -= 1) {
       // eslint-disable-next-line no-await-in-loop
-      ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo');
+      ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/auth/foo');
       if (ret.status !== 401) {
         // eslint-disable-next-line no-console
         console.log(`!!: ${ret.status} !== 401 (retry)`);
@@ -222,13 +222,13 @@ describe('AWS Integration Test', () => {
 
     // eslint-disable-next-line no-console
     console.log('invoking with token token should succeed');
-    ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo', {
+    ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/auth/foo', {
       headers: {
         'x-test-authorization': 'test',
       },
     });
     const text = await ret.text();
     assert.strictEqual(ret.status, 200);
-    assert.strictEqual(text.trim(), '{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo","file":"Hello, world.\\n"}');
+    assert.strictEqual(text.trim(), '{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/auth/foo","file":"Hello, world.\\n"}');
   }).timeout(50000);
 });

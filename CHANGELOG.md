@@ -1,3 +1,17 @@
+## [7.3.10](https://github.com/adobe/helix-deploy/compare/v7.3.9...v7.3.10) (2023-01-09)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([#480](https://github.com/adobe/helix-deploy/issues/480)) ([2e03785](https://github.com/adobe/helix-deploy/commit/2e03785a81afa9d1816a14d759aa51e1fa138e21))
+
+## [7.3.9](https://github.com/adobe/helix-deploy/compare/v7.3.8...v7.3.9) (2023-01-09)
+
+
+### Bug Fixes
+
+* default to secrets manager only ([#482](https://github.com/adobe/helix-deploy/issues/482)) ([6f0b28d](https://github.com/adobe/helix-deploy/commit/6f0b28de5031b646a9031112d802d11f2942e232))
+
 ## [7.3.8](https://github.com/adobe/helix-deploy/compare/v7.3.7...v7.3.8) (2022-12-31)
 
 
