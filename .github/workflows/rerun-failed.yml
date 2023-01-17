@@ -1,0 +1,18 @@
+on:
+  check_suite:
+    types: [ completed ]
+    branches-ignore:
+      - 'main'
+
+jobs:
+  ci_trigger:
+    runs-on: ubuntu-latest
+    name: Rerun failed CircleCI
+    steps:
+      - name: Run
+        id: run
+        if: github.actor == 'renovate[bot]'
+        uses: adobe-rnd/github-rerun-circleci-action@main
+        with:
+          circleci-token: ${{ secrets.CIRCLECI_TOKEN }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
