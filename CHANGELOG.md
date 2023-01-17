@@ -1,3 +1,10 @@
+## [8.0.1](https://github.com/adobe/helix-deploy/compare/v8.0.0...v8.0.1) (2023-01-17)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([#484](https://github.com/adobe/helix-deploy/issues/484)) ([5720ce0](https://github.com/adobe/helix-deploy/commit/5720ce04a1f1e88455ea5f8db706f057a51b32c2))
+
 # [8.0.0](https://github.com/adobe/helix-deploy/compare/v7.3.11...v8.0.0) (2023-01-13)
 
 
