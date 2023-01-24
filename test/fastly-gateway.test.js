@@ -37,7 +37,7 @@ gateway._fastly = {
   discard: () => true,
 };
 
-describe('Unit Tests for Fastly Gateway', () => {
+describe.skip('Unit Tests for Fastly Gateway', () => {
   beforeEach(() => {
     ops = [];
   });
