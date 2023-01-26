@@ -446,6 +446,7 @@ describe('CLI Test', () => {
       attachAuthorizer: undefined,
       identitySources: ['$request.header.Authorization'],
       deployBucket: '',
+      updateSecrets: undefined,
     });
   });
 });
