@@ -108,6 +108,10 @@ describe('Deploy Test', () => {
       .get('/api/v1/web/foobar/default/simple-project/foo')
       .reply(200, 'ok');
 
+    nock('https://api.fastly.com')
+      .get('/')
+      .reply(500);
+
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
       .prepare(buildOpts);
@@ -132,6 +136,8 @@ describe('Deploy Test', () => {
       '--deploy',
       '--test', '/foo',
       '--directory', testRoot,
+      '--fastlyServiceId', '',
+      '--fastlyAuth', '',
     ]);
   }).timeout(10000);
 
@@ -143,6 +149,8 @@ describe('Deploy Test', () => {
       '--deploy',
       '--test', '/foo',
       '--directory', testRoot,
+      '--fastlyServiceId', '',
+      '--fastlyAuth', '',
     ]);
   }).timeout(20000);
 
