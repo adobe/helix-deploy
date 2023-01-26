@@ -1,3 +1,10 @@
+# [8.1.0](https://github.com/adobe/helix-deploy/compare/v8.0.2...v8.1.0) (2023-01-26)
+
+
+### Features
+
+* add aws-update-secrets command ([#488](https://github.com/adobe/helix-deploy/issues/488)) ([70d0e2b](https://github.com/adobe/helix-deploy/commit/70d0e2bb2c2b907dbae41b7e988bb389d530348b))
+
 ## [8.0.2](https://github.com/adobe/helix-deploy/compare/v8.0.1...v8.0.2) (2023-01-21)
 
 
