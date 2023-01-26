@@ -275,6 +275,8 @@ describe('Deploy Test', () => {
         '--verbose',
         '--deploy',
         '--directory', testRoot,
+        '--fastlyServiceId', '',
+        '--fastlyAuth', '',
       ]);
     builder.cfg._logger = new TestLogger();
 
