@@ -38,6 +38,7 @@ async function handler(event) {
       transactionId: null,
       requestId: null,
     },
+    // eslint-disable-next-line no-undef
     env: new Proxy(globalThis, {
       get: (target, prop) => target[prop] || target.PACKAGE.get(prop),
     }),
