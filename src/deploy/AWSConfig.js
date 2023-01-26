@@ -28,6 +28,7 @@ export default class AWSConfig {
       arch: 'x86_64',
       identitySources: ['$request.header.Authorization'],
       deployBucket: '',
+      updateSecrets: undefined,
     });
   }
 
@@ -44,7 +45,8 @@ export default class AWSConfig {
       .withAWSCleanUpIntegrations(argv.awsCleanupIntegrations)
       .withAWSCreateRoutes(argv.awsCreateRoutes)
       .withAWSParamsManager(argv.awsParameterManager)
-      .withAWSDeployBucket(argv.awsDeployBucket);
+      .withAWSDeployBucket(argv.awsDeployBucket)
+      .withAWSUpdateSecrets(argv.awsUpdateSecrets);
   }
 
   withAWSRegion(value) {
@@ -110,11 +112,16 @@ export default class AWSConfig {
     return this;
   }
 
+  withAWSUpdateSecrets(value) {
+    this.updateSecrets = value;
+    return this;
+  }
+
   static yarg(yargs) {
     return yargs
       .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-cleanup-integrations',
         'aws-create-routes', 'aws-create-authorizer', 'aws-attach-authorizer', 'aws-lambda-format',
-        'aws-parameter-manager', 'aws-deploy-template', 'aws-arch'], 'AWS Deployment Options')
+        'aws-parameter-manager', 'aws-deploy-template', 'aws-arch', 'aws-update-secrets'], 'AWS Deployment Options')
       .option('aws-region', {
         description: 'the AWS region to deploy lambda functions to',
         type: 'string',
@@ -145,6 +152,10 @@ export default class AWSConfig {
         type: 'string',
         default: ['secret'],
         array: true,
+      })
+      .option('aws-update-secrets', {
+        description: 'Uploads the function specific secrets with the params. defaults to /helix-deploy/{pkg}/{name}',
+        type: 'string',
       })
       .option('aws-lambda-format', {
         description: 'Format to use to create lambda functions (note that all dots (\'.\') will be replaced with underscores.',

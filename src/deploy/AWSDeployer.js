@@ -475,6 +475,21 @@ export default class AWSDeployer extends BaseDeployer {
     return this._functionURL;
   }
 
+  async updateSecrets() {
+    const { cfg } = this;
+    const SecretId = cfg.updateSecrets || `/helix-deploy/${cfg.packageName}/${cfg.baseName}`;
+    this.log.info(`--: updating app parameters in secrets manager at '${SecretId}'...`);
+    try {
+      await this._sm.send(new PutSecretValueCommand({
+        SecretId,
+        SecretString: JSON.stringify(cfg.params),
+      }));
+    } catch (e) {
+      this.log.error(chalk`{red error:} unable to update value of '${SecretId}'`);
+      throw e;
+    }
+  }
+
   async updatePackage() {
     const { cfg } = this;
     let found = false;
@@ -827,7 +842,7 @@ export default class AWSDeployer extends BaseDeployer {
   }
 
   async validateAdditionalTasks() {
-    if (this._cfg.cleanUpIntegrations) {
+    if (this._cfg.cleanUpIntegrations || this._cfg.updateSecrets !== undefined) {
       // disable auto build if no deploy
       if (!this.cfg.deploy) {
         this.cfg.build = false;
@@ -839,6 +854,9 @@ export default class AWSDeployer extends BaseDeployer {
   async runAdditionalTasks() {
     if (this._cfg.cleanUpIntegrations) {
       await this.cleanUpIntegrations();
+    }
+    if (this._cfg.updateSecrets !== undefined) {
+      await this.updateSecrets();
     }
   }
 
