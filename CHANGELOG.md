@@ -1,3 +1,15 @@
+# [9.0.0](https://github.com/adobe/helix-deploy/compare/v8.1.2...v9.0.0) (2023-01-31)
+
+
+### Bug Fixes
+
+* update to esm helix-universal ([40ab053](https://github.com/adobe/helix-deploy/commit/40ab05305ff97bae16a510a97dc849e3f2ad0790))
+
+
+### BREAKING CHANGES
+
+* needs helix-universal 4.x
+
 ## [8.1.2](https://github.com/adobe/helix-deploy/compare/v8.1.1...v8.1.2) (2023-01-28)
 
 
