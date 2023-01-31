@@ -43,6 +43,7 @@ export default class WebpackBundler extends BaseBundler {
         library: 'main',
         libraryTarget: 'umd',
         globalObject: 'globalThis',
+        asyncChunks: false,
       },
       devtool: false,
       externals: [

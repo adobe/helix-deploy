@@ -23,11 +23,8 @@ export default () => {
     return `
 ${e.message}
 ${e.stack}
-${__dirname}
-${__filename}
+${__rootdir}
 ${process.cwd()}
-${require.main.path}
-${process.platform === 'win32'}
 `;
   }
 };

@@ -9,16 +9,12 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-import { createRequire } from 'module';
 import fse from 'fs-extra';
 import path from 'path';
 import express from 'express';
+import { createAdapter } from '@adobe/helix-universal/google';
 import ActionBuilder from './ActionBuilder.js';
 import BaseConfig from './BaseConfig.js';
-
-// load proxyquire specially since it doesn't support ESM yet.
-const require = createRequire(import.meta.url);
-const proxyquire = require('proxyquire').noCallThru();
 
 function rawBody() {
   return (req, res, next) => {
@@ -140,11 +136,7 @@ export default class DevelopmentServer {
     // use google adapter since it already supports express req/res types
     process.env.K_SERVICE = `${config.packageName}--${config.name}`;
     process.env.K_REVISION = config.version;
-    this._handler = proxyquire('@adobe/helix-universal/src/google-adapter.js', {
-      './main.js': {
-        main: this._main,
-      },
-    }).raw;
+    this._handler = createAdapter({ factory: () => this._main });
     this.params = config.params;
     return this;
   }

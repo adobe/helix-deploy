@@ -10,10 +10,7 @@
  * governing permissions and limitations under the License.
  */
 // eslint-disable-next-line import/no-extraneous-dependencies
-const wrap = require('@adobe/helix-shared-wrap');
-// eslint-disable-next-line import/no-extraneous-dependencies
 const { Response } = require('@adobe/fetch');
-const { logger } = require('@adobe/helix-universal-logger');
 const { report } = require('@adobe/helix-status');
 
 /**
@@ -30,6 +27,4 @@ async function main(req, context) {
   });
 }
 
-module.exports.main = wrap(main)
-  .with(logger.trace)
-  .with(logger);
+module.exports.main = main;

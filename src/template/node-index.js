@@ -12,7 +12,7 @@
 const { dirname } = require('path');
 const {
   openwhisk,
-  aws,
+  lambda,
   google,
 } = require('@adobe/helix-universal').adapter;
 
@@ -21,6 +21,6 @@ global.__rootdir = dirname(__filename); // __dirname is transformed by webpack, 
 
 module.exports = {
   main: openwhisk,
-  lambda: aws,
+  lambda,
   google,
 };

@@ -11,15 +11,11 @@
  */
 
 /* eslint-env mocha */
-
+import assert from 'assert';
 import { resolve } from 'path';
-import chai from 'chai';
-import chaiHttp from 'chai-http';
-import { Response } from '@adobe/fetch';
+import { fetch, Response } from '@adobe/fetch';
 
 import DevelopmentServer from '../src/DevelopmentServer.js';
-
-chai.use(chaiHttp);
 
 describe('Server Test', () => {
   let envCopy;
@@ -53,9 +49,8 @@ describe('Server Test', () => {
     server.params.TEST_DIRECT_PARAM = 'foo-direct-param';
     await server.start();
 
-    const res = await chai.request(`http://localhost:${server.server.address().port}`)
-      .get('/');
-    chai.expect(res.body).to.be.eql({
+    const res = await fetch(`http://localhost:${server.server.address().port}/`);
+    assert.deepStrictEqual(await res.json(), {
       TEST_DEFAULT_PARAM: 'dev-default',
       TEST_DEV_FILE_PARAM: 'foo-dev-file',
       TEST_DEV_PARAM: 'foo-dev-param',
@@ -77,9 +72,8 @@ describe('Server Test', () => {
     server.params.TEST_PARAM = 'foo';
     await server.start();
 
-    const res = await chai.request(`http://localhost:${server.server.address().port}`)
-      .get('/');
-    chai.expect(res.text).to.be.equal(`hello: localhost:${server.server.address().port}`);
+    const res = await fetch(`http://localhost:${server.server.address().port}/`);
+    assert.strictEqual(await res.text(), `hello: localhost:${server.server.address().port}`);
     await server.stop();
   });
 
@@ -92,12 +86,15 @@ describe('Server Test', () => {
     await server.init();
     await server.start();
 
-    const res = await chai.request(`http://localhost:${server.server.address().port}`)
-      .post('/')
-      .set('content-type', 'application/json')
-      .send({ myparam: 'test' });
+    const res = await fetch(`http://localhost:${server.server.address().port}/`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: { myparam: 'test' },
+    });
 
-    chai.expect(res.text).to.be.equal('hello: {"myparam":"test"}');
+    assert.strictEqual(await res.text(), 'hello: {"myparam":"test"}');
     await server.stop();
   });
 
@@ -114,10 +111,8 @@ describe('Server Test', () => {
     await server.init();
     await server.start();
 
-    const res = await chai.request(`http://localhost:${server.server.address().port}`)
-      .get('/');
-
-    chai.expect(res.text).to.be.equal('xfh: https://helix-pages.anywhere.run/helix-services/content-proxy@v2');
+    const res = await fetch(`http://localhost:${server.server.address().port}/`);
+    assert.strictEqual(await res.text(), 'xfh: https://helix-pages.anywhere.run/helix-services/content-proxy@v2');
     await server.stop();
   });
 });
