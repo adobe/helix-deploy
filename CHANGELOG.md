@@ -1,3 +1,12 @@
+## [9.0.1](https://github.com/adobe/helix-deploy/compare/v9.0.0...v9.0.1) (2023-01-31)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/fastly-native-promises to v3 ([#497](https://github.com/adobe/helix-deploy/issues/497)) ([ab5cbe6](https://github.com/adobe/helix-deploy/commit/ab5cbe6cc34fab8d92fd38085fb73c41065812be))
+* **deps:** update external fixes ([#496](https://github.com/adobe/helix-deploy/issues/496)) ([841586c](https://github.com/adobe/helix-deploy/commit/841586c84a4e31588c0586da3fc51cc86c884171))
+* use correct import ([50f999c](https://github.com/adobe/helix-deploy/commit/50f999cf48f08269fa55afbe60e73c633f865345))
+
 # [9.0.0](https://github.com/adobe/helix-deploy/compare/v8.1.2...v9.0.0) (2023-01-31)
 
 
