@@ -9,14 +9,15 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-import Fastly from '@adobe/fastly-native-promises';
+// eslint-disable-next-line import/no-named-default
+import { default as Fastly, loghelpers } from '@adobe/fastly-native-promises';
 import chalk from 'chalk-template';
 import FastlyConfig from './FastlyConfig.js';
 import BaseDeployer from '../deploy/BaseDeployer.js';
 
 const {
   toString, vcl, time, req, res, str, concat,
-} = Fastly.loghelpers;
+} = loghelpers;
 
 export default class FastlyGateway {
   constructor(baseConfig, config) {
