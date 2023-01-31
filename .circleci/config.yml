@@ -2,7 +2,7 @@ version: 2.1
 executors:
   node18:
     docker:
-      - image: cimg/node:18.2
+      - image: cimg/node:18.13
 
 orbs:
   codecov: codecov/codecov@3.2.4
