@@ -1,3 +1,10 @@
+## [9.0.3](https://github.com/adobe/helix-deploy/compare/v9.0.2...v9.0.3) (2023-02-02)
+
+
+### Bug Fixes
+
+* wait for close ([#499](https://github.com/adobe/helix-deploy/issues/499)) ([676a04e](https://github.com/adobe/helix-deploy/commit/676a04ec19d494b80f029720a7280c0f20f38b3f))
+
 ## [9.0.2](https://github.com/adobe/helix-deploy/compare/v9.0.1...v9.0.2) (2023-02-02)
 
 
