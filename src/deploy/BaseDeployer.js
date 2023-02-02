@@ -55,8 +55,8 @@ export default class BaseDeployer {
     }
   }
 
-  close() {
-    this.resetFetchContext();
+  async close() {
+    await this.resetFetchContext();
   }
 
   get fetch() {

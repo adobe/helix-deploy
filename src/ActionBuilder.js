@@ -356,9 +356,9 @@ export default class ActionBuilder {
     return this.execute('cleanup', '');
   }
 
-  close() {
+  async close() {
     if (this.validated) {
-      Object.values(this._deployers).forEach((dep) => dep.close());
+      await Promise.allSettled(Object.values(this._deployers).map((dep) => dep.close()));
     }
   }
 
@@ -366,7 +366,7 @@ export default class ActionBuilder {
     try {
       return await this._run();
     } finally {
-      this.close();
+      await this.close();
     }
   }
 

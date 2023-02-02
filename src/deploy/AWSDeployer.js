@@ -887,6 +887,8 @@ export default class AWSDeployer extends BaseDeployer {
     this._api?.destroy();
     this._ssm?.destroy();
     this._sm?.destroy();
+
+    await super.close();
   }
 }
 
