@@ -1,3 +1,10 @@
+## [9.0.2](https://github.com/adobe/helix-deploy/compare/v9.0.1...v9.0.2) (2023-02-02)
+
+
+### Bug Fixes
+
+* close clients on destroy ([#498](https://github.com/adobe/helix-deploy/issues/498)) ([b30404d](https://github.com/adobe/helix-deploy/commit/b30404de570783f0aae8af8ee0bebdecfacda20b))
+
 ## [9.0.1](https://github.com/adobe/helix-deploy/compare/v9.0.0...v9.0.1) (2023-01-31)
 
 
