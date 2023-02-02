@@ -155,12 +155,18 @@ export default class AWSDeployer extends BaseDeployer {
   }
 
   async initAccountId() {
-    const sts = new STSClient({
-      region: this._cfg.region,
-    });
-    const ret = await sts.send(new GetCallerIdentityCommand());
-    this._accountId = ret.Account;
-    this.log.info(chalk`{green ok:} initialized AWS deployer for account {yellow ${ret.Account}}`);
+    let sts;
+
+    try {
+      sts = new STSClient({
+        region: this._cfg.region,
+      });
+      const ret = await sts.send(new GetCallerIdentityCommand());
+      this._accountId = ret.Account;
+      this.log.info(chalk`{green ok:} initialized AWS deployer for account {yellow ${ret.Account}}`);
+    } finally {
+      sts.destroy();
+    }
   }
 
   async uploadZIP() {
@@ -873,6 +879,14 @@ export default class AWSDeployer extends BaseDeployer {
       this.log.error(`Unable to deploy Lambda function: ${err.message}`, err);
       throw err;
     }
+  }
+
+  async close() {
+    this._s3?.destroy();
+    this._lambda?.destroy();
+    this._api?.destroy();
+    this._ssm?.destroy();
+    this._sm?.destroy();
   }
 }
 
