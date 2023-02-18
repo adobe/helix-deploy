@@ -1,3 +1,10 @@
+## [9.0.8](https://github.com/adobe/helix-deploy/compare/v9.0.7...v9.0.8) (2023-02-18)
+
+
+### Bug Fixes
+
+* make development server work with helix-shared-secrets ([#505](https://github.com/adobe/helix-deploy/issues/505)) ([a0b3eb0](https://github.com/adobe/helix-deploy/commit/a0b3eb068690a1c8980703ffc724017740cd5c01))
+
 ## [9.0.7](https://github.com/adobe/helix-deploy/compare/v9.0.6...v9.0.7) (2023-02-14)
 
 
