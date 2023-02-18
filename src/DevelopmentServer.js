@@ -100,7 +100,7 @@ export default class DevelopmentServer {
    * @returns this
    */
   async init() {
-    // load the action params params
+    // load the action params
     let pkgJson = {};
     try {
       pkgJson = await fse.readJson(path.resolve(this._cwd, 'package.json'));
@@ -136,7 +136,13 @@ export default class DevelopmentServer {
     // use google adapter since it already supports express req/res types
     process.env.K_SERVICE = `${config.packageName}--${config.name}`;
     process.env.K_REVISION = config.version;
-    this._handler = createAdapter({ factory: () => this._main });
+    this._handler = createAdapter({
+      factory: () => (req, ctx) => {
+        // adjust runtime in order for the shared-secrets plugin to accept unsupported the runtime.
+        ctx.runtime.name = 'simulate';
+        return this._main(req, ctx);
+      },
+    });
     this.params = config.params;
     return this;
   }
