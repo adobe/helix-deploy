@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@adobe/fastly-native-promises": "3.0.2",
-    "@adobe/fetch": "4.0.3",
+    "@adobe/fetch": "4.0.4",
     "@aws-sdk/client-apigatewayv2": "3.279.0",
     "@aws-sdk/client-lambda": "3.279.0",
     "@aws-sdk/client-s3": "3.279.0",
@@ -70,7 +70,7 @@
     "yargs": "17.7.1"
   },
   "devDependencies": {
-    "@adobe/eslint-config-helix": "2.0.1",
+    "@adobe/eslint-config-helix": "2.0.2",
     "@adobe/helix-shared-wrap": "2.0.0",
     "@adobe/helix-status": "10.0.2",
     "@semantic-release/changelog": "6.0.2",
