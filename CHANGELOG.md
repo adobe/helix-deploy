@@ -1,3 +1,10 @@
+## [9.0.12](https://github.com/adobe/helix-deploy/compare/v9.0.11...v9.0.12) (2023-02-26)
+
+
+### Bug Fixes
+
+* **deps:** update dependency rollup to v3.17.3 ([19d1dc2](https://github.com/adobe/helix-deploy/commit/19d1dc2cb95eaae54f9b23081f710a76ac678971))
+
 ## [9.0.11](https://github.com/adobe/helix-deploy/compare/v9.0.10...v9.0.11) (2023-02-25)
 
 
