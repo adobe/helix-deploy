@@ -36,8 +36,8 @@
     "@adobe/helix-universal": ">=4.1.1"
   },
   "dependencies": {
-    "@adobe/fastly-native-promises": "3.0.2",
-    "@adobe/fetch": "4.0.4",
+    "@adobe/fastly-native-promises": "3.0.3",
+    "@adobe/fetch": "4.0.5",
     "@aws-sdk/client-apigatewayv2": "3.289.0",
     "@aws-sdk/client-lambda": "3.289.0",
     "@aws-sdk/client-s3": "3.289.0",
@@ -72,7 +72,7 @@
   "devDependencies": {
     "@adobe/eslint-config-helix": "2.0.2",
     "@adobe/helix-shared-wrap": "2.0.0",
-    "@adobe/helix-status": "10.0.2",
+    "@adobe/helix-status": "10.0.3",
     "@semantic-release/changelog": "6.0.2",
     "@semantic-release/git": "10.0.1",
     "c8": "7.13.0",
