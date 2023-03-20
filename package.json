@@ -54,7 +54,7 @@
     "@rollup/plugin-node-resolve": "15.0.1",
     "@rollup/plugin-terser": "0.4.0",
     "archiver": "5.3.1",
-    "chalk-template": "0.5.0",
+    "chalk-template": "1.0.0",
     "constants-browserify": "1.0.0",
     "dotenv": "16.0.3",
     "express": "4.18.2",
