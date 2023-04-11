@@ -1,3 +1,10 @@
+## [9.0.21](https://github.com/adobe/helix-deploy/compare/v9.0.20...v9.0.21) (2023-04-11)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @rollup/plugin-alias to v5 ([#524](https://github.com/adobe/helix-deploy/issues/524)) ([5519045](https://github.com/adobe/helix-deploy/commit/55190450ddf65bd7e28a57009d0ede2c817df0f1))
+
 ## [9.0.20](https://github.com/adobe/helix-deploy/compare/v9.0.19...v9.0.20) (2023-04-08)
 
 
