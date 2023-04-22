@@ -1,3 +1,10 @@
+## [9.0.25](https://github.com/adobe/helix-deploy/compare/v9.0.24...v9.0.25) (2023-04-22)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([cff9811](https://github.com/adobe/helix-deploy/commit/cff98111b9609c42b5a26f419d87fd63cfd8e757))
+
 ## [9.0.24](https://github.com/adobe/helix-deploy/compare/v9.0.23...v9.0.24) (2023-04-16)
 
 
