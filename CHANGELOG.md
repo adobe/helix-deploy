@@ -1,3 +1,10 @@
+## [9.0.30](https://github.com/adobe/helix-deploy/compare/v9.0.29...v9.0.30) (2023-05-17)
+
+
+### Bug Fixes
+
+* use module type code for deploy proxy ([#539](https://github.com/adobe/helix-deploy/issues/539)) ([a5c0307](https://github.com/adobe/helix-deploy/commit/a5c0307471d3606d7d0872aad89e80d21e93122a))
+
 ## [9.0.29](https://github.com/adobe/helix-deploy/compare/v9.0.28...v9.0.29) (2023-05-13)
 
 
