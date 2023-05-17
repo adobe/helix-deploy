@@ -11,8 +11,7 @@
  */
 /* eslint-disable no-console */
 // eslint-disable-next-line import/no-unresolved
-const AWS = require('aws-sdk');
-const { promisify } = require('util');
+import { LambdaClient, InvokeCommand, InvocationType } from '@aws-sdk/client-lambda';
 
 /**
  * Proxy function that invokes the respective function based on the route parameters.
@@ -30,21 +29,21 @@ const { promisify } = require('util');
  * @param event
  * @returns {Promise<{body, statusCode}|any>}
  */
-exports.handler = async (event) => {
-  const lambda = new AWS.Lambda();
-  const invoke = promisify(lambda.invoke.bind(lambda));
-
+export const handler = async (event) => {
   const { action, version } = event.pathParameters;
   const [, pkgName] = event.rawPath.split('/');
   const FunctionName = `${pkgName}--${action}:${version.replace(/\./g, '_')}`;
 
   try {
     console.log(`invoking: ${FunctionName}`);
-    const ret = await invoke({
-      FunctionName,
-      Payload: JSON.stringify(event),
-    });
-    const data = JSON.parse(ret.Payload);
+    const ret = await new LambdaClient().send(
+      new InvokeCommand({
+        FunctionName,
+        InvocationType: InvocationType.RequestResponse,
+        Payload: JSON.stringify(event),
+      }),
+    );
+    const data = JSON.parse(new TextDecoder('utf8').decode(ret.Payload));
     console.log(`statusCode: ${data.statusCode}`);
     return data;
   } catch (err) {
