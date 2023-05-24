@@ -143,6 +143,7 @@ export default class DevelopmentServer {
       },
     });
     this._handler = async (req, res) => {
+      const [rawPath, rawQueryString = ''] = req.originalUrl.split('?');
       const event = {
         body: req.rawBody,
         headers: req.headers,
@@ -155,8 +156,8 @@ export default class DevelopmentServer {
             method: req.method,
           },
         },
-        rawPath: req.originalUrl,
-        rawQueryString: req.originalUrl.split('?')?.[1] || '',
+        rawPath,
+        rawQueryString,
       };
       const context = {
         invokedFunctionArn: `arn:aws:lambda:${region}:${accountId}:function:${config.name}:${config.version}`,

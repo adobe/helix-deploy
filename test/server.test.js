@@ -98,6 +98,38 @@ describe('Server Test', () => {
     await server.stop();
   });
 
+  it('it can see the request method', async () => {
+    // eslint-disable-next-line arrow-body-style
+    const main = async (req) => {
+      return new Response(`method: ${req.method}`);
+    };
+
+    const server = new DevelopmentServer(main).withPort(0);
+    await server.init();
+    await server.start();
+
+    const res = await fetch(`http://localhost:${server.server.address().port}/`, {
+      method: 'OPTIONS',
+    });
+    assert.strictEqual(await res.text(), 'method: OPTIONS');
+    await server.stop();
+  });
+
+  it('it can see the query string', async () => {
+    // eslint-disable-next-line arrow-body-style
+    const main = async (req) => {
+      return new Response(`qs: ${new URL(req.url).searchParams}`);
+    };
+
+    const server = new DevelopmentServer(main).withPort(0);
+    await server.init();
+    await server.start();
+
+    const res = await fetch(`http://localhost:${server.server.address().port}/?a=1&b=2`);
+    assert.strictEqual(await res.text(), 'qs: a=1&b=2');
+    await server.stop();
+  });
+
   it('resolves the action correctly', async () => {
     const main = async (req, ctx) => {
       const url = ctx.resolver.createURL({
