@@ -112,7 +112,7 @@ describe('Server Test', () => {
     await server.start();
 
     const res = await fetch(`http://localhost:${server.server.address().port}/`);
-    assert.strictEqual(await res.text(), 'xfh: https://helix-pages.anywhere.run/helix-services/content-proxy@v2');
+    assert.strictEqual(await res.text(), 'xfh: https://localhost/helix-services/content-proxy/v2');
     await server.stop();
   });
 });
