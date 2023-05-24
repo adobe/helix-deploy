@@ -1,3 +1,10 @@
+## [9.0.34](https://github.com/adobe/helix-deploy/compare/v9.0.33...v9.0.34) (2023-05-24)
+
+
+### Bug Fixes
+
+* use AWS adapter to serve requests to ([#544](https://github.com/adobe/helix-deploy/issues/544)) ([e7d6b28](https://github.com/adobe/helix-deploy/commit/e7d6b2804dbd75466998fb3fd3c7f46958192eb4))
+
 ## [9.0.33](https://github.com/adobe/helix-deploy/compare/v9.0.32...v9.0.33) (2023-05-24)
 
 
