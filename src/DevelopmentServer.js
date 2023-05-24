@@ -12,7 +12,7 @@
 import fse from 'fs-extra';
 import path from 'path';
 import express from 'express';
-import { createAdapter } from '@adobe/helix-universal/google';
+import { createAdapter } from '@adobe/helix-universal/aws';
 import ActionBuilder from './ActionBuilder.js';
 import BaseConfig from './BaseConfig.js';
 
@@ -133,16 +133,47 @@ export default class DevelopmentServer {
     const builder = new ActionBuilder().withConfig(config);
     await builder.validate();
 
-    // use google adapter since it already supports express req/res types
-    process.env.K_SERVICE = `${config.packageName}--${config.name}`;
-    process.env.K_REVISION = config.version;
-    this._handler = createAdapter({
+    const region = process.env.AWS_REGION ?? 'us-east-1';
+    const accountId = process.env.AWS_ACCOUNT_ID ?? 'no-account';
+
+    const adapter = createAdapter({
       factory: () => (req, ctx) => {
-        // adjust runtime in order for the shared-secrets plugin to accept unsupported the runtime.
         ctx.runtime.name = 'simulate';
         return this._main(req, ctx);
       },
     });
+    this._handler = async (req, res) => {
+      const [rawPath, rawQueryString = ''] = req.originalUrl.split('?');
+      const event = {
+        body: req.rawBody,
+        headers: req.headers,
+        pathParameters: {
+          path: req.originalUrl.substring(1),
+        },
+        requestContext: {
+          domainName: req.hostname,
+          http: {
+            method: req.method,
+          },
+        },
+        rawPath,
+        rawQueryString,
+      };
+      const context = {
+        invokedFunctionArn: `arn:aws:lambda:${region}:${accountId}:function:${config.name}:${config.version}`,
+        getRemainingTimeInMillis: () => 60000,
+      };
+
+      const {
+        statusCode,
+        headers,
+        body,
+      } = await adapter(event, context);
+
+      res.status(statusCode);
+      Object.entries(headers).forEach(([name, value]) => res.set(name, value));
+      res.send(body);
+    };
     this.params = config.params;
     return this;
   }
