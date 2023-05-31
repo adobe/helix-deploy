@@ -1,3 +1,10 @@
+## [9.0.36](https://github.com/adobe/helix-deploy/compare/v9.0.35...v9.0.36) (2023-05-31)
+
+
+### Bug Fixes
+
+* suffix should not contain the query string ([#547](https://github.com/adobe/helix-deploy/issues/547)) ([b0715e4](https://github.com/adobe/helix-deploy/commit/b0715e4e889eba914b886bfb4c1460226656ec87))
+
 ## [9.0.35](https://github.com/adobe/helix-deploy/compare/v9.0.34...v9.0.35) (2023-05-27)
 
 
