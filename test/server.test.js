@@ -130,6 +130,21 @@ describe('Server Test', () => {
     await server.stop();
   });
 
+  it('it can see the suffix in the pathInfo', async () => {
+    // eslint-disable-next-line arrow-body-style
+    const main = async (_, ctx) => {
+      return new Response(`suffix: ${ctx.pathInfo.suffix}`);
+    };
+
+    const server = new DevelopmentServer(main).withPort(0);
+    await server.init();
+    await server.start();
+
+    const res = await fetch(`http://localhost:${server.server.address().port}/this/is/the/suffix/?not=this`);
+    assert.strictEqual(await res.text(), 'suffix: /this/is/the/suffix/');
+    await server.stop();
+  });
+
   it('resolves the action correctly', async () => {
     const main = async (req, ctx) => {
       const url = ctx.resolver.createURL({
