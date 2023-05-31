@@ -148,7 +148,7 @@ export default class DevelopmentServer {
         body: req.rawBody,
         headers: req.headers,
         pathParameters: {
-          path: req.originalUrl.substring(1),
+          path: rawPath.substring(1),
         },
         requestContext: {
           domainName: req.hostname,
