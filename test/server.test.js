@@ -145,6 +145,32 @@ describe('Server Test', () => {
     await server.stop();
   });
 
+  it('it can return binary content', async () => {
+    // eslint-disable-next-line arrow-body-style
+    const main = async (req) => {
+      const chunks = [];
+      for await (const chunk of req.body) {
+        chunks.push(chunk);
+      }
+      return new Response(Buffer.concat(chunks).toString('hex'), {
+        headers: {
+          'content-type': 'application/octet-stream',
+        },
+      });
+    };
+
+    const server = new DevelopmentServer(main).withPort(0);
+    await server.init();
+    await server.start();
+
+    const res = await fetch(`http://localhost:${server.server.address().port}/`, {
+      method: 'POST',
+      body: Buffer.from('test'),
+    });
+    assert.strictEqual(await res.text(), '74657374');
+    await server.stop();
+  });
+
   it('resolves the action correctly', async () => {
     const main = async (req, ctx) => {
       const url = ctx.resolver.createURL({
