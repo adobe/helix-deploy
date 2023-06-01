@@ -167,12 +167,13 @@ export default class DevelopmentServer {
       const {
         statusCode,
         headers,
+        isBase64Encoded,
         body,
       } = await adapter(event, context);
 
       res.status(statusCode);
       Object.entries(headers).forEach(([name, value]) => res.set(name, value));
-      res.send(body);
+      res.send(isBase64Encoded ? Buffer.from(body, 'base64') : body);
     };
     this.params = config.params;
     return this;
