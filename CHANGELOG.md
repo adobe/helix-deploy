@@ -1,3 +1,10 @@
+## [9.0.37](https://github.com/adobe/helix-deploy/compare/v9.0.36...v9.0.37) (2023-06-01)
+
+
+### Bug Fixes
+
+* support binary content returned as base64 ([#548](https://github.com/adobe/helix-deploy/issues/548)) ([9cedbbe](https://github.com/adobe/helix-deploy/commit/9cedbbe6caa1001510d700031a6935b9f255b799))
+
 ## [9.0.36](https://github.com/adobe/helix-deploy/compare/v9.0.35...v9.0.36) (2023-05-31)
 
 
