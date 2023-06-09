@@ -144,6 +144,7 @@ export default class DevelopmentServer {
     });
     this._handler = async (req, res) => {
       const [rawPath, rawQueryString = ''] = req.originalUrl.split('?');
+      const method = req.headers['x-http-method'] || req.method;
       const event = {
         body: req.rawBody,
         headers: req.headers,
@@ -153,7 +154,7 @@ export default class DevelopmentServer {
         requestContext: {
           domainName: req.hostname,
           http: {
-            method: req.method,
+            method,
           },
         },
         rawPath,

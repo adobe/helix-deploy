@@ -145,6 +145,25 @@ describe('Server Test', () => {
     await server.stop();
   });
 
+  it('it supports method override', async () => {
+    // eslint-disable-next-line arrow-body-style
+    const main = async (req) => {
+      return new Response(`method: ${req.method}`);
+    };
+
+    const server = new DevelopmentServer(main).withPort(0);
+    await server.init();
+    await server.start();
+
+    const res = await fetch(`http://localhost:${server.server.address().port}/`, {
+      headers: {
+        'x-http-method': 'RUN',
+      },
+    });
+    assert.strictEqual(await res.text(), 'method: RUN');
+    await server.stop();
+  });
+
   it('it can return binary content', async () => {
     // eslint-disable-next-line arrow-body-style
     const main = async (req) => {
