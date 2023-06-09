@@ -1,3 +1,10 @@
+# [9.1.0](https://github.com/adobe/helix-deploy/compare/v9.0.40...v9.1.0) (2023-06-09)
+
+
+### Features
+
+* add support for x-http-method override ([#551](https://github.com/adobe/helix-deploy/issues/551)) ([49cbe6c](https://github.com/adobe/helix-deploy/commit/49cbe6c3f7e8ed5c4bdbc27c26f43e8dac9af5b3))
+
 ## [9.0.40](https://github.com/adobe/helix-deploy/compare/v9.0.39...v9.0.40) (2023-06-08)
 
 
