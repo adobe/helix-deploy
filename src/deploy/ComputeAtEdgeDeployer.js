@@ -14,7 +14,7 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs/promises';
 import tar from 'tar';
-import getStream from 'get-stream';
+import { getStreamAsBuffer } from 'get-stream';
 import Fastly from '@adobe/fastly-native-promises';
 import BaseDeployer from './BaseDeployer.js';
 import ComputeAtEdgeConfig from './ComputeAtEdgeConfig.js';
@@ -111,7 +111,7 @@ service_id = ""
             // file: path.resolve(bundleDir, 'fastly-bundle.tar.gz')
           }, ['bin/main.wasm', 'fastly.toml']);
           // this.log.debug(`Created tar file in ${bundleDir}/fastly-bundle.tar.gz`);
-          resolve(getStream.buffer(stream));
+          resolve(getStreamAsBuffer(stream));
         }
       });
     });
