@@ -10,11 +10,11 @@
  * governing permissions and limitations under the License.
  */
 import { fork } from 'child_process';
+import chalk from 'chalk-template';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs/promises';
 import tar from 'tar';
-import getStream from 'get-stream';
 import Fastly from '@adobe/fastly-native-promises';
 import BaseDeployer from './BaseDeployer.js';
 import ComputeAtEdgeConfig from './ComputeAtEdgeConfig.js';
@@ -66,7 +66,7 @@ export default class ComputeAtEdgeDeployer extends BaseDeployer {
    */
   async bundle() {
     const bundleDir = path.dirname(this.cfg.edgeBundle);
-    this.log.debug(`Creating fastly.toml in ${bundleDir}`);
+    this.log.debug(`--: creating fastly.toml in ${bundleDir}`);
     fs.writeFile(path.resolve(bundleDir, 'fastly.toml'), `
 # This file describes a Fastly Compute@Edge package. To learn more visit:
 # https://developer.fastly.com/reference/fastly-toml/
@@ -97,21 +97,22 @@ service_id = ""
       );
       child.on('data', (data) => resolve(data));
       child.on('error', (err) => reject(err));
-      child.on('close', (err) => {
+      child.on('close', async (err) => {
         if (err) {
           // non-zero status code
           reject(err);
         } else {
-          this.log.debug(`Created WASM bundle of script and interpreter in ${bundleDir}/bin/main.wasm`);
-          const stream = tar.c({
+          const file = path.resolve(bundleDir, 'fastly-bundle.tar.gz');
+          this.log.debug(chalk`{green ok:} created WASM bundle of script and interpreter in ${bundleDir}/bin/main.wasm`);
+          await tar.c({
             gzip: true,
             // sync: true,
             cwd: bundleDir,
             prefix: 'Test',
-            // file: path.resolve(bundleDir, 'fastly-bundle.tar.gz')
+            file,
           }, ['bin/main.wasm', 'fastly.toml']);
-          // this.log.debug(`Created tar file in ${bundleDir}/fastly-bundle.tar.gz`);
-          resolve(getStream.buffer(stream));
+          this.log.debug(chalk`{green ok:} created tar file in ${bundleDir}/fastly-bundle.tar.gz`);
+          resolve(fs.readFile(file));
         }
       });
     });
@@ -119,19 +120,19 @@ service_id = ""
 
   async deploy() {
     const buf = await this.bundle();
-
     this.init();
 
     await this._fastly.transact(async (version) => {
+      this.log.debug('--: uploading package to fastly');
       await this._fastly.writePackage(version, buf);
 
+      this.log.debug('--: creating secrets dictionary');
       await this._fastly.writeDictionary(version, 'secrets', {
         name: 'secrets',
         write_only: 'true',
       });
 
       const host = this._cfg.fastlyGateway;
-      console.log('Host', host);
       const backend = {
         hostname: host,
         ssl_cert_hostname: host,
@@ -149,12 +150,13 @@ service_id = ""
         max_conn: 200,
         use_ssl: true,
       };
+      this.log.debug(`--: updating gateway backend: ${host}`);
       await this._fastly.writeBackend(version, 'gateway', backend);
     }, true);
   }
 
   async updatePackage() {
-    this.log.info('--: updating app (gateway) config ...');
+    this.log.info(`--: updating app (gateway) config for https://${this._cfg.fastlyGateway}/${this.cfg.packageName}/...`);
 
     this.init();
 
@@ -168,7 +170,6 @@ service_id = ""
 
     await this._fastly.bulkUpdateDictItems(undefined, 'secrets', ...functionparams);
     await this._fastly.updateDictItem(undefined, 'secrets', '_token', this.cfg.packageToken);
-    console.log('package', `https://${this._cfg.fastlyGateway}/${this.cfg.packageName}/`);
     await this._fastly.updateDictItem(undefined, 'secrets', '_package', `https://${this._cfg.fastlyGateway}/${this.cfg.packageName}/`);
 
     this._fastly.discard();
