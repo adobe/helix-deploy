@@ -30,7 +30,7 @@ describe('Fastly Compute@Edge Integration Test', () => {
 
   afterEach(async () => {
     process.chdir(origPwd);
-    // await fse.remove(testRoot);
+    await fse.remove(testRoot);
   });
 
   it('Deploy a pure action to Compute@Edge', async () => {
