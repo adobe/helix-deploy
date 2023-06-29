@@ -1,3 +1,10 @@
+## [9.1.5](https://github.com/adobe/helix-deploy/compare/v9.1.4...v9.1.5) (2023-06-29)
+
+
+### Bug Fixes
+
+* **deps:** create tgz file for compute package instead of stream ([f27831d](https://github.com/adobe/helix-deploy/commit/f27831d50971a091935f78ce3f8a8f0bcc30ef9c))
+
 ## [9.1.4](https://github.com/adobe/helix-deploy/compare/v9.1.3...v9.1.4) (2023-06-24)
 
 
