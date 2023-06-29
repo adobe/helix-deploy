@@ -15,6 +15,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import tar from 'tar';
 import Fastly from '@adobe/fastly-native-promises';
+import { Response } from '@adobe/fetch';
 import BaseDeployer from './BaseDeployer.js';
 import ComputeAtEdgeConfig from './ComputeAtEdgeConfig.js';
 
