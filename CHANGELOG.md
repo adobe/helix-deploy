@@ -1,3 +1,10 @@
+## [9.1.9](https://github.com/adobe/helix-deploy/compare/v9.1.8...v9.1.9) (2023-07-16)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @fastly/js-compute to v3 ([#559](https://github.com/adobe/helix-deploy/issues/559)) ([3496f31](https://github.com/adobe/helix-deploy/commit/3496f31202e5b2e719382f202b63a6bbf1489e9a))
+
 ## [9.1.8](https://github.com/adobe/helix-deploy/compare/v9.1.7...v9.1.8) (2023-07-15)
 
 
