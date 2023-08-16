@@ -1,3 +1,10 @@
+## [9.1.15](https://github.com/adobe/helix-deploy/compare/v9.1.14...v9.1.15) (2023-08-16)
+
+
+### Bug Fixes
+
+* rename default api gw name ([#567](https://github.com/adobe/helix-deploy/issues/567)) ([3bfd1a0](https://github.com/adobe/helix-deploy/commit/3bfd1a067db21a866cf00be1f7c1e3bc19045faf))
+
 ## [9.1.14](https://github.com/adobe/helix-deploy/compare/v9.1.13...v9.1.14) (2023-08-12)
 
 
