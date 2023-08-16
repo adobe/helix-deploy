@@ -54,6 +54,8 @@ import BaseDeployer from './BaseDeployer.js';
 import ActionBuilder from '../ActionBuilder.js';
 import AWSConfig from './AWSConfig.js';
 
+const API_GW_NAME_DEFAULT = 'API Managed by Helix Deploy';
+
 export default class AWSDeployer extends BaseDeployer {
   /**
    * @param {BaseConfig} baseConfig
@@ -316,14 +318,14 @@ export default class AWSDeployer extends BaseDeployer {
     } else if (this._cfg.apiId === 'create') {
       this.log.info('--: creating API from scratch');
       res = await this._api.send(new CreateApiCommand({
-        Name: 'API managed by Poly-Func',
+        Name: API_GW_NAME_DEFAULT,
         ProtocolType: 'HTTP',
       }));
       this.log.info(`Using new API "${res.ApiId}"`);
     } else if (this._cfg.apiId === 'auto') {
       res = await this._api.send(new GetApisCommand({ }));
       // todo: find API with appropriate tag. eg `helix-deploy:<namespace`.
-      res = res.Items.find((a) => a.Name === 'API managed by Poly-Func');
+      res = res.Items.find((a) => a.Name === API_GW_NAME_DEFAULT);
       if (!res) {
         throw Error('--aws-api=auto didn\'t find an appropriate api.');
       }
