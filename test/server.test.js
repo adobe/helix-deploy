@@ -164,6 +164,25 @@ describe('Server Test', () => {
     await server.stop();
   });
 
+  it('it provides an invocation id', async () => {
+    // eslint-disable-next-line arrow-body-style
+    const main = async (req, context) => {
+      return new Response(`id: ${context.invocation.id}`);
+    };
+
+    const server = new DevelopmentServer(main).withPort(0);
+    await server.init();
+    await server.start();
+
+    const res = await fetch(`http://localhost:${server.server.address().port}/`, {
+      headers: {
+        'x-http-method': 'RUN',
+      },
+    });
+    assert.match(await res.text(), /id: [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/);
+    await server.stop();
+  });
+
   it('it can return binary content', async () => {
     // eslint-disable-next-line arrow-body-style
     const main = async (req) => {

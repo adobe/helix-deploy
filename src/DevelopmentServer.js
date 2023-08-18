@@ -9,6 +9,7 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+import crypto from 'crypto';
 import fse from 'fs-extra';
 import path from 'path';
 import express from 'express';
@@ -161,6 +162,7 @@ export default class DevelopmentServer {
         rawQueryString,
       };
       const context = {
+        awsRequestId: crypto.randomUUID(),
         invokedFunctionArn: `arn:aws:lambda:${region}:${accountId}:function:${config.name}:${config.version}`,
         getRemainingTimeInMillis: () => 60000,
       };
