@@ -1,3 +1,10 @@
+# [9.2.0](https://github.com/adobe/helix-deploy/compare/v9.1.15...v9.2.0) (2023-08-18)
+
+
+### Features
+
+* support invocation id ([#569](https://github.com/adobe/helix-deploy/issues/569)) ([53a3c89](https://github.com/adobe/helix-deploy/commit/53a3c893ac0d3026d3b129984401e7d12c75c8e1))
+
 ## [9.1.15](https://github.com/adobe/helix-deploy/compare/v9.1.14...v9.1.15) (2023-08-16)
 
 
