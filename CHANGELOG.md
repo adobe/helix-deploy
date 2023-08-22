@@ -1,3 +1,10 @@
+## [9.2.2](https://github.com/adobe/helix-deploy/compare/v9.2.1...v9.2.2) (2023-08-22)
+
+
+### Bug Fixes
+
+* **deps:** update dependency archiver to v6 ([#572](https://github.com/adobe/helix-deploy/issues/572)) ([b7bf993](https://github.com/adobe/helix-deploy/commit/b7bf993e428ca3d989adddae0cd92e2accf4663f))
+
 ## [9.2.1](https://github.com/adobe/helix-deploy/compare/v9.2.0...v9.2.1) (2023-08-19)
 
 
