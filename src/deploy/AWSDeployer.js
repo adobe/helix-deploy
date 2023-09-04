@@ -184,9 +184,14 @@ export default class AWSDeployer extends BaseDeployer {
       Body: await fse.readFile(cfg.zipFile),
     };
 
-    this.log.info(`--: uploading ${relZip} to S3 bucket ${this._bucket} ...`);
-    await this._s3.send(new PutObjectCommand(uploadParams));
-    this.log.info(chalk`{green ok:} uploaded deploy package {blueBright s3://${this._bucket}/${this._key}}`);
+    this.log.info(chalk`--: uploading ${relZip} to S3 bucket {blueBright s3://${this._bucket}}...`);
+    try {
+      await this._s3.send(new PutObjectCommand(uploadParams));
+      this.log.info(chalk`{green ok:} uploaded deploy package {blueBright s3://${this._bucket}/${this._key}}`);
+    } catch (e) {
+      this.log.error(chalk`{red error:} failed to update package to {blueBright s3://${this._bucket}/${this._key}}: ${e.message}`);
+      throw new Error('upload failed');
+    }
   }
 
   async deleteZIP() {
