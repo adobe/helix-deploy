@@ -1,3 +1,10 @@
+# [9.3.0](https://github.com/adobe/helix-deploy/compare/v9.2.4...v9.3.0) (2023-09-07)
+
+
+### Features
+
+* improve error message for invalid deploy bundle ([#576](https://github.com/adobe/helix-deploy/issues/576)) ([5d192a6](https://github.com/adobe/helix-deploy/commit/5d192a6a298962b1f7f8123c8bcd2a38fb2f68b9))
+
 ## [9.2.4](https://github.com/adobe/helix-deploy/compare/v9.2.3...v9.2.4) (2023-09-02)
 
 
