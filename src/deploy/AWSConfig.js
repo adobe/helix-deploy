@@ -121,7 +121,8 @@ export default class AWSConfig {
     return yargs
       .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-cleanup-integrations',
         'aws-create-routes', 'aws-create-authorizer', 'aws-attach-authorizer', 'aws-lambda-format',
-        'aws-parameter-manager', 'aws-deploy-template', 'aws-arch', 'aws-update-secrets'], 'AWS Deployment Options')
+        'aws-parameter-manager', 'aws-deploy-template', 'aws-arch', 'aws-update-secrets',
+        'aws-deploy-bucket', 'aws-identity-source'], 'AWS Deployment Options')
       .option('aws-region', {
         description: 'the AWS region to deploy lambda functions to',
         type: 'string',
