@@ -1,3 +1,10 @@
+## [9.3.2](https://github.com/adobe/helix-deploy/compare/v9.3.1...v9.3.2) (2023-09-13)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/fetch to v4.1.0 ([#579](https://github.com/adobe/helix-deploy/issues/579)) ([abdd621](https://github.com/adobe/helix-deploy/commit/abdd621603fb9b270f53c4115a21c0d8f2917462))
+
 ## [9.3.1](https://github.com/adobe/helix-deploy/compare/v9.3.0...v9.3.1) (2023-09-09)
 
 
