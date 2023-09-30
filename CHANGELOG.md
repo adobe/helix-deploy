@@ -1,3 +1,10 @@
+## [9.3.6](https://github.com/adobe/helix-deploy/compare/v9.3.5...v9.3.6) (2023-09-30)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([73f4b58](https://github.com/adobe/helix-deploy/commit/73f4b58b796ffe1cc56c68f957470bb02943c197))
+
 ## [9.3.5](https://github.com/adobe/helix-deploy/compare/v9.3.4...v9.3.5) (2023-09-23)
 
 
