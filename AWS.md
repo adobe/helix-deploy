@@ -120,7 +120,7 @@ Build the project with `npm i`
 
 ### 2. Configure your AWS account
 
-Its useful to install the AWS Commandline Client. See [Install or update the latest version of the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
+Its useful to install the AWS Command Line Interface. See [Install or update the latest version of the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
 If you're on MacOS you can just use `brew install awscli`.
 
 * Go to the [AWS UI](https://aws.amazon.com/) and in Secrets Manager create a secret called `/helix-deploy/default/all` you can enter a dummy key and value 
@@ -143,7 +143,7 @@ for the secret and use the default values with everything else.
 <img width="1184" alt="perm" src="https://github.com/bosschaert/helix-deploy/assets/226514/631bd526-2881-4adb-9463-4dd001de0049">
 
 
-Finally, to get access from the commandline to your AWS account you need to configure the AWS environment.
+Finally, to get access from the command line to your AWS account you need to configure the AWS environment.
 
 ```
 $ aws sts get-session-token
@@ -162,7 +162,12 @@ Set the `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_SESSION_TOKEN` env
 At this point you should be ready to deploy your function.
 
 ```
-$ npx hedy --build --verbose --directory ~/proj/hedy/temp --entryFile ~/proj/hedy/myproj/src/index.js --deploy --target aws --aws-region eu-west-1 --aws-role 'arn:aws:iam::148835428639:role/HedyInvocationRole' --aws-api 99q7f1czdf -l minor --name "myfunc@1"
+$ npx hedy \
+  --build --verbose --directory ~/proj/hedy/temp \
+  --entryFile ~/proj/hedy/myproj/src/index.js --deploy \
+  --target aws --aws-region eu-west-1 \
+  --aws-role 'arn:aws:iam::148835428639:role/HedyInvocationRole' \
+  --aws-api 99q7f1czdf -l minor --name "myfunc@1"
 ```
 
 if all goes well, the the output will end with something like this:
