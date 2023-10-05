@@ -125,22 +125,22 @@ If you're on MacOS you can just use `brew install awscli`.
 
 * Go to the [AWS UI](https://aws.amazon.com/) and in Secrets Manager create a secret called `/helix-deploy/default/all` you can enter a dummy key and value 
 for the secret and use the default values with everything else.
-<img width="1094" alt="secret" src="https://github.com/bosschaert/helix-deploy/assets/226514/6fdb93a8-4bb1-4afa-8f6f-d6f93042df59">
-
+<img width="1094" alt="secret" src="docs/images/secret.png">
+ 
 * Copy your account number from the top right of the console
-<img width="237" alt="acc_id" src="https://github.com/bosschaert/helix-deploy/assets/226514/a223962d-a144-49da-9398-f42088a60e9b">
-
+<img width="237" alt="acc_id" src="docs/images/acc_id.png">
+ 
 * ... and create an associated S3 bucket named `helix-deploy-bucket-<userid>`
-<img width="823" alt="bucket" src="https://github.com/bosschaert/helix-deploy/assets/226514/022846a6-e11c-4037-9e19-edbaf213331c">
-  
-* Create an API Gateway of type 'HTTP API' with name 'API Managed by Helix Deploy'
-<img width="1132" alt="apigateway" src="https://github.com/bosschaert/helix-deploy/assets/226514/a6db2bf3-905b-48cf-932b-55ee76b02434">
+<img width="823" alt="bucket" src="docs/images/bucket.png">
 
+* Create an API Gateway of type 'HTTP API' with name 'API Managed by Helix Deploy'
+<img width="1132" alt="apigateway" src="docs/images/apigateway.png">
+ 
 * Create a role for invoking the Lambda. Start by giving it the `AWSLambdaBasicExecutionRole`.
-<img width="1293" alt="role" src="https://github.com/bosschaert/helix-deploy/assets/226514/a9a32a05-d6af-4f69-8db6-75983280dde8">
+<img width="1293" alt="role" src="docs/images/role.png">
 
 * Edit the role and add the Secrets Manager -> Read -> GetSecretValue permission.
-<img width="1184" alt="perm" src="https://github.com/bosschaert/helix-deploy/assets/226514/631bd526-2881-4adb-9463-4dd001de0049">
+<img width="1184" alt="perm" src="docs/images/perm.png">
 
 
 Finally, to get access from the command line to your AWS account you need to configure the AWS environment.
