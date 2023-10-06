@@ -13,4 +13,6 @@
  */
 import CLI from './cli.js';
 
-new CLI().run(process.argv.slice(2));
+await new CLI().run(process.argv.slice(2));
+
+process.exit(process.exitCode);
