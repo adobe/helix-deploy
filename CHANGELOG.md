@@ -1,3 +1,10 @@
+## [9.3.8](https://github.com/adobe/helix-deploy/compare/v9.3.7...v9.3.8) (2023-10-13)
+
+
+### Bug Fixes
+
+* **fastly:** Close fastly client after deploy ([#592](https://github.com/adobe/helix-deploy/issues/592)) ([81a593a](https://github.com/adobe/helix-deploy/commit/81a593a56dd11229e03aedc2320df37ba601a797)), closes [#587](https://github.com/adobe/helix-deploy/issues/587)
+
 ## [9.3.7](https://github.com/adobe/helix-deploy/compare/v9.3.6...v9.3.7) (2023-10-07)
 
 
