@@ -153,6 +153,8 @@ service_id = ""
       this.log.debug(`--: updating gateway backend: ${host}`);
       await this._fastly.writeBackend(version, 'gateway', backend);
     }, true);
+
+    await this._fastly.discard();
   }
 
   async updatePackage() {
@@ -172,7 +174,7 @@ service_id = ""
     await this._fastly.updateDictItem(undefined, 'secrets', '_token', this.cfg.packageToken);
     await this._fastly.updateDictItem(undefined, 'secrets', '_package', `https://${this._cfg.fastlyGateway}/${this.cfg.packageName}/`);
 
-    this._fastly.discard();
+    await this._fastly.discard();
   }
 
   get fullFunctionName() {
