@@ -12,7 +12,19 @@
 /* eslint-env serviceworker */
 /* global Dictionary */
 
+async function getServiceVersion() {
+  // The fastly:env import will be available in the fastly c@e environment
+  /* eslint-disable-next-line import/no-unresolved */
+  const mod = await import('fastly:env');
+  const serviceVersion = mod.env('FASTLY_SERVICE_VERSION');
+  console.log('Running service version:', serviceVersion);
+
+  return serviceVersion;
+}
+
 async function handler(event) {
+  const sv = await getServiceVersion();
+
   try {
     const { request } = event;
     console.log('Fastly Adapter is here');
@@ -31,7 +43,7 @@ async function handler(event) {
       func: {
         name: null,
         package: null,
-        version: null,
+        version: sv,
         fqn: null,
         app: null,
       },
