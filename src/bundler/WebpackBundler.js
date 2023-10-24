@@ -47,19 +47,22 @@ export default class WebpackBundler extends BaseBundler {
       },
       devtool: false,
       externals: [
-        ...cfg.externals,
-        ...cfg.serverlessExternals,
-        // the following are imported by the universal adapter and are assumed to be available
-        './params.json',
-        'aws-sdk',
-        '@google-cloud/secret-manager',
-        '@google-cloud/storage',
-      ].reduce((obj, ext) => {
-        // this makes webpack to ignore the module and just leave it as normal require.
-        // eslint-disable-next-line no-param-reassign
-        obj[ext] = `commonjs2 ${ext}`;
-        return obj;
-      }, {}),
+        /^@aws-sdk\/.*$/,
+        [
+          ...cfg.externals,
+          ...cfg.serverlessExternals,
+          // the following are imported by the universal adapter and are assumed to be available
+          './params.json',
+          'aws-sdk',
+          '@google-cloud/secret-manager',
+          '@google-cloud/storage',
+        ].reduce((obj, ext) => {
+          // this makes webpack to ignore the module and just leave it as normal require.
+          // eslint-disable-next-line no-param-reassign
+          obj[ext] = `commonjs2 ${ext}`;
+          return obj;
+        }, {}),
+      ],
       module: {
         rules: [{
           test: /\.js$/,
