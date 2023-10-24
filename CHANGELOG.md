@@ -1,3 +1,10 @@
+## [9.3.11](https://github.com/adobe/helix-deploy/compare/v9.3.10...v9.3.11) (2023-10-24)
+
+
+### Bug Fixes
+
+* exclude [@aws-sdk](https://github.com/aws-sdk) and its descendants ([#602](https://github.com/adobe/helix-deploy/issues/602)) ([608766f](https://github.com/adobe/helix-deploy/commit/608766f9b2042a06843be2391471a96ce9ee2e43))
+
 ## [9.3.10](https://github.com/adobe/helix-deploy/compare/v9.3.9...v9.3.10) (2023-10-21)
 
 
