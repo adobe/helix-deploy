@@ -20,7 +20,7 @@ export function getEnvInfo(req, env) {
   const functionFQN = `${env('FASTLY_CUSTOMER_ID')}-${functionName}-${serviceVersion}`;
   const txId = req.headers.get('x-transaction-id') ?? env('FASTLY_TRACE_ID');
 
-  console.log('Environment info sv: ', serviceVersion, ' reqId: ', requestId, ' region: ', region, ' functionName: ', functionName, ' functionFQN: ', functionFQN, ' txId: ', txId);
+  console.debug('Env info sv: ', serviceVersion, ' reqId: ', requestId, ' region: ', region, ' functionName: ', functionName, ' functionFQN: ', functionFQN, ' txId: ', txId);
 
   return {
     functionFQN,

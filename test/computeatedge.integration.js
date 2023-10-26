@@ -61,5 +61,6 @@ describe('Fastly Compute@Edge Integration Test', () => {
     assert.ok(res);
     const out = builder.cfg._logger.output;
     assert.ok(out.indexOf('possibly-working-sawfish.edgecompute.app') > 0, out);
+    console.log('*** output: ', out);
   }).timeout(10000000);
 });
