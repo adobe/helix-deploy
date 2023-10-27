@@ -10,7 +10,9 @@
  * governing permissions and limitations under the License.
  */
 /* eslint-env serviceworker */
-const fastly = require('./fastly-adapter.js');
+
+import fastly from './fastly-adapter.js';
+
 const cloudflare = require('./cloudflare-adapter.js');
 
 /* eslint-disable no-restricted-globals */
