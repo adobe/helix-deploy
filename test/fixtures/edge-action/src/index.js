@@ -17,5 +17,5 @@ module.exports.main = async function main(req, context) {
     backend: 'httpbin.org',
   });
   console.log(await backendresponse.text());
-  return new Response(`(${context?.func?.version}) ok: ${await context.env.HEY} ${await context.env.FOO} – ${backendresponse.status}`);
+  return new Response(`(${context?.func?.name}) ok: ${await context.env.HEY} ${await context.env.FOO} – ${backendresponse.status}`);
 };
