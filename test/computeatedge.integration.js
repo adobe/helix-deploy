@@ -61,6 +61,6 @@ describe('Fastly Compute@Edge Integration Test', () => {
     assert.ok(res);
     const out = builder.cfg._logger.output;
     assert.ok(out.indexOf('possibly-working-sawfish.edgecompute.app') > 0, out);
-    assert.ok(out.indexOf('(1yv1Wl7NQCFmNBkW4L8htc) ok:') > 0, `The function output should include the service ID: ${out}`);
+    assert.ok(out.indexOf('X(1yv1Wl7NQCFmNBkW4L8htc) ok:') > 0, `The function output should include the service ID: ${out}`);
   }).timeout(10000000);
 });
