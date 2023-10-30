@@ -34,6 +34,8 @@ describe('Fastly Compute@Edge Integration Test', () => {
   });
 
   it('Deploy a pure action to Compute@Edge', async () => {
+    const serviceID = '1yv1Wl7NQCFmNBkW4L8htc';
+
     await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'edge-action'), testRoot);
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = new CLI()
@@ -44,7 +46,7 @@ describe('Fastly Compute@Edge Integration Test', () => {
         '--target', 'c@e',
         '--arch', 'node', // TODO: make obsolete
         '--arch', 'edge',
-        '--compute-service-id', '1yv1Wl7NQCFmNBkW4L8htc',
+        '--compute-service-id', serviceID,
         '--compute-test-domain', 'possibly-working-sawfish',
         '--package.name', 'Test',
         '--package.params', 'HEY=ho',
@@ -62,6 +64,7 @@ describe('Fastly Compute@Edge Integration Test', () => {
     assert.ok(res);
     const out = builder.cfg._logger.output;
     assert.ok(out.indexOf('possibly-working-sawfish.edgecompute.app') > 0, out);
+    assert.ok(out.indexOf(`(${serviceID}) ok:`) > 0, `The function output should include the service ID: ${out}`);
     assert.ok(out.indexOf('dist/Test/fastly-bundle.tar.gz') > 0, out);
   }).timeout(10000000);
 });

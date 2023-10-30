@@ -123,7 +123,7 @@ service_id = ""
     this.init();
 
     await this._fastly.transact(async (version) => {
-      this.log.debug('--: uploading package to fastly');
+      this.log.debug('--: uploading package to fastly, service version', version);
       await this._fastly.writePackage(version, buf);
 
       this.log.debug('--: creating secrets dictionary');

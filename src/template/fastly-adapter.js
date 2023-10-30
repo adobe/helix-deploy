@@ -12,9 +12,38 @@
 /* eslint-env serviceworker */
 /* global Dictionary */
 
+export function getEnvInfo(req, env) {
+  const serviceVersion = env('FASTLY_SERVICE_VERSION');
+  const requestId = env('FASTLY_TRACE_ID');
+  const region = env('FASTLY_POP');
+  const functionName = env('FASTLY_SERVICE_ID');
+  const functionFQN = `${env('FASTLY_CUSTOMER_ID')}-${functionName}-${serviceVersion}`;
+  const txId = req.headers.get('x-transaction-id') ?? env('FASTLY_TRACE_ID');
+
+  console.debug('Env info sv: ', serviceVersion, ' reqId: ', requestId, ' region: ', region, ' functionName: ', functionName, ' functionFQN: ', functionFQN, ' txId: ', txId);
+
+  return {
+    functionFQN,
+    functionName,
+    region,
+    requestId,
+    serviceVersion,
+    txId,
+  };
+}
+
+async function getEnvironmentInfo(req) {
+  // The fastly:env import will be available in the fastly c@e environment
+  /* eslint-disable-next-line import/no-unresolved */
+  const mod = await import('fastly:env');
+  return getEnvInfo(req, mod.env);
+}
+
 async function handler(event) {
   try {
     const { request } = event;
+    const env = await getEnvironmentInfo(request);
+
     console.log('Fastly Adapter is here');
     let packageParams;
     // eslint-disable-next-line import/no-unresolved,global-require
@@ -26,20 +55,20 @@ async function handler(event) {
       },
       runtime: {
         name: 'compute-at-edge',
-        // region: request.cf.colo,
+        region: env.region,
       },
       func: {
-        name: null,
+        name: env.functionName,
         package: null,
-        version: null,
-        fqn: null,
+        version: env.serviceVersion,
+        fqn: env.functionFQN,
         app: null,
       },
       invocation: {
         id: null,
         deadline: null,
-        transactionId: null,
-        requestId: null,
+        transactionId: env.txId,
+        requestId: env.requestId,
       },
       env: new Proxy(new Dictionary('secrets'), {
         get: (target, prop) => {
@@ -87,7 +116,7 @@ async function handler(event) {
   }
 }
 
-function fastly() {
+export default function fastly() {
   console.log('checking for fastly environment');
   /* eslint-disable-next-line no-undef */
   if (CacheOverride) {
@@ -95,5 +124,3 @@ function fastly() {
   }
   return false;
 }
-
-module.exports = fastly;

@@ -44,6 +44,7 @@ export default class EdgeBundler extends WebpackBundler {
         'aws-sdk',
         '@google-cloud/secret-manager',
         '@google-cloud/storage',
+        'fastly:env',
       ].reduce((obj, ext) => {
         // this makes webpack to ignore the module and just leave it as normal require.
         // eslint-disable-next-line no-param-reassign
