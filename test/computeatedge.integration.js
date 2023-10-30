@@ -46,6 +46,7 @@ describe('Fastly Compute@Edge Integration Test', () => {
         '--arch', 'edge',
         '--compute-service-id', '1yv1Wl7NQCFmNBkW4L8htc',
         '--compute-test-domain', 'possibly-working-sawfish',
+        '--package.name', 'Test',
         '--package.params', 'HEY=ho',
         '--package.params', 'ZIP=zap',
         '--update-package', 'true',
@@ -61,5 +62,6 @@ describe('Fastly Compute@Edge Integration Test', () => {
     assert.ok(res);
     const out = builder.cfg._logger.output;
     assert.ok(out.indexOf('possibly-working-sawfish.edgecompute.app') > 0, out);
+    assert.ok(out.indexOf('dist/Test/fastly-bundle.tar.gz') > 0, out);
   }).timeout(10000000);
 });
