@@ -447,8 +447,10 @@ export default class AWSDeployer extends BaseDeployer {
         ApiId,
         Target: `integrations/${IntegrationId}`,
       };
-      await this.createOrUpdateRoute(routes, routeParams, `ANY ${this.functionPath}/{path+}`);
-      await this.createOrUpdateRoute(routes, routeParams, `ANY ${this.functionPath}`);
+      await Promise.all([
+        this.createOrUpdateRoute(routes, routeParams, `ANY ${this.functionPath}/{path+}`),
+        this.createOrUpdateRoute(routes, routeParams, `ANY ${this.functionPath}`),
+      ]);
     }
 
     // setup permissions for entire package.
@@ -729,9 +731,10 @@ export default class AWSDeployer extends BaseDeployer {
       }
 
       // create or update routes
-      await this.createOrUpdateRoute(routes, routeParams, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}`);
-      await this.createOrUpdateRoute(routes, routeParams, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}/{path+}`);
-
+      await Promise.all([
+        this.createOrUpdateRoute(routes, routeParams, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}`),
+        this.createOrUpdateRoute(routes, routeParams, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}/{path+}`),
+      ]);
       await this.updateAuthorizers(ApiId, functionName, aliasArn);
 
       // add permissions to invoke function (with and without path)

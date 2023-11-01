@@ -291,9 +291,9 @@ export default class ActionBuilder {
       }
       this.bundlers.push(new BundlerClass().withConfig(cfg));
     });
-    for (const bundler of this.bundlers) {
-      await bundler.init();
-    }
+    await Promise.all(this.bundlers.map((bundler) => {
+      return bundler.init();
+    }));
   }
 
   async execute(fnName, msg, ...args) {
@@ -378,15 +378,13 @@ export default class ActionBuilder {
     await this.validateBundlers();
 
     if (cfg.build) {
-      for (const bundler of this.bundlers) {
+      await Promise.all(this.bundlers.map(async (bundler) => {
         await bundler.createBundle();
-        await bundler.createArchive();
-      }
+        return bundler.createArchive();
+      }));
     }
     if (cfg.build || cfg.test !== undefined || cfg.testBundle !== undefined) {
-      for (const bundler of this.bundlers) {
-        await bundler.validateBundle();
-      }
+      await Promise.all(this.bundlers.map((bundler) => bundler.validateBundle()));
     }
 
     if (cfg.updatePackage) {
