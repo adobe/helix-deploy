@@ -1,3 +1,10 @@
+## [9.3.18](https://github.com/adobe/helix-deploy/compare/v9.3.17...v9.3.18) (2023-11-23)
+
+
+### Bug Fixes
+
+* **cloudflare:** Do not make absolute path relative ([#620](https://github.com/adobe/helix-deploy/issues/620)) ([8ff035f](https://github.com/adobe/helix-deploy/commit/8ff035f9ea8075d37b57ea6fe09c27d83577e976)), closes [#619](https://github.com/adobe/helix-deploy/issues/619)
+
 ## [9.3.17](https://github.com/adobe/helix-deploy/compare/v9.3.16...v9.3.17) (2023-11-18)
 
 
