@@ -9,7 +9,6 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-import path from 'path';
 import fs from 'fs';
 import FormData from 'form-data';
 import BaseDeployer from './BaseDeployer.js';
@@ -43,7 +42,7 @@ export default class CloudflareDeployer extends BaseDeployer {
   }
 
   async deploy() {
-    const body = fs.readFileSync(path.relative(this.cfg.cwd, this.cfg.edgeBundle));
+    const body = fs.readFileSync(this.cfg.edgeBundle);
     const { id } = await this.createKVNamespace(`${this.cfg.packageName}--secrets`);
 
     const metadata = {
