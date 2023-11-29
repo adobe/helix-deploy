@@ -84,7 +84,7 @@ service_id = ""
         output,
         wasmEngine,
       } = parseInputs([this.cfg.edgeBundle, 'bin/main.wasm']);
-      this.log(`--: compiling ${input} to ${output}`);
+      this.log.debug(`--: compiling ${input} to ${output}`);
       compileApplicationToWasm(input, output, wasmEngine, false, false)
         .then(async () => {
           const file = path.resolve(bundleDir, 'fastly-bundle.tar.gz');
