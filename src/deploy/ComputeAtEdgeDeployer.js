@@ -98,6 +98,7 @@ service_id = ""
           this.log.debug(chalk`{green ok:} created tar file in ${bundleDir}/fastly-bundle.tar.gz`);
           resolve(fs.readFile(file));
         })
+        // c8 ignore next 3
         .catch((err) => {
           reject(err);
         });
