@@ -9,18 +9,14 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-import { fork } from 'child_process';
 import chalk from 'chalk-template';
-import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs/promises';
 import tar from 'tar';
 import Fastly from '@adobe/fastly-native-promises';
+import compileApplicationToWasm from '@fastly/js-compute/src/compileApplicationToWasm.js';
 import BaseDeployer from './BaseDeployer.js';
 import ComputeAtEdgeConfig from './ComputeAtEdgeConfig.js';
-
-// eslint-disable-next-line no-underscore-dangle
-const __dirname = path.resolve(fileURLToPath(import.meta.url), '..');
 
 /**
  * The class ComputeAtEdgeDeployer deploys to Fastly's Compute(at)Edge (WASM) runtime.
@@ -80,28 +76,9 @@ service_id = ""
     `);
 
     return new Promise((resolve, reject) => {
-      const child = fork(
-        path.resolve(
-          __dirname,
-          '..',
-          '..',
-          'node_modules',
-          '@fastly',
-          'js-compute',
-          'js-compute-runtime-cli.js',
-        ),
-        [this.cfg.edgeBundle, 'bin/main.wasm'],
-        {
-          cwd: bundleDir,
-        },
-      );
-      child.on('data', (data) => resolve(data));
-      child.on('error', (err) => reject(err));
-      child.on('close', async (err) => {
-        if (err) {
-          // non-zero status code
-          reject(err);
-        } else {
+      this.log.debug('--: creating WASM bundle of script and interpreter');
+      compileApplicationToWasm(this.cfg.cfg.edgeBundle, 'bin/main.wasm')
+        .then(async () => {
           const file = path.resolve(bundleDir, 'fastly-bundle.tar.gz');
           this.log.debug(chalk`{green ok:} created WASM bundle of script and interpreter in ${bundleDir}/bin/main.wasm`);
           await tar.c({
@@ -113,8 +90,10 @@ service_id = ""
           }, ['bin/main.wasm', 'fastly.toml']);
           this.log.debug(chalk`{green ok:} created tar file in ${bundleDir}/fastly-bundle.tar.gz`);
           resolve(fs.readFile(file));
-        }
-      });
+        })
+        .catch((err) => {
+          reject(err);
+        });
     });
   }
 
