@@ -14,7 +14,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import tar from 'tar';
 import Fastly from '@adobe/fastly-native-promises';
-import compileApplicationToWasm from '@fastly/js-compute/src/compileApplicationToWasm.js';
+import { compileApplicationToWasm } from '@fastly/js-compute/src/compileApplicationToWasm.js';
 import BaseDeployer from './BaseDeployer.js';
 import ComputeAtEdgeConfig from './ComputeAtEdgeConfig.js';
 
