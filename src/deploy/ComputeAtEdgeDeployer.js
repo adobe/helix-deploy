@@ -77,7 +77,7 @@ service_id = ""
 
     return new Promise((resolve, reject) => {
       this.log.debug('--: creating WASM bundle of script and interpreter');
-      compileApplicationToWasm(this.cfg.cfg.edgeBundle, 'bin/main.wasm')
+      compileApplicationToWasm(this.cfg.edgeBundle, 'bin/main.wasm')
         .then(async () => {
           const file = path.resolve(bundleDir, 'fastly-bundle.tar.gz');
           this.log.debug(chalk`{green ok:} created WASM bundle of script and interpreter in ${bundleDir}/bin/main.wasm`);
