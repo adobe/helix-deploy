@@ -76,15 +76,14 @@ name = "${this.cfg.packageName}"
 service_id = ""
     `);
 
+    const {
+      input,
+      output,
+      wasmEngine,
+    } = await parseInputs([this.cfg.edgeBundle, path.resolve(bundleDir, 'bin', 'main.wasm')]);
+
     return new Promise((resolve, reject) => {
       this.log.debug('--: creating WASM bundle of script and interpreter');
-
-      const {
-        input,
-        output,
-        wasmEngine,
-      } = parseInputs([this.cfg.edgeBundle, 'bin/main.wasm']);
-      this.log.info(`--: compiling ${input} to ${output}`);
       compileApplicationToWasm(input, output, wasmEngine, false, false)
         .then(async () => {
           const file = path.resolve(bundleDir, 'fastly-bundle.tar.gz');
