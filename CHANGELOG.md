@@ -1,3 +1,14 @@
+## [9.3.20](https://github.com/adobe/helix-deploy/compare/v9.3.19...v9.3.20) (2023-11-30)
+
+
+### Bug Fixes
+
+* **fastly:** do not access empty config ([6e745d6](https://github.com/adobe/helix-deploy/commit/6e745d621476490f61f6f486792b0b725d1af486))
+* **fastly:** do not fork the process, instead use fastly's own CLI backend ([4287706](https://github.com/adobe/helix-deploy/commit/4287706395dd659285438149d9864c69722963be))
+* **fastly:** import correct module ([223c893](https://github.com/adobe/helix-deploy/commit/223c89353cefe00bd97e708b759431d7aa6933fe))
+* **fastly:** use correct log function ([d231db8](https://github.com/adobe/helix-deploy/commit/d231db85edb7ba21e6bfec0885e4a6e3f605091c))
+* **fastly:** use fastly's arg parser ([ce7b376](https://github.com/adobe/helix-deploy/commit/ce7b376bfa32fe1862de619febf48de2e4efca68))
+
 ## [9.3.19](https://github.com/adobe/helix-deploy/compare/v9.3.18...v9.3.19) (2023-11-25)
 
 
