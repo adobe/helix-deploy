@@ -447,6 +447,10 @@ describe('CLI Test', () => {
       identitySources: ['$request.header.Authorization'],
       deployBucket: '',
       updateSecrets: undefined,
+      tracingMode: undefined,
+      extraPermissions: undefined,
+      layers: undefined,
+      logFormat: undefined,
     });
   });
 });

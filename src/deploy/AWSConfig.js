@@ -29,6 +29,10 @@ export default class AWSConfig {
       identitySources: ['$request.header.Authorization'],
       deployBucket: '',
       updateSecrets: undefined,
+      logFormat: undefined,
+      layers: undefined,
+      tracingMode: undefined,
+      extraPermissions: undefined,
     });
   }
 
@@ -46,7 +50,11 @@ export default class AWSConfig {
       .withAWSCreateRoutes(argv.awsCreateRoutes)
       .withAWSParamsManager(argv.awsParameterManager)
       .withAWSDeployBucket(argv.awsDeployBucket)
-      .withAWSUpdateSecrets(argv.awsUpdateSecrets);
+      .withAWSUpdateSecrets(argv.awsUpdateSecrets)
+      .withAWSLogFormat(argv.awsLogFormat)
+      .withAWSLayers(argv.awsLayers)
+      .withAWSTracingMode(argv.awsTracingMode)
+      .withAWSExtraPermissions(argv.awsExtraPermissions);
   }
 
   withAWSRegion(value) {
@@ -117,12 +125,33 @@ export default class AWSConfig {
     return this;
   }
 
+  withAWSLogFormat(value) {
+    this.logFormat = value;
+    return this;
+  }
+
+  withAWSLayers(value) {
+    this.layers = value;
+    return this;
+  }
+
+  withAWSTracingMode(value) {
+    this.tracingMode = value;
+    return this;
+  }
+
+  withAWSExtraPermissions(value) {
+    this.extraPermissions = value;
+    return this;
+  }
+
   static yarg(yargs) {
     return yargs
       .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-cleanup-integrations',
         'aws-create-routes', 'aws-create-authorizer', 'aws-attach-authorizer', 'aws-lambda-format',
         'aws-parameter-manager', 'aws-deploy-template', 'aws-arch', 'aws-update-secrets',
-        'aws-deploy-bucket', 'aws-identity-source'], 'AWS Deployment Options')
+        'aws-deploy-bucket', 'aws-identity-source', 'aws-log-format', 'aws-layers',
+        'aws-tracing-mode', 'aws-extra-permissions'], 'AWS Deployment Options')
       .option('aws-region', {
         description: 'the AWS region to deploy lambda functions to',
         type: 'string',
@@ -189,6 +218,24 @@ export default class AWSConfig {
         description: 'Name of the deploy S3 bucket to use (default is helix-deploy-bucket-{accountId})',
         type: 'string',
         default: '',
+      })
+      .option('aws-log-format', {
+        description: 'The lambda log format. Can be either "JSON" or "Text".',
+        type: 'string',
+      })
+      .option('aws-layers', {
+        description: 'List of layers ARNs to attach to the lambda function.',
+        type: 'string',
+        array: true,
+      })
+      .option('aws-tracing-mode', {
+        description: 'The lambda tracing mode. Can be either "Active" or "PassThrough".',
+        type: 'string',
+      })
+      .option('aws-extra-permissions', {
+        description: 'A list fo additional invoke permissions to add to the lambda function in the form <SourceARN>@<Principal>.',
+        type: 'string',
+        array: true,
       });
   }
 }

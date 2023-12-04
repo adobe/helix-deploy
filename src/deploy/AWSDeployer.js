@@ -235,6 +235,9 @@ export default class AWSDeployer extends BaseDeployer {
       Architectures: [
         this._cfg.arch,
       ],
+      LoggingConfig: this._cfg.logFormat ? { Format: this._cfg.logFormat } : undefined,
+      Layers: this._cfg.layers,
+      TracingConfig: this._cfg.tracingMode ? { Mode: this._cfg.tracingMode } : undefined,
     };
 
     this.log.info(`--: using lambda role "${this._cfg.role}"`);
@@ -873,6 +876,28 @@ export default class AWSDeployer extends BaseDeployer {
     }
   }
 
+  async createExtraPermissions() {
+    const { functionName } = this;
+
+    if (this._cfg.extraPermissions) {
+      await Promise.allSettled(this._cfg.extraPermissions.map(async (extraPermission) => {
+        const [sourceArn, principal] = extraPermission.split('@', 2);
+        try {
+          await this._lambda.send(new AddPermissionCommand({
+            FunctionName: functionName,
+            Action: 'lambda:InvokeFunction',
+            SourceArn: sourceArn,
+            Principal: principal,
+            StatementId: crypto.createHash('sha256').update(functionName + sourceArn).digest('hex'),
+          }));
+          this.log.info(chalk`{green ok:} added invoke permissions for ${sourceArn}`);
+        } catch (e) {
+          // ignore, most likely the permission already exists
+        }
+      }));
+    }
+  }
+
   async deploy() {
     try {
       this.log.info(`--: using aws region "${this._cfg.region}"`);
@@ -881,6 +906,7 @@ export default class AWSDeployer extends BaseDeployer {
       await this.createLambda();
       await this.deleteZIP();
       await this.createAPI();
+      await this.createExtraPermissions();
       await this.checkFunctionReady();
     } catch (err) {
       this.log.error(`Unable to deploy Lambda function: ${err.message}`, err);
