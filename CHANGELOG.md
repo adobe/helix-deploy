@@ -1,3 +1,10 @@
+# [9.4.0](https://github.com/adobe/helix-deploy/compare/v9.3.21...v9.4.0) (2023-12-07)
+
+
+### Features
+
+* **aws:** add layer, log format, tracing mode and extra permission AWS options ([141a995](https://github.com/adobe/helix-deploy/commit/141a995a0fa8834dd4e4df0281f1a1276961c3ef))
+
 ## [9.3.21](https://github.com/adobe/helix-deploy/compare/v9.3.20...v9.3.21) (2023-12-02)
 
 
