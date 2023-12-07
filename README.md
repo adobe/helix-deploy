@@ -130,6 +130,10 @@ AWS Deployment Options
       --aws-update-secrets        Uploads the function specific secrets with the params. defaults to /helix-deploy/{pkg}/{name}  [string]
       --aws-deploy-bucket         Name of the deploy S3 bucket to use (default is helix-deploy-bucket-{accountId})  [string] [default: ""]
       --aws-identity-source       Identity source to used when creating the authorizer  [array] [default: ["$request.header.Authorization"]]
+      --aws-log-format            The lambda log format. Can be either "JSON" or "Text". [string]
+      --aws-layers                List of layers ARNs to attach to the lambda function.  [array]
+      --aws-tracing-mode          The lambda tracing mode. Can be either "Active" or "PassThrough". [string]
+      --aws-extra-permissions     A list fo additional invoke permissions to add to the lambda function in the form <SourceARN>@<Principal>. [array]
 
 Google Deployment Options
       --google-project-id  the Google Cloud project to deploy to. Optional when the key file is a JSON file  [string] [default: ""]
