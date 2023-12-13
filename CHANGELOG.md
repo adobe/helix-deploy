@@ -1,3 +1,10 @@
+## [9.4.2](https://github.com/adobe/helix-deploy/compare/v9.4.1...v9.4.2) (2023-12-13)
+
+
+### Bug Fixes
+
+* creating consistency for context.suffix over all adapters ([35c8f54](https://github.com/adobe/helix-deploy/commit/35c8f545a027661d7beb5d6ce87f0d1246d25fe6))
+
 ## [9.4.1](https://github.com/adobe/helix-deploy/compare/v9.4.0...v9.4.1) (2023-12-09)
 
 
