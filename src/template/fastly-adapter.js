@@ -51,7 +51,7 @@ async function handler(event) {
     const context = {
       resolver: null,
       pathInfo: {
-        suffix: request.url.replace(/\?.*/, ''),
+        suffix: request.url.match(/^https?:\/\/[^/]+([^?]+)/)[1],
       },
       runtime: {
         name: 'compute-at-edge',
