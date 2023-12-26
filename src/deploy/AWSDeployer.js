@@ -604,7 +604,7 @@ export default class AWSDeployer extends BaseDeployer {
 
       for (const { name, property, match } of cleanupMatchers) {
         if (cfg[property]) {
-          const cleanupBefore = Date.now() - cfg[property];
+          const cleanupBefore = Date.now() - (cfg[property] * 1000);
           const oldVersions = versions
             .filter(({ Aliases }) => Aliases.length > 0 && Aliases.every((alias) => match(alias)))
             .filter(({ LastModified }) => Date.parse(LastModified) < cleanupBefore);
