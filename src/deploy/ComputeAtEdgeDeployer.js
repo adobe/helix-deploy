@@ -137,8 +137,10 @@ service_id = ""
         max_conn: 200,
         use_ssl: true,
       };
-      this.log.debug(`--: updating gateway backend: ${host}`);
-      await this._fastly.writeBackend(version, 'gateway', backend);
+      if (host) {
+        this.log.debug(`--: updating gateway backend: ${host}`);
+        await this._fastly.writeBackend(version, 'gateway', backend);
+      }
     }, true);
 
     await this._fastly.discard();
