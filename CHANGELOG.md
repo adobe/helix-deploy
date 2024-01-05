@@ -1,3 +1,10 @@
+# [9.5.0](https://github.com/adobe/helix-deploy/compare/v9.4.5...v9.5.0) (2024-01-05)
+
+
+### Features
+
+* cleanup ci and patch versions ([#632](https://github.com/adobe/helix-deploy/issues/632)) ([448f406](https://github.com/adobe/helix-deploy/commit/448f406e778a6f0704fc81054cd61dc728d62916))
+
 ## [9.4.5](https://github.com/adobe/helix-deploy/compare/v9.4.4...v9.4.5) (2023-12-30)
 
 
