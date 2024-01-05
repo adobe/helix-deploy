@@ -11,6 +11,8 @@
  */
 /* eslint-disable no-await-in-loop,no-restricted-syntax */
 import chalk from 'chalk-template';
+import processQueue from '@adobe/helix-shared-process-queue';
+
 import {
   DeleteObjectCommand,
   PutObjectCommand,
@@ -25,9 +27,10 @@ import {
 import {
   AddPermissionCommand,
   CreateAliasCommand,
-  CreateFunctionCommand, GetAliasCommand,
+  CreateFunctionCommand, DeleteAliasCommand, DeleteFunctionCommand, GetAliasCommand,
   GetFunctionCommand,
-  LambdaClient, PublishVersionCommand, UpdateAliasCommand, UpdateFunctionCodeCommand,
+  LambdaClient, ListAliasesCommand, ListVersionsByFunctionCommand,
+  PublishVersionCommand, UpdateAliasCommand, UpdateFunctionCodeCommand,
   UpdateFunctionConfigurationCommand,
 } from '@aws-sdk/client-lambda';
 
@@ -408,6 +411,34 @@ export default class AWSDeployer extends BaseDeployer {
     return authorizers;
   }
 
+  async listAliases(functionName) {
+    let nextMarker;
+    const aliases = [];
+    do {
+      const res = await this._lambda.send(new ListAliasesCommand({
+        FunctionName: functionName,
+        Marker: nextMarker,
+      }));
+      aliases.push(...res.Aliases);
+      nextMarker = res.NextMarker;
+    } while (nextMarker);
+    return aliases;
+  }
+
+  async listVersions(functionName) {
+    let nextMarker;
+    const versions = [];
+    do {
+      const res = await this._lambda.send(new ListVersionsByFunctionCommand({
+        FunctionName: functionName,
+        Marker: nextMarker,
+      }));
+      versions.push(...res.Versions);
+      nextMarker = res.NextMarker;
+    } while (nextMarker);
+    return versions;
+  }
+
   async createAPI() {
     const { cfg } = this;
     const { ApiId, ApiEndpoint } = await this.initApiId();
@@ -544,6 +575,63 @@ export default class AWSDeployer extends BaseDeployer {
     }
 
     this.log.info(chalk`{green ok}: parameters updated.`);
+  }
+
+  async cleanup() {
+    const { cfg, functionName } = this;
+    const cleanupMatchers = [{
+      name: 'CI',
+      property: 'cleanupCiAge',
+      match: (alias) => alias.match(/^ci(\d+)$/),
+    }, {
+      name: 'patch',
+      property: 'cleanupPatchAge',
+      match: (alias) => alias.match(/^(\d+)_(\d+)_(\d+)(-test)?$/),
+    }];
+
+    try {
+      this.log.info('Clean up old aliases and versions');
+      this.log.info(chalk`--: fetching aliases...`);
+      const aliases = await this.listAliases(functionName);
+      this.log.info(chalk`--: fetching versions...`);
+      const versions = (await this.listVersions(functionName))
+        .map((version) => ({
+          ...version,
+          Aliases: aliases
+            .filter(({ FunctionVersion }) => version.Version === FunctionVersion)
+            .map(({ Name }) => Name),
+        }));
+
+      for (const { name, property, match } of cleanupMatchers) {
+        if (cfg[property]) {
+          const cleanupBefore = Date.now() - (cfg[property] * 1000);
+          const oldVersions = versions
+            .filter(({ Aliases }) => Aliases.length > 0 && Aliases.every((alias) => match(alias)))
+            .filter(({ LastModified }) => Date.parse(LastModified) < cleanupBefore);
+          this.log.info(`Found ${oldVersions.length} old ${name} versions`);
+
+          if (oldVersions.length) {
+            this.log.info(chalk`--: deleting their aliases and versions...`);
+            const deleted = await processQueue(oldVersions, async ({ Aliases, Version }) => {
+              await Promise.all(Aliases.map(async (Name) => {
+                await this._lambda.send(new DeleteAliasCommand({
+                  FunctionName: functionName,
+                  Name,
+                }));
+              }));
+              await this._lambda.send(new DeleteFunctionCommand({
+                FunctionName: functionName,
+                Qualifier: Version,
+              }));
+              return Version;
+            }, 2);
+            this.log.info(chalk`{green ok}: deleted ${deleted.length} old ${name} versions.`);
+          }
+        }
+      }
+    } catch (e) {
+      this.log.error(chalk`{red error:} Cleanup failed, proceeding anyway.`, e);
+    }
   }
 
   async cleanUpIntegrations(filter) {
