@@ -96,13 +96,13 @@ describe('AWS Deployer Test', () => {
       .get('/2015-03-31/functions/helix-services--static/versions')
       .reply(200, {
         Versions: [{
-          LastModified: '2023-12-24T22:57:00.000+0000',
+          LastModified: '2023-12-24T22:59:00.000+0000',
           Version: '$LATEST',
         }, {
           LastModified: '2023-12-24T22:58:00.000+0000',
           Version: '839',
         }, {
-          LastModified: '2023-12-24T22:59:00.000+0000',
+          LastModified: '2023-12-24T22:57:00.000+0000',
           Version: '838',
         }],
       })
@@ -123,5 +123,55 @@ describe('AWS Deployer Test', () => {
     const aws = new AWSDeployer(cfg, awsCfg);
     await aws.init();
     await aws.cleanup();
+  });
+
+  it('cleans up unused versions', async () => {
+    process.env.AWS_ACCESS_KEY_ID = 'awsAccessKeyId';
+    process.env.AWS_SECRET_ACCESS_KEY = 'awsSecretAccessKey';
+    process.env.AWS_SESSION_TOKEN = 'awsSessionToken';
+
+    nock('https://lambda.us-east-1.amazonaws.com')
+      .get('/2015-03-31/functions/helix-services--static/aliases')
+      .reply(200, {
+        Aliases: [{
+          Description: '',
+          FunctionVersion: '839',
+          Name: '5_7_9',
+        }, {
+          Description: '',
+          FunctionVersion: '838',
+          Name: 'ci1234',
+        }],
+      })
+      .get('/2015-03-31/functions/helix-services--static/versions')
+      .reply(200, {
+        Versions: [{
+          LastModified: '2023-12-24T22:59:00.000+0000',
+          Version: '$LATEST',
+        }, {
+          LastModified: '2023-12-24T22:58:00.000+0000',
+          Version: '839',
+        }, {
+          LastModified: '2023-12-24T22:57:00.000+0000',
+          Version: '838',
+        }, {
+          LastModified: '2023-12-24T22:56:00.000+0000',
+          Version: '837',
+        }],
+      })
+      .delete('/2015-03-31/functions/helix-services--static?Qualifier=837')
+      .reply(204);
+
+    const cfg = new BaseConfig()
+      .withVersion('1.18.2')
+      // eslint-disable-next-line no-template-curly-in-string
+      .withName('/helix-services/static@${version}');
+    const awsCfg = new AWSConfig().withAWSRegion('us-east-1').withAWSCleanUpVersions(true);
+    const builder = new ActionBuilder().withConfig(cfg);
+    await builder.validate();
+
+    const aws = new AWSDeployer(cfg, awsCfg);
+    await aws.init();
+    await aws.cleanUpVersions();
   });
 });

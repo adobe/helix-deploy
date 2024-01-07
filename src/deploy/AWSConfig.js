@@ -20,6 +20,7 @@ export default class AWSConfig {
       role: '',
       apiId: '',
       cleanUpIntegrations: false,
+      cleanUpVersions: false,
       createRoutes: false,
       lambdaFormat: DEFAULT_LAMBDA_FORMAT,
       parameterMgr: ['secret'],
@@ -47,6 +48,7 @@ export default class AWSConfig {
       .withAWSAttachAuthorizer(argv.awsAttachAuthorizer)
       .withAWSIdentitySources(argv.awsIdentitySource)
       .withAWSCleanUpIntegrations(argv.awsCleanupIntegrations)
+      .withAWSCleanUpVersions(argv.awsCleanupVersions)
       .withAWSCreateRoutes(argv.awsCreateRoutes)
       .withAWSParamsManager(argv.awsParameterManager)
       .withAWSDeployBucket(argv.awsDeployBucket)
@@ -87,6 +89,11 @@ export default class AWSConfig {
 
   withAWSCleanUpIntegrations(value) {
     this.cleanUpIntegrations = value;
+    return this;
+  }
+
+  withAWSCleanUpVersions(value) {
+    this.cleanUpVersions = value;
     return this;
   }
 
@@ -148,8 +155,8 @@ export default class AWSConfig {
   static yarg(yargs) {
     return yargs
       .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-cleanup-integrations',
-        'aws-create-routes', 'aws-create-authorizer', 'aws-attach-authorizer', 'aws-lambda-format',
-        'aws-parameter-manager', 'aws-deploy-template', 'aws-arch', 'aws-update-secrets',
+        'aws-cleanup-versions', 'aws-create-routes', 'aws-create-authorizer', 'aws-attach-authorizer',
+        'aws-lambda-format', 'aws-parameter-manager', 'aws-deploy-template', 'aws-arch', 'aws-update-secrets',
         'aws-deploy-bucket', 'aws-identity-source', 'aws-log-format', 'aws-layers',
         'aws-tracing-mode', 'aws-extra-permissions'], 'AWS Deployment Options')
       .option('aws-region', {
@@ -211,6 +218,11 @@ export default class AWSConfig {
       })
       .option('aws-cleanup-integrations', {
         description: 'Cleans up unused integrations',
+        type: 'boolean',
+        default: false,
+      })
+      .option('aws-cleanup-versions', {
+        description: 'Cleans up unused versions',
         type: 'boolean',
         default: false,
       })
