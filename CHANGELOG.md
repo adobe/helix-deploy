@@ -1,3 +1,10 @@
+# [9.6.0](https://github.com/adobe/helix-deploy/compare/v9.5.1...v9.6.0) (2024-01-08)
+
+
+### Features
+
+* clean up unused versions ([#636](https://github.com/adobe/helix-deploy/issues/636)) ([e516d1e](https://github.com/adobe/helix-deploy/commit/e516d1e3312e1fadbdfe57121c6f6099ec289af1))
+
 ## [9.5.1](https://github.com/adobe/helix-deploy/compare/v9.5.0...v9.5.1) (2024-01-06)
 
 
