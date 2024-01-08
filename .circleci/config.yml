@@ -37,6 +37,8 @@ jobs:
       - run:
           name: Test and Code Coverage
           command: npm run test
+      - codecov/upload:
+          flags: unittests
       - run:
           name: Prepare .wskprops
           command: |
@@ -46,7 +48,8 @@ jobs:
       - run:
           name: Integration Test and Code Coverage
           command: npm run integration-ci
-      - codecov/upload
+      - codecov/upload:
+          flags: integration
       - store_test_results:
           path: junit
       - store_artifacts:
