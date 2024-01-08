@@ -438,6 +438,7 @@ describe('CLI Test', () => {
       apiId: 'someapi',
       arch: 'arm64',
       cleanUpIntegrations: false,
+      cleanUpVersions: false,
       createRoutes: false,
       // eslint-disable-next-line no-template-curly-in-string
       lambdaFormat: '${packageName}--${baseName}',

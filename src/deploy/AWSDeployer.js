@@ -634,6 +634,39 @@ export default class AWSDeployer extends BaseDeployer {
     }
   }
 
+  async cleanUpVersions() {
+    const { functionName } = this;
+
+    this.log.info('Clean up unused versions');
+    this.log.info(chalk`--: fetching aliases...`);
+    const aliases = await this.listAliases(functionName);
+    this.log.info(chalk`--: fetching versions...`);
+    const versions = (await this.listVersions(functionName))
+      .map((version) => ({
+        ...version,
+        Aliases: aliases
+          .filter(({ FunctionVersion }) => version.Version === FunctionVersion)
+          .map(({ Name }) => Name),
+      }));
+
+    const unusedVersions = versions
+      .filter(({ Version }) => Version !== '$LATEST')
+      .filter(({ Aliases }) => Aliases.length === 0);
+    this.log.info(`Found ${unusedVersions.length} unused versions`);
+
+    if (unusedVersions.length) {
+      this.log.info(chalk`--: deleting unused versions...`);
+      const deleted = await processQueue(unusedVersions, async ({ Version }) => {
+        await this._lambda.send(new DeleteFunctionCommand({
+          FunctionName: functionName,
+          Qualifier: Version,
+        }));
+        return Version;
+      }, 2);
+      this.log.info(chalk`{green ok}: deleted ${deleted.length} unused versions.`);
+    }
+  }
+
   async cleanUpIntegrations(filter) {
     this.log.info('Clean up Integrations');
     const { ApiId } = await this.initApiId();
@@ -958,6 +991,9 @@ export default class AWSDeployer extends BaseDeployer {
   async runAdditionalTasks() {
     if (this._cfg.cleanUpIntegrations) {
       await this.cleanUpIntegrations();
+    }
+    if (this._cfg.cleanUpVersions) {
+      await this.cleanUpVersions();
     }
     if (this._cfg.updateSecrets !== undefined) {
       await this.updateSecrets();
