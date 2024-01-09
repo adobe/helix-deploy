@@ -63,7 +63,6 @@
     "fs-extra": "11.2.0",
     "isomorphic-git": "1.25.2",
     "openwhisk": "3.21.8",
-    "rollup": "4.9.4",
     "semver": "7.5.4",
     "tar": "6.2.0",
     "webpack": "5.89.0",

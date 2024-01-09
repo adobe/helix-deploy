@@ -172,7 +172,6 @@ export default class BaseConfig {
       .withBuild(argv.build)
       .withMinify(argv.minify)
       .withESM(argv.esm)
-      .withBundler(argv.bundler)
       .withDelete(argv.delete)
       .withDeploy(argv.deploy)
       .withTest(argv.test)
@@ -262,11 +261,6 @@ export default class BaseConfig {
 
   withESM(enable) {
     this.esm = enable;
-    return this;
-  }
-
-  withBundler(bundler) {
-    this.bundler = bundler;
     return this;
   }
 
@@ -644,11 +638,6 @@ export default class BaseConfig {
         description: 'Minify the final bundle',
         type: 'boolean',
         default: false,
-      })
-      .option('bundler', {
-        description: 'Select bundler backend (webpack, rollup)',
-        type: 'string',
-        default: 'webpack',
       })
       .option('esm', {
         description: 'Produce EcmaScript Module (experimental, disables edge arch)',
