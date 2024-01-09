@@ -141,19 +141,6 @@ describe('Deploy Test', () => {
     ]);
   }).timeout(10000);
 
-  it('deploys a web action (rollup)', async () => {
-    await deploy([
-      '--bundler', 'rollup',
-      '--target', 'wsk',
-      '--verbose',
-      '--deploy',
-      '--test', '/foo',
-      '--directory', testRoot,
-      '--fastlyServiceId', '',
-      '--fastlyAuth', '',
-    ]);
-  }).timeout(20000);
-
   it('tests a web action with redirect', async () => {
     await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'web-action'), testRoot);
 

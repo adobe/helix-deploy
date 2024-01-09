@@ -53,7 +53,6 @@ async function assertZipEntries(zipPath, entries) {
 
 const PROJECT_SIMPLE = path.resolve(__rootdir, 'test', 'fixtures', 'simple');
 const PROJECT_PURE = path.resolve(__rootdir, 'test', 'fixtures', 'pure-action');
-const PROJECT_SIMPLE_ROOTDIR = path.resolve(__rootdir, 'test', 'fixtures', 'simple-rootdir');
 const PROJECT_SIMPLE_ESM = path.resolve(__rootdir, 'test', 'fixtures', 'simple-esm');
 
 describe('Build Test', () => {
@@ -160,29 +159,9 @@ describe('Build Test', () => {
     await generate([], PROJECT_SIMPLE_ESM);
   }).timeout(15000);
 
-  it('generates the bundle (rollup)', async () => {
-    await generate(['--bundler', 'rollup'], PROJECT_SIMPLE_ROOTDIR);
-  }).timeout(20000);
-
-  it('generates the bundle (rollup, esm-project)', async () => {
-    await generate(['--bundler', 'rollup'], PROJECT_SIMPLE_ESM);
-  }).timeout(15000);
-
   it('generates the bundle (esm, webpack) fails', async () => {
     await assert.rejects(generate(['--esm']), Error('Webpack bundler does not support ESM builds.'));
   }).timeout(5000);
-
-  it('rejects unknown bundler', async () => {
-    await assert.rejects(generate(['--bundler', 'foobar']), Error('Invalid bundler \'foobar\' for \'node\'. Valid options are: webpack,rollup'));
-  }).timeout(5000);
-
-  it('generates the bundle (esm, rollup)', async () => {
-    await generate(['--esm', '--bundler', 'rollup'], PROJECT_SIMPLE_ROOTDIR);
-  }).timeout(15000);
-
-  it('generates the bundle (esm, rollup, esm project)', async () => {
-    await generate(['--esm', '--bundler', 'rollup'], PROJECT_SIMPLE_ESM);
-  }).timeout(15000);
 });
 
 describe('Edge Build Test', () => {
