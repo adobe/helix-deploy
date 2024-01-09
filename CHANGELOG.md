@@ -1,3 +1,15 @@
+# [10.0.0](https://github.com/adobe/helix-deploy/compare/v9.6.1...v10.0.0) (2024-01-09)
+
+
+### Features
+
+* remove rollup bundler ([#638](https://github.com/adobe/helix-deploy/issues/638)) ([bc0baa5](https://github.com/adobe/helix-deploy/commit/bc0baa5ead03704ba06524be0b46be63090ab081))
+
+
+### BREAKING CHANGES
+
+* --bundler is no longer supported
+
 ## [9.6.1](https://github.com/adobe/helix-deploy/compare/v9.6.0...v9.6.1) (2024-01-09)
 
 
