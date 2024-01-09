@@ -1,3 +1,10 @@
+## [9.6.1](https://github.com/adobe/helix-deploy/compare/v9.6.0...v9.6.1) (2024-01-09)
+
+
+### Bug Fixes
+
+* **fastly:** guard against missing gateway name ([#634](https://github.com/adobe/helix-deploy/issues/634)) ([da6a45c](https://github.com/adobe/helix-deploy/commit/da6a45ca8217454d68664937c28eacd54d1ee033))
+
 # [9.6.0](https://github.com/adobe/helix-deploy/compare/v9.5.1...v9.6.0) (2024-01-08)
 
 

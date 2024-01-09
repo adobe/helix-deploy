@@ -1,6 +1,6 @@
 {
   "name": "@adobe/helix-deploy",
-  "version": "9.6.0",
+  "version": "9.6.1",
   "description": "Library and Commandline Tools to build and deploy OpenWhisk Actions",
   "license": "Apache-2.0",
   "homepage": "https://github.com/adobe/helix-deploy#readme",
@@ -74,7 +74,7 @@
     "@adobe/helix-status": "10.0.11",
     "@semantic-release/changelog": "6.0.3",
     "@semantic-release/git": "10.0.1",
-    "c8": "8.0.1",
+    "c8": "9.0.0",
     "eslint": "8.56.0",
     "husky": "8.0.3",
     "lint-staged": "15.2.0",
