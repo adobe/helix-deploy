@@ -1,3 +1,10 @@
+## [10.0.1](https://github.com/adobe/helix-deploy/compare/v10.0.0...v10.0.1) (2024-01-13)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([2e484d4](https://github.com/adobe/helix-deploy/commit/2e484d4f618ef69db74f57a4d050774ab765d8b0))
+
 # [10.0.0](https://github.com/adobe/helix-deploy/compare/v9.6.1...v10.0.0) (2024-01-09)
 
 
