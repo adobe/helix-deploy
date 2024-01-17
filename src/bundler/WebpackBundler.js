@@ -100,6 +100,15 @@ export default class WebpackBundler extends BaseBundler {
     if (cfg.progressHandler) {
       opts.plugins.push(new webpack.ProgressPlugin(cfg.progressHandler));
     }
+
+    const customizePath = path.join(cfg.cwd, 'hlx.webpack.customize.js');
+    if (await fse.pathExists(customizePath)) {
+      cfg.log.info(`--: Using custom webpack config from ${customizePath}`);
+      const customize = await import(customizePath);
+      const customized = (customize.default || customize)(cfg, opts);
+      return customized || opts;
+    }
+
     return opts;
   }
 
