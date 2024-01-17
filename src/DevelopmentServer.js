@@ -71,7 +71,7 @@ export default class DevelopmentServer {
     this._main = main;
     this._cwd = process.cwd();
     this._port = process.env.WEBSERVER_PORT || 3000;
-    this._xfh = 'helix-pages.anywhere.run';
+    this._headers = {};
   }
 
   withPort(value) {
@@ -80,7 +80,13 @@ export default class DevelopmentServer {
   }
 
   withXFH(value) {
-    this._xfh = value;
+    process.emitWarning('DevelopmentServer.withXFH is deprecated. Use withHeader(\'x-forwarded-host\') instead.', 'DeprecationWarning');
+    this._headers['x-forwarded-host'] = value;
+    return this;
+  }
+
+  withHeader(name, value) {
+    this._headers[name] = value;
     return this;
   }
 
@@ -206,9 +212,9 @@ export default class DevelopmentServer {
       }
     });
     this.app.use(rawBody());
-    if (this._xfh) {
-      this.app.use(addRequestHeader('x-forwarded-host', this._xfh.replace('{port}', this._port)));
-    }
+    Object.entries(this._headers).forEach(([name, value]) => {
+      this.app.use(addRequestHeader(name, value.replace('{port}', this._port)));
+    });
     this.app.all('*', this._handler);
   }
 
