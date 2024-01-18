@@ -63,7 +63,7 @@ describe('Server Test', () => {
     await server.stop();
   });
 
-  it('it can start set the xfh header', async () => {
+  it('it can set the xfh header (deprecated)', async () => {
     const main = (req) => new Response(`hello: ${req.headers.get('x-forwarded-host')}`);
     const server = new DevelopmentServer(main)
       .withPort(0)
@@ -74,6 +74,22 @@ describe('Server Test', () => {
 
     const res = await fetch(`http://localhost:${server.server.address().port}/`);
     assert.strictEqual(await res.text(), `hello: localhost:${server.server.address().port}`);
+    await server.stop();
+  });
+
+  it('it can set the custom header', async () => {
+    const main = (req) => new Response(`hello: ${req.headers.get('x-forwarded-proto')}://${req.headers.get('x-forwarded-host')}`);
+    const server = new DevelopmentServer(main)
+      .withPort(0)
+      .withHeader('x-forwarded-host', 'localhost:{port}')
+      .withHeader('x-forwarded-proto', 'http');
+
+    await server.init();
+    server.params.TEST_PARAM = 'foo';
+    await server.start();
+
+    const res = await fetch(`http://localhost:${server.server.address().port}/`);
+    assert.strictEqual(await res.text(), `hello: http://localhost:${server.server.address().port}`);
     await server.stop();
   });
 
