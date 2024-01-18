@@ -1,3 +1,10 @@
+# [10.1.0](https://github.com/adobe/helix-deploy/compare/v10.0.1...v10.1.0) (2024-01-18)
+
+
+### Features
+
+* add support for custom headers ([#640](https://github.com/adobe/helix-deploy/issues/640)) ([a726f7a](https://github.com/adobe/helix-deploy/commit/a726f7a994b9e6c764a107c7f5dde8975adda48f))
+
 ## [10.0.1](https://github.com/adobe/helix-deploy/compare/v10.0.0...v10.0.1) (2024-01-13)
 
 
