@@ -4,9 +4,8 @@
 ## Status
 [![GitHub license](https://img.shields.io/github/license/adobe/helix-deploy.svg)](https://github.com/adobe/helix-deploy/blob/main/LICENSE.txt)
 [![GitHub issues](https://img.shields.io/github/issues/adobe/helix-deploy.svg)](https://github.com/adobe/helix-deploy/issues)
-[![CircleCI](https://img.shields.io/circleci/project/github/adobe/helix-deploy.svg)](https://circleci.com/gh/adobe/helix-deploy)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/adobe/helix-deploy/main.yaml)
 [![codecov](https://img.shields.io/codecov/c/github/adobe/helix-deploy.svg)](https://codecov.io/gh/adobe/helix-deploy)
-[![LGTM Code Quality Grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/adobe/helix-deploy.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/adobe/helix-deploy)
 
 ## Setup
 

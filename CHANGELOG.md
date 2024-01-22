@@ -1,3 +1,17 @@
+## [10.2.1](https://github.com/adobe/helix-deploy/compare/v10.2.0...v10.2.1) (2024-01-20)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([71bbec4](https://github.com/adobe/helix-deploy/commit/71bbec49684783436ed1e51a940e96193474e70d))
+
+# [10.2.0](https://github.com/adobe/helix-deploy/compare/v10.1.0...v10.2.0) (2024-01-18)
+
+
+### Features
+
+* allow addition of webpack plugins. ([95eb9bb](https://github.com/adobe/helix-deploy/commit/95eb9bb8019dc969e5b7630a32a4c95efbf4b371)), closes [#641](https://github.com/adobe/helix-deploy/issues/641) [#642](https://github.com/adobe/helix-deploy/issues/642)
+
 # [10.1.0](https://github.com/adobe/helix-deploy/compare/v10.0.1...v10.1.0) (2024-01-18)
 
 
