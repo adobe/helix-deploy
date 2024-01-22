@@ -54,6 +54,9 @@ jobs:
 #          echo NAMESPACE=$WSK_NAMESPACE > ~/.wskprops
 #          echo AUTH=$WSK_AUTH > ~/.wskprops
       - run: npm run integration-ci
+        env:
+          HLX_FASTLY_AUTH: ${{ secrets.HLX_FASTLY_AUTH }}
+          HLX_FASTLY_SERVICE_ID: ${{ secrets.HLX_FASTLY_SERVICE_ID }}
       - uses: codecov/codecov-action@v3
         with:
           flags: integration
