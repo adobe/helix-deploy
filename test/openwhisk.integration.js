@@ -15,16 +15,10 @@
 import assert from 'assert';
 import fse from 'fs-extra';
 import path from 'path';
-import { context, h1 } from '@adobe/fetch';
+import { h1NoCache } from '@adobe/fetch';
 import { createTestRoot, TestLogger } from './utils.js';
 
 import CLI from '../src/cli.js';
-
-function fetchContext() {
-  return process.env.HELIX_FETCH_FORCE_HTTP1
-    ? h1()
-    : context();
-}
 
 describe('OpenWhisk Integration Test', () => {
   let testRoot;
@@ -64,7 +58,7 @@ describe('OpenWhisk Integration Test', () => {
     assert.ok(out.indexOf(`{"url":"https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0/foo","file":"Hello, world.\\n"}`) > 0, out);
 
     // try to invoke via openwhisk api
-    const { fetch } = fetchContext();
+    const { fetch } = h1NoCache();
     const auth64 = Buffer.from(auth).toString('base64');
     const resp = await fetch('https://adobeioruntime.net/api/v1/namespaces/_/actions/simple-package/simple-name@1.45.0?blocking=true&result=true', {
       method: 'POST',
