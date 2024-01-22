@@ -13,9 +13,11 @@
 /* eslint-env mocha */
 import assert from 'assert';
 import { resolve } from 'path';
-import { fetch, Response } from '@adobe/fetch';
+import { h1NoCache, Response } from '@adobe/fetch';
 
 import DevelopmentServer from '../src/DevelopmentServer.js';
+
+const { fetch } = h1NoCache();
 
 describe('Server Test', () => {
   let envCopy;
