@@ -20,6 +20,7 @@ import CLI from '../src/cli.js';
 describe('CLI Test', () => {
   afterEach(() => {
     delete process.env.HLX_TEST;
+    delete process.env.CUSTOM_ENV_VAR;
   });
 
   it('has correct defaults with no arguments', () => {
@@ -446,5 +447,31 @@ describe('CLI Test', () => {
       layers: undefined,
       logFormat: undefined,
     });
+  });
+
+  it('interpolates environment variables', () => {
+    process.env.CUSTOM_ENV_VAR = 'test';
+    const builder = new CLI()
+      .prepare([
+        '--test',
+        // eslint-disable-next-line no-template-curly-in-string
+        'some-${env.CUSTOM_ENV_VAR}-value',
+        '--serverless-externals',
+        // eslint-disable-next-line no-template-curly-in-string
+        '/${env.CUSTOM_ENV_VAR}/index.html',
+        '--serverless-externals',
+        // eslint-disable-next-line no-template-curly-in-string
+        '/${env.CUSTOM_ENV_VAR}/index.txt',
+      ]);
+    assert.deepEqual(builder.cfg.test, 'some-test-value');
+    assert.deepEqual(builder.cfg.serverlessExternals, ['/test/index.html', '/test/index.txt']);
+  });
+
+  it('ignores non-existing environment variables', () => {
+    const builder = new CLI()
+      // eslint-disable-next-line no-template-curly-in-string
+      .prepare(['--test', 'some-${env.CUSTOM_ENV_VAR}-value']);
+    // eslint-disable-next-line no-template-curly-in-string
+    assert.deepEqual(builder.cfg.test, 'some-${env.CUSTOM_ENV_VAR}-value');
   });
 });

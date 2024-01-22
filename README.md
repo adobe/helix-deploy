@@ -286,6 +286,23 @@ In order to automatically use the version of the `package.json` use:
 > **Note**: the version is internally taken from the `pkgVersion` variable, so it can be overridden with
  the `--pkgVersion` argument, in case it should be deployed differently.
 
+### Environment Variable Interpolation in Arguments
+
+In addition to the `${version}` token described above, arguments will be interpolated using environment variables where the variables exist. For example, given an environment variable named `PROBOT_DOCKER_VERSION` is set to `latest`, this configuration:
+
+```json
+{
+...
+  "wsk": {
+    ...
+    "docker": "adobe/probot-ow-nodejs8:${env.PROBOT_DOCKER_VERSION}"
+  },
+...
+}
+```
+
+Will result in the materialized value of the `docker` argument to be set to `adobe/probot-ow-nodejs8:latest`.
+
 #### Automatically create semantic versioning sequence actions
 
 By using the `--version-link` (`-l`), the bulider can create action sequences _linking_ to the deployed version,
