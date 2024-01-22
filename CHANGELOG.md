@@ -1,3 +1,10 @@
+# [10.3.0](https://github.com/adobe/helix-deploy/compare/v10.2.1...v10.3.0) (2024-01-22)
+
+
+### Features
+
+* support environment variable interpolation in config using syntax ${env.VAR_NAME} ([#649](https://github.com/adobe/helix-deploy/issues/649)) ([ae52a1b](https://github.com/adobe/helix-deploy/commit/ae52a1b308a4bf0f986246f25c4937216bfa82f2)), closes [#644](https://github.com/adobe/helix-deploy/issues/644)
+
 ## [10.2.1](https://github.com/adobe/helix-deploy/compare/v10.2.0...v10.2.1) (2024-01-20)
 
 
