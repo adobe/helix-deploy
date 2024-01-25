@@ -174,4 +174,40 @@ describe('AWS Deployer Test', () => {
     await aws.init();
     await aws.cleanUpVersions();
   });
+
+  it('correctly returns an empty object when no tags', async () => {
+    const cfg = new BaseConfig()
+      .withVersion('1.18.2')
+      // eslint-disable-next-line no-template-curly-in-string
+      .withName('/helix-services/static@${version}');
+    const awsCfg = new AWSConfig();
+    const builder = new ActionBuilder().withConfig(cfg);
+    await builder.validate();
+    const aws = new AWSDeployer(cfg, awsCfg);
+
+    assert.deepStrictEqual(aws.additionalTags, {});
+  });
+
+  it('correctly transforms tags into an object', async () => {
+    const cfg = new BaseConfig()
+      .withVersion('1.18.2')
+      // eslint-disable-next-line no-template-curly-in-string
+      .withName('/helix-services/static@${version}');
+    const awsCfg = new AWSConfig().withAWSTags(['foo=bar', 'baz=qux=quux']);
+    const builder = new ActionBuilder().withConfig(cfg);
+    await builder.validate();
+    const aws = new AWSDeployer(cfg, awsCfg);
+
+    assert.deepStrictEqual(aws.additionalTags, {
+      foo: 'bar',
+      baz: 'qux=quux',
+    });
+  });
+
+  it('creates an error if awsTags is set as an object', async () => {
+    assert.throws(() => new AWSConfig().withAWSTags({ foo: 'bar' }), {
+      name: 'Error',
+      message: 'awsTags must be an array',
+    });
+  });
 });

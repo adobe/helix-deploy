@@ -29,9 +29,9 @@ import {
   CreateAliasCommand,
   CreateFunctionCommand, DeleteAliasCommand, DeleteFunctionCommand, GetAliasCommand,
   GetFunctionCommand,
-  LambdaClient, ListAliasesCommand, ListVersionsByFunctionCommand,
-  PublishVersionCommand, UpdateAliasCommand, UpdateFunctionCodeCommand,
-  UpdateFunctionConfigurationCommand,
+  LambdaClient, ListAliasesCommand, ListTagsCommand, ListVersionsByFunctionCommand,
+  PublishVersionCommand, TagResourceCommand, UntagResourceCommand, UpdateAliasCommand,
+  UpdateFunctionCodeCommand, UpdateFunctionConfigurationCommand,
 } from '@aws-sdk/client-lambda';
 
 import {
@@ -126,6 +126,16 @@ export default class AWSDeployer extends BaseDeployer {
     }`;
   }
 
+  get additionalTags() {
+    return (this._cfg.tags || []).map((tag) => tag.split('=')).reduce((acc, tagSplit) => {
+      if (tagSplit.length >= 2) {
+        const [key, ...value] = tagSplit;
+        acc[key] = value.join('=');
+      }
+      return acc;
+    }, {});
+  }
+
   validate() {
     const req = [];
     if (!this._cfg.role) {
@@ -206,7 +216,7 @@ export default class AWSDeployer extends BaseDeployer {
   }
 
   async createLambda() {
-    const { cfg, functionName } = this;
+    const { cfg, functionName, additionalTags } = this;
     const functionVersion = cfg.version.replace(/\./g, '_');
 
     const functionConfig = {
@@ -243,6 +253,13 @@ export default class AWSDeployer extends BaseDeployer {
       TracingConfig: this._cfg.tracingMode ? { Mode: this._cfg.tracingMode } : undefined,
     };
 
+    // add additional tags which are not empty
+    Object.entries(additionalTags).forEach(([key, value]) => {
+      if (value !== '') {
+        functionConfig.Tags[key] = value;
+      }
+    });
+
     this.log.info(`--: using lambda role "${this._cfg.role}"`);
 
     // check if function already exists
@@ -271,6 +288,28 @@ export default class AWSDeployer extends BaseDeployer {
       await this.checkFunctionReady(baseARN);
       this.log.info(chalk`--: updating existing Lambda function configuration {yellow ${functionName}}`);
       await this._lambda.send(new UpdateFunctionConfigurationCommand(functionConfig));
+      await this.checkFunctionReady(baseARN);
+      this.log.info(chalk`--: updating existing Lambda function tags {yellow ${functionName}}`);
+      // set all the tags in the current configuration
+      await this._lambda.send(new TagResourceCommand({
+        Resource: baseARN,
+        Tags: functionConfig.Tags,
+      }));
+      // then remove any tags with a blank value in the configuration (and are currently set),
+      // leaving other tags alone
+      const tagsToPotentiallyRemove = Object.entries(additionalTags).filter(([_, value]) => value === '').map(([key]) => key);
+      if (tagsToPotentiallyRemove.length) {
+        const { Tags: currentTags } = await this._lambda.send(new ListTagsCommand({
+          Resource: baseARN,
+        }));
+        const tagsToRemove = tagsToPotentiallyRemove.filter((key) => currentTags[key]);
+        if (tagsToRemove.length) {
+          await this._lambda.send(new UntagResourceCommand({
+            Resource: baseARN,
+            TagKeys: tagsToRemove,
+          }));
+        }
+      }
       await this.checkFunctionReady(baseARN);
       this.log.info('--: updating Lambda function code...');
       await this._lambda.send(new UpdateFunctionCodeCommand({
