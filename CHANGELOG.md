@@ -1,3 +1,10 @@
+## [10.3.1](https://github.com/adobe/helix-deploy/compare/v10.3.0...v10.3.1) (2024-01-26)
+
+
+### Bug Fixes
+
+* do not stop query string at question mark ([#653](https://github.com/adobe/helix-deploy/issues/653)) ([ba3e666](https://github.com/adobe/helix-deploy/commit/ba3e66603074e892415539fda50cb193a4ef19f3))
+
 # [10.3.0](https://github.com/adobe/helix-deploy/compare/v10.2.1...v10.3.0) (2024-01-22)
 
 
