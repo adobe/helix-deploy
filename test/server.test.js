@@ -148,6 +148,21 @@ describe('Server Test', () => {
     await server.stop();
   });
 
+  it('it can see a query string that itself contains a question mark', async () => {
+    // eslint-disable-next-line arrow-body-style
+    const main = async (req) => {
+      return new Response(`url: ${new URL(req.url).searchParams.get('url')}`);
+    };
+
+    const server = new DevelopmentServer(main).withPort(0);
+    await server.init();
+    await server.start();
+
+    const res = await fetch(`http://localhost:${server.server.address().port}/?url=http://localhost/?a=1`);
+    assert.strictEqual(await res.text(), 'url: http://localhost/?a=1');
+    await server.stop();
+  });
+
   it('it can see the suffix in the pathInfo', async () => {
     // eslint-disable-next-line arrow-body-style
     const main = async (_, ctx) => {

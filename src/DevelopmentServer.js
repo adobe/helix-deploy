@@ -150,7 +150,8 @@ export default class DevelopmentServer {
       },
     });
     this._handler = async (req, res) => {
-      const [rawPath, rawQueryString = ''] = req.originalUrl.split('?');
+      const [rawPath, ...rest] = req.originalUrl.split('?');
+      const rawQueryString = rest.join('?');
       const method = req.headers['x-http-method'] || req.method;
       const event = {
         body: req.rawBody,
