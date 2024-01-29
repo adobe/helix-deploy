@@ -446,6 +446,7 @@ describe('CLI Test', () => {
       extraPermissions: undefined,
       layers: undefined,
       logFormat: undefined,
+      tags: undefined,
     });
   });
 

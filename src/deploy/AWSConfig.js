@@ -34,6 +34,7 @@ export default class AWSConfig {
       layers: undefined,
       tracingMode: undefined,
       extraPermissions: undefined,
+      tags: undefined,
     });
   }
 
@@ -56,7 +57,8 @@ export default class AWSConfig {
       .withAWSLogFormat(argv.awsLogFormat)
       .withAWSLayers(argv.awsLayers)
       .withAWSTracingMode(argv.awsTracingMode)
-      .withAWSExtraPermissions(argv.awsExtraPermissions);
+      .withAWSExtraPermissions(argv.awsExtraPermissions)
+      .withAWSTags(argv.awsTags);
   }
 
   withAWSRegion(value) {
@@ -152,13 +154,21 @@ export default class AWSConfig {
     return this;
   }
 
+  withAWSTags(value) {
+    if (value && !Array.isArray(value)) {
+      throw new Error('awsTags must be an array');
+    }
+    this.tags = value;
+    return this;
+  }
+
   static yarg(yargs) {
     return yargs
       .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-cleanup-integrations',
         'aws-cleanup-versions', 'aws-create-routes', 'aws-create-authorizer', 'aws-attach-authorizer',
         'aws-lambda-format', 'aws-parameter-manager', 'aws-deploy-template', 'aws-arch', 'aws-update-secrets',
         'aws-deploy-bucket', 'aws-identity-source', 'aws-log-format', 'aws-layers',
-        'aws-tracing-mode', 'aws-extra-permissions'], 'AWS Deployment Options')
+        'aws-tracing-mode', 'aws-extra-permissions', 'aws-tags'], 'AWS Deployment Options')
       .option('aws-region', {
         description: 'the AWS region to deploy lambda functions to',
         type: 'string',
@@ -245,8 +255,13 @@ export default class AWSConfig {
         type: 'string',
       })
       .option('aws-extra-permissions', {
-        description: 'A list fo additional invoke permissions to add to the lambda function in the form <SourceARN>@<Principal>.',
+        description: 'A list of additional invoke permissions to add to the lambda function in the form <SourceARN>@<Principal>.',
         type: 'string',
+        array: true,
+      })
+      .option('aws-tags', {
+        description: 'A list of additional tags to attach to the lambda function in the form key=value. To remove a tag, use key= (i.e. without a value).',
+        type: 'array',
         array: true,
       });
   }
