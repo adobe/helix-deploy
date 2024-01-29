@@ -1,3 +1,10 @@
+## [10.3.3](https://github.com/adobe/helix-deploy/compare/v10.3.2...v10.3.3) (2024-01-29)
+
+
+### Bug Fixes
+
+* add 'import' condidtion for package imports ([#656](https://github.com/adobe/helix-deploy/issues/656)) ([7c6fc41](https://github.com/adobe/helix-deploy/commit/7c6fc41c7ccd479e34daa2af4ff2e62d2a2b35be))
+
 ## [10.3.2](https://github.com/adobe/helix-deploy/compare/v10.3.1...v10.3.2) (2024-01-27)
 
 
