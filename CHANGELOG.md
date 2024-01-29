@@ -1,3 +1,10 @@
+# [10.4.0](https://github.com/adobe/helix-deploy/compare/v10.3.3...v10.4.0) (2024-01-29)
+
+
+### Features
+
+* add support for custom AWS tags which are set on the deployed Lambda. Fixes [#651](https://github.com/adobe/helix-deploy/issues/651) ([#652](https://github.com/adobe/helix-deploy/issues/652)) ([09e2055](https://github.com/adobe/helix-deploy/commit/09e2055928b7f67c70b64034c810a0ff48b5ce59))
+
 ## [10.3.3](https://github.com/adobe/helix-deploy/compare/v10.3.2...v10.3.3) (2024-01-29)
 
 
