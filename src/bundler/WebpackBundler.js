@@ -81,7 +81,7 @@ export default class WebpackBundler extends BaseBundler {
         },
         // use fixed conditions to omit the `development` condition.
         // see: https://webpack.js.org/guides/package-exports/#conditions
-        conditionNames: ['node', 'require', 'import'],
+        conditionNames: ['node', 'require', 'import', 'module'],
       },
       node: {
         __dirname: true,
