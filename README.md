@@ -347,38 +347,25 @@ destination filename. eg:
 
 ## Using the development server
 
-Testing an openwhisk action that was _expressified_ using [ActionUtils.expressify()](https://github.com/adobe/openwhisk-action-utils/blob/main/src/expressify.js)
-can be done with the `DevelopmentServer`. Just create a `test/dev.js` file with:
+Testing an universal function can be done with the [development server](https://github.com/adobe/helix-universal-devserver). 
+
+Just create a `test/dev.js` file with:
 
 ```js
-const { DevelopmentServer } = require('@adobe/helix-deploy');
-const App = require('../src/app.js');
+import { DevelopmentServer } from '@adobe/helix-universal-devserver';
+import { main } from '../src/index.js';
 
 async function run() {
-  const devServer = await new DevelopmentServer(App).init();
-  return devServer.start();
+  const devServer = await new DevelopmentServer(main).init();
+  await devServer.start();
 }
 
-// eslint-disable-next-line no-console
-run().catch(console.error);
+run().then(process.stdout).catch(process.stderr);
 ```
 
 and run `node test/dev.js`.
 
-### Using development params with the server
-
-Sometimes it might be useful to specify action params that would be provided during deployment
-but are not available during development. those can be specified by a `dev-params-file` `wsk`
-property. those parameters are loaded an applied to every action call. eg:
-
-```json
-...
-  "wsk": {
-    ...
-    "dev-params-file": ".dev-secrets.env"
-  }
-...
-```
+for more information see https://github.com/adobe/helix-universal-devserver
 
 ## Notes
 

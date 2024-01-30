@@ -59,7 +59,6 @@
     "chalk-template": "1.1.0",
     "constants-browserify": "1.0.0",
     "dotenv": "16.4.1",
-    "express": "4.18.2",
     "form-data": "4.0.0",
     "fs-extra": "11.2.0",
     "isomorphic-git": "1.25.3",
