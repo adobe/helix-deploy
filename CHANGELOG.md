@@ -1,3 +1,15 @@
+# [11.0.0](https://github.com/adobe/helix-deploy/compare/v10.4.0...v11.0.0) (2024-01-30)
+
+
+### Features
+
+* move development server to own package ([#659](https://github.com/adobe/helix-deploy/issues/659)) ([43cbb16](https://github.com/adobe/helix-deploy/commit/43cbb16bb74ebfab1759b7b8ae0f842db6ec3ebe)), closes [#654](https://github.com/adobe/helix-deploy/issues/654)
+
+
+### BREAKING CHANGES
+
+* import { DevelopmentServer } from @adobe/helix-universal-devserver
+
 # [10.4.0](https://github.com/adobe/helix-deploy/compare/v10.3.3...v10.4.0) (2024-01-29)
 
 
