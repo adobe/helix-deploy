@@ -193,7 +193,7 @@ describe('Edge Build Test', () => {
         '--arch', 'edge', // todo: allow to only generate the edge bundle
         '--verbose',
         '--directory', testRoot,
-        '--entryFile', 'index.js',
+        '--entryFile', 'src/index.js',
       ]);
 
     await builder.run();

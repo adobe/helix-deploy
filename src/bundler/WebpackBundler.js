@@ -33,7 +33,7 @@ export default class WebpackBundler extends BaseBundler {
     const { cfg } = this;
     const opts = {
       target: 'node',
-      mode: 'development',
+      mode: 'production',
       // the universal adapter is the entry point
       entry: cfg.adapterFile || path.resolve(__dirname, '..', 'template', 'node-index.js'),
       context: cfg.cwd,
@@ -79,9 +79,15 @@ export default class WebpackBundler extends BaseBundler {
           // the main.js is imported in the universal adapter and is _the_ action entry point
           './main.js': cfg.file,
         },
-        // use fixed conditions to omit the `development` condition.
-        // see: https://webpack.js.org/guides/package-exports/#conditions
-        conditionNames: ['node', 'require', 'import', 'module'],
+      },
+      optimization: {
+        // we enable production mode in order to get the correct imports (eg micromark has special
+        // export condition for 'development'). but we disable minimize and keep named modules
+        // in order to easier match log errors to the bundle
+        minimize: false,
+        concatenateModules: false,
+        mangleExports: false,
+        moduleIds: 'named',
       },
       node: {
         __dirname: true,
