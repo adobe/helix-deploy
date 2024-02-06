@@ -29,7 +29,7 @@ jobs:
           aws-region: us-east-1
           role-to-assume: arn:aws:iam::118435662149:role/helix-gh-deploy-config-service
       - name: Fetch AWS Secrets
-        uses: aws-actions/aws-secretsmanager-get-secrets@v1
+        uses: aws-actions/aws-secretsmanager-get-secrets@v2
         with:
           parse-json-secrets: true
           secret-ids: |
@@ -45,7 +45,7 @@ jobs:
 
 
       - run: npm test
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           flags: unittests
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -54,7 +54,7 @@ jobs:
         env:
           HLX_FASTLY_AUTH: ${{ secrets.HLX_FASTLY_AUTH }}
           HLX_FASTLY_SERVICE_ID: ${{ secrets.HLX_FASTLY_SERVICE_ID }}
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           flags: integration
           token: ${{ secrets.CODECOV_TOKEN }}
