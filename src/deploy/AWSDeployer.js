@@ -1044,16 +1044,19 @@ export default class AWSDeployer extends BaseDeployer {
 
     if (this._cfg.extraPermissions) {
       await Promise.allSettled(this._cfg.extraPermissions.map(async (extraPermission) => {
-        const [sourceArn, principal] = extraPermission.split('@', 2);
+        const [sourceArn, principalAndOptionalAlias] = extraPermission.split('@', 2);
+        const [principal, alias] = principalAndOptionalAlias.split(':', 2);
+        const functionNameForPermission = alias ? `${functionName}:${alias}` : functionName;
+
         try {
           await this._lambda.send(new AddPermissionCommand({
-            FunctionName: functionName,
+            FunctionName: functionNameForPermission,
             Action: 'lambda:InvokeFunction',
             SourceArn: sourceArn,
             Principal: principal,
             StatementId: crypto.createHash('sha256').update(functionName + sourceArn).digest('hex'),
           }));
-          this.log.info(chalk`{green ok:} added invoke permissions for ${sourceArn}`);
+          this.log.info(chalk`{green ok:} added invoke permissions for ${sourceArn} on ${functionNameForPermission}`);
         } catch (e) {
           // ignore, most likely the permission already exists
         }
