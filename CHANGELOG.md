@@ -1,3 +1,10 @@
+## [11.0.5](https://github.com/adobe/helix-deploy/compare/v11.0.4...v11.0.5) (2024-02-20)
+
+
+### Bug Fixes
+
+* **aws:** allow extra permissions to optionally include an alias ([#666](https://github.com/adobe/helix-deploy/issues/666)) ([bed38d3](https://github.com/adobe/helix-deploy/commit/bed38d3732de306827712f627520127d0a2a1f35))
+
 ## [11.0.4](https://github.com/adobe/helix-deploy/compare/v11.0.3...v11.0.4) (2024-02-17)
 
 
