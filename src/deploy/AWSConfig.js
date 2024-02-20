@@ -255,7 +255,7 @@ export default class AWSConfig {
         type: 'string',
       })
       .option('aws-extra-permissions', {
-        description: 'A list of additional invoke permissions to add to the lambda function in the form <SourceARN>@<Principal>.',
+        description: 'A list of additional invoke permissions to add to the lambda function in the form <SourceARN>@<Principal>. Optionally, you can use <SourceARN>@<Principal>:<Alias> if you want to scope the permission to a specific alias.',
         type: 'string',
         array: true,
       })

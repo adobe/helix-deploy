@@ -132,7 +132,7 @@ AWS Deployment Options
       --aws-log-format            The lambda log format. Can be either "JSON" or "Text". [string]
       --aws-layers                List of layers ARNs to attach to the lambda function.  [array]
       --aws-tracing-mode          The lambda tracing mode. Can be either "Active" or "PassThrough". [string]
-      --aws-extra-permissions     A list of additional invoke permissions to add to the lambda function in the form <SourceARN>@<Principal>. [array]
+      --aws-extra-permissions     A list of additional invoke permissions to add to the lambda function in the form <SourceARN>@<Principal>. Optionally, you can use <SourceARN>@<Principal>:<Alias> if you want to scope the permission to a specific alias. [array]
       --aws-tags                  A list of additional tags to attach to the lambda function in the form key=value. To remove a tag, use key= (i.e. without a value).[array]
 
 Google Deployment Options
