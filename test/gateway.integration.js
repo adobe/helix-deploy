@@ -15,16 +15,10 @@
 import assert from 'assert';
 import fse from 'fs-extra';
 import path from 'path';
-import { h1, context } from '@adobe/fetch';
+import { h1NoCache } from '@adobe/fetch';
 import { createTestRoot, TestLogger } from './utils.js';
 
 import CLI from '../src/cli.js';
-
-function fetchContext() {
-  return process.env.HELIX_FETCH_FORCE_HTTP1
-    ? h1()
-    : context();
-}
 
 describe.skip('Gateway Integration Test', () => {
   let testRoot;
@@ -82,7 +76,7 @@ describe.skip('Gateway Integration Test', () => {
     assert.ok(out.indexOf('ok: 200') > 0, out);
     assert.ok(out.indexOf(`{"url":"https://adobeioruntime.net/api/v1/web/${namespace}/simple-package/simple-name@1.45.0/foo?testPackageParam=42&test-package-param=42","file":"Hello, world.\\n"}`) > 0, out);
 
-    const { fetch } = fetchContext();
+    const { fetch } = h1NoCache();
     const results = await Promise.all(['random', 'openwhisk', 'amazonwebservices'].map(async (name) => {
       const headers = {};
       if (name !== 'random') {

@@ -11,6 +11,8 @@
  */
 /* eslint-disable no-await-in-loop,no-restricted-syntax */
 import chalk from 'chalk-template';
+import processQueue from '@adobe/helix-shared-process-queue';
+
 import {
   DeleteObjectCommand,
   PutObjectCommand,
@@ -25,10 +27,11 @@ import {
 import {
   AddPermissionCommand,
   CreateAliasCommand,
-  CreateFunctionCommand, GetAliasCommand,
+  CreateFunctionCommand, DeleteAliasCommand, DeleteFunctionCommand, GetAliasCommand,
   GetFunctionCommand,
-  LambdaClient, PublishVersionCommand, UpdateAliasCommand, UpdateFunctionCodeCommand,
-  UpdateFunctionConfigurationCommand,
+  LambdaClient, ListAliasesCommand, ListTagsCommand, ListVersionsByFunctionCommand,
+  PublishVersionCommand, TagResourceCommand, UntagResourceCommand, UpdateAliasCommand,
+  UpdateFunctionCodeCommand, UpdateFunctionConfigurationCommand,
 } from '@aws-sdk/client-lambda';
 
 import {
@@ -123,6 +126,16 @@ export default class AWSDeployer extends BaseDeployer {
     }`;
   }
 
+  get additionalTags() {
+    return (this._cfg.tags || []).map((tag) => tag.split('=')).reduce((acc, tagSplit) => {
+      if (tagSplit.length >= 2) {
+        const [key, ...value] = tagSplit;
+        acc[key] = value.join('=');
+      }
+      return acc;
+    }, {});
+  }
+
   validate() {
     const req = [];
     if (!this._cfg.role) {
@@ -203,7 +216,7 @@ export default class AWSDeployer extends BaseDeployer {
   }
 
   async createLambda() {
-    const { cfg, functionName } = this;
+    const { cfg, functionName, additionalTags } = this;
     const functionVersion = cfg.version.replace(/\./g, '_');
 
     const functionConfig = {
@@ -235,7 +248,17 @@ export default class AWSDeployer extends BaseDeployer {
       Architectures: [
         this._cfg.arch,
       ],
+      LoggingConfig: this._cfg.logFormat ? { Format: this._cfg.logFormat } : undefined,
+      Layers: this._cfg.layers,
+      TracingConfig: this._cfg.tracingMode ? { Mode: this._cfg.tracingMode } : undefined,
     };
+
+    // add additional tags which are not empty
+    Object.entries(additionalTags).forEach(([key, value]) => {
+      if (value !== '') {
+        functionConfig.Tags[key] = value;
+      }
+    });
 
     this.log.info(`--: using lambda role "${this._cfg.role}"`);
 
@@ -265,6 +288,28 @@ export default class AWSDeployer extends BaseDeployer {
       await this.checkFunctionReady(baseARN);
       this.log.info(chalk`--: updating existing Lambda function configuration {yellow ${functionName}}`);
       await this._lambda.send(new UpdateFunctionConfigurationCommand(functionConfig));
+      await this.checkFunctionReady(baseARN);
+      this.log.info(chalk`--: updating existing Lambda function tags {yellow ${functionName}}`);
+      // set all the tags in the current configuration
+      await this._lambda.send(new TagResourceCommand({
+        Resource: baseARN,
+        Tags: functionConfig.Tags,
+      }));
+      // then remove any tags with a blank value in the configuration (and are currently set),
+      // leaving other tags alone
+      const tagsToPotentiallyRemove = Object.entries(additionalTags).filter(([_, value]) => value === '').map(([key]) => key);
+      if (tagsToPotentiallyRemove.length) {
+        const { Tags: currentTags } = await this._lambda.send(new ListTagsCommand({
+          Resource: baseARN,
+        }));
+        const tagsToRemove = tagsToPotentiallyRemove.filter((key) => currentTags[key]);
+        if (tagsToRemove.length) {
+          await this._lambda.send(new UntagResourceCommand({
+            Resource: baseARN,
+            TagKeys: tagsToRemove,
+          }));
+        }
+      }
       await this.checkFunctionReady(baseARN);
       this.log.info('--: updating Lambda function code...');
       await this._lambda.send(new UpdateFunctionCodeCommand({
@@ -405,6 +450,34 @@ export default class AWSDeployer extends BaseDeployer {
     return authorizers;
   }
 
+  async listAliases(functionName) {
+    let nextMarker;
+    const aliases = [];
+    do {
+      const res = await this._lambda.send(new ListAliasesCommand({
+        FunctionName: functionName,
+        Marker: nextMarker,
+      }));
+      aliases.push(...res.Aliases);
+      nextMarker = res.NextMarker;
+    } while (nextMarker);
+    return aliases;
+  }
+
+  async listVersions(functionName) {
+    let nextMarker;
+    const versions = [];
+    do {
+      const res = await this._lambda.send(new ListVersionsByFunctionCommand({
+        FunctionName: functionName,
+        Marker: nextMarker,
+      }));
+      versions.push(...res.Versions);
+      nextMarker = res.NextMarker;
+    } while (nextMarker);
+    return versions;
+  }
+
   async createAPI() {
     const { cfg } = this;
     const { ApiId, ApiEndpoint } = await this.initApiId();
@@ -541,6 +614,96 @@ export default class AWSDeployer extends BaseDeployer {
     }
 
     this.log.info(chalk`{green ok}: parameters updated.`);
+  }
+
+  async cleanup() {
+    const { cfg, functionName } = this;
+    const cleanupMatchers = [{
+      name: 'CI',
+      property: 'cleanupCiAge',
+      match: (alias) => alias.match(/^ci(\d+)$/),
+    }, {
+      name: 'patch',
+      property: 'cleanupPatchAge',
+      match: (alias) => alias.match(/^(\d+)_(\d+)_(\d+)(-test)?$/),
+    }];
+
+    try {
+      this.log.info('Clean up old aliases and versions');
+      this.log.info(chalk`--: fetching aliases...`);
+      const aliases = await this.listAliases(functionName);
+      this.log.info(chalk`--: fetching versions...`);
+      const versions = (await this.listVersions(functionName))
+        .map((version) => ({
+          ...version,
+          Aliases: aliases
+            .filter(({ FunctionVersion }) => version.Version === FunctionVersion)
+            .map(({ Name }) => Name),
+        }));
+
+      for (const { name, property, match } of cleanupMatchers) {
+        if (cfg[property]) {
+          const cleanupBefore = Date.now() - (cfg[property] * 1000);
+          const oldVersions = versions
+            .filter(({ Aliases }) => Aliases.length > 0 && Aliases.every((alias) => match(alias)))
+            .filter(({ LastModified }) => Date.parse(LastModified) < cleanupBefore);
+          this.log.info(`Found ${oldVersions.length} old ${name} versions`);
+
+          if (oldVersions.length) {
+            this.log.info(chalk`--: deleting their aliases and versions...`);
+            const deleted = await processQueue(oldVersions, async ({ Aliases, Version }) => {
+              await Promise.all(Aliases.map(async (Name) => {
+                await this._lambda.send(new DeleteAliasCommand({
+                  FunctionName: functionName,
+                  Name,
+                }));
+              }));
+              await this._lambda.send(new DeleteFunctionCommand({
+                FunctionName: functionName,
+                Qualifier: Version,
+              }));
+              return Version;
+            }, 2);
+            this.log.info(chalk`{green ok}: deleted ${deleted.length} old ${name} versions.`);
+          }
+        }
+      }
+    } catch (e) {
+      this.log.error(chalk`{red error:} Cleanup failed, proceeding anyway.`, e);
+    }
+  }
+
+  async cleanUpVersions() {
+    const { functionName } = this;
+
+    this.log.info('Clean up unused versions');
+    this.log.info(chalk`--: fetching aliases...`);
+    const aliases = await this.listAliases(functionName);
+    this.log.info(chalk`--: fetching versions...`);
+    const versions = (await this.listVersions(functionName))
+      .map((version) => ({
+        ...version,
+        Aliases: aliases
+          .filter(({ FunctionVersion }) => version.Version === FunctionVersion)
+          .map(({ Name }) => Name),
+      }));
+
+    const unusedVersions = versions
+      .filter(({ Version }) => Version !== '$LATEST')
+      .filter(({ Aliases }) => Aliases.length === 0);
+    this.log.info(`Found ${unusedVersions.length} unused versions`);
+
+    if (unusedVersions.length) {
+      this.log.info(chalk`--: deleting unused versions...`);
+      const deleted = await processQueue(unusedVersions, async ({ Version }) => {
+        await this._lambda.send(new DeleteFunctionCommand({
+          FunctionName: functionName,
+          Qualifier: Version,
+        }));
+        return Version;
+      }, 2);
+      this.log.info(chalk`{green ok}: deleted ${deleted.length} unused versions.`);
+    }
   }
 
   async cleanUpIntegrations(filter) {
@@ -868,8 +1031,36 @@ export default class AWSDeployer extends BaseDeployer {
     if (this._cfg.cleanUpIntegrations) {
       await this.cleanUpIntegrations();
     }
+    if (this._cfg.cleanUpVersions) {
+      await this.cleanUpVersions();
+    }
     if (this._cfg.updateSecrets !== undefined) {
       await this.updateSecrets();
+    }
+  }
+
+  async createExtraPermissions() {
+    const { functionName } = this;
+
+    if (this._cfg.extraPermissions) {
+      await Promise.allSettled(this._cfg.extraPermissions.map(async (extraPermission) => {
+        const [sourceArn, principalAndOptionalAlias] = extraPermission.split('@', 2);
+        const [principal, alias] = principalAndOptionalAlias.split(':', 2);
+        const functionNameForPermission = alias ? `${functionName}:${alias}` : functionName;
+
+        try {
+          await this._lambda.send(new AddPermissionCommand({
+            FunctionName: functionNameForPermission,
+            Action: 'lambda:InvokeFunction',
+            SourceArn: sourceArn,
+            Principal: principal,
+            StatementId: crypto.createHash('sha256').update(functionName + sourceArn).digest('hex'),
+          }));
+          this.log.info(chalk`{green ok:} added invoke permissions for ${sourceArn} on ${functionNameForPermission}`);
+        } catch (e) {
+          // ignore, most likely the permission already exists
+        }
+      }));
     }
   }
 
@@ -881,6 +1072,7 @@ export default class AWSDeployer extends BaseDeployer {
       await this.createLambda();
       await this.deleteZIP();
       await this.createAPI();
+      await this.createExtraPermissions();
       await this.checkFunctionReady();
     } catch (err) {
       this.log.error(`Unable to deploy Lambda function: ${err.message}`, err);

@@ -1,3 +1,209 @@
+## [11.0.6](https://github.com/adobe/helix-deploy/compare/v11.0.5...v11.0.6) (2024-02-24)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([#671](https://github.com/adobe/helix-deploy/issues/671)) ([3731730](https://github.com/adobe/helix-deploy/commit/373173029b1d7457361dd7197d5113ec2f4733c4))
+
+## [11.0.5](https://github.com/adobe/helix-deploy/compare/v11.0.4...v11.0.5) (2024-02-20)
+
+
+### Bug Fixes
+
+* **aws:** allow extra permissions to optionally include an alias ([#666](https://github.com/adobe/helix-deploy/issues/666)) ([bed38d3](https://github.com/adobe/helix-deploy/commit/bed38d3732de306827712f627520127d0a2a1f35))
+
+## [11.0.4](https://github.com/adobe/helix-deploy/compare/v11.0.3...v11.0.4) (2024-02-17)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([#668](https://github.com/adobe/helix-deploy/issues/668)) ([f5da9bf](https://github.com/adobe/helix-deploy/commit/f5da9bf84e12d8745735ff61da05ba23749ff0f0))
+
+## [11.0.3](https://github.com/adobe/helix-deploy/compare/v11.0.2...v11.0.3) (2024-02-10)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([#665](https://github.com/adobe/helix-deploy/issues/665)) ([1fec718](https://github.com/adobe/helix-deploy/commit/1fec7181abb4d189df5189e3d886672e06fda653))
+
+## [11.0.2](https://github.com/adobe/helix-deploy/compare/v11.0.1...v11.0.2) (2024-02-05)
+
+
+### Bug Fixes
+
+* remove condition names ([#662](https://github.com/adobe/helix-deploy/issues/662)) ([f5a7b30](https://github.com/adobe/helix-deploy/commit/f5a7b302fb60f3bde9b4274d663e1d968b469099))
+
+## [11.0.1](https://github.com/adobe/helix-deploy/compare/v11.0.0...v11.0.1) (2024-02-03)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([#661](https://github.com/adobe/helix-deploy/issues/661)) ([cf306f3](https://github.com/adobe/helix-deploy/commit/cf306f372061f582cc4fce4f4551307ce5c50526))
+
+# [11.0.0](https://github.com/adobe/helix-deploy/compare/v10.4.0...v11.0.0) (2024-01-30)
+
+
+### Features
+
+* move development server to own package ([#659](https://github.com/adobe/helix-deploy/issues/659)) ([43cbb16](https://github.com/adobe/helix-deploy/commit/43cbb16bb74ebfab1759b7b8ae0f842db6ec3ebe)), closes [#654](https://github.com/adobe/helix-deploy/issues/654)
+
+
+### BREAKING CHANGES
+
+* import { DevelopmentServer } from @adobe/helix-universal-devserver
+
+# [10.4.0](https://github.com/adobe/helix-deploy/compare/v10.3.3...v10.4.0) (2024-01-29)
+
+
+### Features
+
+* add support for custom AWS tags which are set on the deployed Lambda. Fixes [#651](https://github.com/adobe/helix-deploy/issues/651) ([#652](https://github.com/adobe/helix-deploy/issues/652)) ([09e2055](https://github.com/adobe/helix-deploy/commit/09e2055928b7f67c70b64034c810a0ff48b5ce59))
+
+## [10.3.3](https://github.com/adobe/helix-deploy/compare/v10.3.2...v10.3.3) (2024-01-29)
+
+
+### Bug Fixes
+
+* add 'import' condidtion for package imports ([#656](https://github.com/adobe/helix-deploy/issues/656)) ([7c6fc41](https://github.com/adobe/helix-deploy/commit/7c6fc41c7ccd479e34daa2af4ff2e62d2a2b35be))
+
+## [10.3.2](https://github.com/adobe/helix-deploy/compare/v10.3.1...v10.3.2) (2024-01-27)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([cab6c74](https://github.com/adobe/helix-deploy/commit/cab6c74e2069753affcae8d7828b3f4f2a856218))
+
+## [10.3.1](https://github.com/adobe/helix-deploy/compare/v10.3.0...v10.3.1) (2024-01-26)
+
+
+### Bug Fixes
+
+* do not stop query string at question mark ([#653](https://github.com/adobe/helix-deploy/issues/653)) ([ba3e666](https://github.com/adobe/helix-deploy/commit/ba3e66603074e892415539fda50cb193a4ef19f3))
+
+# [10.3.0](https://github.com/adobe/helix-deploy/compare/v10.2.1...v10.3.0) (2024-01-22)
+
+
+### Features
+
+* support environment variable interpolation in config using syntax ${env.VAR_NAME} ([#649](https://github.com/adobe/helix-deploy/issues/649)) ([ae52a1b](https://github.com/adobe/helix-deploy/commit/ae52a1b308a4bf0f986246f25c4937216bfa82f2)), closes [#644](https://github.com/adobe/helix-deploy/issues/644)
+
+## [10.2.1](https://github.com/adobe/helix-deploy/compare/v10.2.0...v10.2.1) (2024-01-20)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([71bbec4](https://github.com/adobe/helix-deploy/commit/71bbec49684783436ed1e51a940e96193474e70d))
+
+# [10.2.0](https://github.com/adobe/helix-deploy/compare/v10.1.0...v10.2.0) (2024-01-18)
+
+
+### Features
+
+* allow addition of webpack plugins. ([95eb9bb](https://github.com/adobe/helix-deploy/commit/95eb9bb8019dc969e5b7630a32a4c95efbf4b371)), closes [#641](https://github.com/adobe/helix-deploy/issues/641) [#642](https://github.com/adobe/helix-deploy/issues/642)
+
+# [10.1.0](https://github.com/adobe/helix-deploy/compare/v10.0.1...v10.1.0) (2024-01-18)
+
+
+### Features
+
+* add support for custom headers ([#640](https://github.com/adobe/helix-deploy/issues/640)) ([a726f7a](https://github.com/adobe/helix-deploy/commit/a726f7a994b9e6c764a107c7f5dde8975adda48f))
+
+## [10.0.1](https://github.com/adobe/helix-deploy/compare/v10.0.0...v10.0.1) (2024-01-13)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([2e484d4](https://github.com/adobe/helix-deploy/commit/2e484d4f618ef69db74f57a4d050774ab765d8b0))
+
+# [10.0.0](https://github.com/adobe/helix-deploy/compare/v9.6.1...v10.0.0) (2024-01-09)
+
+
+### Features
+
+* remove rollup bundler ([#638](https://github.com/adobe/helix-deploy/issues/638)) ([bc0baa5](https://github.com/adobe/helix-deploy/commit/bc0baa5ead03704ba06524be0b46be63090ab081))
+
+
+### BREAKING CHANGES
+
+* --bundler is no longer supported
+
+## [9.6.1](https://github.com/adobe/helix-deploy/compare/v9.6.0...v9.6.1) (2024-01-09)
+
+
+### Bug Fixes
+
+* **fastly:** guard against missing gateway name ([#634](https://github.com/adobe/helix-deploy/issues/634)) ([da6a45c](https://github.com/adobe/helix-deploy/commit/da6a45ca8217454d68664937c28eacd54d1ee033))
+
+# [9.6.0](https://github.com/adobe/helix-deploy/compare/v9.5.1...v9.6.0) (2024-01-08)
+
+
+### Features
+
+* clean up unused versions ([#636](https://github.com/adobe/helix-deploy/issues/636)) ([e516d1e](https://github.com/adobe/helix-deploy/commit/e516d1e3312e1fadbdfe57121c6f6099ec289af1))
+
+## [9.5.1](https://github.com/adobe/helix-deploy/compare/v9.5.0...v9.5.1) (2024-01-06)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([bbdc3d1](https://github.com/adobe/helix-deploy/commit/bbdc3d166ea14c26e386de7cac686aad0596ad01))
+
+# [9.5.0](https://github.com/adobe/helix-deploy/compare/v9.4.5...v9.5.0) (2024-01-05)
+
+
+### Features
+
+* cleanup ci and patch versions ([#632](https://github.com/adobe/helix-deploy/issues/632)) ([448f406](https://github.com/adobe/helix-deploy/commit/448f406e778a6f0704fc81054cd61dc728d62916))
+
+## [9.4.5](https://github.com/adobe/helix-deploy/compare/v9.4.4...v9.4.5) (2023-12-30)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([9250bba](https://github.com/adobe/helix-deploy/commit/9250bbab029ef2875377ece641c0d14aa7d835ef))
+
+## [9.4.4](https://github.com/adobe/helix-deploy/compare/v9.4.3...v9.4.4) (2023-12-23)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([4ebe062](https://github.com/adobe/helix-deploy/commit/4ebe062be2986b3b7767b0cdb0d9254abed21292))
+
+## [9.4.3](https://github.com/adobe/helix-deploy/compare/v9.4.2...v9.4.3) (2023-12-16)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([3c890e2](https://github.com/adobe/helix-deploy/commit/3c890e2ab9c0205895b1c4b60c9a9755d370643a))
+
+## [9.4.2](https://github.com/adobe/helix-deploy/compare/v9.4.1...v9.4.2) (2023-12-13)
+
+
+### Bug Fixes
+
+* creating consistency for context.suffix over all adapters ([35c8f54](https://github.com/adobe/helix-deploy/commit/35c8f545a027661d7beb5d6ce87f0d1246d25fe6))
+
+## [9.4.1](https://github.com/adobe/helix-deploy/compare/v9.4.0...v9.4.1) (2023-12-09)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([f5b261a](https://github.com/adobe/helix-deploy/commit/f5b261a68e007df4961858e04a29e70370c6fb7a))
+
+# [9.4.0](https://github.com/adobe/helix-deploy/compare/v9.3.21...v9.4.0) (2023-12-07)
+
+
+### Features
+
+* **aws:** add layer, log format, tracing mode and extra permission AWS options ([141a995](https://github.com/adobe/helix-deploy/commit/141a995a0fa8834dd4e4df0281f1a1276961c3ef))
+
+## [9.3.21](https://github.com/adobe/helix-deploy/compare/v9.3.20...v9.3.21) (2023-12-02)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([25f14b0](https://github.com/adobe/helix-deploy/commit/25f14b0a5247244e308004f03a4fc2e323062f86))
+
 ## [9.3.20](https://github.com/adobe/helix-deploy/compare/v9.3.19...v9.3.20) (2023-11-30)
 
 

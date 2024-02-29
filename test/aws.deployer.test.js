@@ -12,6 +12,7 @@
 
 /* eslint-env mocha */
 import assert from 'assert';
+import nock from 'nock';
 import BaseConfig from '../src/BaseConfig.js';
 import AWSConfig from '../src/deploy/AWSConfig.js';
 import AWSDeployer from '../src/deploy/AWSDeployer.js';
@@ -72,5 +73,141 @@ describe('AWS Deployer Test', () => {
 
     assert.strictEqual(aws.functionName, 'pages--html');
     assert.strictEqual(aws.functionPath, '/pages_4.3.1/html');
+  });
+
+  it('cleans up old versions', async () => {
+    process.env.AWS_ACCESS_KEY_ID = 'awsAccessKeyId';
+    process.env.AWS_SECRET_ACCESS_KEY = 'awsSecretAccessKey';
+    process.env.AWS_SESSION_TOKEN = 'awsSessionToken';
+
+    nock('https://lambda.us-east-1.amazonaws.com')
+      .get('/2015-03-31/functions/helix-services--static/aliases')
+      .reply(200, {
+        Aliases: [{
+          Description: '',
+          FunctionVersion: '839',
+          Name: '5_7_9',
+        }, {
+          Description: '',
+          FunctionVersion: '838',
+          Name: 'ci1234',
+        }],
+      })
+      .get('/2015-03-31/functions/helix-services--static/versions')
+      .reply(200, {
+        Versions: [{
+          LastModified: '2023-12-24T22:59:00.000+0000',
+          Version: '$LATEST',
+        }, {
+          LastModified: '2023-12-24T22:58:00.000+0000',
+          Version: '839',
+        }, {
+          LastModified: '2023-12-24T22:57:00.000+0000',
+          Version: '838',
+        }],
+      })
+      .delete('/2015-03-31/functions/helix-services--static/aliases/ci1234')
+      .reply(204)
+      .delete('/2015-03-31/functions/helix-services--static?Qualifier=838')
+      .reply(204);
+
+    const cfg = new BaseConfig()
+      .withVersion('1.18.2')
+      // eslint-disable-next-line no-template-curly-in-string
+      .withName('/helix-services/static@${version}')
+      .withCleanupCi(86400);
+    const awsCfg = new AWSConfig().withAWSRegion('us-east-1');
+    const builder = new ActionBuilder().withConfig(cfg);
+    await builder.validate();
+
+    const aws = new AWSDeployer(cfg, awsCfg);
+    await aws.init();
+    await aws.cleanup();
+  });
+
+  it('cleans up unused versions', async () => {
+    process.env.AWS_ACCESS_KEY_ID = 'awsAccessKeyId';
+    process.env.AWS_SECRET_ACCESS_KEY = 'awsSecretAccessKey';
+    process.env.AWS_SESSION_TOKEN = 'awsSessionToken';
+
+    nock('https://lambda.us-east-1.amazonaws.com')
+      .get('/2015-03-31/functions/helix-services--static/aliases')
+      .reply(200, {
+        Aliases: [{
+          Description: '',
+          FunctionVersion: '839',
+          Name: '5_7_9',
+        }, {
+          Description: '',
+          FunctionVersion: '838',
+          Name: 'ci1234',
+        }],
+      })
+      .get('/2015-03-31/functions/helix-services--static/versions')
+      .reply(200, {
+        Versions: [{
+          LastModified: '2023-12-24T22:59:00.000+0000',
+          Version: '$LATEST',
+        }, {
+          LastModified: '2023-12-24T22:58:00.000+0000',
+          Version: '839',
+        }, {
+          LastModified: '2023-12-24T22:57:00.000+0000',
+          Version: '838',
+        }, {
+          LastModified: '2023-12-24T22:56:00.000+0000',
+          Version: '837',
+        }],
+      })
+      .delete('/2015-03-31/functions/helix-services--static?Qualifier=837')
+      .reply(204);
+
+    const cfg = new BaseConfig()
+      .withVersion('1.18.2')
+      // eslint-disable-next-line no-template-curly-in-string
+      .withName('/helix-services/static@${version}');
+    const awsCfg = new AWSConfig().withAWSRegion('us-east-1').withAWSCleanUpVersions(true);
+    const builder = new ActionBuilder().withConfig(cfg);
+    await builder.validate();
+
+    const aws = new AWSDeployer(cfg, awsCfg);
+    await aws.init();
+    await aws.cleanUpVersions();
+  });
+
+  it('correctly returns an empty object when no tags', async () => {
+    const cfg = new BaseConfig()
+      .withVersion('1.18.2')
+      // eslint-disable-next-line no-template-curly-in-string
+      .withName('/helix-services/static@${version}');
+    const awsCfg = new AWSConfig();
+    const builder = new ActionBuilder().withConfig(cfg);
+    await builder.validate();
+    const aws = new AWSDeployer(cfg, awsCfg);
+
+    assert.deepStrictEqual(aws.additionalTags, {});
+  });
+
+  it('correctly transforms tags into an object', async () => {
+    const cfg = new BaseConfig()
+      .withVersion('1.18.2')
+      // eslint-disable-next-line no-template-curly-in-string
+      .withName('/helix-services/static@${version}');
+    const awsCfg = new AWSConfig().withAWSTags(['foo=bar', 'baz=qux=quux']);
+    const builder = new ActionBuilder().withConfig(cfg);
+    await builder.validate();
+    const aws = new AWSDeployer(cfg, awsCfg);
+
+    assert.deepStrictEqual(aws.additionalTags, {
+      foo: 'bar',
+      baz: 'qux=quux',
+    });
+  });
+
+  it('creates an error if awsTags is set as an object', async () => {
+    assert.throws(() => new AWSConfig().withAWSTags({ foo: 'bar' }), {
+      name: 'Error',
+      message: 'awsTags must be an array',
+    });
   });
 });

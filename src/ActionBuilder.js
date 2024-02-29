@@ -18,13 +18,11 @@ import chalk from 'chalk-template';
 import git from 'isomorphic-git';
 import WebpackBundler from './bundler/WebpackBundler.js';
 import EdgeBundler from './bundler/EdgeBundler.js';
-import RollupBundler from './bundler/RollupBundler.js';
 import pkgJson from './package.cjs';
 
 const Bundlers = {
   node: {
     webpack: WebpackBundler,
-    rollup: RollupBundler,
   },
   edge: {
     webpack: EdgeBundler,

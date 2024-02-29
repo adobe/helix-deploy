@@ -38,7 +38,28 @@ export default class CLI {
   constructor() {
     this._yargs = yargs()
       .pkgConf('wsk')
-      .env('HLX');
+      .env('HLX')
+      .middleware((argv) => {
+        // convert process.env to flattened object with flat keys
+        // since ActionBuilder.substitute() expects this format.
+        const envVars = Object.entries(process.env)
+          .reduce((env, [key, value]) => {
+            // eslint-disable-next-line no-param-reassign
+            env[`env.${key}`] = value;
+            return env;
+          }, {});
+
+        const substitute = (value) => (typeof value === 'string' ? ActionBuilder.substitute(value, envVars) : value);
+        Object.entries(argv).forEach(([key, value]) => {
+          if (typeof value === 'string') {
+            // eslint-disable-next-line no-param-reassign
+            argv[key] = substitute(value, envVars);
+          } else if (Array.isArray(value)) {
+            // eslint-disable-next-line no-param-reassign
+            argv[key] = value.map((v) => substitute(v, envVars));
+          }
+        });
+      });
     BaseConfig.yarg(this._yargs);
     PLUGINS.forEach((PluginClass) => PluginClass.Config.yarg(this._yargs));
     this._yargs

@@ -1,0 +1,86 @@
+name: Build
+on: [push]
+
+env:
+  CI_BUILD_NUM: ${{ github.run_id }}
+  CI_BRANCH: ${{ github.ref_name }}
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+      # note: don't use `npm ci` as it installs the deps from the package-lock, which currently
+      # causes problem with the arch specific packages, like @jakechampion/wizer-linux-x64
+      - run: npm install
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::118435662149:role/helix-gh-deploy-config-service
+      - name: Fetch AWS Secrets
+        uses: aws-actions/aws-secretsmanager-get-secrets@v2
+        with:
+          parse-json-secrets: true
+          secret-ids: |
+            /helix/github-action-secrets
+      # see https://github.com/aws-actions/aws-secretsmanager-get-secrets/issues/11
+      - name: unprefix variables
+        run: |
+          for variable in "${!_HELIX_GITHUB_ACTION_SECRETS_@}"; do 
+            echo "${variable#_HELIX_GITHUB_ACTION_SECRETS_}=${!variable}" >> $GITHUB_ENV
+          done
+      - name: Restore Google Credentials
+        run: echo $GOOGLE_CREDS | base64 --decode | tee ~/.helix-google.json | jq -e .client_email
+
+
+      - run: npm test
+      - uses: codecov/codecov-action@v4
+        with:
+          flags: unittests
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - run: npm run integration-ci
+        env:
+          HLX_FASTLY_AUTH: ${{ secrets.HLX_FASTLY_AUTH }}
+          HLX_FASTLY_SERVICE_ID: ${{ secrets.HLX_FASTLY_SERVICE_ID }}
+      - uses: codecov/codecov-action@v4
+        with:
+          flags: integration
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+
+      - name: Semantic Release (Dry Run)
+        run: npm run semantic-release-dry
+        env:
+          GITHUB_TOKEN: ${{ secrets.ADOBE_BOT_GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.ADOBE_BOT_NPM_TOKEN }}
+
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - run: npm install
+      - run: npm run semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.ADOBE_BOT_GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.ADOBE_BOT_NPM_TOKEN }}

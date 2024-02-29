@@ -15,15 +15,13 @@
 import assert from 'assert';
 import fse from 'fs-extra';
 import path from 'path';
-import { ALPN_HTTP1_1, context } from '@adobe/fetch';
+import { h1NoCache } from '@adobe/fetch';
 
 import { createTestRoot, TestLogger } from './utils.js';
 
 import CLI from '../src/cli.js';
 
-const { fetch } = context({
-  alpnProtocols: [ALPN_HTTP1_1],
-});
+const { fetch } = h1NoCache();
 
 describe('AWS Integration Test', () => {
   let testRoot;
@@ -117,6 +115,7 @@ describe('AWS Integration Test', () => {
         '--deploy',
         '--pkgVersion', version,
         '-l', 'ci',
+        '--cleanup-ci', '24h',
         '--target', 'aws',
         '--aws-region', 'us-east-1',
         '--aws-api', 'lqmig3v5eb',
@@ -168,6 +167,7 @@ describe('AWS Integration Test', () => {
         '--deploy',
         '--pkgVersion', version,
         '-l', 'ci',
+        '--cleanup-ci', '24h',
         '--target', 'aws',
         '--aws-region', 'us-east-1',
         '--aws-api', 'lqmig3v5eb',

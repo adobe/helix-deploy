@@ -4,9 +4,8 @@
 ## Status
 [![GitHub license](https://img.shields.io/github/license/adobe/helix-deploy.svg)](https://github.com/adobe/helix-deploy/blob/main/LICENSE.txt)
 [![GitHub issues](https://img.shields.io/github/issues/adobe/helix-deploy.svg)](https://github.com/adobe/helix-deploy/issues)
-[![CircleCI](https://img.shields.io/circleci/project/github/adobe/helix-deploy.svg)](https://circleci.com/gh/adobe/helix-deploy)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/adobe/helix-deploy/main.yaml)
 [![codecov](https://img.shields.io/codecov/c/github/adobe/helix-deploy.svg)](https://codecov.io/gh/adobe/helix-deploy)
-[![LGTM Code Quality Grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/adobe/helix-deploy.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/adobe/helix-deploy)
 
 ## Setup
 
@@ -130,6 +129,11 @@ AWS Deployment Options
       --aws-update-secrets        Uploads the function specific secrets with the params. defaults to /helix-deploy/{pkg}/{name}  [string]
       --aws-deploy-bucket         Name of the deploy S3 bucket to use (default is helix-deploy-bucket-{accountId})  [string] [default: ""]
       --aws-identity-source       Identity source to used when creating the authorizer  [array] [default: ["$request.header.Authorization"]]
+      --aws-log-format            The lambda log format. Can be either "JSON" or "Text". [string]
+      --aws-layers                List of layers ARNs to attach to the lambda function.  [array]
+      --aws-tracing-mode          The lambda tracing mode. Can be either "Active" or "PassThrough". [string]
+      --aws-extra-permissions     A list of additional invoke permissions to add to the lambda function in the form <SourceARN>@<Principal>. Optionally, you can use <SourceARN>@<Principal>:<Alias> if you want to scope the permission to a specific alias. [array]
+      --aws-tags                  A list of additional tags to attach to the lambda function in the form key=value. To remove a tag, use key= (i.e. without a value).[array]
 
 Google Deployment Options
       --google-project-id  the Google Cloud project to deploy to. Optional when the key file is a JSON file  [string] [default: ""]
@@ -283,6 +287,23 @@ In order to automatically use the version of the `package.json` use:
 > **Note**: the version is internally taken from the `pkgVersion` variable, so it can be overridden with
  the `--pkgVersion` argument, in case it should be deployed differently.
 
+### Environment Variable Interpolation in Arguments
+
+In addition to the `${version}` token described above, arguments will be interpolated using environment variables where the variables exist. For example, given an environment variable named `PROBOT_DOCKER_VERSION` is set to `latest`, this configuration:
+
+```json
+{
+...
+  "wsk": {
+    ...
+    "docker": "adobe/probot-ow-nodejs8:${env.PROBOT_DOCKER_VERSION}"
+  },
+...
+}
+```
+
+Will result in the materialized value of the `docker` argument to be set to `adobe/probot-ow-nodejs8:latest`.
+
 #### Automatically create semantic versioning sequence actions
 
 By using the `--version-link` (`-l`), the bulider can create action sequences _linking_ to the deployed version,
@@ -326,38 +347,25 @@ destination filename. eg:
 
 ## Using the development server
 
-Testing an openwhisk action that was _expressified_ using [ActionUtils.expressify()](https://github.com/adobe/openwhisk-action-utils/blob/main/src/expressify.js)
-can be done with the `DevelopmentServer`. Just create a `test/dev.js` file with:
+Testing an universal function can be done with the [development server](https://github.com/adobe/helix-universal-devserver). 
+
+Just create a `test/dev.js` file with:
 
 ```js
-const { DevelopmentServer } = require('@adobe/helix-deploy');
-const App = require('../src/app.js');
+import { DevelopmentServer } from '@adobe/helix-universal-devserver';
+import { main } from '../src/index.js';
 
 async function run() {
-  const devServer = await new DevelopmentServer(App).init();
-  return devServer.start();
+  const devServer = await new DevelopmentServer(main).init();
+  await devServer.start();
 }
 
-// eslint-disable-next-line no-console
-run().catch(console.error);
+run().then(process.stdout).catch(process.stderr);
 ```
 
 and run `node test/dev.js`.
 
-### Using development params with the server
-
-Sometimes it might be useful to specify action params that would be provided during deployment
-but are not available during development. those can be specified by a `dev-params-file` `wsk`
-property. those parameters are loaded an applied to every action call. eg:
-
-```json
-...
-  "wsk": {
-    ...
-    "dev-params-file": ".dev-secrets.env"
-  }
-...
-```
+for more information see https://github.com/adobe/helix-universal-devserver
 
 ## Notes
 

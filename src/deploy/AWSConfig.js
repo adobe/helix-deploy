@@ -20,6 +20,7 @@ export default class AWSConfig {
       role: '',
       apiId: '',
       cleanUpIntegrations: false,
+      cleanUpVersions: false,
       createRoutes: false,
       lambdaFormat: DEFAULT_LAMBDA_FORMAT,
       parameterMgr: ['secret'],
@@ -29,6 +30,11 @@ export default class AWSConfig {
       identitySources: ['$request.header.Authorization'],
       deployBucket: '',
       updateSecrets: undefined,
+      logFormat: undefined,
+      layers: undefined,
+      tracingMode: undefined,
+      extraPermissions: undefined,
+      tags: undefined,
     });
   }
 
@@ -43,10 +49,16 @@ export default class AWSConfig {
       .withAWSAttachAuthorizer(argv.awsAttachAuthorizer)
       .withAWSIdentitySources(argv.awsIdentitySource)
       .withAWSCleanUpIntegrations(argv.awsCleanupIntegrations)
+      .withAWSCleanUpVersions(argv.awsCleanupVersions)
       .withAWSCreateRoutes(argv.awsCreateRoutes)
       .withAWSParamsManager(argv.awsParameterManager)
       .withAWSDeployBucket(argv.awsDeployBucket)
-      .withAWSUpdateSecrets(argv.awsUpdateSecrets);
+      .withAWSUpdateSecrets(argv.awsUpdateSecrets)
+      .withAWSLogFormat(argv.awsLogFormat)
+      .withAWSLayers(argv.awsLayers)
+      .withAWSTracingMode(argv.awsTracingMode)
+      .withAWSExtraPermissions(argv.awsExtraPermissions)
+      .withAWSTags(argv.awsTags);
   }
 
   withAWSRegion(value) {
@@ -79,6 +91,11 @@ export default class AWSConfig {
 
   withAWSCleanUpIntegrations(value) {
     this.cleanUpIntegrations = value;
+    return this;
+  }
+
+  withAWSCleanUpVersions(value) {
+    this.cleanUpVersions = value;
     return this;
   }
 
@@ -117,12 +134,41 @@ export default class AWSConfig {
     return this;
   }
 
+  withAWSLogFormat(value) {
+    this.logFormat = value;
+    return this;
+  }
+
+  withAWSLayers(value) {
+    this.layers = value;
+    return this;
+  }
+
+  withAWSTracingMode(value) {
+    this.tracingMode = value;
+    return this;
+  }
+
+  withAWSExtraPermissions(value) {
+    this.extraPermissions = value;
+    return this;
+  }
+
+  withAWSTags(value) {
+    if (value && !Array.isArray(value)) {
+      throw new Error('awsTags must be an array');
+    }
+    this.tags = value;
+    return this;
+  }
+
   static yarg(yargs) {
     return yargs
       .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-cleanup-integrations',
-        'aws-create-routes', 'aws-create-authorizer', 'aws-attach-authorizer', 'aws-lambda-format',
-        'aws-parameter-manager', 'aws-deploy-template', 'aws-arch', 'aws-update-secrets',
-        'aws-deploy-bucket', 'aws-identity-source'], 'AWS Deployment Options')
+        'aws-cleanup-versions', 'aws-create-routes', 'aws-create-authorizer', 'aws-attach-authorizer',
+        'aws-lambda-format', 'aws-parameter-manager', 'aws-deploy-template', 'aws-arch', 'aws-update-secrets',
+        'aws-deploy-bucket', 'aws-identity-source', 'aws-log-format', 'aws-layers',
+        'aws-tracing-mode', 'aws-extra-permissions', 'aws-tags'], 'AWS Deployment Options')
       .option('aws-region', {
         description: 'the AWS region to deploy lambda functions to',
         type: 'string',
@@ -185,10 +231,38 @@ export default class AWSConfig {
         type: 'boolean',
         default: false,
       })
+      .option('aws-cleanup-versions', {
+        description: 'Cleans up unused versions',
+        type: 'boolean',
+        default: false,
+      })
       .option('aws-deploy-bucket', {
         description: 'Name of the deploy S3 bucket to use (default is helix-deploy-bucket-{accountId})',
         type: 'string',
         default: '',
+      })
+      .option('aws-log-format', {
+        description: 'The lambda log format. Can be either "JSON" or "Text".',
+        type: 'string',
+      })
+      .option('aws-layers', {
+        description: 'List of layers ARNs to attach to the lambda function.',
+        type: 'string',
+        array: true,
+      })
+      .option('aws-tracing-mode', {
+        description: 'The lambda tracing mode. Can be either "Active" or "PassThrough".',
+        type: 'string',
+      })
+      .option('aws-extra-permissions', {
+        description: 'A list of additional invoke permissions to add to the lambda function in the form <SourceARN>@<Principal>. Optionally, you can use <SourceARN>@<Principal>:<Alias> if you want to scope the permission to a specific alias.',
+        type: 'string',
+        array: true,
+      })
+      .option('aws-tags', {
+        description: 'A list of additional tags to attach to the lambda function in the form key=value. To remove a tag, use key= (i.e. without a value).',
+        type: 'array',
+        array: true,
       });
   }
 }
