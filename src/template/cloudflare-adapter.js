@@ -21,7 +21,7 @@ async function handler(event) {
   const context = {
     resolver: null,
     pathInfo: {
-      suffix: extractPathFromURL(request.url),
+      suffix: extractPathFromURL(request),
     },
     runtime: {
       name: 'cloudflare-workers',
