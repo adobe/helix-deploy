@@ -11,6 +11,8 @@
  */
 /* eslint-env serviceworker */
 
+const { extractPathFromURL } = require('./adapter-utils.js');
+
 async function handler(event) {
   // console.log(event);
   const { request } = event;
@@ -19,7 +21,7 @@ async function handler(event) {
   const context = {
     resolver: null,
     pathInfo: {
-      suffix: request.url.replace(/\?.*/, ''),
+      suffix: extractPathFromURL(request.url),
     },
     runtime: {
       name: 'cloudflare-workers',

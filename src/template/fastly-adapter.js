@@ -12,6 +12,8 @@
 /* eslint-env serviceworker */
 /* global Dictionary */
 
+import { extractPathFromURL } from './adapter-utils.js';
+
 export function getEnvInfo(req, env) {
   const serviceVersion = env('FASTLY_SERVICE_VERSION');
   const requestId = env('FASTLY_TRACE_ID');
@@ -51,7 +53,7 @@ async function handler(event) {
     const context = {
       resolver: null,
       pathInfo: {
-        suffix: request.url.match(/^https?:\/\/[^/]+([^?]+)/)[1],
+        suffix: extractPathFromURL(request),
       },
       runtime: {
         name: 'compute-at-edge',
