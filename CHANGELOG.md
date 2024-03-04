@@ -1,3 +1,10 @@
+## [11.0.8](https://github.com/adobe/helix-deploy/compare/v11.0.7...v11.0.8) (2024-03-04)
+
+
+### Bug Fixes
+
+* **cloudflare:** suffix should contain only the requested document path, not full URI ([0c02fc7](https://github.com/adobe/helix-deploy/commit/0c02fc774c10070822515155282b949ec3646c9e))
+
 ## [11.0.7](https://github.com/adobe/helix-deploy/compare/v11.0.6...v11.0.7) (2024-03-02)
 
 
