@@ -1,3 +1,10 @@
+## [11.0.9](https://github.com/adobe/helix-deploy/compare/v11.0.8...v11.0.9) (2024-03-05)
+
+
+### Bug Fixes
+
+* **cloudflare:** retrieving path from URL created a NPE ([b79e20f](https://github.com/adobe/helix-deploy/commit/b79e20faa4a45a5420bd7178d1811792aeb4ae99))
+
 ## [11.0.8](https://github.com/adobe/helix-deploy/compare/v11.0.7...v11.0.8) (2024-03-04)
 
 
