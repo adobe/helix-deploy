@@ -38,7 +38,7 @@ export default class GoogleDeployer extends BaseDeployer {
         return false;
       }
     }
-    return !!this._client && !!this._cfg.projectID && !!this._cfg.keyFile;
+    return !!this._cfg.projectID && !!this._cfg.keyFile;
   }
 
   validate() {
@@ -48,20 +48,22 @@ export default class GoogleDeployer extends BaseDeployer {
   }
 
   async init() {
-    try {
-      this._client = new CloudFunctionsServiceClient({
-        email: this._cfg.email,
-        keyFilename: this._keyFilename,
-        projectId: this._cfg.projectID,
-      });
-      this._secretclient = new SecretManagerServiceClient({
-        email: this._cfg.email,
-        keyFilename: this._keyFilename,
-        projectId: this._cfg.projectID,
-      });
-    } catch (e) {
-      this.log.error(chalk`{red error:} Unable to authenticate with Google: ${e.message}`);
-      throw e;
+    if (this.ready() && !this._client) {
+      try {
+        this._client = new CloudFunctionsServiceClient({
+          email: this._cfg.email,
+          keyFilename: this._keyFilename,
+          projectId: this._cfg.projectID,
+        });
+        this._secretclient = new SecretManagerServiceClient({
+          email: this._cfg.email,
+          keyFilename: this._keyFilename,
+          projectId: this._cfg.projectID,
+        });
+      } catch (e) {
+        this.log.error(chalk`{red error:} Unable to authenticate with Google: ${e.message}`);
+        throw e;
+      }
     }
   }
 
@@ -268,6 +270,10 @@ export default class GoogleDeployer extends BaseDeployer {
   }
 
   async cleanup() {
+    if (!this._client) {
+      return;
+    }
+
     try {
       const [allfns] = await this._client.listFunctions({
         parent: `projects/${this._cfg.projectID}/locations/${this._cfg.region}`,
