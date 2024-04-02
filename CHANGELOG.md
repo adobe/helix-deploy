@@ -1,3 +1,10 @@
+## [11.0.15](https://github.com/adobe/helix-deploy/compare/v11.0.14...v11.0.15) (2024-04-02)
+
+
+### Bug Fixes
+
+* assert deployer is ready before invoking ([#685](https://github.com/adobe/helix-deploy/issues/685)) ([a02323f](https://github.com/adobe/helix-deploy/commit/a02323f7c66c3b2334018e3de140482e85d759b1))
+
 ## [11.0.14](https://github.com/adobe/helix-deploy/compare/v11.0.13...v11.0.14) (2024-03-30)
 
 
