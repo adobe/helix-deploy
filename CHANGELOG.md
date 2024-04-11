@@ -1,3 +1,10 @@
+## [11.0.19](https://github.com/adobe/helix-deploy/compare/v11.0.18...v11.0.19) (2024-04-11)
+
+
+### Bug Fixes
+
+* **deps:** update external major (major) ([#690](https://github.com/adobe/helix-deploy/issues/690)) ([cea3191](https://github.com/adobe/helix-deploy/commit/cea319122e39864c1e69a8e19f887966159e0c39))
+
 ## [11.0.18](https://github.com/adobe/helix-deploy/compare/v11.0.17...v11.0.18) (2024-04-11)
 
 
