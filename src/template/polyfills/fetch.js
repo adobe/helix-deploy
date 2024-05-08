@@ -16,4 +16,5 @@ module.exports = {
   fetch,
   Request,
   Response,
+  Headers,
 };
