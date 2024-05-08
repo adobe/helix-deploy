@@ -1,3 +1,10 @@
+# [11.1.0](https://github.com/adobe/helix-deploy/compare/v11.0.25...v11.1.0) (2024-05-08)
+
+
+### Features
+
+* **cloudflare, fastly:** adding Headers to polyfill ([#699](https://github.com/adobe/helix-deploy/issues/699)) ([090eaa8](https://github.com/adobe/helix-deploy/commit/090eaa8b52d9d3716355383a227261bd9a42fb9e))
+
 ## [11.0.25](https://github.com/adobe/helix-deploy/compare/v11.0.24...v11.0.25) (2024-05-04)
 
 
