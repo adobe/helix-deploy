@@ -381,7 +381,6 @@ export default class ActionBuilder {
         await bundler.createArchive();
       }
     }
-
     if (cfg.build || cfg.test !== undefined || cfg.testBundle !== undefined) {
       for (const bundler of this.bundlers) {
         await bundler.validateBundle();
