@@ -9,16 +9,23 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
+
+/**
+ * @param {string} bundlePath
+ * @param {Object} cfg
+ */
 async function run(bundlePath, cfg) {
   const result = {
     status: 'ok',
   };
   try {
     const bundle = await import(bundlePath);
+
     const lambda = bundle.default?.lambda;
     if (!lambda || typeof lambda !== 'function') {
       throw Error('Action has no lambda() function.');
     }
+
     const test = cfg.testBundle ?? cfg.test;
     if (test !== undefined) {
       const event = {
@@ -43,6 +50,7 @@ async function run(bundlePath, cfg) {
         event.rawPath += url.pathname;
         event.rawQueryString = url.searchParams.toString();
       }
+
       const fn = typeof lambda.raw === 'function' ? lambda.raw : lambda;
       result.response = await fn(event, {
         invokedFunctionArn: `arn:aws:lambda:us-east-1:118435662149:function:${cfg.packageName}--${cfg.baseName}:${cfg.version}`,
@@ -64,4 +72,9 @@ async function run(bundlePath, cfg) {
   process.send(JSON.stringify(result));
 }
 
-run(process.argv[2], JSON.parse(process.argv[3])).then(process.stdout).catch(process.stderr);
+run(
+  process.argv[2],
+  JSON.parse(process.argv[3]),
+)
+  .then(process.stdout)
+  .catch(process.stderr);

@@ -1,0 +1,12 @@
+{
+  "name": "cf-worker-esm",
+  "version": "1.45.0",
+  "description": "Cloudflare worker Test Project",
+  "private": true,
+  "license": "Apache-2.0",
+  "main": "index.js",
+  "type": "module",
+  "dependencies": {
+    "@adobe/fetch": "3.1.4"
+  }
+}

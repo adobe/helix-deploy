@@ -279,6 +279,48 @@ describe('Deploy Test', () => {
     assert.ok(out.indexOf('$ curl "https://example.com/api/v1/web/foobar/test-package/simple-project"') > 0);
   }).timeout(15000);
 
+  it('deploys a cloudflare worker on edge arch alone', async () => {
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'cf-worker'), testRoot);
+
+    let body;
+    nock('https://api.cloudflare.com')
+      .post('/client/v4/accounts/123/storage/kv/namespaces', (b) => {
+        body = b;
+        return true;
+      })
+      .reply(200, JSON.stringify({ result: { id: 'test-namespace' } }))
+      .put('/client/v4/accounts/123/workers/scripts/default--test-worker')
+      .reply(200);
+
+    process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
+    const builder = new CLI()
+      .prepare([
+        '--build',
+        '--target', 'cloudflare',
+        '--arch', 'edge',
+        '--verbose',
+        '--deploy',
+        '--entryFile', 'index.js',
+        '--directory', testRoot,
+        '--cloudflare-email', 'fake@email.test',
+        '--cloudflare-account-id', '123',
+        '--cloudflare-auth', 'test-token',
+        '--name', 'test-worker',
+      ]);
+    builder.cfg._logger = new TestLogger();
+
+    const res = await builder.run();
+
+    assert.deepEqual(body, { title: 'default--secrets' });
+
+    assert.deepEqual(res, {
+      cloudflare: {
+        name: 'cloudflare;host=https://null',
+        url: 'default--test-worker',
+      },
+    });
+  }).timeout(15000);
+
   it.skip('deploys a pure action', async () => {
     await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'pure-action'), testRoot);
 

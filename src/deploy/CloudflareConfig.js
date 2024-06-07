@@ -44,7 +44,13 @@ export default class CloudflareConfig {
 
   static yarg(yargs) {
     return yargs
-      .group(['cloudflare-account-id', 'cloudflare-auth', 'cloudflare-email', 'cloudflare-test-domain'], 'Cloudflare Workers Deployment Options')
+      .group([
+        'cloudflare-account-id',
+        'cloudflare-auth',
+        'cloudflare-email',
+        'cloudflare-test-domain',
+        'cloudflare-setting-logpush',
+      ], 'Cloudflare Workers Deployment Options')
       .option('cloudflare-account-id', {
         description: 'the Cloudflare account ID to deploy to',
         type: 'string',
@@ -64,6 +70,11 @@ export default class CloudflareConfig {
         description: 'the Cloudflare API token from https://dash.cloudflare.com/profile/api-tokens',
         type: 'string',
         default: '',
+      })
+      .option('cloudflare-setting-logpush', {
+        description: 'worker setting - whether logpush should be enabled',
+        type: 'boolean',
+        default: undefined,
       });
   }
 }

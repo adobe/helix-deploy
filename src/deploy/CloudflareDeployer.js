@@ -92,6 +92,9 @@ export default class CloudflareDeployer extends BaseDeployer {
     const kvlist = Object.entries(params).map(([key, value]) => ({
       key, value,
     }));
+    if (!kvlist.length) {
+      return true;
+    }
 
     const res = await this.fetch(`https://api.cloudflare.com/client/v4/accounts/${this._cfg.accountID}/storage/kv/namespaces/${id}/bulk`, {
       method: 'PUT',
