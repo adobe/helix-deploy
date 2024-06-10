@@ -1,3 +1,10 @@
+## [11.1.12](https://github.com/adobe/helix-deploy/compare/v11.1.11...v11.1.12) (2024-06-10)
+
+
+### Bug Fixes
+
+* restore worker settings ([#712](https://github.com/adobe/helix-deploy/issues/712)) ([8ba9ca1](https://github.com/adobe/helix-deploy/commit/8ba9ca1414c3e2ea10258bef64e509e53d4cd72a))
+
 ## [11.1.11](https://github.com/adobe/helix-deploy/compare/v11.1.10...v11.1.11) (2024-06-08)
 
 
