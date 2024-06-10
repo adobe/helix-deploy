@@ -124,4 +124,9 @@ export default class EdgeBundler extends WebpackBundler {
     }
     return this.createWebpackBundle('edge');
   }
+
+  // eslint-disable-next-line class-methods-use-this
+  validateBundle() {
+    // TODO: validate edge bundle, skipped since we're on node
+  }
 }

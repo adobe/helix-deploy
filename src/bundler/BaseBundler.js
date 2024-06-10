@@ -155,7 +155,10 @@ export default class BaseBundler {
 
   async updateArchive(archive, packageJson) {
     const { cfg } = this;
-    archive.file(cfg.bundle, { name: 'index.js' });
+    if (cfg.archs.includes('node')) {
+      archive.file(cfg.bundle, { name: 'index.js' });
+    }
+
     cfg.statics.forEach(([src, name]) => {
       try {
         if (fse.lstatSync(src)
@@ -168,6 +171,7 @@ export default class BaseBundler {
         throw Error(`error with static file: ${e.message}`);
       }
     });
+
     cfg.modules.forEach((mod) => {
       archive.directory(path.resolve(cfg.cwd, `node_modules/${mod}`), `node_modules/${mod}`);
     });

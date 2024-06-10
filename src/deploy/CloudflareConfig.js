@@ -44,7 +44,12 @@ export default class CloudflareConfig {
 
   static yarg(yargs) {
     return yargs
-      .group(['cloudflare-account-id', 'cloudflare-auth', 'cloudflare-email', 'cloudflare-test-domain'], 'Cloudflare Workers Deployment Options')
+      .group([
+        'cloudflare-account-id',
+        'cloudflare-auth',
+        'cloudflare-email',
+        'cloudflare-test-domain',
+      ], 'Cloudflare Workers Deployment Options')
       .option('cloudflare-account-id', {
         description: 'the Cloudflare account ID to deploy to',
         type: 'string',

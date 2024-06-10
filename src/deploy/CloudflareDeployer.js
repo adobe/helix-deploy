@@ -43,6 +43,7 @@ export default class CloudflareDeployer extends BaseDeployer {
 
   async deploy() {
     const body = fs.readFileSync(this.cfg.edgeBundle);
+    const settings = await this.getSettings();
     const { id } = await this.createKVNamespace(`${this.cfg.packageName}--secrets`);
 
     const metadata = {
@@ -86,12 +87,46 @@ export default class CloudflareDeployer extends BaseDeployer {
     }
 
     await this.updatePackageParams(id, this.cfg.packageParams);
+
+    await this.restoreSettings(settings);
+  }
+
+  async getSettings() {
+    const res = await this.fetch(`https://api.cloudflare.com/client/v4/accounts/${this._cfg.accountID}/workers/scripts/${this.fullFunctionName}/script-settings`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${this._cfg.auth}`,
+      },
+    });
+    if (!res.ok) {
+      return null;
+    }
+    const { result } = await res.json();
+    return result;
+  }
+
+  async restoreSettings(existing) {
+    if (!existing) {
+      return true;
+    }
+    const res = await this.fetch(`https://api.cloudflare.com/client/v4/accounts/${this._cfg.accountID}/workers/scripts/${this.fullFunctionName}/script-settings`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${this._cfg.auth}`,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(existing),
+    });
+    return res.ok;
   }
 
   async updatePackageParams(id, params) {
     const kvlist = Object.entries(params).map(([key, value]) => ({
       key, value,
     }));
+    if (!kvlist.length) {
+      return true;
+    }
 
     const res = await this.fetch(`https://api.cloudflare.com/client/v4/accounts/${this._cfg.accountID}/storage/kv/namespaces/${id}/bulk`, {
       method: 'PUT',
