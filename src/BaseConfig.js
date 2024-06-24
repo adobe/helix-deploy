@@ -597,7 +597,7 @@ export default class BaseConfig {
         default: '.',
       })
 
-      .group(['help', 'build', 'deploy', 'test', 'test-bundle', 'update-package', 'version-link', 'delete'], 'Operation Options')
+      .group(['help', 'build', 'deploy', 'test', 'test-bundle', 'update-package', 'version-link', 'delete', 'plugin'], 'Operation Options')
       .option('build', {
         description: 'Build the deployment package',
         type: 'boolean',
@@ -631,6 +631,12 @@ export default class BaseConfig {
         description: 'Create or update package with params.',
         type: 'boolean',
         default: false,
+      })
+      .option('plugin', {
+        description: 'Specify bundler or deploy plugins.',
+        type: 'string',
+        array: true,
+        default: [],
       })
 
       .group(['minify', 'static', 'entryFile', 'externals', 'edge-externals', 'serverless-externals', 'modules', 'adapterFile', 'esm', 'bundler'], 'Build Options')

@@ -19,8 +19,6 @@ import OpenWhiskDeployer from './deploy/OpenWhiskDeployer.js';
 import AWSDeployer from './deploy/AWSDeployer.js';
 import GoogleDeployer from './deploy/GoogleDeployer.js';
 import CloudflareDeployer from './deploy/CloudflareDeployer.js';
-import ComputeAtEdgeDeployer from './deploy/ComputeAtEdgeDeployer.js';
-import FastlyGateway from './gateway/FastlyGateway.js';
 import ActionBuilder from './ActionBuilder.js';
 
 const PLUGINS = [
@@ -28,14 +26,47 @@ const PLUGINS = [
   AWSDeployer,
   GoogleDeployer,
   CloudflareDeployer,
-  ComputeAtEdgeDeployer,
-  FastlyGateway,
 ];
 
 envConfig();
 
+async function loadPlugin(name) {
+  const names = [
+    name,
+    `helix-deploy-${name}`,
+    `@adobe/helix-deploy-${name}`,
+  ];
+
+  let module;
+  let moduleName;
+  for (const n of names) {
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      module = await import(n);
+      moduleName = n;
+      break;
+    } catch (e) {
+      if (e.code !== 'MODULE_NOT_FOUND') {
+        throw e;
+      }
+    }
+  }
+  if (!module) {
+    throw new Error(`Plugin not found: ${name}`);
+  }
+  const { plugins } = module;
+  if (!plugins) {
+    throw new Error(`Plugin ${module.name} does not export a plugins' array.`);
+  }
+  console.log('Loaded plugin:', moduleName);
+  for (const clazz of plugins) {
+    console.log('- ', clazz.name);
+  }
+  return plugins;
+}
+
 export default class CLI {
-  constructor() {
+  buildArgs(plugins) {
     this._yargs = yargs()
       .pkgConf('wsk')
       .env('HLX')
@@ -61,14 +92,27 @@ export default class CLI {
         });
       });
     BaseConfig.yarg(this._yargs);
-    PLUGINS.forEach((PluginClass) => PluginClass.Config.yarg(this._yargs));
+    plugins.forEach((PluginClass) => PluginClass.Config.yarg(this._yargs));
     this._yargs
       .wrap(Math.min(120, this._yargs.terminalWidth()))
       .help();
   }
 
-  prepare(args) {
-    const argv = this._yargs.parse(args);
+  async prepare(args) {
+    const pluginClasses = [...PLUGINS];
+    this.buildArgs(pluginClasses);
+    let argv = this._yargs.parse(args);
+
+    // if args specify plugins, load them and parse again
+    if (argv.plugin.length) {
+      for (const pluginName of argv.plugin) {
+        // eslint-disable-next-line no-await-in-loop
+        const plugins = await loadPlugin(pluginName);
+        pluginClasses.push(...plugins);
+      }
+      this.buildArgs(pluginClasses);
+      argv = this._yargs.parse(args);
+    }
 
     // apply '!important' args (override env).
     Object.entries(argv).forEach(([key, value]) => {
@@ -83,7 +127,7 @@ export default class CLI {
     }
 
     const config = new BaseConfig().configure(argv);
-    const plugins = PLUGINS.map((PluginClass) => {
+    const plugins = pluginClasses.map((PluginClass) => {
       const pluginConfig = new PluginClass.Config().configure(argv);
       return new PluginClass(config, pluginConfig);
     });
