@@ -20,12 +20,14 @@ import AWSDeployer from './deploy/AWSDeployer.js';
 import GoogleDeployer from './deploy/GoogleDeployer.js';
 import CloudflareDeployer from './deploy/CloudflareDeployer.js';
 import ActionBuilder from './ActionBuilder.js';
+import WebpackBundler from './bundler/WebpackBundler.js';
 
 const PLUGINS = [
   OpenWhiskDeployer,
   AWSDeployer,
   GoogleDeployer,
   CloudflareDeployer,
+  WebpackBundler,
 ];
 
 envConfig();
@@ -92,7 +94,7 @@ export default class CLI {
         });
       });
     BaseConfig.yarg(this._yargs);
-    plugins.forEach((PluginClass) => PluginClass.Config.yarg(this._yargs));
+    plugins.forEach((PluginClass) => PluginClass.Config?.yarg(this._yargs));
     this._yargs
       .wrap(Math.min(120, this._yargs.terminalWidth()))
       .help();
@@ -128,7 +130,9 @@ export default class CLI {
 
     const config = new BaseConfig().configure(argv);
     const plugins = pluginClasses.map((PluginClass) => {
-      const pluginConfig = new PluginClass.Config().configure(argv);
+      const pluginConfig = PluginClass.Config
+        ? new PluginClass.Config().configure(argv)
+        : null;
       return new PluginClass(config, pluginConfig);
     });
 

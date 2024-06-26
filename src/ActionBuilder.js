@@ -17,17 +17,7 @@ import fse from 'fs-extra';
 import chalk from 'chalk-template';
 import git from 'isomorphic-git';
 import WebpackBundler from './bundler/WebpackBundler.js';
-import EdgeBundler from './bundler/EdgeBundler.js';
 import pkgJson from './package.cjs';
-
-const Bundlers = {
-  node: {
-    webpack: WebpackBundler,
-  },
-  edge: {
-    webpack: EdgeBundler,
-  },
-};
 
 /**
  * Returns the `origin` remote url or `''` if none is defined.
@@ -126,7 +116,8 @@ export default class ActionBuilder {
     Object.assign(this, {
       cfg: {},
       _deployers: {},
-      _gateways: { },
+      _gateways: {},
+      _bundlers: {},
     });
   }
 
@@ -142,6 +133,19 @@ export default class ActionBuilder {
       }
       if (plg.isGateway) {
         this._gateways[plg.id] = plg;
+      }
+      if (plg.isBundler) {
+        let arch = this._bundlers[plg.arch];
+        if (!arch) {
+          arch = [];
+          this._bundlers[plg.arch] = arch;
+        }
+        let bnds = arch[plg.type];
+        if (!bnds) {
+          bnds = [];
+          arch[plg.type] = bnds;
+        }
+        bnds.push(plg);
       }
     });
     return this;
@@ -274,20 +278,18 @@ export default class ActionBuilder {
     if (this.validated) {
       return;
     }
-    // disable edge build
-
     const { cfg } = this;
     this.bundlers = [];
     cfg.archs.forEach((arch) => {
-      const bnds = Bundlers[arch];
+      const bnds = this._bundlers[arch];
       if (!bnds) {
-        throw Error(`Invalid arch '${arch}' specified. Valid options are: ${Object.keys(Bundlers)}`);
+        throw Error(`Invalid arch '${arch}' specified. Valid options are: ${Object.keys(this._bundlers)}`);
       }
-      const BundlerClass = bnds[cfg.bundler];
-      if (!BundlerClass) {
+      const bundler = bnds[cfg.bundler];
+      if (!bundler) {
         throw Error(`Invalid bundler '${cfg.bundler}' for '${arch}'. Valid options are: ${Object.keys(bnds)}`);
       }
-      this.bundlers.push(new BundlerClass().withConfig(cfg));
+      this.bundlers.push(...bundler);
     });
     for (const bundler of this.bundlers) {
       await bundler.init();

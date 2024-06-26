@@ -37,15 +37,13 @@ export default class BaseBundler {
     }, str);
   }
 
-  constructor() {
+  constructor(cfg) {
     Object.assign(this, {
-      cfg: {},
+      isBundler: true,
+      cfg,
+      arch: '',
+      type: '',
     });
-  }
-
-  withConfig(cfg) {
-    this.cfg = cfg;
-    return this;
   }
 
   // eslint-disable-next-line class-methods-use-this,no-empty-function

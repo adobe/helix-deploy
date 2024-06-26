@@ -23,6 +23,12 @@ const __dirname = path.resolve(fileURLToPath(import.meta.url), '..');
  * Webpack based bundler
  */
 export default class WebpackBundler extends BaseBundler {
+  constructor(cfg) {
+    super(cfg);
+    this.arch = 'node';
+    this.type = 'webpack';
+  }
+
   async init() {
     if (this.cfg.esm) {
       throw new Error('Webpack bundler does not support ESM builds.');
