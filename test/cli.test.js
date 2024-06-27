@@ -53,7 +53,13 @@ describe('CLI Test', () => {
   it('sets directory argument', async () => {
     const builder = await new CLI()
       .prepare(['--directory', 'foo']);
-    assert.equal(builder.cfg.cwd, 'foo');
+    assert.equal(builder.cfg.cwd, path.resolve(process.cwd(), 'foo'));
+  });
+
+  it('sets dist directory argument', async () => {
+    const builder = await new CLI()
+      .prepare(['--dist-directory', 'foo']);
+    assert.equal(builder.cfg.distDir, path.resolve(process.cwd(), 'foo'));
   });
 
   it('sets deploy flag', async () => {
