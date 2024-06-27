@@ -141,7 +141,7 @@ export default class CLI {
 
   async run(args) {
     try {
-      const res = await this.prepare(args).run();
+      const res = (await this.prepare(args)).run();
       if (res) {
         console.log(JSON.stringify(res, null, 2));
       }

@@ -219,8 +219,8 @@ export default class BaseConfig {
     return this;
   }
 
-  withDirectory(value) {
-    this.cwd = value === '.' ? process.cwd() : value;
+  withDirectory(value = '.') {
+    this.cwd = path.resolve(process.cwd(), value);
     return this;
   }
 
