@@ -41,7 +41,7 @@ describe('AWS Integration Test', () => {
     await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple'), testRoot);
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare([
         '--build',
         '--verbose',
@@ -70,7 +70,7 @@ describe('AWS Integration Test', () => {
     await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple'), testRoot);
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare([
         '--no-build',
         '--no-hints',
@@ -109,7 +109,7 @@ describe('AWS Integration Test', () => {
 
     const version = `ci${process.env.CIRCLE_BUILD_NUM || Date.now()}`;
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare([
         '--verbose',
         '--deploy',
@@ -161,7 +161,7 @@ describe('AWS Integration Test', () => {
     // build and link authorizer
     const version = `ci${process.env.CIRCLE_BUILD_NUM || Date.now()}`;
     process.chdir(testRoot1);
-    let builder = new CLI()
+    let builder = await new CLI()
       .prepare([
         '--verbose',
         '--deploy',
@@ -184,7 +184,7 @@ describe('AWS Integration Test', () => {
 
     // now link authorizer to simple package route
     process.chdir(testRoot2);
-    builder = new CLI()
+    builder = await new CLI()
       .prepare([
         '--verbose',
         '--no-build',

@@ -18,7 +18,6 @@ import BaseConfig from './BaseConfig.js';
 import OpenWhiskDeployer from './deploy/OpenWhiskDeployer.js';
 import AWSDeployer from './deploy/AWSDeployer.js';
 import GoogleDeployer from './deploy/GoogleDeployer.js';
-import CloudflareDeployer from './deploy/CloudflareDeployer.js';
 import ActionBuilder from './ActionBuilder.js';
 import WebpackBundler from './bundler/WebpackBundler.js';
 
@@ -26,7 +25,6 @@ const PLUGINS = [
   OpenWhiskDeployer,
   AWSDeployer,
   GoogleDeployer,
-  CloudflareDeployer,
   WebpackBundler,
 ];
 

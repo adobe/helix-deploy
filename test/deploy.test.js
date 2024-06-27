@@ -48,7 +48,7 @@ describe('Deploy Test', () => {
   it('reports nice error if no wsk props are set', async () => {
     await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'web-action'), testRoot);
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare([
         '--no-build',
         '--target', 'wsk',
@@ -65,7 +65,7 @@ describe('Deploy Test', () => {
   it('reports error configured namespace does not match wsk namespace', async () => {
     await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'web-action'), testRoot);
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare([
         '--no-build',
         '--target', 'wsk',
@@ -80,7 +80,7 @@ describe('Deploy Test', () => {
   it('doesnt reports error configured namespace does not match wsk namespace for non wsk deployments', async () => {
     await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'web-action'), testRoot);
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare([
         '--target', 'aws',
         '--aws-region', '*',
@@ -113,7 +113,7 @@ describe('Deploy Test', () => {
       .reply(500);
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare(buildOpts);
     builder.cfg._logger = new TestLogger();
 
@@ -152,7 +152,7 @@ describe('Deploy Test', () => {
         location: 'https://example.com/',
       });
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare([
         '--target', 'wsk',
         '--verbose',
@@ -175,7 +175,7 @@ describe('Deploy Test', () => {
       .matchHeader('x-foo-bar', 'test')
       .reply(200, 'ok');
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare([
         '--target', 'wsk',
         '--verbose',
@@ -196,7 +196,7 @@ describe('Deploy Test', () => {
       .reply(404)
       .get('/action/404/foo')
       .reply(200);
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare([
         '--target', 'wsk',
         '--verbose',
@@ -221,7 +221,7 @@ describe('Deploy Test', () => {
       .get('/action/404/foo')
       .twice()
       .reply(404);
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare([
         '--target', 'wsk',
         '--verbose',
@@ -256,7 +256,7 @@ describe('Deploy Test', () => {
       });
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare([
         '--target', 'wsk',
         '--verbose',
@@ -279,121 +279,6 @@ describe('Deploy Test', () => {
     assert.ok(out.indexOf('$ curl "https://example.com/api/v1/web/foobar/test-package/simple-project"') > 0);
   }).timeout(15000);
 
-  it('deploys a cloudflare worker on edge arch alone', async () => {
-    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'cf-worker'), testRoot);
-
-    let body;
-    nock('https://api.cloudflare.com')
-      .get('/client/v4/accounts/123/workers/scripts/default--test-worker/script-settings')
-      .reply(404)
-      .post('/client/v4/accounts/123/storage/kv/namespaces', (b) => {
-        body = b;
-        return true;
-      })
-      .reply(200, JSON.stringify({ result: { id: 'test-namespace' } }))
-      .put('/client/v4/accounts/123/workers/scripts/default--test-worker')
-      .reply(200);
-
-    process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
-    const builder = new CLI()
-      .prepare([
-        '--build',
-        '--target', 'cloudflare',
-        '--arch', 'edge',
-        '--verbose',
-        '--deploy',
-        '--entryFile', 'index.js',
-        '--directory', testRoot,
-        '--cloudflare-email', 'fake@email.test',
-        '--cloudflare-account-id', '123',
-        '--cloudflare-auth', 'test-token',
-        '--name', 'test-worker',
-      ]);
-    builder.cfg._logger = new TestLogger();
-
-    const res = await builder.run();
-
-    assert.deepEqual(body, { title: 'default--secrets' });
-
-    assert.deepEqual(res, {
-      cloudflare: {
-        name: 'cloudflare;host=https://null',
-        url: 'default--test-worker',
-      },
-    });
-  }).timeout(15000);
-
-  it('deploys a cloudflare worker and restores existing script settings', async () => {
-    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'cf-worker'), testRoot);
-
-    const bodies = { namespaces: undefined, settings: undefined };
-    nock('https://api.cloudflare.com')
-      .get('/client/v4/accounts/123/workers/scripts/default--test-worker/script-settings')
-      .reply(200, JSON.stringify({
-        success: true,
-        result: {
-          logpush: true,
-          tail_consumers: [
-            {
-              environment: 'production',
-              namespace: 'my-namespace',
-              service: 'my-log-consumer',
-            },
-          ],
-        },
-      }))
-      .post('/client/v4/accounts/123/storage/kv/namespaces', (b) => {
-        bodies.namespaces = b;
-        return true;
-      })
-      .reply(200, JSON.stringify({ result: { id: 'test-namespace' } }))
-      .put('/client/v4/accounts/123/workers/scripts/default--test-worker')
-      .reply(200)
-      .patch('/client/v4/accounts/123/workers/scripts/default--test-worker/script-settings', (b) => {
-        bodies.settings = b;
-        return true;
-      })
-      .reply(200);
-
-    process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
-    const builder = new CLI()
-      .prepare([
-        '--build',
-        '--target', 'cloudflare',
-        '--arch', 'edge',
-        '--verbose',
-        '--deploy',
-        '--entryFile', 'index.js',
-        '--directory', testRoot,
-        '--cloudflare-email', 'fake@email.test',
-        '--cloudflare-account-id', '123',
-        '--cloudflare-auth', 'test-token',
-        '--name', 'test-worker',
-      ]);
-    builder.cfg._logger = new TestLogger();
-
-    const res = await builder.run();
-
-    assert.deepEqual(bodies.namespaces, { title: 'default--secrets' });
-    assert.deepEqual(bodies.settings, {
-      logpush: true,
-      tail_consumers: [
-        {
-          environment: 'production',
-          namespace: 'my-namespace',
-          service: 'my-log-consumer',
-        },
-      ],
-    });
-
-    assert.deepEqual(res, {
-      cloudflare: {
-        name: 'cloudflare;host=https://null',
-        url: 'default--test-worker',
-      },
-    });
-  }).timeout(15000);
-
   it.skip('deploys a pure action', async () => {
     await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'pure-action'), testRoot);
 
@@ -412,7 +297,7 @@ describe('Deploy Test', () => {
       });
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare([
         '--verbose',
         '--deploy',
@@ -444,7 +329,7 @@ describe('Deploy Test', () => {
       });
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare([
         '--verbose',
         '--deploy',

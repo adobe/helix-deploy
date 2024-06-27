@@ -16,7 +16,6 @@ import fs from 'fs';
 import fse from 'fs-extra';
 import chalk from 'chalk-template';
 import git from 'isomorphic-git';
-import WebpackBundler from './bundler/WebpackBundler.js';
 import pkgJson from './package.cjs';
 
 /**

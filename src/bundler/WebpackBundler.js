@@ -111,7 +111,7 @@ export default class WebpackBundler extends BaseBundler {
     }
 
     if (cfg.progressHandler) {
-      opts.plugins.push(new webpack.ProgressPlugin(cfg.progressHandler));
+      this.initProgressHandler(opts, cfg);
     }
 
     const customizePath = path.join(cfg.cwd, 'hlx.webpack.customize.js');
@@ -123,6 +123,11 @@ export default class WebpackBundler extends BaseBundler {
       }
     }
     return opts;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  initProgressHandler(opts, cfg) {
+    opts.plugins.push(new webpack.ProgressPlugin(cfg.progressHandler));
   }
 
   async createWebpackBundle(arch) {
