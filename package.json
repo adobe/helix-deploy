@@ -1,12 +1,12 @@
 {
   "name": "@adobe/helix-deploy",
-  "version": "12.0.0-pre.2",
+  "version": "12.0.0-pre.3",
   "description": "Library and Commandline Tools to build and deploy OpenWhisk Actions",
   "license": "Apache-2.0",
   "homepage": "https://github.com/adobe/helix-deploy#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/adobe/helix-deploy.git"
+    "url": "git+https://github.com/adobe/helix-deploy.git"
   },
   "bugs": {
     "url": "https://github.com/adobe/helix-deploy/issues"
@@ -26,7 +26,7 @@
     "integration-ci": "c8 mocha -g Integration",
     "semantic-release": "semantic-release",
     "semantic-release-dry": "semantic-release --dry-run --branches $CI_BRANCH",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "mocha": {
     "reporter": "mocha-multi-reporters",
