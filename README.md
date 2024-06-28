@@ -56,6 +56,7 @@ Operation Options
       --update-package  Create or update package with params.  [boolean] [default: false]
   -l, --version-link    Create symlinks (sequences) after deployment. "major" and "minor" will create respective version links  [array]
       --delete          Delete the action from OpenWhisk. Implies no-build  [boolean] [default: false]
+      --plugin          Specify bundler or deploy plugins.  [array] [default: []]
 
 Build Options
       --minify                Minify the final bundle  [boolean] [default: false]
@@ -67,7 +68,8 @@ Build Options
   -m, --modules               Include a node_module as is.  [array] [default: []]
       --adapterFile           Specifies the adapter file (the exported module).
       --esm                   Produce EcmaScript Module (experimental, disables edge arch)  [boolean] [default: false]
-      --bundler               Select bundler backend (webpack, rollup)  [string] [default: "webpack"]
+      --bundler
+      --dist-directory        Specifies the dist (output) directory  [default: "dist"]
 
 Deploy Options
       --target             Select target(s) for test, deploy, update-package actions (wsk,aws,google,auto)  [array] [default: ["auto"]]
@@ -102,7 +104,7 @@ General Action Options
   -p, --params        Include the given action param. can be json or env.  [array] [default: []]
   -f, --params-file   Include the given action param from a file; can be json or env.  [array] [default: []]
       --updated-by    user that updated the action or sequence.  [string]
-      --updated-at    unix timestamp when the action or sequence was updated (defaults to the current time).  [number] [default: 1693809202744]
+      --updated-at    unix timestamp when the action or sequence was updated (defaults to the current time).  [number] [default: 1719567952628]
       --web-secure    Annotates the action with require-whisk-auth. leave empty to generate random token.  [string]
   -t, --timeout       the timeout limit in milliseconds after which the action is terminated  [default: 60000]
       --pkgVersion    Version use in the embedded package.json.
@@ -119,6 +121,7 @@ AWS Deployment Options
       --aws-role                  the AWS role ARN to execute lambda functions with  [string] [default: ""]
       --aws-cleanup-buckets
       --aws-cleanup-integrations  Cleans up unused integrations  [boolean] [default: false]
+      --aws-cleanup-versions      Cleans up unused versions  [boolean] [default: false]
       --aws-create-routes         Create routes for function (usually not needed due to proxy function).  [boolean] [default: false]
       --aws-create-authorizer     Creates API Gateway authorizer using lambda authorization with this function and the specified name. The string can contain placeholders (note that all dots ('.') are replaced with underscores. Example: "helix-authorizer_${version}".  [string]
       --aws-attach-authorizer     Attach specified authorizer to routes during linking.  [string]
@@ -129,46 +132,23 @@ AWS Deployment Options
       --aws-update-secrets        Uploads the function specific secrets with the params. defaults to /helix-deploy/{pkg}/{name}  [string]
       --aws-deploy-bucket         Name of the deploy S3 bucket to use (default is helix-deploy-bucket-{accountId})  [string] [default: ""]
       --aws-identity-source       Identity source to used when creating the authorizer  [array] [default: ["$request.header.Authorization"]]
-      --aws-log-format            The lambda log format. Can be either "JSON" or "Text". [string]
+      --aws-log-format            The lambda log format. Can be either "JSON" or "Text".  [string]
       --aws-layers                List of layers ARNs to attach to the lambda function.  [array]
-      --aws-tracing-mode          The lambda tracing mode. Can be either "Active" or "PassThrough". [string]
-      --aws-extra-permissions     A list of additional invoke permissions to add to the lambda function in the form <SourceARN>@<Principal>. Optionally, you can use <SourceARN>@<Principal>:<Alias> if you want to scope the permission to a specific alias. [array]
-      --aws-tags                  A list of additional tags to attach to the lambda function in the form key=value. To remove a tag, use key= (i.e. without a value).[array]
+      --aws-tracing-mode          The lambda tracing mode. Can be either "Active" or "PassThrough".  [string]
+      --aws-extra-permissions     A list of additional invoke permissions to add to the lambda function in the form <SourceARN>@<Principal>. Optionally, you can use <SourceARN>@<Principal>:<Alias> if you want to scope the permission to a specific alias.  [array]
+      --aws-tags                  A list of additional tags to attach to the lambda function in the form key=value. To remove a tag, use key= (i.e. without a value).  [array]
 
 Google Deployment Options
       --google-project-id  the Google Cloud project to deploy to. Optional when the key file is a JSON file  [string] [default: ""]
       --google-key-file    full path to the a .json, .pem, or .p12 key downloaded from the Google Developers Console  [string] [default: ""]
       --google-email       the Google  account email address. Required when using a .pem or .p12 credential file  [string] [default: ""]
 
-Cloudflare Workers Deployment Options
-      --cloudflare-account-id   the Cloudflare account ID to deploy to  [string] [default: ""]
-      --cloudflare-auth         the Cloudflare API token from https://dash.cloudflare.com/profile/api-tokens  [string] [default: ""]
-      --cloudflare-email        the Cloudflare email address belonging to the authentication token  [string] [default: ""]
-      --cloudflare-test-domain  the *.workers.dev subdomain to use for testing deployed scripts  [string] [default: ""]
-
-Fastly Compute@Edge Options
-      --compute-service-id     the Fastly Service to deploy the action to  [string] [default: ""]
-      --compute-domain
-      --fastly-auth            the Fastly token  [string] [default: ""]
-      --coralogix-token        the Coralogix token (to enable logging)  [string] [default: ""]
-      --compute-coralogix-app  the Application name  [string] [default: "fastly-compute"]
-
-Fastly Gateway Options
-      --fastly-service-id  the Fastly Service to use as a gateway  [string] [default: ""]
-      --fastly-auth        the Fastly token  [string] [default: ""]
-      --checkpath          the path to check as part of the Fastly health check  [string] [default: ""]
-      --coralogix-token    the Coralogix token (to enable logging)  [string] [default: ""]
-      --coralogix-app      the Application name  [string] [default: "universal-runtime"]
-
 Options:
-      --arch                 Select archs(s) for bundles (node,edge).  [array] [default: ["node"]]
-      --format               Action formats  [default: {"aws":"/${packageName}/${baseName}/${version}"}]
-      --property             Additional properties that can be used in formats.  [default: {}]
-      --package-token        Protects access to the gateway-stored package parameters with this token. leave empty to generate random token.  [string] [default: "hUX/5Jke1K+YAgZJiUw370/NZ/UsCuFyJHKHKEp73OM="]
-      --google-region        the Google Cloud region to deploy in  [string] [default: ""]
-      --compute-test-domain  the domain name of the Compute@Edge service (used for testing)  [string] [default: ""]
-      --fastly-gateway       the hostname of the Fastly gateway for package params  [string] [default: ""]
-      --checkinterval        the interval in milliseconds that each Fastly POP should perform a health check. Set to 0 to disable health checks entirely.  [number] [default: 6000000]
+      --arch           Select archs(s) for bundles (node,edge).  [array] [default: ["node"]]
+      --format         Action formats  [default: {"aws":"/${packageName}/${baseName}/${version}"}]
+      --property       Additional properties that can be used in formats.  [default: {}]
+      --package-token  Protects access to the gateway-stored package parameters with this token. leave empty to generate random token.  [string] [default: "2l8JumQIoX+SLQRc2eO2TUh1VO44/qh9KkL7VZO1T9k="]
+      --google-region  the Google Cloud region to deploy in  [string] [default: ""]
 ```
 
 With no arguments,the `hedy` just bundles your code into the respective `action.zip`:
@@ -343,6 +323,16 @@ destination filename. eg:
     ]
   }
 ...
+```
+
+## Using Plugins
+
+Helix deploy supports dynamic plugins that can be specified via the `--plugin` argument. The plugin
+can export a `bundler` and/or `deployer` function. As an example, the following plugin can be used to
+deploy to an edge compute platform: https://github.com/adobe/helix-deploy-plugin-edge
+
+```console
+hedy --plugin @adobe/helix-deploy-plugin-edge --deploy
 ```
 
 ## Using the development server
