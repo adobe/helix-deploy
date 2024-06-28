@@ -10,6 +10,7 @@
  * governing permissions and limitations under the License.
  */
 export { default as ActionBuilder } from './src/ActionBuilder.js';
-export { default as Bundler } from './src/bundler/WebpackBundler.js';
+export { default as WebpackBundler } from './src/bundler/WebpackBundler.js';
 export { default as BaseConfig } from './src/BaseConfig.js';
+export { default as BaseDeployer } from './src/deploy/BaseDeployer.js';
 export { default as CLI } from './src/cli.js';

@@ -23,8 +23,8 @@ describe('CLI Test', () => {
     delete process.env.CUSTOM_ENV_VAR;
   });
 
-  it('has correct defaults with no arguments', () => {
-    const builder = new CLI().prepare();
+  it('has correct defaults with no arguments', async () => {
+    const builder = await new CLI().prepare();
     assert.equal(builder.cfg.verbose, false);
     assert.equal(builder.cfg.deploy, false);
     assert.deepEqual(builder.cfg.targets, ['auto']);
@@ -37,223 +37,237 @@ describe('CLI Test', () => {
     assert.equal(builder.cfg.nodeVersion, '18');
     assert.equal(builder.cfg.docker, null);
     assert.deepEqual(builder.cfg.modules, []);
-    assert.equal(JSON.stringify([...builder.cfg.statics]).toString(), '[]');
+    assert.equal(JSON.stringify([...builder.cfg.statics])
+      .toString(), '[]');
     assert.deepEqual(builder.cfg.params, {});
     assert.equal(builder.cfg.updatePackage, false);
     assert.equal(builder.cfg.webSecure, undefined);
   });
 
-  it('sets verbose flag', () => {
-    const builder = new CLI()
+  it('sets verbose flag', async () => {
+    const builder = await new CLI()
       .prepare(['-v']);
     assert.equal(builder.cfg.verbose, true);
   });
 
-  it('sets directory argument', () => {
-    const builder = new CLI()
+  it('sets directory argument', async () => {
+    const builder = await new CLI()
       .prepare(['--directory', 'foo']);
-    assert.equal(builder.cfg.cwd, 'foo');
+    assert.equal(builder.cfg.cwd, path.resolve(process.cwd(), 'foo'));
   });
 
-  it('sets deploy flag', () => {
-    const builder = new CLI()
+  it('sets dist directory argument', async () => {
+    const builder = await new CLI()
+      .prepare(['--dist-directory', 'foo']);
+    assert.equal(builder.cfg.distDir, path.resolve(process.cwd(), 'foo'));
+  });
+
+  it('sets deploy flag', async () => {
+    const builder = await new CLI()
       .prepare(['--deploy']);
     assert.deepEqual(builder.cfg.deploy, true);
   });
 
-  it('sets targets', () => {
-    const builder = new CLI()
+  it('sets targets', async () => {
+    const builder = await new CLI()
       .prepare(['--target=aws', '--target=wsk']);
     assert.deepEqual(builder.cfg.targets, ['aws', 'wsk']);
   });
 
-  it('sets targets with csv', () => {
-    const builder = new CLI()
+  it('sets targets with csv', async () => {
+    const builder = await new CLI()
       .prepare(['--target=aws,wsk']);
     assert.deepEqual(builder.cfg.targets, ['aws', 'wsk']);
   });
 
-  it('can use HLX env', () => {
+  it('can use HLX env', async () => {
     process.env.HLX_TEST = 'env-test';
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare([]);
     assert.deepEqual(builder.cfg.test, 'env-test');
   });
 
-  it('cli wins over HLX env', () => {
+  it('cli wins over HLX env', async () => {
     process.env.HLX_TEST = 'env-test';
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare(['--test=cli-test']);
     assert.deepEqual(builder.cfg.test, 'cli-test');
   });
 
-  it('important wins', () => {
+  it('important wins', async () => {
     process.env.HLX_TEST = 'env-test';
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare(['--test!important', 'important-test']);
 
     assert.deepEqual(builder.cfg.test, 'important-test');
   });
 
-  it('sets archs', () => {
-    const builder = new CLI()
+  it('sets archs', async () => {
+    const builder = await new CLI()
       .prepare(['--arch=node', '--arch=edge']);
     assert.deepEqual(builder.cfg.archs, ['node', 'edge']);
   });
 
-  it('sets archs with csv', () => {
-    const builder = new CLI()
+  it('sets archs with csv', async () => {
+    const builder = await new CLI()
       .prepare(['--arch=node,edge']);
     assert.deepEqual(builder.cfg.archs, ['node', 'edge']);
   });
 
-  it('clears build flag', () => {
-    const builder = new CLI()
+  it('clears build flag', async () => {
+    const builder = await new CLI()
       .prepare(['--no-build']);
     assert.equal(builder.cfg.build, false);
   });
 
-  it('sets minify flag', () => {
-    const builder = new CLI()
+  it('sets minify flag', async () => {
+    const builder = await new CLI()
       .prepare(['--minify']);
     assert.equal(builder.cfg.minify, true);
   });
 
-  it('sets esm flag', () => {
-    const builder = new CLI()
+  it('sets esm flag', async () => {
+    const builder = await new CLI()
       .prepare(['--esm']);
     assert.equal(builder.cfg.esm, true);
   });
 
-  it('sets test flag', () => {
-    const builder = new CLI()
+  it('sets test flag', async () => {
+    const builder = await new CLI()
       .prepare(['--test']);
     assert.equal(builder.cfg.test, '');
   });
 
-  it('sets test url', () => {
-    const builder = new CLI()
+  it('sets test url', async () => {
+    const builder = await new CLI()
       .prepare(['--test', '/ping']);
     assert.equal(builder.cfg.test, '/ping');
   });
 
-  it('sets name', () => {
-    const builder = new CLI()
+  it('sets name', async () => {
+    const builder = await new CLI()
       .prepare(['--name', 'foo']);
     assert.equal(builder.cfg.name, 'foo');
   });
 
-  it('sets version', () => {
-    const builder = new CLI()
+  it('sets version', async () => {
+    const builder = await new CLI()
       .prepare(['--pkgVersion', '1.2.3']);
     assert.equal(builder.cfg.version, '1.2.3');
   });
 
-  it('sets node version', () => {
-    const builder = new CLI()
+  it('sets node version', async () => {
+    const builder = await new CLI()
       .prepare(['--node-version', 'foo']);
     assert.equal(builder.cfg.nodeVersion, 'foo');
   });
 
-  it('sets hints', () => {
-    const builder = new CLI()
+  it('sets hints', async () => {
+    const builder = await new CLI()
       .prepare(['--no-hints']);
     assert.equal(builder.cfg.showHints, false);
   });
 
-  it('sets timeout', () => {
-    const builder = new CLI()
+  it('sets timeout', async () => {
+    const builder = await new CLI()
       .prepare(['--timeout', 10]);
     assert.equal(builder.cfg.timeout, 10);
   });
 
-  it('sets memory', () => {
-    const builder = new CLI()
+  it('sets memory', async () => {
+    const builder = await new CLI()
       .prepare(['--memory', 10]);
     assert.equal(builder.cfg.memory, 10);
   });
 
-  it('sets concurrency', () => {
-    const builder = new CLI()
+  it('sets concurrency', async () => {
+    const builder = await new CLI()
       .prepare(['--concurrency', 10]);
     assert.equal(builder.cfg.concurrency, 10);
   });
 
-  it('sets links', () => {
-    const builder = new CLI()
+  it('sets links', async () => {
+    const builder = await new CLI()
       .prepare(['--version-link', 'latest', '-l', 'major']);
     assert.deepEqual(builder.cfg.links, ['latest', 'major']);
   });
 
-  it('sets link package', () => {
-    const builder = new CLI()
+  it('sets link package', async () => {
+    const builder = await new CLI()
       .prepare(['--linksPackage', 'foo']);
     assert.deepEqual(builder.cfg.linksPackage, 'foo');
   });
 
-  it('sets web-secure', () => {
-    const builder = new CLI()
+  it('sets web-secure', async () => {
+    const builder = await new CLI()
       .prepare(['--web-secure']);
     assert.ok(builder.cfg.webSecure);
     assert.ok(typeof builder.cfg.webSecure === 'string');
   });
 
-  it('sets web-secure to token', () => {
-    const builder = new CLI()
+  it('sets web-secure to token', async () => {
+    const builder = await new CLI()
       .prepare(['--web-secure=123']);
     assert.equal(builder.cfg.webSecure, '123');
   });
 
-  it('sets web-secure to true', () => {
-    const builder = new CLI()
+  it('sets web-secure to true', async () => {
+    const builder = await new CLI()
       .prepare(['--web-secure=true']);
     assert.equal(builder.cfg.webSecure, true);
   });
 
-  it('can add statics', () => {
-    const builder = new CLI()
+  it('can add statics', async () => {
+    const builder = await new CLI()
       .prepare(['-s', 'foo', '-s', 'bar']);
-    assert.equal(JSON.stringify([...builder.cfg.statics]).toString(), '[["foo","foo"],["bar","bar"]]');
+    assert.equal(JSON.stringify([...builder.cfg.statics])
+      .toString(), '[["foo","foo"],["bar","bar"]]');
   });
 
-  it('can add params', () => {
-    const builder = new CLI()
+  it('can add params', async () => {
+    const builder = await new CLI()
       .prepare(['-p', 'foo=bar']);
     assert.deepEqual(builder.cfg.params, { foo: 'bar' });
   });
 
-  it('can add test params', () => {
-    const builder = new CLI()
+  it('can add test params', async () => {
+    const builder = await new CLI()
       .prepare(['--test-params', 'foo=bar', '--test-params', 'zoo=42']);
-    assert.deepEqual(builder.cfg.testParams, { foo: 'bar', zoo: 42 });
+    assert.deepEqual(builder.cfg.testParams, {
+      foo: 'bar',
+      zoo: 42,
+    });
   });
 
-  it('can add test params as json', () => {
-    const builder = new CLI()
+  it('can add test params as json', async () => {
+    const builder = await new CLI()
       .prepare(['--test-params', '{ "foo": "bar" }']);
     assert.deepEqual(builder.cfg.testParams, { foo: 'bar' });
   });
 
-  it('can add test headers', () => {
-    const builder = new CLI()
+  it('can add test headers', async () => {
+    const builder = await new CLI()
       .prepare(['--test-headers', 'foo=bar', '--test-headers', 'zoo=42']);
-    assert.deepEqual(builder.cfg.testHeaders, { foo: 'bar', zoo: 42 });
+    assert.deepEqual(builder.cfg.testHeaders, {
+      foo: 'bar',
+      zoo: 42,
+    });
   });
 
-  it('can add test headers as json', () => {
-    const builder = new CLI()
+  it('can add test headers as json', async () => {
+    const builder = await new CLI()
       .prepare(['--test-headers', '{ "foo": "bar" }']);
     assert.deepEqual(builder.cfg.testHeaders, { foo: 'bar' });
   });
 
-  it('can add modules', () => {
-    const builder = new CLI()
+  it('can add modules', async () => {
+    const builder = await new CLI()
       .prepare(['-m', 'foo', '-m', 'bar']);
     assert.deepEqual(builder.cfg.modules, ['foo', 'bar']);
   });
 
-  it('can add externals with regexp', () => {
-    const builder = new CLI()
+  it('can add externals with regexp', async () => {
+    const builder = await new CLI()
       .prepare(['--externals', '/.*/',
         '--edge-externals', '/node-.*/',
         '--serverless-externals', '/cloudflare-.*/',
@@ -265,7 +279,7 @@ describe('CLI Test', () => {
 
   it('can add params from json file', async () => {
     const file = path.resolve(__rootdir, 'test', 'fixtures', 'test-params.json');
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare(['-f', file]);
     await builder.validate();
     assert.deepEqual(builder.cfg.params, {
@@ -277,9 +291,9 @@ describe('CLI Test', () => {
     });
   });
 
-  it('can add params from env file', () => {
+  it('can add params from env file', async () => {
     const file = path.resolve(__rootdir, 'test', 'fixtures', 'test-params.env');
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare(['-f', file]);
     assert.deepEqual(builder.cfg.params, {
       bar: 'Hello, world.',
@@ -289,7 +303,7 @@ describe('CLI Test', () => {
 
   it('can add params from env file with references', async () => {
     const file = path.resolve(__rootdir, 'test', 'fixtures', 'test-params-file.env');
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare(['-f', file]);
     await builder.validate();
     assert.deepEqual(builder.cfg.params, {
@@ -302,7 +316,7 @@ describe('CLI Test', () => {
 
   it('can add package params from json file', async () => {
     const file = path.resolve(__rootdir, 'test', 'fixtures', 'test-params.json');
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare(['--package.params-file', file]);
     await builder.validate();
     assert.deepEqual(builder.cfg.packageParams, {
@@ -314,9 +328,9 @@ describe('CLI Test', () => {
     });
   });
 
-  it('can add package params from env file', () => {
+  it('can add package params from env file', async () => {
     const file = path.resolve(__rootdir, 'test', 'fixtures', 'test-params.env');
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare(['--package.params-file', file]);
     assert.deepEqual(builder.cfg.packageParams, {
       bar: 'Hello, world.',
@@ -324,21 +338,21 @@ describe('CLI Test', () => {
     });
   });
 
-  it('can add package params throws error if file not found', () => {
+  it('can add package params throws error if file not found', async () => {
     const file = path.resolve(__rootdir, 'test', 'fixtures', 'test-params1.env');
-    assert.throws(() => new CLI().prepare(['--package.params-file', file, '--update-package']));
+    await assert.rejects(new CLI().prepare(['--package.params-file', file, '--update-package']));
   });
 
-  it('can add package params shows warn if file not when not updating package', () => {
+  it('can add package params shows warn if file not when not updating package', async () => {
     const file = path.resolve(__rootdir, 'test', 'fixtures', 'test-params1.env');
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare(['--package.params-file', file]);
     assert.deepEqual(builder.cfg.packageParams, {});
   });
 
   it('can add params from env file with references', async () => {
     const file = path.resolve(__rootdir, 'test', 'fixtures', 'test-params-file.env');
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare(['--package.params-file', file]);
     await builder.validate();
     assert.deepEqual(builder.cfg.packageParams, {
@@ -349,20 +363,20 @@ describe('CLI Test', () => {
     });
   });
 
-  it('sets update-package', () => {
-    const builder = new CLI()
+  it('sets update-package', async () => {
+    const builder = await new CLI()
       .prepare(['--update-package']);
     assert.equal(builder.cfg.updatePackage, true);
   });
 
-  it('sets package name', () => {
-    const builder = new CLI()
+  it('sets package name', async () => {
+    const builder = await new CLI()
       .prepare(['--package.name', 'foo']);
     assert.equal(builder.cfg.packageName, 'foo');
   });
 
   it('gets package via action name', async () => {
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare(['--name', 'foo/bar']);
     await builder.validate();
     assert.equal(builder.cfg.name, 'bar');
@@ -370,7 +384,7 @@ describe('CLI Test', () => {
   });
 
   it('sets cleanup timelines', async () => {
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare(['--cleanup-ci', '24h',
         '--cleanup-patch', '7d',
         '--cleanup-minor', '4w',
@@ -383,7 +397,7 @@ describe('CLI Test', () => {
   });
 
   it('sets default cleanup timelines', async () => {
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare(['--cleanup-ci', '24h',
         '--cleanup-major', '1y']);
     await builder.validate();
@@ -394,7 +408,7 @@ describe('CLI Test', () => {
   });
 
   it('sets cleanup counts', async () => {
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare(['--cleanup-ci', '3',
         '--cleanup-patch', '5',
         '--cleanup-minor', '7',
@@ -407,7 +421,7 @@ describe('CLI Test', () => {
   });
 
   it('sets default cleanup counts', async () => {
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare(['--cleanup-ci', '24',
         '--cleanup-major', '1']);
     await builder.validate();
@@ -418,7 +432,7 @@ describe('CLI Test', () => {
   });
 
   it('sets aws defaults', async () => {
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare([
         '--aws-region', 'us-east-2',
         '--aws-role', 'somerole',
@@ -450,9 +464,9 @@ describe('CLI Test', () => {
     });
   });
 
-  it('interpolates environment variables', () => {
+  it('interpolates environment variables', async () => {
     process.env.CUSTOM_ENV_VAR = 'test';
-    const builder = new CLI()
+    const builder = await new CLI()
       .prepare([
         '--test',
         // eslint-disable-next-line no-template-curly-in-string
@@ -468,8 +482,8 @@ describe('CLI Test', () => {
     assert.deepEqual(builder.cfg.serverlessExternals, ['/test/index.html', '/test/index.txt']);
   });
 
-  it('ignores non-existing environment variables', () => {
-    const builder = new CLI()
+  it('ignores non-existing environment variables', async () => {
+    const builder = await new CLI()
       // eslint-disable-next-line no-template-curly-in-string
       .prepare(['--test', 'some-${env.CUSTOM_ENV_VAR}-value']);
     // eslint-disable-next-line no-template-curly-in-string

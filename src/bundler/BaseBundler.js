@@ -37,15 +37,13 @@ export default class BaseBundler {
     }, str);
   }
 
-  constructor() {
+  constructor(cfg) {
     Object.assign(this, {
-      cfg: {},
+      isBundler: true,
+      cfg,
+      arch: '',
+      type: '',
     });
-  }
-
-  withConfig(cfg) {
-    this.cfg = cfg;
-    return this;
   }
 
   // eslint-disable-next-line class-methods-use-this,no-empty-function
@@ -155,7 +153,7 @@ export default class BaseBundler {
 
   async updateArchive(archive, packageJson) {
     const { cfg } = this;
-    if (cfg.archs.includes('node')) {
+    if (this.arch === 'node') {
       archive.file(cfg.bundle, { name: 'index.js' });
     }
 
@@ -177,14 +175,6 @@ export default class BaseBundler {
     });
 
     archive.append(JSON.stringify(packageJson, null, '  '), { name: 'package.json' });
-
-    // edge function stuff
-    archive.append([
-      'account_id = "fakefakefake"',
-      `name = "${this.cfg.packageName}/${this.cfg.name}"`,
-      'type = "javascript"',
-      'workers_dev = true',
-    ].join('\n'), { name: 'wrangler.toml' });
 
     // this allows to use a cjs loader for the esm modules. but it still doesn't work on AWS
     if (cfg.esm) {

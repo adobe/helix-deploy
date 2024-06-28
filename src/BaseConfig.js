@@ -190,6 +190,7 @@ export default class BaseConfig {
       .withVersion(argv.pkgVersion)
       .withNodeVersion(argv.nodeVersion)
       .withEntryFile(argv.entryFile)
+      .withDistDir(argv.distDirectory)
       .withAdapterFile(argv.adapterFile)
       .withExternals(argv.externals)
       .withEdgeExternals(argv.edgeExternals)
@@ -219,8 +220,8 @@ export default class BaseConfig {
     return this;
   }
 
-  withDirectory(value) {
-    this.cwd = value === '.' ? process.cwd() : value;
+  withDirectory(value = '.') {
+    this.cwd = path.resolve(process.cwd(), value);
     return this;
   }
 
@@ -450,7 +451,7 @@ export default class BaseConfig {
   }
 
   withDistDir(value) {
-    this.distDir = value;
+    this.distDir = path.resolve(process.cwd(), value);
     return this;
   }
 
@@ -597,7 +598,7 @@ export default class BaseConfig {
         default: '.',
       })
 
-      .group(['help', 'build', 'deploy', 'test', 'test-bundle', 'update-package', 'version-link', 'delete'], 'Operation Options')
+      .group(['help', 'build', 'deploy', 'test', 'test-bundle', 'update-package', 'version-link', 'delete', 'plugin'], 'Operation Options')
       .option('build', {
         description: 'Build the deployment package',
         type: 'boolean',
@@ -632,8 +633,14 @@ export default class BaseConfig {
         type: 'boolean',
         default: false,
       })
+      .option('plugin', {
+        description: 'Specify bundler or deploy plugins.',
+        type: 'string',
+        array: true,
+        default: [],
+      })
 
-      .group(['minify', 'static', 'entryFile', 'externals', 'edge-externals', 'serverless-externals', 'modules', 'adapterFile', 'esm', 'bundler'], 'Build Options')
+      .group(['minify', 'static', 'entryFile', 'externals', 'edge-externals', 'serverless-externals', 'modules', 'adapterFile', 'esm', 'bundler', 'dist-directory'], 'Build Options')
       .option('minify', {
         description: 'Minify the final bundle',
         type: 'boolean',
@@ -655,6 +662,10 @@ export default class BaseConfig {
         description: 'Includes a static file into the archive',
         type: 'array',
         default: [],
+      })
+      .option('dist-directory', {
+        description: 'Specifies the dist (output) directory',
+        default: 'dist',
       })
       .option('entryFile', {
         description: 'Specifies the entry file (the universal function).',
