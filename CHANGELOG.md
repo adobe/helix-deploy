@@ -1,3 +1,15 @@
+# [12.0.0](https://github.com/adobe/helix-deploy/compare/v11.1.15...v12.0.0) (2024-06-28)
+
+
+### Features
+
+* implement support for dynamic plugins ([9b68801](https://github.com/adobe/helix-deploy/commit/9b6880139db71008e4462060e0f4a90512b2fba5)), closes [#715](https://github.com/adobe/helix-deploy/issues/715)
+
+
+### BREAKING CHANGES
+
+* the edge bundler, compute@edge and cloudflare deployer were moved to https://github.com/adobe/helix-deploy-plugin-edge and need to be loaded with the --plugin @adobe/helix-deploy-plugin-edge
+
 ## [11.1.15](https://github.com/adobe/helix-deploy/compare/v11.1.14...v11.1.15) (2024-06-22)
 
 
