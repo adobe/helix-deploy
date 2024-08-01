@@ -12,6 +12,7 @@
 /* eslint-disable no-await-in-loop,no-restricted-syntax */
 import chalk from 'chalk-template';
 import processQueue from '@adobe/helix-shared-process-queue';
+import { promisify } from 'util';
 
 import {
   DeleteObjectCommand,
@@ -56,6 +57,8 @@ import crypto from 'crypto';
 import BaseDeployer from './BaseDeployer.js';
 import ActionBuilder from '../ActionBuilder.js';
 import AWSConfig from './AWSConfig.js';
+
+const sleep = promisify(setTimeout);
 
 const API_GW_NAME_DEFAULT = 'API Managed by Helix Deploy';
 
@@ -991,7 +994,8 @@ export default class AWSDeployer extends BaseDeployer {
   }
 
   async checkFunctionReady(arn) {
-    let tries = 3;
+    let tries = 6;
+    let wait = 1500;
     while (tries > 0) {
       try {
         tries -= 1;
@@ -1006,9 +1010,8 @@ export default class AWSDeployer extends BaseDeployer {
           return;
         }
         // eslint-disable-next-line no-await-in-loop
-        await new Promise((resolve) => {
-          setTimeout(resolve, 1500);
-        });
+        await sleep(wait);
+        wait *= 2;
       } catch (e) {
         this.log.error(chalk`{red error}: error checking function state`);
         throw e;
