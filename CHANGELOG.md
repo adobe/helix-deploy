@@ -1,3 +1,10 @@
+## [12.0.6](https://github.com/adobe/helix-deploy/compare/v12.0.5...v12.0.6) (2024-08-01)
+
+
+### Bug Fixes
+
+* AWS Lambda not ready for updates fixes [#727](https://github.com/adobe/helix-deploy/issues/727) ([#728](https://github.com/adobe/helix-deploy/issues/728)) ([9810e3c](https://github.com/adobe/helix-deploy/commit/9810e3c207300c69e143cd6927a7ce915d5dd078))
+
 ## [12.0.5](https://github.com/adobe/helix-deploy/compare/v12.0.4...v12.0.5) (2024-07-31)
 
 
