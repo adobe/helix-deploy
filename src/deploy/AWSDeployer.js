@@ -218,9 +218,8 @@ export default class AWSDeployer extends BaseDeployer {
     this.log.info(chalk`{green ok:} deleted deploy package {blueBright s3://${this._bucket}/${this._key}}.`);
   }
 
-  async createLambda() {
+  get functionConfig() {
     const { cfg, functionName, additionalTags } = this;
-    const functionVersion = cfg.version.replace(/\./g, '_');
 
     const functionConfig = {
       Code: {
@@ -262,6 +261,15 @@ export default class AWSDeployer extends BaseDeployer {
         functionConfig.Tags[key] = value;
       }
     });
+
+    return functionConfig;
+  }
+
+  async createLambda() {
+    const {
+      cfg, functionName, additionalTags, functionConfig,
+    } = this;
+    const functionVersion = cfg.version.replace(/\./g, '_');
 
     this.log.info(`--: using lambda role "${this._cfg.role}"`);
 

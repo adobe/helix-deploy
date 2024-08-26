@@ -28,6 +28,7 @@ describe('AWS Deployer Test', () => {
     const aws = new AWSDeployer(cfg, awsCfg);
 
     assert.strictEqual(aws.functionName, 'helix-services--static');
+    assert.strictEqual(aws.functionConfig.FunctionName, 'helix-services--static');
   });
 
   it('sets the default lambda with dots', async () => {
@@ -39,6 +40,7 @@ describe('AWS Deployer Test', () => {
     const aws = new AWSDeployer(cfg, awsCfg);
 
     assert.strictEqual(aws.functionName, 'helix-services--gorky_v8');
+    assert.strictEqual(aws.functionConfig.FunctionName, 'helix-services--gorky_v8');
   });
 
   it('sets the default function path', async () => {
@@ -73,6 +75,7 @@ describe('AWS Deployer Test', () => {
 
     assert.strictEqual(aws.functionName, 'pages--html');
     assert.strictEqual(aws.functionPath, '/pages_4.3.1/html');
+    assert.strictEqual(aws.functionConfig.FunctionName, 'pages--html');
   });
 
   it('cleans up old versions', async () => {
@@ -186,6 +189,7 @@ describe('AWS Deployer Test', () => {
     const aws = new AWSDeployer(cfg, awsCfg);
 
     assert.deepStrictEqual(aws.additionalTags, {});
+    assert.strictEqual(Object.keys(aws.functionConfig.Tags).length, 4);
   });
 
   it('correctly transforms tags into an object', async () => {
@@ -202,6 +206,8 @@ describe('AWS Deployer Test', () => {
       foo: 'bar',
       baz: 'qux=quux',
     });
+    assert.strictEqual(aws.functionConfig.Tags.foo, 'bar');
+    assert.strictEqual(aws.functionConfig.Tags.baz, 'qux=quux');
   });
 
   it('creates an error if awsTags is set as an object', async () => {
@@ -212,52 +218,6 @@ describe('AWS Deployer Test', () => {
   });
 
   it('correctly uses awsHandler', async () => {
-    process.env.AWS_ACCESS_KEY_ID = 'awsAccessKeyId';
-    process.env.AWS_SECRET_ACCESS_KEY = 'awsSecretAccessKey';
-    process.env.AWS_SESSION_TOKEN = 'awsSessionToken';
-
-    nock('https://lambda.us-east-1.amazonaws.com:443')
-      .get('/2015-03-31/functions/helix-services--static')
-      .reply(404, {}, {
-        'x-amzn-errortype': 'ResourceNotFoundException',
-      })
-      .post('/2015-03-31/functions', (body) => {
-        if (body.FunctionName === 'helix-services--static') {
-          assert.strictEqual(body.Handler, 'custom.handler', '--aws-handler not correctly passed to AWS');
-          return true;
-        }
-        return false;
-      })
-      .reply(200, {
-        FunctionArn: 'arn:aws:lambda:us-east-1:123456789012:function:helix-services--static',
-        FunctionName: 'helix-services--static',
-      })
-      .get('/2015-03-31/functions/arn%3Aaws%3Alambda%3Aus-east-1%3A123456789012%3Afunction%3Ahelix-services--static')
-      .reply(200, {
-        Configuration: {
-          State: 'Active',
-          LastUpdateStatus: 'Successful',
-        },
-      })
-      .persist()
-      .put('/2015-03-31/functions/helix-services--static/configuration')
-      .reply(200)
-      .post('/2017-03-31/tags/arn%3Aaws%3Alambda%3Aus-east-1%3A123456789012%3Afunction%3Ahelix-services--static')
-      .reply(200)
-      .put('/2015-03-31/functions/helix-services--static/code')
-      .reply(200)
-      .post('/2015-03-31/functions/helix-services--static/versions')
-      .reply(200, {
-        FunctionArn: 'arn:aws:lambda:us-east-1:123456789012:function:helix-services--static',
-        Version: '1',
-      })
-      .get('/2015-03-31/functions/helix-services--static/aliases/1_18_2')
-      .reply(200)
-      .put('/2015-03-31/functions/helix-services--static/aliases/1_18_2')
-      .reply(200, {
-        AliasArn: 'arn:aws:lambda:us-east-1:123456789012:function:helix-services--static:1_18_2',
-      });
-
     const cfg = new BaseConfig()
       .withVersion('1.18.2')
       // eslint-disable-next-line no-template-curly-in-string
@@ -269,7 +229,7 @@ describe('AWS Deployer Test', () => {
     await builder.validate();
 
     const aws = new AWSDeployer(cfg, awsCfg);
-    await aws.init();
-    await aws.createLambda();
+
+    assert.strictEqual(aws.functionConfig.Handler, 'custom.handler');
   });
 });
