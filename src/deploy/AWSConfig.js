@@ -175,7 +175,7 @@ export default class AWSConfig {
         'aws-cleanup-versions', 'aws-create-routes', 'aws-create-authorizer', 'aws-attach-authorizer',
         'aws-lambda-format', 'aws-parameter-manager', 'aws-deploy-template', 'aws-arch', 'aws-update-secrets',
         'aws-deploy-bucket', 'aws-identity-source', 'aws-log-format', 'aws-layers',
-        'aws-tracing-mode', 'aws-extra-permissions', 'aws-tags'], 'AWS Deployment Options')
+        'aws-tracing-mode', 'aws-extra-permissions', 'aws-tags', 'aws-handler'], 'AWS Deployment Options')
       .option('aws-region', {
         description: 'the AWS region to deploy lambda functions to',
         type: 'string',

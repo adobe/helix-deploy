@@ -137,6 +137,7 @@ AWS Deployment Options
       --aws-tracing-mode          The lambda tracing mode. Can be either "Active" or "PassThrough".  [string]
       --aws-extra-permissions     A list of additional invoke permissions to add to the lambda function in the form <SourceARN>@<Principal>. Optionally, you can use <SourceARN>@<Principal>:<Alias> if you want to scope the permission to a specific alias.  [array]
       --aws-tags                  A list of additional tags to attach to the lambda function in the form key=value. To remove a tag, use key= (i.e. without a value).  [array]
+      --aws-handler               Set custom lambda Handler. For example, set if an AWS layer provides another function entry point.  [string]
 
 Google Deployment Options
       --google-project-id  the Google Cloud project to deploy to. Optional when the key file is a JSON file  [string] [default: ""]
