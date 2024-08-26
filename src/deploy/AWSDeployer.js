@@ -247,7 +247,7 @@ export default class AWSDeployer extends BaseDeployer {
       Environment: {
         Variables: cfg.params,
       },
-      Handler: cfg.esm ? 'esm-adapter/index.handler' : 'index.lambda',
+      Handler: this._cfg.handler || (cfg.esm ? 'esm-adapter/index.handler' : 'index.lambda'),
       Architectures: [
         this._cfg.arch,
       ],
