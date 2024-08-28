@@ -1,3 +1,10 @@
+# [12.1.0](https://github.com/adobe/helix-deploy/compare/v12.0.10...v12.1.0) (2024-08-28)
+
+
+### Features
+
+* **aws:** support configuring Lambda Handler ([#733](https://github.com/adobe/helix-deploy/issues/733)) ([dfb1be9](https://github.com/adobe/helix-deploy/commit/dfb1be95ee1ed58359c2b49cf32ccdfacb3da036))
+
 ## [12.0.10](https://github.com/adobe/helix-deploy/compare/v12.0.9...v12.0.10) (2024-08-24)
 
 
