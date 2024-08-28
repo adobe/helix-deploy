@@ -35,6 +35,7 @@ export default class AWSConfig {
       tracingMode: undefined,
       extraPermissions: undefined,
       tags: undefined,
+      handler: undefined,
     });
   }
 
@@ -58,7 +59,8 @@ export default class AWSConfig {
       .withAWSLayers(argv.awsLayers)
       .withAWSTracingMode(argv.awsTracingMode)
       .withAWSExtraPermissions(argv.awsExtraPermissions)
-      .withAWSTags(argv.awsTags);
+      .withAWSTags(argv.awsTags)
+      .withAWSHandler(argv.awsHandler);
   }
 
   withAWSRegion(value) {
@@ -162,13 +164,18 @@ export default class AWSConfig {
     return this;
   }
 
+  withAWSHandler(value) {
+    this.handler = value;
+    return this;
+  }
+
   static yarg(yargs) {
     return yargs
       .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-cleanup-integrations',
         'aws-cleanup-versions', 'aws-create-routes', 'aws-create-authorizer', 'aws-attach-authorizer',
         'aws-lambda-format', 'aws-parameter-manager', 'aws-deploy-template', 'aws-arch', 'aws-update-secrets',
         'aws-deploy-bucket', 'aws-identity-source', 'aws-log-format', 'aws-layers',
-        'aws-tracing-mode', 'aws-extra-permissions', 'aws-tags'], 'AWS Deployment Options')
+        'aws-tracing-mode', 'aws-extra-permissions', 'aws-tags', 'aws-handler'], 'AWS Deployment Options')
       .option('aws-region', {
         description: 'the AWS region to deploy lambda functions to',
         type: 'string',
@@ -263,6 +270,10 @@ export default class AWSConfig {
         description: 'A list of additional tags to attach to the lambda function in the form key=value. To remove a tag, use key= (i.e. without a value).',
         type: 'array',
         array: true,
+      })
+      .option('aws-handler', {
+        description: 'Set custom lambda Handler. For example, set if an AWS layer provides another function entry point.',
+        type: 'string',
       });
   }
 }

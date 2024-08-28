@@ -28,6 +28,7 @@ describe('AWS Deployer Test', () => {
     const aws = new AWSDeployer(cfg, awsCfg);
 
     assert.strictEqual(aws.functionName, 'helix-services--static');
+    assert.strictEqual(aws.functionConfig.FunctionName, 'helix-services--static');
   });
 
   it('sets the default lambda with dots', async () => {
@@ -39,6 +40,7 @@ describe('AWS Deployer Test', () => {
     const aws = new AWSDeployer(cfg, awsCfg);
 
     assert.strictEqual(aws.functionName, 'helix-services--gorky_v8');
+    assert.strictEqual(aws.functionConfig.FunctionName, 'helix-services--gorky_v8');
   });
 
   it('sets the default function path', async () => {
@@ -73,6 +75,7 @@ describe('AWS Deployer Test', () => {
 
     assert.strictEqual(aws.functionName, 'pages--html');
     assert.strictEqual(aws.functionPath, '/pages_4.3.1/html');
+    assert.strictEqual(aws.functionConfig.FunctionName, 'pages--html');
   });
 
   it('cleans up old versions', async () => {
@@ -186,6 +189,7 @@ describe('AWS Deployer Test', () => {
     const aws = new AWSDeployer(cfg, awsCfg);
 
     assert.deepStrictEqual(aws.additionalTags, {});
+    assert.strictEqual(Object.keys(aws.functionConfig.Tags).length, 4);
   });
 
   it('correctly transforms tags into an object', async () => {
@@ -202,6 +206,8 @@ describe('AWS Deployer Test', () => {
       foo: 'bar',
       baz: 'qux=quux',
     });
+    assert.strictEqual(aws.functionConfig.Tags.foo, 'bar');
+    assert.strictEqual(aws.functionConfig.Tags.baz, 'qux=quux');
   });
 
   it('creates an error if awsTags is set as an object', async () => {
@@ -209,5 +215,21 @@ describe('AWS Deployer Test', () => {
       name: 'Error',
       message: 'awsTags must be an array',
     });
+  });
+
+  it('correctly uses awsHandler', async () => {
+    const cfg = new BaseConfig()
+      .withVersion('1.18.2')
+      // eslint-disable-next-line no-template-curly-in-string
+      .withName('/helix-services/static@${version}');
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
+      .withAWSHandler('custom.handler');
+    const builder = new ActionBuilder().withConfig(cfg);
+    await builder.validate();
+
+    const aws = new AWSDeployer(cfg, awsCfg);
+
+    assert.strictEqual(aws.functionConfig.Handler, 'custom.handler');
   });
 });

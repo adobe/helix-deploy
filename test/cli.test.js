@@ -461,6 +461,7 @@ describe('CLI Test', () => {
       layers: undefined,
       logFormat: undefined,
       tags: undefined,
+      handler: undefined,
     });
   });
 
