@@ -251,7 +251,7 @@ export default class AWSDeployer extends BaseDeployer {
         this._cfg.arch,
       ],
       LoggingConfig: this._cfg.logFormat ? { Format: this._cfg.logFormat } : undefined,
-      Layers: this._cfg.layers,
+      Layers: this._cfg.layers || [],
       TracingConfig: this._cfg.tracingMode ? { Mode: this._cfg.tracingMode } : undefined,
     };
 
