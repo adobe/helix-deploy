@@ -232,4 +232,35 @@ describe('AWS Deployer Test', () => {
 
     assert.strictEqual(aws.functionConfig.Handler, 'custom.handler');
   });
+
+  // https://github.com/adobe/helix-deploy/issues/734
+  it('uses empty array for Layers if no awsLayers is configured', async () => {
+    const cfg = new BaseConfig();
+    const awsCfg = new AWSConfig();
+    const builder = new ActionBuilder().withConfig(cfg);
+    await builder.validate();
+
+    const aws = new AWSDeployer(cfg, awsCfg);
+    assert.deepEqual(aws.functionConfig.Layers, []);
+  });
+
+  it('sets Layers if awsLayers is configured (1)', async () => {
+    const cfg = new BaseConfig();
+    const awsCfg = new AWSConfig().withAWSLayers(['my-layer:1']);
+    const builder = new ActionBuilder().withConfig(cfg);
+    await builder.validate();
+
+    const aws = new AWSDeployer(cfg, awsCfg);
+    assert.deepEqual(aws.functionConfig.Layers, ['my-layer:1']);
+  });
+
+  it('sets Layers if awsLayers is configured (2)', async () => {
+    const cfg = new BaseConfig();
+    const awsCfg = new AWSConfig().withAWSLayers(['my-layer:1', 'my-other-layer:1']);
+    const builder = new ActionBuilder().withConfig(cfg);
+    await builder.validate();
+
+    const aws = new AWSDeployer(cfg, awsCfg);
+    assert.deepEqual(aws.functionConfig.Layers, ['my-layer:1', 'my-other-layer:1']);
+  });
 });
