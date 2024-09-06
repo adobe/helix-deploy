@@ -1,3 +1,10 @@
+## [12.1.1](https://github.com/adobe/helix-deploy/compare/v12.1.0...v12.1.1) (2024-09-06)
+
+
+### Bug Fixes
+
+* Removing awsLayers does not remove layers from a deployed function [#734](https://github.com/adobe/helix-deploy/issues/734) ([#735](https://github.com/adobe/helix-deploy/issues/735)) ([b2bb82b](https://github.com/adobe/helix-deploy/commit/b2bb82bffc5c07abfac2d9db2f3e8d30b219e9cd))
+
 # [12.1.0](https://github.com/adobe/helix-deploy/compare/v12.0.10...v12.1.0) (2024-08-28)
 
 
