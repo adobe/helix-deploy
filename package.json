@@ -37,7 +37,7 @@
     "@adobe/helix-universal": ">=4.1.1"
   },
   "dependencies": {
-    "@adobe/fetch": "4.1.8",
+    "@adobe/fetch": "4.1.9",
     "@adobe/helix-shared-process-queue": "3.0.4",
     "@aws-sdk/client-apigatewayv2": "3.654.0",
     "@aws-sdk/client-lambda": "3.656.0",
@@ -61,7 +61,7 @@
   "devDependencies": {
     "@adobe/eslint-config-helix": "2.0.7",
     "@adobe/helix-shared-wrap": "2.0.2",
-    "@adobe/helix-status": "10.1.2",
+    "@adobe/helix-status": "10.1.3",
     "@semantic-release/changelog": "6.0.3",
     "@semantic-release/git": "10.0.1",
     "c8": "10.1.2",
