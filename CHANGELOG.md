@@ -1,3 +1,10 @@
+# [12.2.0](https://github.com/adobe/helix-deploy/compare/v12.1.5...v12.2.0) (2024-09-24)
+
+
+### Features
+
+* add regional deploy buckets ([#741](https://github.com/adobe/helix-deploy/issues/741)) ([a0510e4](https://github.com/adobe/helix-deploy/commit/a0510e4a2f8bcc9b3c3db8305ded0dbce4feb89f)), closes [#568](https://github.com/adobe/helix-deploy/issues/568)
+
 ## [12.1.5](https://github.com/adobe/helix-deploy/compare/v12.1.4...v12.1.5) (2024-09-21)
 
 
