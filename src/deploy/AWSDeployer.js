@@ -169,6 +169,7 @@ export default class AWSDeployer extends BaseDeployer {
       this._sm = new SecretsManagerClient({
         region: this._cfg.region,
       });
+      this._bucket = this._cfg.deployBucket || `helix-deploy-bucket-${this._accountId}${this._cfg.region !== 'us-east-1' ? `-${this._cfg.region}` : ''}`;
     }
   }
 
@@ -192,7 +193,6 @@ export default class AWSDeployer extends BaseDeployer {
     const relZip = path.relative(process.cwd(), cfg.zipFile);
 
     // ensure upload key is unique
-    this._bucket = this._cfg.deployBucket || `helix-deploy-bucket-${this._accountId}`;
     this._key = `${path.basename(relZip)}-${crypto.randomBytes(16).toString('hex')}`;
     const uploadParams = {
       Bucket: this._bucket,
