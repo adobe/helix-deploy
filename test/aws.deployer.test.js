@@ -94,9 +94,8 @@ describe('AWS Deployer Test', () => {
       .withAWSRegion('eu-central-1')
       .withAWSDeployBucket('my-bucket');
     const aws = new AWSDeployer(cfg, awsCfg);
-    // eslint-disable-next-line no-underscore-dangle
-    aws._accountId = '123456789012';
     await aws.init();
+    await aws.initAccountId();
     // eslint-disable-next-line no-underscore-dangle
     assert.strictEqual(aws._bucket, 'my-bucket');
   });
