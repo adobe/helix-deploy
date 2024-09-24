@@ -56,6 +56,50 @@ describe('AWS Deployer Test', () => {
     assert.strictEqual(aws.functionPath, '/helix-services/static/1.18.2');
   });
 
+  it('sets the default deploy bucket', async () => {
+    const cfg = new BaseConfig()
+      .withVersion('1.18.2')
+      // eslint-disable-next-line no-template-curly-in-string
+      .withName('/helix-services/static@${version}');
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1');
+    const aws = new AWSDeployer(cfg, awsCfg);
+    // eslint-disable-next-line no-underscore-dangle
+    await aws.init();
+    await aws.initAccountId();
+    // eslint-disable-next-line no-underscore-dangle
+    assert.strictEqual(aws._bucket, 'helix-deploy-bucket-118435662149');
+  });
+
+  it('sets the default deploy bucket with region', async () => {
+    const cfg = new BaseConfig()
+      .withVersion('1.18.2')
+      // eslint-disable-next-line no-template-curly-in-string
+      .withName('/helix-services/static@${version}');
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('eu-central-1');
+    const aws = new AWSDeployer(cfg, awsCfg);
+    await aws.init();
+    await aws.initAccountId();
+    // eslint-disable-next-line no-underscore-dangle
+    assert.strictEqual(aws._bucket, 'helix-deploy-bucket-118435662149-eu-central-1');
+  });
+
+  it('sets the custom deploy bucket', async () => {
+    const cfg = new BaseConfig()
+      .withVersion('1.18.2')
+      // eslint-disable-next-line no-template-curly-in-string
+      .withName('/helix-services/static@${version}');
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('eu-central-1')
+      .withAWSDeployBucket('my-bucket');
+    const aws = new AWSDeployer(cfg, awsCfg);
+    await aws.init();
+    await aws.initAccountId();
+    // eslint-disable-next-line no-underscore-dangle
+    assert.strictEqual(aws._bucket, 'my-bucket');
+  });
+
   it('can configure lambda name and format', async () => {
     const cfg = new BaseConfig()
       .withVersion('4.3.1')

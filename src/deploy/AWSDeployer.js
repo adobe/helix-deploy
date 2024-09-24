@@ -182,6 +182,7 @@ export default class AWSDeployer extends BaseDeployer {
       const ret = await sts.send(new GetCallerIdentityCommand());
       this._accountId = ret.Account;
       this.log.info(chalk`{green ok:} initialized AWS deployer for account {yellow ${ret.Account}}`);
+      this._bucket = this._cfg.deployBucket || `helix-deploy-bucket-${this._accountId}${this._cfg.region !== 'us-east-1' ? `-${this._cfg.region}` : ''}`;
     } finally {
       sts.destroy();
     }
@@ -192,7 +193,6 @@ export default class AWSDeployer extends BaseDeployer {
     const relZip = path.relative(process.cwd(), cfg.zipFile);
 
     // ensure upload key is unique
-    this._bucket = this._cfg.deployBucket || `helix-deploy-bucket-${this._accountId}`;
     this._key = `${path.basename(relZip)}-${crypto.randomBytes(16).toString('hex')}`;
     const uploadParams = {
       Bucket: this._bucket,

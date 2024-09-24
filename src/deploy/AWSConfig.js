@@ -244,7 +244,7 @@ export default class AWSConfig {
         default: false,
       })
       .option('aws-deploy-bucket', {
-        description: 'Name of the deploy S3 bucket to use (default is helix-deploy-bucket-{accountId})',
+        description: 'Name of the deploy S3 bucket to use (default is helix-deploy-bucket-{accountId}[-{region}])',
         type: 'string',
         default: '',
       })
