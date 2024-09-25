@@ -10,7 +10,6 @@
  * governing permissions and limitations under the License.
  */
 /* eslint-disable no-console */
-// eslint-disable-next-line import/no-unresolved
 import { LambdaClient, InvokeCommand, InvocationType } from '@aws-sdk/client-lambda';
 
 /**
@@ -21,13 +20,11 @@ import { LambdaClient, InvokeCommand, InvocationType } from '@aws-sdk/client-lam
  * ANY /helix-services/{action}/{version}
  * ANY /helix-services/{action}/{version}/{path+}
  *
- * ANY /helix-observation/{action}/{version}
- * ANY /helix-observation/{action}/{version}/{path+}
- *
- * Note that the package cannot be a path parameter, as it would clash with the pages proxy
+ * ANY /helix3/{action}/{version}
+ * ANY /helix3/{action}/{version}/{path+}
  *
  * @param event
- * @returns {Promise<{body, statusCode}|any>}
+ * @returns {Promise<{body, headers, statusCode}|any>}
  */
 export const handler = async (event) => {
   const { action, version } = event.pathParameters;
@@ -43,14 +40,13 @@ export const handler = async (event) => {
         Payload: JSON.stringify(event),
       }),
     );
-    const data = JSON.parse(new TextDecoder('utf8').decode(ret.Payload));
-    console.log(`statusCode: ${data.statusCode}`);
-    return data;
+    return JSON.parse(new TextDecoder('utf8').decode(ret.Payload));
   } catch (err) {
     console.error(err);
     return {
-      statusCode: err.statusCode,
-      body: err.message,
+      statusCode: err.$metadata?.httpStatusCode ?? err.statusCode,
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ message: err.message }),
     };
   }
 };

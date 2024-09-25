@@ -13,12 +13,25 @@
 /* eslint-env mocha */
 import assert from 'assert';
 import nock from 'nock';
+import xml2js from 'xml2js';
 import BaseConfig from '../src/BaseConfig.js';
 import AWSConfig from '../src/deploy/AWSConfig.js';
 import AWSDeployer from '../src/deploy/AWSDeployer.js';
 import ActionBuilder from '../src/ActionBuilder.js';
 
 describe('AWS Deployer Test', () => {
+  beforeEach(() => {
+    process.env.AWS_ACCESS_KEY_ID = 'fake';
+    process.env.AWS_SECRET_ACCESS_KEY = 'fake';
+    process.env.AWS_REGION = 'us-east-1';
+  });
+
+  afterEach(() => {
+    delete process.env.AWS_ACCESS_KEY_ID;
+    delete process.env.AWS_SECRET_ACCESS_KEY;
+    delete process.env.AWS_REGION;
+  });
+
   it('sets the default lambda name', async () => {
     const cfg = new BaseConfig()
       .withName('/helix-services/static@4.3.1');
@@ -57,6 +70,16 @@ describe('AWS Deployer Test', () => {
   });
 
   it('sets the default deploy bucket', async () => {
+    nock('https://sts.us-east-1.amazonaws.com/')
+      .post('/')
+      .reply(() => [200, new xml2js.Builder().buildObject({
+        GetCallerIdentityResponse: {
+          GetCallerIdentityResult: {
+            Account: '118435662149',
+          },
+        },
+      })]);
+
     const cfg = new BaseConfig()
       .withVersion('1.18.2')
       // eslint-disable-next-line no-template-curly-in-string
@@ -72,6 +95,16 @@ describe('AWS Deployer Test', () => {
   });
 
   it('sets the default deploy bucket with region', async () => {
+    nock('https://sts.eu-central-1.amazonaws.com/')
+      .post('/')
+      .reply(() => [200, new xml2js.Builder().buildObject({
+        GetCallerIdentityResponse: {
+          GetCallerIdentityResult: {
+            Account: '118435662149',
+          },
+        },
+      })]);
+
     const cfg = new BaseConfig()
       .withVersion('1.18.2')
       // eslint-disable-next-line no-template-curly-in-string
@@ -86,6 +119,16 @@ describe('AWS Deployer Test', () => {
   });
 
   it('sets the custom deploy bucket', async () => {
+    nock('https://sts.eu-central-1.amazonaws.com/')
+      .post('/')
+      .reply(() => [200, new xml2js.Builder().buildObject({
+        GetCallerIdentityResponse: {
+          GetCallerIdentityResult: {
+            Account: '118435662149',
+          },
+        },
+      })]);
+
     const cfg = new BaseConfig()
       .withVersion('1.18.2')
       // eslint-disable-next-line no-template-curly-in-string
