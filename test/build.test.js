@@ -83,7 +83,9 @@ describe('Build Test', () => {
 
     await builder.run();
 
-    await assertZipEntries(path.resolve(testRoot, 'dist', 'simple-package', 'simple-name@1.45.0.zip'), [
+    const zipPath = path.resolve(testRoot, 'dist', 'simple-package', 'simple-name@1.45.0.zip');
+    assert.ok(fse.existsSync(zipPath), `Build did not produce zip file: ${zipPath}`);
+    await assertZipEntries(zipPath, [
       'index.js',
       'package.json',
       'files/hello.txt',
@@ -136,6 +138,10 @@ describe('Build Test', () => {
 
   it('generates the bundle (webpack)', async () => {
     await generate([]);
+  }).timeout(15000);
+
+  it('generates the bundle (webpack, wsk conf name)', async () => {
+    await generate([], path.resolve(__rootdir, 'test', 'fixtures', 'simple-conf-wsk'));
   }).timeout(15000);
 
   it('invalid bundle fails the build', async () => {

@@ -6,9 +6,9 @@
   "license": "Apache-2.0",
   "main": "index.js",
   "dependencies": {
-    "@adobe/fetch": "3.1.4"
+    "@adobe/fetch": "4.0.1"
   },
-  "hlx": {
+  "wsk": {
     "namespace": "helix",
     "name": "simple-package/simple-name@${version}",
     "params-file": [
@@ -17,7 +17,9 @@
     "package": {
       "name": "simple-package",
       "params": {
-        "test-package-param": "42"
+        "test-package-param": "42",
+        "ZIP": "zap",
+        "HEY": "ho"
       }
     },
     "static": [

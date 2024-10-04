@@ -5,7 +5,7 @@
   "private": true,
   "license": "Apache-2.0",
   "main": "index.js",
-  "wsk": {
+  "hlx": {
     "namespace": "helix",
     "name": "simple-package/simple-authorizer@${version}",
     "adapterFile": "./index.js",

@@ -218,7 +218,7 @@ hedy -p MY_TOKEN=@token.txt
 ### Specifying arguments in the `package.json`
 
 Instead of passing all the arguments via command line, you can also specify them in the `package.json`
-in the `wsk` object. eg:
+in the `hlx` object. eg:
 
 ```json
 {
@@ -227,7 +227,7 @@ in the `wsk` object. eg:
     "build": "./node_modules/.bin/hedy -v",
     "deploy": "./node_modules/.bin/hedy -v --deploy --test"
   },
-  "wsk": {
+  "hlx": {
     "name": "my-test-action",
     "params-file": [
       "secrets/secrets.env"
@@ -247,12 +247,14 @@ in the `wsk` object. eg:
 }
 ```
 
+The config name changed to `hlx` in version `12.3`. The previous name `wsk` is still supported, but deprecated.
+
 ### Versioning your action
 
 It can be helpful to version the action name, eg with the `@version` notation. So for example
 
 ```json
-"wsk": {
+"hlx": {
   "name": "my-action@4.3.1"
 }
 ```
@@ -260,7 +262,7 @@ It can be helpful to version the action name, eg with the `@version` notation. S
 In order to automatically use the version of the `package.json` use:
 
 ```json
-"wsk": {
+"hlx": {
   "name": "my-action@${version}"
 }
 ```
@@ -275,7 +277,7 @@ In addition to the `${version}` token described above, arguments will be interpo
 ```json
 {
 ...
-  "wsk": {
+  "hlx": {
     ...
     "docker": "adobe/probot-ow-nodejs8:${env.PROBOT_DOCKER_VERSION}"
   },
@@ -315,7 +317,7 @@ destination filename. eg:
 
 ```json
 ...
-  "wsk": {
+  "hlx": {
     ...
     "static": [
       "config.json",

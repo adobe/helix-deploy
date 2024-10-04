@@ -11,9 +11,11 @@
  */
 
 /* eslint-disable no-console */
+import { readFileSync } from 'fs';
 import yargs from 'yargs';
 import chalk from 'chalk-template';
 import { config as envConfig } from 'dotenv';
+import escalade from 'escalade/sync';
 import BaseConfig from './BaseConfig.js';
 import OpenWhiskDeployer from './deploy/OpenWhiskDeployer.js';
 import AWSDeployer from './deploy/AWSDeployer.js';
@@ -26,6 +28,12 @@ const PLUGINS = [
   AWSDeployer,
   GoogleDeployer,
   WebpackBundler,
+];
+
+const PKG_CONF = [
+  'hlx',
+  // original name for backwards compatibility
+  'wsk',
 ];
 
 envConfig();
@@ -65,10 +73,31 @@ async function loadPlugin(name) {
   return plugins;
 }
 
+function findPkgJsonConfig() {
+  // fallback to original config name 'wsk' in case anything goes wrong
+  // for safe backwards compatibility
+  let cfg = 'wsk';
+
+  try {
+    // find package.json in parent directories (like yargs does)
+    const pkg = escalade(process.cwd(), (_, names) => (names.includes('package.json') ? 'package.json' : undefined));
+
+    if (pkg) {
+      const pkgJson = JSON.parse(readFileSync(pkg, 'utf8'));
+      // search for config key in package.json by priority in PKG_CONF array
+      cfg = PKG_CONF.find((key) => key in pkgJson) || cfg;
+    }
+  } catch (e) {
+    // ignore
+  }
+
+  return cfg;
+}
+
 export default class CLI {
   buildArgs(plugins) {
     this._yargs = yargs()
-      .pkgConf('wsk')
+      .pkgConf(findPkgJsonConfig())
       .env('HLX')
       .middleware((argv) => {
         // convert process.env to flattened object with flat keys
