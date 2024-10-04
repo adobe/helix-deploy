@@ -247,7 +247,7 @@ in the `hlx` object. eg:
 }
 ```
 
-The config name changed to `hlx` in version `12.3`. The previous name `wsk` is still supported, but deprecated.
+The config name changed to `hlx` in version `12.3`. The previous name `wsk` is still supported, but deprecated. If both are present, `hlx` will be used.
 
 ### Versioning your action
 
