@@ -84,7 +84,7 @@ describe('Build Test', () => {
     await builder.run();
 
     const zipPath = path.resolve(testRoot, 'dist', 'simple-package', 'simple-name@1.45.0.zip');
-    assert.ok(fse.existsSync(zipPath), `Build did not produce zip file: ${zipPath}`);
+    assert.ok(await fse.exists(zipPath), `Build did not produce zip file: ${zipPath}`);
     await assertZipEntries(zipPath, [
       'index.js',
       'package.json',
