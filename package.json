@@ -51,7 +51,7 @@
     "archiver": "7.0.1",
     "chalk-template": "1.1.0",
     "dotenv": "16.4.5",
-    "escalade": "^3.2.0",
+    "escalade": "3.2.0",
     "fs-extra": "11.2.0",
     "isomorphic-git": "1.27.1",
     "openwhisk": "3.21.8",
