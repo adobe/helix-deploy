@@ -1,6 +1,6 @@
 {
   "name": "@adobe/helix-deploy",
-  "version": "12.2.1",
+  "version": "12.2.2",
   "description": "Library and Commandline Tools to build and deploy OpenWhisk Actions",
   "license": "Apache-2.0",
   "homepage": "https://github.com/adobe/helix-deploy#readme",
@@ -39,12 +39,12 @@
   "dependencies": {
     "@adobe/fetch": "4.1.9",
     "@adobe/helix-shared-process-queue": "3.0.4",
-    "@aws-sdk/client-apigatewayv2": "3.658.1",
-    "@aws-sdk/client-lambda": "3.659.0",
-    "@aws-sdk/client-s3": "3.658.1",
-    "@aws-sdk/client-secrets-manager": "3.658.1",
-    "@aws-sdk/client-ssm": "3.658.1",
-    "@aws-sdk/client-sts": "3.658.1",
+    "@aws-sdk/client-apigatewayv2": "3.665.0",
+    "@aws-sdk/client-lambda": "3.665.0",
+    "@aws-sdk/client-s3": "3.665.0",
+    "@aws-sdk/client-secrets-manager": "3.665.0",
+    "@aws-sdk/client-ssm": "3.665.0",
+    "@aws-sdk/client-sts": "3.665.0",
     "@google-cloud/functions": "3.6.0",
     "@google-cloud/secret-manager": "5.6.0",
     "@google-cloud/storage": "7.13.0",
@@ -60,7 +60,7 @@
     "yargs": "17.7.2"
   },
   "devDependencies": {
-    "@adobe/eslint-config-helix": "2.0.7",
+    "@adobe/eslint-config-helix": "2.0.8",
     "@adobe/helix-shared-wrap": "2.0.2",
     "@adobe/helix-status": "10.1.3",
     "@semantic-release/changelog": "6.0.3",
