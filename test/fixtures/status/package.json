@@ -11,7 +11,7 @@
     "@adobe/helix-universal": "1.0.0",
     "@adobe/helix-universal-logger": "1.0.2"
   },
-  "wsk": {
+  "hlx": {
     "name": "simple-package/simple-status@${version}"
   }
 }

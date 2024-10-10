@@ -279,6 +279,42 @@ describe('Deploy Test', () => {
     assert.ok(out.indexOf('$ curl "https://example.com/api/v1/web/foobar/test-package/simple-project"') > 0);
   }).timeout(15000);
 
+  it('deploys a web action with package (wsk conf name)', async () => {
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'web-action-with-package-conf-wsk'), testRoot);
+
+    nock(process.env.WSK_APIHOST)
+      .get('/api/v1/namespaces/foobar/packages/test-package')
+      .reply(200)
+      .put('/api/v1/namespaces/foobar/actions/test-package/simple-project?overwrite=true')
+      .reply(201, {
+        // openwhisk returns the package in the namespace property!
+        namespace: `${process.env.WSK_NAMESPACE}/test-package`,
+      });
+
+    process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
+    const builder = await new CLI()
+      .prepare([
+        '--target', 'wsk',
+        '--verbose',
+        '--deploy',
+        '--directory', testRoot,
+        '--fastlyServiceId', '',
+        '--fastlyAuth', '',
+      ]);
+    builder.cfg._logger = new TestLogger();
+
+    const res = await builder.run();
+    assert.deepEqual(res, {
+      wsk: {
+        name: 'openwhisk;host=https://example.com',
+        url: '/foobar/test-package/simple-project',
+      },
+    });
+
+    const out = builder.cfg.log.output;
+    assert.ok(out.indexOf('$ curl "https://example.com/api/v1/web/foobar/test-package/simple-project"') > 0);
+  }).timeout(15000);
+
   it.skip('deploys a pure action', async () => {
     await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'pure-action'), testRoot);
 

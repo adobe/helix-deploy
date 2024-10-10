@@ -5,7 +5,7 @@
   "private": true,
   "license": "Apache-2.0",
   "main": "index.js",
-  "hlx": {
-    "name": "simple-project"
+  "wsk": {
+    "name": "test-package/simple-project"
   }
 }

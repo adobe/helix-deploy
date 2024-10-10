@@ -8,7 +8,7 @@
   "dependencies": {
     "@adobe/fetch": "3.1.4"
   },
-  "wsk": {
+  "hlx": {
     "namespace": "helix",
     "name": "simple-package/simple-name@${version}",
     "params-file": [
