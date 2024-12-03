@@ -1,3 +1,10 @@
+## [12.3.9](https://github.com/adobe/helix-deploy/compare/v12.3.8...v12.3.9) (2024-12-03)
+
+
+### Bug Fixes
+
+* change default node version to 22 ([#758](https://github.com/adobe/helix-deploy/issues/758)) ([194fb1d](https://github.com/adobe/helix-deploy/commit/194fb1da566bbf110f10a4bbed3475860d0dba49))
+
 ## [12.3.8](https://github.com/adobe/helix-deploy/compare/v12.3.7...v12.3.8) (2024-11-30)
 
 
