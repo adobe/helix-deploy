@@ -75,6 +75,7 @@ export default class ESBuildBundler extends BaseBundler {
           });
         },
       }],
+      metafile: true,
     };
     if (cfg.minify) {
       opts.minify = cfg.minify;
@@ -101,7 +102,7 @@ export default class ESBuildBundler extends BaseBundler {
       cfg.log.info(`--: creating ${arch} ${m}bundle using esbuild ...`);
     }
     const config = await this.getESBuildConfig();
-    const result = esbuild.build(config);
+    const result = await esbuild.build(config);
     // cfg.log.debug(stats.toString({
     //   chunks: false,
     //   colors: true,
