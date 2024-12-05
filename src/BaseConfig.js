@@ -212,7 +212,8 @@ export default class BaseConfig {
       .withCleanupMinor(argv.cleanupMinor)
       .withCleanupMajor(argv.cleanupMajor)
       .withPackageToken(argv.packageToken)
-      .withProperties(argv.property);
+      .withProperties(argv.property)
+      .withBundler(argv.bundler);
   }
 
   withVerbose(enable) {
@@ -562,6 +563,14 @@ export default class BaseConfig {
 
   withPackageToken(value) {
     this.packageToken = value;
+    return this;
+  }
+
+  withBundler(bundler) {
+    if (!bundler) {
+      return this;
+    }
+    this.bundler = bundler;
     return this;
   }
 

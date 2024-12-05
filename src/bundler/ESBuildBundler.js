@@ -1,0 +1,193 @@
+/*
+ * Copyright 2019 Adobe. All rights reserved.
+ * This file is licensed to you under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License. You may obtain a copy
+ * of the License at http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
+ * OF ANY KIND, either express or implied. See the License for the specific language
+ * governing permissions and limitations under the License.
+ */
+import { fileURLToPath } from 'url';
+import path from 'path';
+import fse from 'fs-extra';
+import webpack from 'webpack';
+import * as esbuild from 'esbuild';
+import chalk from 'chalk-template';
+import BaseBundler from './BaseBundler.js';
+
+// eslint-disable-next-line no-underscore-dangle
+const __dirname = path.resolve(fileURLToPath(import.meta.url), '..');
+
+/**
+ * Webpack based bundler
+ */
+export default class ESBuildBundler extends BaseBundler {
+  constructor(cfg) {
+    super(cfg);
+    this.arch = 'node';
+    this.type = 'esbuild';
+  }
+
+  async init() {
+    if (!this.cfg.esm) {
+      throw new Error('ESBuild bundler only supports ESM builds.');
+    }
+  }
+
+  async getESBuildConfig() {
+    const { cfg } = this;
+    /** @type {esbuild.BuildOptions} */
+    const opts = {
+      format: 'esm',
+      platform: 'node',
+      bundle: true,
+      outfile: path.relative(cfg.cwd, cfg.bundle),
+      external: [
+        '@aws-sdk/*',
+        // the following are imported by the universal adapter and are assumed to be available
+        './params.json',
+        'aws-sdk',
+        '@google-cloud/secret-manager',
+        '@google-cloud/storage',
+      ],
+      banner: {
+        js: [
+          'import { createRequire } from "module";',
+          'const require = createRequire(import.meta.url);',
+          '',
+        ].join('\n'),
+      },
+      entryPoints: [
+        cfg.adapterFile || path.resolve(__dirname, '..', 'template', 'node-index.mjs'),
+      ],
+      absWorkingDir: cfg.cmd,
+      plugins: [{
+        name: 'alias-main',
+        setup: (build) => {
+          build.onResolve({ filter: /^\.\/main\.js$/ }, () => ({ path: cfg.file }));
+          cfg.externals.forEach((filter) => {
+            build.onResolve({ filter }, (args) => ({ path: args.path, external: true }));
+          });
+          cfg.serverlessExternals.forEach((filter) => {
+            build.onResolve({ filter }, (args) => ({ path: args.path, external: true }));
+          });
+        },
+      }],
+    };
+    if (cfg.minify) {
+      opts.minify = cfg.minify;
+    }
+
+    if (cfg.progressHandler) {
+      this.initProgressHandler(opts, cfg);
+    }
+    return opts;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  initProgressHandler(opts, cfg) {
+    opts.plugins.push(new webpack.ProgressPlugin(cfg.progressHandler));
+  }
+
+  async createESBuildBundle(arch) {
+    const { cfg } = this;
+    if (!cfg.depFile) {
+      throw Error('dependencies info path is undefined');
+    }
+    const m = cfg.minify ? 'minified ' : '';
+    if (!cfg.progressHandler) {
+      cfg.log.info(`--: creating ${arch} ${m}bundle using esbuild ...`);
+    }
+    const config = await this.getESBuildConfig();
+    const result = esbuild.build(config);
+    // cfg.log.debug(stats.toString({
+    //   chunks: false,
+    //   colors: true,
+    // }));
+
+    // await this.resolveDependencyInfos(stats);
+    // write dependencies info file
+    // await fse.writeJson(cfg.depFile, cfg.dependencies, { spaces: 2 });
+    if (!cfg.progressHandler) {
+      cfg.log.info(chalk`{green ok:} created ${arch} bundle {yellow ${config.outfile}}`);
+    }
+    return result;
+  }
+
+  async createBundle() {
+    if (!this.cfg.bundle) {
+      throw Error('bundle path is undefined');
+    }
+    return this.createESBuildBundle('node');
+  }
+
+  /**
+   * Resolves the dependencies by chunk. eg:
+   *
+   * {
+   *   'src/idx_json.bundle.js': [{
+   *      id: '@adobe/helix-epsagon:1.2.0',
+   *      name: '@adobe/helix-epsagon',
+   *      version: '1.2.0' },
+   *   ],
+   *   ...
+   * }
+   */
+  async resolveDependencyInfos(stats) {
+    const { cfg } = this;
+
+    // get list of dependencies
+    const depsByFile = {};
+    const resolved = {};
+
+    const jsonStats = stats.toJson({
+      chunks: true,
+      chunkModules: true,
+    });
+
+    await Promise.all(jsonStats.chunks
+      .map(async (chunk) => {
+        const chunkName = chunk.names[0];
+        const deps = {};
+        depsByFile[chunkName] = deps;
+
+        await Promise.all(chunk.modules.map(async (mod) => {
+          const segs = mod.identifier.split('/');
+          let idx = segs.lastIndexOf('node_modules');
+          if (idx >= 0) {
+            idx += 1;
+            if (segs[idx].charAt(0) === '@') {
+              idx += 1;
+            }
+            segs.splice(idx + 1);
+            const dir = path.resolve('/', ...segs);
+
+            try {
+              if (!resolved[dir]) {
+                const pkgJson = await fse.readJson(path.resolve(dir, 'package.json'));
+                const id = `${pkgJson.name}:${pkgJson.version}`;
+                resolved[dir] = {
+                  id,
+                  name: pkgJson.name,
+                  version: pkgJson.version,
+                };
+              }
+              const dep = resolved[dir];
+              deps[dep.id] = dep;
+            } catch (e) {
+              // ignore
+            }
+          }
+        }));
+      }));
+
+    // sort the deps
+    Object.entries(depsByFile)
+      .forEach(([scriptFile, deps]) => {
+        cfg.dependencies[scriptFile] = Object.values(deps)
+          .sort((d0, d1) => d0.name.localeCompare(d1.name));
+      });
+  }
+}
