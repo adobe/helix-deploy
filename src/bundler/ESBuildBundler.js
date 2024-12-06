@@ -26,6 +26,11 @@ const __dirname = path.resolve(fileURLToPath(import.meta.url), '..');
  * Webpack based bundler
  */
 export default class ESBuildBundler extends BaseBundler {
+  /**
+   * Create a new bundler.
+   *
+   * @param {import('../BaseConfig.js')} cfg base config
+   */
   constructor(cfg) {
     super(cfg);
     this.arch = 'node';
@@ -64,11 +69,16 @@ export default class ESBuildBundler extends BaseBundler {
       entryPoints: [
         cfg.adapterFile || path.resolve(__dirname, '..', 'template', 'node-index.mjs'),
       ],
-      absWorkingDir: cfg.cmd,
+      absWorkingDir: cfg.cwd,
       plugins: [{
         name: 'alias-main',
         setup: (build) => {
           build.onResolve({ filter: /^\.\/main\.js$/ }, () => ({ path: cfg.file }));
+          // use @adobe/helix-universal in the calling service, not ours
+          build.onResolve(
+            { filter: /^@adobe\/helix-universal$/ },
+            (args) => ({ path: path.resolve(cfg.cwd, 'node_modules', args.path, 'src', 'index.js') }),
+          );
           cfg.externals.forEach((filter) => {
             build.onResolve({ filter }, (args) => ({ path: args.path, external: true }));
           });
