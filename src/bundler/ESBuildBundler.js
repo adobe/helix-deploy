@@ -12,9 +12,11 @@
 import { fileURLToPath } from 'url';
 import path from 'path';
 import fse from 'fs-extra';
-import webpack from 'webpack';
 import * as esbuild from 'esbuild';
 import chalk from 'chalk-template';
+
+import processQueue from '@adobe/helix-shared-process-queue';
+
 import BaseBundler from './BaseBundler.js';
 
 // eslint-disable-next-line no-underscore-dangle
@@ -87,11 +89,6 @@ export default class ESBuildBundler extends BaseBundler {
     return opts;
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  initProgressHandler(opts, cfg) {
-    opts.plugins.push(new webpack.ProgressPlugin(cfg.progressHandler));
-  }
-
   async createESBuildBundle(arch) {
     const { cfg } = this;
     if (!cfg.depFile) {
@@ -103,14 +100,10 @@ export default class ESBuildBundler extends BaseBundler {
     }
     const config = await this.getESBuildConfig();
     const result = await esbuild.build(config);
-    // cfg.log.debug(stats.toString({
-    //   chunks: false,
-    //   colors: true,
-    // }));
 
-    // await this.resolveDependencyInfos(stats);
+    await this.resolveDependencyInfos(result.metafile);
     // write dependencies info file
-    // await fse.writeJson(cfg.depFile, cfg.dependencies, { spaces: 2 });
+    await fse.writeJson(cfg.depFile, cfg.dependencies, { spaces: 2 });
     if (!cfg.progressHandler) {
       cfg.log.info(chalk`{green ok:} created ${arch} bundle {yellow ${config.outfile}}`);
     }
@@ -136,59 +129,48 @@ export default class ESBuildBundler extends BaseBundler {
    *   ...
    * }
    */
-  async resolveDependencyInfos(stats) {
+  async resolveDependencyInfos(metafile) {
     const { cfg } = this;
 
     // get list of dependencies
-    const depsByFile = {};
     const resolved = {};
+    const deps = {};
 
-    const jsonStats = stats.toJson({
-      chunks: true,
-      chunkModules: true,
+    const depNames = [...Object.keys(metafile.inputs)];
+    await processQueue(depNames, async (depName) => {
+      const absDepPath = path.resolve(cfg.cwd, depName);
+      const segs = absDepPath.split('/');
+      let idx = segs.lastIndexOf('node_modules');
+      if (idx < 0) {
+        return;
+      }
+      if (idx >= 0) {
+        idx += 1;
+        if (segs[idx].charAt(0) === '@') {
+          idx += 1;
+        }
+      }
+      segs.splice(idx + 1);
+      const dir = path.resolve('/', ...segs);
+      try {
+        if (!resolved[dir]) {
+          const pkgJson = await fse.readJson(path.resolve(dir, 'package.json'));
+          const id = `${pkgJson.name}:${pkgJson.version}`;
+          resolved[dir] = {
+            id,
+            name: pkgJson.name,
+            version: pkgJson.version,
+          };
+        }
+        const dep = resolved[dir];
+        deps[dep.id] = dep;
+      } catch (e) {
+        // ignore
+      }
     });
 
-    await Promise.all(jsonStats.chunks
-      .map(async (chunk) => {
-        const chunkName = chunk.names[0];
-        const deps = {};
-        depsByFile[chunkName] = deps;
-
-        await Promise.all(chunk.modules.map(async (mod) => {
-          const segs = mod.identifier.split('/');
-          let idx = segs.lastIndexOf('node_modules');
-          if (idx >= 0) {
-            idx += 1;
-            if (segs[idx].charAt(0) === '@') {
-              idx += 1;
-            }
-            segs.splice(idx + 1);
-            const dir = path.resolve('/', ...segs);
-
-            try {
-              if (!resolved[dir]) {
-                const pkgJson = await fse.readJson(path.resolve(dir, 'package.json'));
-                const id = `${pkgJson.name}:${pkgJson.version}`;
-                resolved[dir] = {
-                  id,
-                  name: pkgJson.name,
-                  version: pkgJson.version,
-                };
-              }
-              const dep = resolved[dir];
-              deps[dep.id] = dep;
-            } catch (e) {
-              // ignore
-            }
-          }
-        }));
-      }));
-
     // sort the deps
-    Object.entries(depsByFile)
-      .forEach(([scriptFile, deps]) => {
-        cfg.dependencies[scriptFile] = Object.values(deps)
-          .sort((d0, d1) => d0.name.localeCompare(d1.name));
-      });
+    cfg.dependencies.main = Object.values(deps)
+      .sort((d0, d1) => d0.name.localeCompare(d1.name));
   }
 }
