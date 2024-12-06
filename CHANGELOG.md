@@ -1,3 +1,10 @@
+# [12.4.0](https://github.com/adobe/helix-deploy/compare/v12.3.11...v12.4.0) (2024-12-06)
+
+
+### Features
+
+* support `esbuild` as alternative bundler ([#760](https://github.com/adobe/helix-deploy/issues/760)) ([fc9c85a](https://github.com/adobe/helix-deploy/commit/fc9c85a7671d736fc219fb0c24b93590f68ce873))
+
 ## [12.3.11](https://github.com/adobe/helix-deploy/compare/v12.3.10...v12.3.11) (2024-12-05)
 
 
