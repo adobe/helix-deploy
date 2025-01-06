@@ -1,3 +1,10 @@
+## [12.4.6](https://github.com/adobe/helix-deploy/compare/v12.4.5...v12.4.6) (2025-01-06)
+
+
+### Bug Fixes
+
+* **deps:** update dependency isomorphic-git to v1.29.0 ([#768](https://github.com/adobe/helix-deploy/issues/768)) ([031a728](https://github.com/adobe/helix-deploy/commit/031a7287fd420e7d7e997ba42bb315df95c782ac))
+
 ## [12.4.5](https://github.com/adobe/helix-deploy/compare/v12.4.4...v12.4.5) (2025-01-04)
 
 
