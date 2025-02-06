@@ -61,7 +61,7 @@
     "yargs": "17.7.2"
   },
   "devDependencies": {
-    "@adobe/eslint-config-helix": "2.0.8",
+    "@adobe/eslint-config-helix": "2.0.9",
     "@adobe/helix-shared-wrap": "2.0.2",
     "@adobe/helix-status": "10.1.5",
     "@semantic-release/changelog": "6.0.3",
