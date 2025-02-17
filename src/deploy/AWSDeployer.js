@@ -1082,7 +1082,6 @@ export default class AWSDeployer extends BaseDeployer {
       await this.uploadZIP();
       await this.createLambda();
       await this.deleteZIP();
-      await this.createAPI();
       await this.createExtraPermissions();
       await this.checkFunctionReady();
     } catch (err) {
