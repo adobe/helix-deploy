@@ -1,3 +1,10 @@
+## [12.4.18](https://github.com/adobe/helix-deploy/compare/v12.4.17...v12.4.18) (2025-02-24)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @google-cloud/storage to v7.15.2 ([#784](https://github.com/adobe/helix-deploy/issues/784)) ([8554576](https://github.com/adobe/helix-deploy/commit/8554576c904aa9d8d8138573613848f6fbe96564))
+
 ## [12.4.17](https://github.com/adobe/helix-deploy/compare/v12.4.16...v12.4.17) (2025-02-18)
 
 
