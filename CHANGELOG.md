@@ -1,3 +1,10 @@
+## [12.4.21](https://github.com/adobe/helix-deploy/compare/v12.4.20...v12.4.21) (2025-03-06)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-shared-process-queue to v3.1.2 ([#787](https://github.com/adobe/helix-deploy/issues/787)) ([b376e9a](https://github.com/adobe/helix-deploy/commit/b376e9ac94b63ce18e45626f3191e5bf4dffedc5))
+
 ## [12.4.20](https://github.com/adobe/helix-deploy/compare/v12.4.19...v12.4.20) (2025-03-04)
 
 
