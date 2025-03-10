@@ -1,3 +1,10 @@
+## [12.4.22](https://github.com/adobe/helix-deploy/compare/v12.4.21...v12.4.22) (2025-03-10)
+
+
+### Bug Fixes
+
+* **deps:** update dependency esbuild to v0.25.1 ([#788](https://github.com/adobe/helix-deploy/issues/788)) ([7f44307](https://github.com/adobe/helix-deploy/commit/7f443070860a7e8d85762b1ef6a89146133ef77e))
+
 ## [12.4.21](https://github.com/adobe/helix-deploy/compare/v12.4.20...v12.4.21) (2025-03-06)
 
 
