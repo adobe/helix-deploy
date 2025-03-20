@@ -1,3 +1,59 @@
+## [12.4.23](https://github.com/adobe/helix-deploy/compare/v12.4.22...v12.4.23) (2025-03-18)
+
+
+### Bug Fixes
+
+* **deps:** update external major ([#790](https://github.com/adobe/helix-deploy/issues/790)) ([57e940b](https://github.com/adobe/helix-deploy/commit/57e940bebad289c089ac18c03b09d7a00fc8e879))
+
+## [12.4.22](https://github.com/adobe/helix-deploy/compare/v12.4.21...v12.4.22) (2025-03-10)
+
+
+### Bug Fixes
+
+* **deps:** update dependency esbuild to v0.25.1 ([#788](https://github.com/adobe/helix-deploy/issues/788)) ([7f44307](https://github.com/adobe/helix-deploy/commit/7f443070860a7e8d85762b1ef6a89146133ef77e))
+
+## [12.4.21](https://github.com/adobe/helix-deploy/compare/v12.4.20...v12.4.21) (2025-03-06)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-shared-process-queue to v3.1.2 ([#787](https://github.com/adobe/helix-deploy/issues/787)) ([b376e9a](https://github.com/adobe/helix-deploy/commit/b376e9ac94b63ce18e45626f3191e5bf4dffedc5))
+
+## [12.4.20](https://github.com/adobe/helix-deploy/compare/v12.4.19...v12.4.20) (2025-03-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/fetch to v4.2.0 ([#786](https://github.com/adobe/helix-deploy/issues/786)) ([7bd33a4](https://github.com/adobe/helix-deploy/commit/7bd33a45b373db455e18728557fd904d0a0985c3))
+
+## [12.4.19](https://github.com/adobe/helix-deploy/compare/v12.4.18...v12.4.19) (2025-03-03)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([#785](https://github.com/adobe/helix-deploy/issues/785)) ([4e6fcae](https://github.com/adobe/helix-deploy/commit/4e6fcaed6063a7b3da178339e554e58945085e6c))
+
+## [12.4.18](https://github.com/adobe/helix-deploy/compare/v12.4.17...v12.4.18) (2025-02-24)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @google-cloud/storage to v7.15.2 ([#784](https://github.com/adobe/helix-deploy/issues/784)) ([8554576](https://github.com/adobe/helix-deploy/commit/8554576c904aa9d8d8138573613848f6fbe96564))
+
+## [12.4.17](https://github.com/adobe/helix-deploy/compare/v12.4.16...v12.4.17) (2025-02-18)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes to v3.750.0 ([#783](https://github.com/adobe/helix-deploy/issues/783)) ([a3e30ba](https://github.com/adobe/helix-deploy/commit/a3e30ba6dd10fdfc5171597fb08d721a85bbf4c9))
+
+## [12.4.16](https://github.com/adobe/helix-deploy/compare/v12.4.15...v12.4.16) (2025-02-17)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([#781](https://github.com/adobe/helix-deploy/issues/781)) ([c363efa](https://github.com/adobe/helix-deploy/commit/c363efa42a8b03b6ea80aad988df5f04edf4976b))
+
 ## [12.4.15](https://github.com/adobe/helix-deploy/compare/v12.4.14...v12.4.15) (2025-02-10)
 
 

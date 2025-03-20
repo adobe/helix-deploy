@@ -18,7 +18,7 @@ jobs:
       - name: Use Node.js 20.x
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '22.x'
       # note: don't use `npm ci` as it installs the deps from the package-lock, which currently
       # causes problem with the arch specific packages, like @jakechampion/wizer-linux-x64
       - run: npm install
@@ -78,7 +78,7 @@ jobs:
       - name: Use Node.js 20.x
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '22.x'
       - run: npm install
       - run: npm run semantic-release
         env:
