@@ -1,3 +1,10 @@
+## [12.4.28](https://github.com/adobe/helix-deploy/compare/v12.4.27...v12.4.28) (2025-04-01)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @aws-sdk/client-s3 to v3.779.0 ([#795](https://github.com/adobe/helix-deploy/issues/795)) ([7691950](https://github.com/adobe/helix-deploy/commit/76919507355ea6f8047ae3a0792e85bbc8208f9e))
+
 ## [12.4.27](https://github.com/adobe/helix-deploy/compare/v12.4.26...v12.4.27) (2025-03-31)
 
 
