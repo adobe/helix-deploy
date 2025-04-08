@@ -1,3 +1,10 @@
+## [12.4.30](https://github.com/adobe/helix-deploy/compare/v12.4.29...v12.4.30) (2025-04-08)
+
+
+### Bug Fixes
+
+* **deps:** update dependency webpack to v5.99.2 ([#797](https://github.com/adobe/helix-deploy/issues/797)) ([a85b786](https://github.com/adobe/helix-deploy/commit/a85b7860aecbe23b310cecd419465202fe00de7c))
+
 ## [12.4.29](https://github.com/adobe/helix-deploy/compare/v12.4.28...v12.4.29) (2025-04-08)
 
 
