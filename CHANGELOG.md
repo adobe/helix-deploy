@@ -1,3 +1,10 @@
+## [12.4.31](https://github.com/adobe/helix-deploy/compare/v12.4.30...v12.4.31) (2025-04-10)
+
+
+### Bug Fixes
+
+* **esbuild:** avoid using `createRequire` as import name ([#799](https://github.com/adobe/helix-deploy/issues/799)) ([082551d](https://github.com/adobe/helix-deploy/commit/082551d529c5bacfbe092ae52da5c7c9ffbc932a))
+
 ## [12.4.30](https://github.com/adobe/helix-deploy/compare/v12.4.29...v12.4.30) (2025-04-08)
 
 
