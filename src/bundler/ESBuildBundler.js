@@ -77,7 +77,7 @@ export default class ESBuildBundler extends BaseBundler {
           build.onResolve(
             { filter: /^@adobe\/helix-universal$/ },
             (args) => {
-              const cwd = (process.env.HELIX_FETCH_FORCE_HTTP1 === 'true')
+              const cwd = (process.env.HELIX_DEPLOY_USE_LOCAL === 'true')
                 // for testing use "our" @adobe/helix-universal dependency
                 ? path.resolve(__dirname, '..', '..')
                 // for production use @adobe/helix-universal (and its dependencies)
