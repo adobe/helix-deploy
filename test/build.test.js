@@ -167,4 +167,12 @@ describe('Build Test', () => {
   it('generates the bundle (esm, webpack) fails', async () => {
     await assert.rejects(generate(['--esm']), Error('Webpack bundler does not support ESM builds.'));
   }).timeout(5000);
+
+  it('generates the bundle (esm, esbuild)', async () => {
+    await generate(['--bundler=esbuild', '--esm'], PROJECT_SIMPLE_ESM);
+  });
+
+  it('generates the bundle (esbuild) fails', async () => {
+    await assert.rejects(generate(['--bundler=esbuild']), Error('ESBuild bundler only supports ESM builds.'));
+  });
 });

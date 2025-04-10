@@ -9,12 +9,13 @@
  * OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-// eslint-disable-next-line no-console
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// eslint-disable-next-line no-console
 console.log('Forcing HTTP/1.1 for @adobe/fetch');
 process.env.HELIX_FETCH_FORCE_HTTP1 = 'true';
+process.env.HELIX_DEPLOY_USE_LOCAL = 'true';
 
 // eslint-disable-next-line no-underscore-dangle
 global.__rootdir = path.resolve(fileURLToPath(import.meta.url), '..', '..');

@@ -22,4 +22,4 @@ export default {
   openwhisk,
   lambda,
   google,
-}
+};

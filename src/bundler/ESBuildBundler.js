@@ -61,8 +61,8 @@ export default class ESBuildBundler extends BaseBundler {
       ],
       banner: {
         js: [
-          'import { createRequire } from "module";',
-          'const require = createRequire(import.meta.url);',
+          'import { createRequire as hedyCreateRequire } from "module";',
+          'const require = hedyCreateRequire(import.meta.url);',
           '',
         ].join('\n'),
       },
@@ -74,10 +74,17 @@ export default class ESBuildBundler extends BaseBundler {
         name: 'alias-main',
         setup: (build) => {
           build.onResolve({ filter: /^\.\/main\.js$/ }, () => ({ path: cfg.file }));
-          // use @adobe/helix-universal in the calling service, not ours
           build.onResolve(
             { filter: /^@adobe\/helix-universal$/ },
-            (args) => ({ path: path.resolve(cfg.cwd, 'node_modules', args.path, 'src', 'index.js') }),
+            (args) => {
+              const cwd = (process.env.HELIX_DEPLOY_USE_LOCAL === 'true')
+                // for testing use "our" @adobe/helix-universal dependency
+                ? path.resolve(__dirname, '..', '..')
+                // for production use @adobe/helix-universal (and its dependencies)
+                // in the calling service
+                : cfg.cwd;
+              return { path: path.resolve(cwd, 'node_modules', args.path, 'src', 'index.js') };
+            },
           );
           cfg.externals.forEach((filter) => {
             build.onResolve({ filter }, (args) => ({ path: args.path, external: true }));
