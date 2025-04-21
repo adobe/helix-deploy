@@ -1,3 +1,10 @@
+## [12.4.33](https://github.com/adobe/helix-deploy/compare/v12.4.32...v12.4.33) (2025-04-21)
+
+
+### Bug Fixes
+
+* **deps:** update dependency webpack to v5.99.6 ([#801](https://github.com/adobe/helix-deploy/issues/801)) ([0029a21](https://github.com/adobe/helix-deploy/commit/0029a215477321067ea3d733cd0fd212c6e504e6))
+
 ## [12.4.32](https://github.com/adobe/helix-deploy/compare/v12.4.31...v12.4.32) (2025-04-14)
 
 
