@@ -1,3 +1,10 @@
+## [12.4.39](https://github.com/adobe/helix-deploy/compare/v12.4.38...v12.4.39) (2025-05-13)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([#807](https://github.com/adobe/helix-deploy/issues/807)) ([9aaf482](https://github.com/adobe/helix-deploy/commit/9aaf482fa8696431f47756d4d5b885b1673d2109))
+
 ## [12.4.38](https://github.com/adobe/helix-deploy/compare/v12.4.37...v12.4.38) (2025-05-11)
 
 
