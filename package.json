@@ -34,7 +34,7 @@
     "require": "test/setup-env.js"
   },
   "peerDependencies": {
-    "@adobe/helix-universal": ">=4.1.1"
+    "@adobe/helix-universal": ">=5.2.1"
   },
   "dependencies": {
     "@adobe/fetch": "4.2.1",

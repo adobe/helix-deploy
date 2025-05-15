@@ -176,7 +176,6 @@ export default class BaseBundler {
 
     archive.append(JSON.stringify(packageJson, null, '  '), { name: 'package.json' });
 
-    // this allows to use a cjs loader for the esm modules. but it still doesn't work on AWS
     if (cfg.esm) {
       archive.directory('esm-adapter');
       archive.append('{}', { name: 'esm-adapter/package.json' });

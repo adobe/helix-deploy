@@ -14,7 +14,7 @@ import path from 'path';
 
 export default () => {
   try {
-    const hello = path.resolve(__rootdir, 'files', 'hello.txt');
+    const hello = path.resolve(process.cwd(), 'files', 'hello.txt');
     const data = fs.readFileSync(hello, 'utf-8');
     // eslint-disable-next-line no-console
     console.log(hello, data);

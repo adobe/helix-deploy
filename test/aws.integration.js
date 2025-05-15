@@ -38,7 +38,7 @@ describe('AWS Integration Test', () => {
   });
 
   it('Deploy to AWS (for real)', async () => {
-    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple'), testRoot);
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple-esm'), testRoot);
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = await new CLI()
@@ -67,7 +67,7 @@ describe('AWS Integration Test', () => {
   }).timeout(50000);
 
   it('Update links to AWS (for real)', async () => {
-    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple'), testRoot);
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple-esm'), testRoot);
 
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
     const builder = await new CLI()
@@ -105,7 +105,7 @@ describe('AWS Integration Test', () => {
   }).timeout(50000);
 
   it('Deploy CI and update links to AWS (for real)', async () => {
-    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple'), testRoot);
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple-esm'), testRoot);
 
     const version = `ci${process.env.CIRCLE_BUILD_NUM || Date.now()}`;
     process.chdir(testRoot); // need to change .cwd() for yargs to pickup `wsk` in package.json
@@ -154,8 +154,8 @@ describe('AWS Integration Test', () => {
     const testRoot1 = path.resolve(testRoot, 'authorizer');
     await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple-authorizer'), testRoot1);
     await fse.ensureDir(testRoot1);
-    const testRoot2 = path.resolve(testRoot, 'simple');
-    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple'), testRoot2);
+    const testRoot2 = path.resolve(testRoot, 'simple-esm');
+    await fse.copy(path.resolve(__rootdir, 'test', 'fixtures', 'simple-esm'), testRoot2);
     await fse.ensureDir(testRoot2);
 
     // build and link authorizer
