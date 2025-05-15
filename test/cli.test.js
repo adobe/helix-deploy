@@ -31,7 +31,7 @@ describe('CLI Test', () => {
     assert.deepEqual(builder.cfg.archs, ['node']);
     assert.equal(builder.cfg.build, true);
     assert.equal(builder.cfg.minify, false);
-    assert.equal(builder.cfg.esm, false);
+    assert.equal(builder.cfg.esm, true);
     assert.equal(builder.cfg.test, undefined);
     assert.equal(builder.cfg.showHints, true);
     assert.equal(builder.cfg.nodeVersion, '22');

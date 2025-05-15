@@ -21,14 +21,12 @@ import OpenWhiskDeployer from './deploy/OpenWhiskDeployer.js';
 import AWSDeployer from './deploy/AWSDeployer.js';
 import GoogleDeployer from './deploy/GoogleDeployer.js';
 import ActionBuilder from './ActionBuilder.js';
-import WebpackBundler from './bundler/WebpackBundler.js';
 import ESBuildBundler from './bundler/ESBuildBundler.js';
 
 const PLUGINS = [
   OpenWhiskDeployer,
   AWSDeployer,
   GoogleDeployer,
-  WebpackBundler,
   ESBuildBundler,
 ];
 

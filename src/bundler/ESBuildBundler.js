@@ -23,7 +23,7 @@ import BaseBundler from './BaseBundler.js';
 const __dirname = path.resolve(fileURLToPath(import.meta.url), '..');
 
 /**
- * Webpack based bundler
+ * ESBuild based bundler
  */
 export default class ESBuildBundler extends BaseBundler {
   /**

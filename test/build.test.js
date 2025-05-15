@@ -136,43 +136,11 @@ describe('Build Test', () => {
     assert.deepEqual(result.response.body, '{"url":"https://localhost/simple-package/simple-name/1.45.0","file":"Hello, world.\\n"}');
   }
 
-  it('generates the bundle (webpack)', async () => {
-    await generate([]);
-  }).timeout(15000);
-
-  it('generates the bundle (webpack, wsk conf name)', async () => {
-    await generate([], path.resolve(__rootdir, 'test', 'fixtures', 'simple-conf-wsk'));
-  }).timeout(15000);
-
-  it('invalid bundle fails the build', async () => {
-    await fse.copy(PROJECT_SIMPLE, testRoot);
-    // need to change .cwd() for yargs to pickup `wsk` in package.json
-    process.chdir(testRoot);
-    const builder = await new CLI()
-      .prepare([
-        '--target', 'aws',
-        '--verbose',
-        '--directory', testRoot,
-        '--entryFile', 'index.js',
-        '--test-bundle', '/fail',
-      ]);
-
-    await assert.rejects(builder.run(), new Error('Validation failed: 500'));
-  }).timeout(15000);
-
-  it('generates the bundle (webpack, esm project)', async () => {
-    await generate([], PROJECT_SIMPLE_ESM);
-  }).timeout(15000);
-
-  it('generates the bundle (esm, webpack) fails', async () => {
-    await assert.rejects(generate(['--esm']), Error('Webpack bundler does not support ESM builds.'));
-  }).timeout(5000);
-
   it('generates the bundle (esm, esbuild)', async () => {
-    await generate(['--bundler=esbuild', '--esm'], PROJECT_SIMPLE_ESM);
+    await generate([], PROJECT_SIMPLE_ESM);
   });
 
   it('generates the bundle (esbuild) fails', async () => {
-    await assert.rejects(generate(['--bundler=esbuild']), Error('ESBuild bundler only supports ESM builds.'));
+    await assert.rejects(generate(['--bundler=esbuild', '--esm=false']), Error('ESBuild bundler only supports ESM builds.'));
   });
 });
