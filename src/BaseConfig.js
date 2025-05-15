@@ -90,9 +90,9 @@ export default class BaseConfig {
       updatedBy: null,
       targets: [],
       functionURL: '',
-      esm: false,
+      esm: true,
       archs: ['node', 'edge'],
-      bundler: 'webpack',
+      bundler: 'esbuild',
       format: {
         aws: DEFAULT_ACTION_FORMAT,
       },
@@ -658,7 +658,7 @@ export default class BaseConfig {
       .option('esm', {
         description: 'Produce EcmaScript Module (experimental, disables edge arch)',
         type: 'boolean',
-        default: false,
+        default: true,
       })
       .option('modules', {
         alias: 'm',
