@@ -1,3 +1,18 @@
+# [13.0.0](https://github.com/adobe/helix-deploy/compare/v12.4.39...v13.0.0) (2025-05-15)
+
+
+### Bug Fixes
+
+* move webpack bundler to plugin ([#809](https://github.com/adobe/helix-deploy/issues/809)) ([4c783a8](https://github.com/adobe/helix-deploy/commit/4c783a816767dd867af44b8bfbbdf3bf8aeebc9c))
+
+
+### BREAKING CHANGES
+
+* bundles will be ESM built with esbuild
+
+* fix: move webpack bundler to plugin
+* fix: use simple-esm as template for deployment
+
 ## [12.4.39](https://github.com/adobe/helix-deploy/compare/v12.4.38...v12.4.39) (2025-05-13)
 
 
