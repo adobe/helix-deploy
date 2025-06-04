@@ -1,3 +1,10 @@
+## [13.0.5](https://github.com/adobe/helix-deploy/compare/v13.0.4...v13.0.5) (2025-06-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency yargs to v18 ([#815](https://github.com/adobe/helix-deploy/issues/815)) ([6476736](https://github.com/adobe/helix-deploy/commit/64767363269b98dbaf4bd6a58ff8d4bac57ef605))
+
 ## [13.0.4](https://github.com/adobe/helix-deploy/compare/v13.0.3...v13.0.4) (2025-06-03)
 
 
