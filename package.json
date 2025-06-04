@@ -57,7 +57,7 @@
     "isomorphic-git": "1.30.2",
     "openwhisk": "3.21.8",
     "semver": "7.7.2",
-    "yargs": "17.7.2"
+    "yargs": "18.0.0"
   },
   "devDependencies": {
     "@adobe/eslint-config-helix": "3.0.2",
