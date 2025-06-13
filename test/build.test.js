@@ -136,24 +136,26 @@ describe('Build Test', () => {
     assert.deepEqual(result.response.body, '{"url":"https://localhost/simple-package/simple-name/1.45.0","file":"Hello, world.\\n"}');
   }
 
-  it('generates the bundle (esbuild)', async () => {
-    await generate([], PROJECT_SIMPLE_ESM);
-
+  async function listDependencies(pkg) {
     const indexFile = await fse.readFile(path.resolve(testRoot, 'dist', 'extracted', 'index.js'), { encoding: 'utf-8' });
     const dependencies = indexFile.split('\n')
       .filter((line) => line.startsWith('// ../../../node_modules/'))
       .map((line) => line.substring('// ../../../node_modules/'.length));
-    assert.notStrictEqual(dependencies.filter((file) => file.startsWith('@adobe/fetch')).length, 0);
+    return dependencies.filter((file) => file.startsWith(pkg));
+  }
+
+  it('generates the bundle (esbuild)', async () => {
+    await generate([], PROJECT_SIMPLE_ESM);
+
+    const dependencies = await listDependencies('@adobe/fetch');
+    assert.notStrictEqual(dependencies.length, 0);
   });
 
   it('generates the bundle (esbuild) with externals', async () => {
     await generate(['--externals', '@adobe/fetch'], PROJECT_SIMPLE_ESM);
 
-    const indexFile = await fse.readFile(path.resolve(testRoot, 'dist', 'extracted', 'index.js'), { encoding: 'utf-8' });
-    const dependencies = indexFile.split('\n')
-      .filter((line) => line.startsWith('// ../../../node_modules/'))
-      .map((line) => line.substring('// ../../../node_modules/'.length));
-    assert.strictEqual(dependencies.filter((file) => file.startsWith('@adobe/fetch')).length, 0);
+    const dependencies = await listDependencies('@adobe/fetch');
+    assert.strictEqual(dependencies.length, 0);
   });
 
   it('generates the bundle (esbuild, no esm) fails', async () => {
