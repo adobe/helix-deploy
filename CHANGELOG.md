@@ -1,3 +1,10 @@
+## [13.0.7](https://github.com/adobe/helix-deploy/compare/v13.0.6...v13.0.7) (2025-06-13)
+
+
+### Bug Fixes
+
+* externals must be passed as RegExp ([#819](https://github.com/adobe/helix-deploy/issues/819)) ([f80074e](https://github.com/adobe/helix-deploy/commit/f80074ee75769b0ff574bad85a5596342099028f))
+
 ## [13.0.6](https://github.com/adobe/helix-deploy/compare/v13.0.5...v13.0.6) (2025-06-10)
 
 
