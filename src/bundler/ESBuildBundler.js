@@ -86,11 +86,11 @@ export default class ESBuildBundler extends BaseBundler {
               return { path: path.resolve(cwd, 'node_modules', args.path, 'src', 'index.js') };
             },
           );
-          cfg.externals.forEach((filter) => {
-            build.onResolve({ filter }, (args) => ({ path: args.path, external: true }));
+          cfg.externals.forEach((external) => {
+            build.onResolve({ filter: new RegExp(`^${external}$`) }, (args) => ({ path: args.path, external: true }));
           });
-          cfg.serverlessExternals.forEach((filter) => {
-            build.onResolve({ filter }, (args) => ({ path: args.path, external: true }));
+          cfg.serverlessExternals.forEach((external) => {
+            build.onResolve({ filter: new RegExp(`^${external}$`) }, (args) => ({ path: args.path, external: true }));
           });
         },
       }],
