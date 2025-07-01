@@ -49,8 +49,9 @@ export const handler = async (event) => {
   } catch (err) {
     console.error(err);
     return {
-      statusCode: err.statusCode,
-      body: err.message,
+      statusCode: err.$metadata?.httpStatusCode ?? err.statusCode,
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ message: err.message }),
     };
   }
 };
