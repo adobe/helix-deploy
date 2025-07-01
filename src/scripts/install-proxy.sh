@@ -43,7 +43,7 @@ createIntegration() {
   json=$(aws apigatewayv2 create-integration \
     --api-id ${HLX_AWS_API_ID} \
     --integration-type "AWS_PROXY" \
-    --integration-uri "arn:aws:lambda:${HLX_AWS_REGION}:${HLX_AWS_ACCOUNT_ID}:function:helix-deploy-proxy" \
+    --integration-uri "arn:aws:lambda:${HLX_AWS_REGION}:${HLX_AWS_ACCOUNT_ID}:function:${function_name}" \
     --payload-format-version "2.0")
   echo $(echo $json | jq -r '.IntegrationId')
 }
@@ -54,14 +54,14 @@ createInvokePermissions() {
   aws lambda add-permission \
     --statement-id run-${route}-1 \
     --action lambda:InvokeFunction \
-    --function-name "arn:aws:lambda:${HLX_AWS_REGION}:${HLX_AWS_ACCOUNT_ID}:function:helix-deploy-proxy" \
+    --function-name "arn:aws:lambda:${HLX_AWS_REGION}:${HLX_AWS_ACCOUNT_ID}:function:${function_name}" \
     --principal apigateway.amazonaws.com \
     --source-arn "arn:aws:execute-api:${HLX_AWS_REGION}:${HLX_AWS_ACCOUNT_ID}:${HLX_AWS_API_ID}/*/*/${route}/{action}/{version}"
 
   aws lambda add-permission \
     --statement-id run-${route}-2 \
     --action lambda:InvokeFunction \
-    --function-name "arn:aws:lambda:${HLX_AWS_REGION}:${HLX_AWS_ACCOUNT_ID}:function:helix-deploy-proxy" \
+    --function-name "arn:aws:lambda:${HLX_AWS_REGION}:${HLX_AWS_ACCOUNT_ID}:function:${function_name}" \
     --principal apigateway.amazonaws.com \
     --source-arn "arn:aws:execute-api:${HLX_AWS_REGION}:${HLX_AWS_ACCOUNT_ID}:${HLX_AWS_API_ID}/*/*/${route}/{action}/{version}/{path+}"
 }
