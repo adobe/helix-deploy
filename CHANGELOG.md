@@ -1,3 +1,10 @@
+# [13.1.0](https://github.com/adobe/helix-deploy/compare/v13.0.9...v13.1.0) (2025-07-01)
+
+
+### Features
+
+* add script to install `helix-deploy-proxy` in new environment ([#827](https://github.com/adobe/helix-deploy/issues/827)) ([f5ef2d3](https://github.com/adobe/helix-deploy/commit/f5ef2d3c82f37e8ce7882fa7a060cada65c943df))
+
 ## [13.0.9](https://github.com/adobe/helix-deploy/compare/v13.0.8...v13.0.9) (2025-06-25)
 
 
