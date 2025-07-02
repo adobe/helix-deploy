@@ -1,3 +1,10 @@
+## [13.1.2](https://github.com/adobe/helix-deploy/compare/v13.1.1...v13.1.2) (2025-07-02)
+
+
+### Bug Fixes
+
+* **deps:** update dependency dotenv to v17 ([#825](https://github.com/adobe/helix-deploy/issues/825)) ([4d4cb40](https://github.com/adobe/helix-deploy/commit/4d4cb40e14cc015c0237d4a8e47ab898abaffd2f))
+
 ## [13.1.1](https://github.com/adobe/helix-deploy/compare/v13.1.0...v13.1.1) (2025-07-01)
 
 
