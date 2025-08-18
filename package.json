@@ -51,10 +51,10 @@
     "archiver": "7.0.1",
     "chalk-template": "1.1.0",
     "dotenv": "17.2.1",
-    "esbuild": "0.25.8",
+    "esbuild": "0.25.9",
     "escalade": "3.2.0",
     "fs-extra": "11.3.1",
-    "isomorphic-git": "1.32.3",
+    "isomorphic-git": "1.33.0",
     "openwhisk": "3.21.8",
     "semver": "7.7.2",
     "yargs": "18.0.0"
