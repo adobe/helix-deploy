@@ -23,12 +23,16 @@ import CLI from '../src/cli.js';
 
 const { fetch } = h1NoCache();
 
-const AWS_API = 'eynvwoxb7l';
-const AWS_ROLE = 'arn:aws:iam::282898975672:role/helix-role-lambda-basic';
-
 describe('AWS Integration Test', () => {
   let testRoot;
   let origPwd;
+  let awsAPI;
+  let awsRole;
+
+  before(() => {
+    awsAPI = process.env.HLX_AWS_API;
+    awsRole = process.env.HLX_AWS_ROLE;
+  });
 
   beforeEach(async () => {
     testRoot = await createTestRoot();
@@ -51,8 +55,8 @@ describe('AWS Integration Test', () => {
         '--deploy',
         '--target', 'aws',
         '--aws-region', 'us-east-1',
-        '--aws-api', AWS_API,
-        '--aws-role', AWS_ROLE,
+        '--aws-api', awsAPI,
+        '--aws-role', awsRole,
         '--aws-create-routes', 'true',
         '--package.params', 'HEY=ho',
         '--update-package', 'true',
@@ -66,7 +70,7 @@ describe('AWS Integration Test', () => {
     const res = await builder.run();
     assert.ok(res);
     const out = builder.cfg._logger.output;
-    assert.ok(out.indexOf(`{"url":"https://${AWS_API}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/1.45.0/foo","file":"Hello, world.\\n"}`) >= 0, out);
+    assert.ok(out.indexOf(`{"url":"https://${awsAPI}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/1.45.0/foo","file":"Hello, world.\\n"}`) >= 0, out);
   }).timeout(50000);
 
   it('Update links to AWS (for real)', async () => {
@@ -81,8 +85,8 @@ describe('AWS Integration Test', () => {
         '--target', 'aws',
         '-l', 'major', '-l', 'minor',
         '--aws-region', 'us-east-1',
-        '--aws-api', AWS_API,
-        '--aws-role', AWS_ROLE,
+        '--aws-api', awsAPI,
+        '--aws-role', awsRole,
       ]);
     builder.cfg._logger = new TestLogger();
 
@@ -91,7 +95,7 @@ describe('AWS Integration Test', () => {
     let ret;
     for (let tries = 3; tries >= 0; tries -= 1) {
       // eslint-disable-next-line no-await-in-loop
-      ret = await fetch(`https://${AWS_API}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo`);
+      ret = await fetch(`https://${awsAPI}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo`);
       if (ret.status !== 200) {
         // eslint-disable-next-line no-console
         console.log(`!!: ${ret.status} !== 401 (retry)`);
@@ -104,7 +108,7 @@ describe('AWS Integration Test', () => {
     assert.ok(ret.ok);
     assert.strictEqual(ret.status, 200);
     const { url, file } = await ret.json();
-    assert.strictEqual(url, `https://${AWS_API}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo`);
+    assert.strictEqual(url, `https://${awsAPI}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo`);
     assert.strictEqual(file, 'Hello, world.\n');
   }).timeout(50000);
 
@@ -122,8 +126,8 @@ describe('AWS Integration Test', () => {
         '--cleanup-ci', '24h',
         '--target', 'aws',
         '--aws-region', 'us-east-1',
-        '--aws-api', AWS_API,
-        '--aws-role', AWS_ROLE,
+        '--aws-api', awsAPI,
+        '--aws-role', awsRole,
         '--directory', testRoot,
         '--entryFile', 'index.js',
       ]);
@@ -138,7 +142,7 @@ describe('AWS Integration Test', () => {
 
     for (let tries = 3; tries >= 0; tries -= 1) {
       // eslint-disable-next-line no-await-in-loop
-      ret = await fetch(`https://${AWS_API}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo`);
+      ret = await fetch(`https://${awsAPI}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo`);
       if (!ret.ok) {
         // eslint-disable-next-line no-console
         console.log(`!!: ${ret.status} (retry)`);
@@ -152,7 +156,7 @@ describe('AWS Integration Test', () => {
     assert.strictEqual(ret.status, 200);
 
     const { url, file } = await ret.json();
-    assert.strictEqual(url, `https://${AWS_API}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo`);
+    assert.strictEqual(url, `https://${awsAPI}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo`);
     assert.strictEqual(file, 'Hello, world.\n');
   }).timeout(50000);
 
@@ -176,8 +180,8 @@ describe('AWS Integration Test', () => {
         '--cleanup-ci', '24h',
         '--target', 'aws',
         '--aws-region', 'us-east-1',
-        '--aws-api', AWS_API,
-        '--aws-role', AWS_ROLE,
+        '--aws-api', awsAPI,
+        '--aws-role', awsRole,
         '--directory', testRoot1,
         '--entryFile', 'index.js',
       ]);
@@ -198,8 +202,8 @@ describe('AWS Integration Test', () => {
         '--target', 'aws',
         '--aws-attach-authorizer', 'helix-simple-test-authorizer_ci',
         '--aws-region', 'us-east-1',
-        '--aws-api', AWS_API,
-        '--aws-role', AWS_ROLE,
+        '--aws-api', awsAPI,
+        '--aws-role', awsRole,
         '--directory', testRoot2,
       ]);
     builder.cfg._logger = new TestLogger();
@@ -213,7 +217,7 @@ describe('AWS Integration Test', () => {
 
     for (let tries = 3; tries >= 0; tries -= 1) {
       // eslint-disable-next-line no-await-in-loop
-      ret = await fetch(`https://${AWS_API}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/auth/foo`);
+      ret = await fetch(`https://${awsAPI}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/auth/foo`);
       if (ret.status !== 401) {
         // eslint-disable-next-line no-console
         console.log(`!!: ${ret.status} !== 401 (retry)`);
@@ -228,13 +232,13 @@ describe('AWS Integration Test', () => {
 
     // eslint-disable-next-line no-console
     console.log('invoking with token token should succeed');
-    ret = await fetch(`https://${AWS_API}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/auth/foo`, {
+    ret = await fetch(`https://${awsAPI}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/auth/foo`, {
       headers: {
         'x-test-authorization': 'test',
       },
     });
     const { url, file } = await ret.json();
-    assert.strictEqual(url, `https://${AWS_API}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/auth/foo`);
+    assert.strictEqual(url, `https://${awsAPI}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/auth/foo`);
     assert.strictEqual(file, 'Hello, world.\n');
   }).timeout(50000);
 });
