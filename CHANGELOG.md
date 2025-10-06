@@ -1,3 +1,10 @@
+## [13.1.15](https://github.com/adobe/helix-deploy/compare/v13.1.14...v13.1.15) (2025-10-06)
+
+
+### Bug Fixes
+
+* **test:** move to our tier3 ([#845](https://github.com/adobe/helix-deploy/issues/845)) ([e91492c](https://github.com/adobe/helix-deploy/commit/e91492c0855c93822aba6b8ad271597e4135586a))
+
 ## [13.1.14](https://github.com/adobe/helix-deploy/compare/v13.1.13...v13.1.14) (2025-09-16)
 
 
