@@ -68,7 +68,7 @@ describe('AWS Deployer Test', () => {
     await aws.init();
     await aws.initAccountId();
     // eslint-disable-next-line no-underscore-dangle
-    assert.strictEqual(aws._bucket, 'helix-deploy-bucket-118435662149');
+    assert.strictEqual(aws._bucket, 'helix-deploy-bucket-282898975672');
   });
 
   it('sets the default deploy bucket with region', async () => {
@@ -82,7 +82,7 @@ describe('AWS Deployer Test', () => {
     await aws.init();
     await aws.initAccountId();
     // eslint-disable-next-line no-underscore-dangle
-    assert.strictEqual(aws._bucket, 'helix-deploy-bucket-118435662149-eu-central-1');
+    assert.strictEqual(aws._bucket, 'helix-deploy-bucket-282898975672-eu-central-1');
   });
 
   it('sets the custom deploy bucket', async () => {

@@ -23,6 +23,9 @@ import CLI from '../src/cli.js';
 
 const { fetch } = h1NoCache();
 
+const AWS_API = 'eynvwoxb7l';
+const AWS_ROLE = 'arn:aws:iam::282898975672:role/helix-role-lambda-basic';
+
 describe('AWS Integration Test', () => {
   let testRoot;
   let origPwd;
@@ -48,8 +51,8 @@ describe('AWS Integration Test', () => {
         '--deploy',
         '--target', 'aws',
         '--aws-region', 'us-east-1',
-        '--aws-api', 'lqmig3v5eb',
-        '--aws-role', 'arn:aws:iam::118435662149:role/service-role/helix-service-role-ogu32wiz',
+        '--aws-api', AWS_API,
+        '--aws-role', AWS_ROLE,
         '--aws-create-routes', 'true',
         '--package.params', 'HEY=ho',
         '--update-package', 'true',
@@ -78,8 +81,8 @@ describe('AWS Integration Test', () => {
         '--target', 'aws',
         '-l', 'major', '-l', 'minor',
         '--aws-region', 'us-east-1',
-        '--aws-api', 'lqmig3v5eb',
-        '--aws-role', 'arn:aws:iam::118435662149:role/service-role/helix-service-role-ogu32wiz',
+        '--aws-api', AWS_API,
+        '--aws-role', AWS_ROLE,
       ]);
     builder.cfg._logger = new TestLogger();
 
@@ -118,8 +121,8 @@ describe('AWS Integration Test', () => {
         '--cleanup-ci', '24h',
         '--target', 'aws',
         '--aws-region', 'us-east-1',
-        '--aws-api', 'lqmig3v5eb',
-        '--aws-role', 'arn:aws:iam::118435662149:role/service-role/helix-service-role-ogu32wiz',
+        '--aws-api', AWS_API,
+        '--aws-role', AWS_ROLE,
         '--directory', testRoot,
         '--entryFile', 'index.js',
       ]);
@@ -170,8 +173,8 @@ describe('AWS Integration Test', () => {
         '--cleanup-ci', '24h',
         '--target', 'aws',
         '--aws-region', 'us-east-1',
-        '--aws-api', 'lqmig3v5eb',
-        '--aws-role', 'arn:aws:iam::118435662149:role/service-role/helix-service-role-ogu32wiz',
+        '--aws-api', AWS_API,
+        '--aws-role', AWS_ROLE,
         '--directory', testRoot1,
         '--entryFile', 'index.js',
       ]);
@@ -192,8 +195,8 @@ describe('AWS Integration Test', () => {
         '--target', 'aws',
         '--aws-attach-authorizer', 'helix-simple-test-authorizer_ci',
         '--aws-region', 'us-east-1',
-        '--aws-role', 'arn:aws:iam::118435662149:role/service-role/helix-service-role-ogu32wiz',
-        '--aws-api', 'lqmig3v5eb',
+        '--aws-api', AWS_API,
+        '--aws-role', AWS_ROLE,
         '--directory', testRoot2,
       ]);
     builder.cfg._logger = new TestLogger();

@@ -27,19 +27,14 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-region: us-east-1
-          role-to-assume: arn:aws:iam::118435662149:role/helix-gh-deploy-config-service
+          role-to-assume: arn:aws:iam::282898975672:role/helix-gh-deploy-config-service
       - name: Fetch AWS Secrets
         uses: aws-actions/aws-secretsmanager-get-secrets@v2
         with:
           parse-json-secrets: true
           secret-ids: |
-            /helix/github-action-secrets
-      # see https://github.com/aws-actions/aws-secretsmanager-get-secrets/issues/11
-      - name: unprefix variables
-        run: |
-          for variable in "${!_HELIX_GITHUB_ACTION_SECRETS_@}"; do 
-            echo "${variable#_HELIX_GITHUB_ACTION_SECRETS_}=${!variable}" >> $GITHUB_ENV
-          done
+            ,/helix/github-action-secrets
+
       - name: Restore Google Credentials
         run: echo $GOOGLE_CREDS | base64 --decode | tee ~/.helix-google.json | jq -e .client_email
 
