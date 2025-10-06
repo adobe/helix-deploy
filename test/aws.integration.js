@@ -66,9 +66,7 @@ describe('AWS Integration Test', () => {
     const res = await builder.run();
     assert.ok(res);
     const out = builder.cfg._logger.output;
-    const { url, file } = JSON.parse(out);
-    assert.strictEqual(url, `https://${AWS_API}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/1.45.0/foo`);
-    assert.strictEqual(file, 'Hello world.\n');
+    assert.ok(out.indexOf(`{"url":"https://${AWS_API}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/1.45.0/foo","file":"Hello, world.\\n"}`) >= 0, out);
   }).timeout(50000);
 
   it('Update links to AWS (for real)', async () => {
@@ -107,7 +105,7 @@ describe('AWS Integration Test', () => {
     assert.strictEqual(ret.status, 200);
     const { url, file } = await ret.json();
     assert.strictEqual(url, `https://${AWS_API}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo`);
-    assert.strictEqual(file, 'Hello world.\n');
+    assert.strictEqual(file, 'Hello, world.\n');
   }).timeout(50000);
 
   it('Deploy CI and update links to AWS (for real)', async () => {
@@ -155,7 +153,7 @@ describe('AWS Integration Test', () => {
 
     const { url, file } = await ret.json();
     assert.strictEqual(url, `https://${AWS_API}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo`);
-    assert.strictEqual(file, 'Hello world.\n');
+    assert.strictEqual(file, 'Hello, world.\n');
   }).timeout(50000);
 
   it('Deploy authorizer and link it', async () => {
@@ -237,6 +235,6 @@ describe('AWS Integration Test', () => {
     });
     const { url, file } = await ret.json();
     assert.strictEqual(url, `https://${AWS_API}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/auth/foo`);
-    assert.strictEqual(file, 'Hello world.\n');
+    assert.strictEqual(file, 'Hello, world.\n');
   }).timeout(50000);
 });
