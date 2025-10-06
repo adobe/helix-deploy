@@ -84,7 +84,7 @@ describe('AWS Deployer Test', () => {
     await aws.initAccountId();
     // eslint-disable-next-line no-underscore-dangle
     const { _bucket: bucket, _accountId: accountId } = aws;
-    assert.strictEqual(bucket, `helix-deploy-bucket-${accountId}-central-1`);
+    assert.strictEqual(bucket, `helix-deploy-bucket-${accountId}-eu-central-1`);
   });
 
   it('sets the custom deploy bucket', async () => {
