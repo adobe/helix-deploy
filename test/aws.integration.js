@@ -66,7 +66,9 @@ describe('AWS Integration Test', () => {
     const res = await builder.run();
     assert.ok(res);
     const out = builder.cfg._logger.output;
-    assert.ok(out.indexOf('{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/1.45.0/foo","file":"Hello, world.\\n"}') >= 0, out);
+    const { url, file } = JSON.parse(out);
+    assert.strictEqual(url, `https://${AWS_API}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/1.45.0/foo`);
+    assert.strictEqual(file, 'Hello world.\n');
   }).timeout(50000);
 
   it('Update links to AWS (for real)', async () => {
@@ -91,7 +93,7 @@ describe('AWS Integration Test', () => {
     let ret;
     for (let tries = 3; tries >= 0; tries -= 1) {
       // eslint-disable-next-line no-await-in-loop
-      ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo');
+      ret = await fetch(`https://${AWS_API}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo`);
       if (ret.status !== 200) {
         // eslint-disable-next-line no-console
         console.log(`!!: ${ret.status} !== 401 (retry)`);
@@ -103,8 +105,9 @@ describe('AWS Integration Test', () => {
     }
     assert.ok(ret.ok);
     assert.strictEqual(ret.status, 200);
-    const text = await ret.text();
-    assert.strictEqual(text.trim(), '{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo","file":"Hello, world.\\n"}');
+    const { url, file } = await ret.json();
+    assert.strictEqual(url, `https://${AWS_API}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/v1/foo`);
+    assert.strictEqual(file, 'Hello world.\n');
   }).timeout(50000);
 
   it('Deploy CI and update links to AWS (for real)', async () => {
@@ -137,7 +140,7 @@ describe('AWS Integration Test', () => {
 
     for (let tries = 3; tries >= 0; tries -= 1) {
       // eslint-disable-next-line no-await-in-loop
-      ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo');
+      ret = await fetch(`https://${AWS_API}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo`);
       if (!ret.ok) {
         // eslint-disable-next-line no-console
         console.log(`!!: ${ret.status} (retry)`);
@@ -149,8 +152,10 @@ describe('AWS Integration Test', () => {
     }
     assert.ok(ret.ok);
     assert.strictEqual(ret.status, 200);
-    const text = await ret.text();
-    assert.strictEqual(text.trim(), '{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo","file":"Hello, world.\\n"}');
+
+    const { url, file } = await ret.json();
+    assert.strictEqual(url, `https://${AWS_API}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/ci/foo`);
+    assert.strictEqual(file, 'Hello world.\n');
   }).timeout(50000);
 
   it('Deploy authorizer and link it', async () => {
@@ -210,7 +215,7 @@ describe('AWS Integration Test', () => {
 
     for (let tries = 3; tries >= 0; tries -= 1) {
       // eslint-disable-next-line no-await-in-loop
-      ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/auth/foo');
+      ret = await fetch(`https://${AWS_API}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/auth/foo`);
       if (ret.status !== 401) {
         // eslint-disable-next-line no-console
         console.log(`!!: ${ret.status} !== 401 (retry)`);
@@ -225,13 +230,13 @@ describe('AWS Integration Test', () => {
 
     // eslint-disable-next-line no-console
     console.log('invoking with token token should succeed');
-    ret = await fetch('https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/auth/foo', {
+    ret = await fetch(`https://${AWS_API}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/auth/foo`, {
       headers: {
         'x-test-authorization': 'test',
       },
     });
-    const text = await ret.text();
-    assert.strictEqual(ret.status, 200);
-    assert.strictEqual(text.trim(), '{"url":"https://lqmig3v5eb.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/auth/foo","file":"Hello, world.\\n"}');
+    const { url, file } = await ret.json();
+    assert.strictEqual(url, `https://${AWS_API}.execute-api.us-east-1.amazonaws.com/simple-package/simple-name/auth/foo`);
+    assert.strictEqual(file, 'Hello world.\n');
   }).timeout(50000);
 });
