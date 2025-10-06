@@ -45,7 +45,7 @@ async function run(bundlePath, cfg) {
 
       const fn = typeof lambda.raw === 'function' ? lambda.raw : lambda;
       result.response = await fn(event, {
-        invokedFunctionArn: `arn:aws:lambda:us-east-1:118435662149:function:${cfg.packageName}--${cfg.baseName}:${cfg.version}`,
+        invokedFunctionArn: `arn:aws:lambda:us-east-1:123456789012:function:${cfg.packageName}--${cfg.baseName}:${cfg.version}`,
         getRemainingTimeInMillis: () => 60 * 1000,
       });
       if (cfg.verbose) {

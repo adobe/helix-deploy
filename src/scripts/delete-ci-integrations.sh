@@ -1,12 +1,17 @@
 #!/bin/bash
 set -eo pipefail
 
-aws --profile adobe apigatewayv2 get-integrations --api-id lqmig3v5eb > ints.json
+if [ -z "${HLX_AWS_API_ID}" ]; then
+  echo "HLX_AWS_API_ID required"
+  exit 1
+fi
+
+aws --profile adobe apigatewayv2 get-integrations --api-id ${HLX_AWS_API_ID} > ints.json
 echo "$(cat ints.json | jq '.Items | length') integrations. deleting..."
 
 cat ints.json \
   | jq  '.Items[].IntegrationId' \
-  | xargs -I@ aws --region us-east-1 --profile adobe apigatewayv2 delete-integration --api-id lqmig3v5eb --integration-id @
+  | xargs -I@ aws --region us-east-1 --profile adobe apigatewayv2 delete-integration --api-id ${HLX_AWS_API_ID} --integration-id @
 
-aws --profile adobe apigatewayv2 get-integrations --api-id lqmig3v5eb > ints.json
+aws --profile adobe apigatewayv2 get-integrations --api-id ${HLX_AWS_API_ID} > ints.json
 echo "$(cat ints.json | jq '.Items | length') integrations remaining."
