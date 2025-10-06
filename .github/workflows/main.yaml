@@ -38,7 +38,6 @@ jobs:
       - name: Restore Google Credentials
         run: echo $GOOGLE_CREDS | base64 --decode | tee ~/.helix-google.json | jq -e .client_email
 
-
       - run: npm test
       - uses: codecov/codecov-action@v5
         with:
