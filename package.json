@@ -47,7 +47,7 @@
     "@aws-sdk/client-sts": "3.901.0",
     "@google-cloud/functions": "4.2.0",
     "@google-cloud/secret-manager": "6.1.0",
-    "@google-cloud/storage": "7.17.1",
+    "@google-cloud/storage": "7.17.2",
     "archiver": "7.0.1",
     "chalk-template": "1.1.2",
     "dotenv": "17.2.3",
