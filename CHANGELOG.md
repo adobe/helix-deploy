@@ -1,3 +1,10 @@
+## [13.1.19](https://github.com/adobe/helix-deploy/compare/v13.1.18...v13.1.19) (2025-10-21)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @google-cloud/storage to v7.17.2 ([#853](https://github.com/adobe/helix-deploy/issues/853)) ([78e85b6](https://github.com/adobe/helix-deploy/commit/78e85b6a019597dbc8fe9614d882b080693d0d00))
+
 ## [13.1.18](https://github.com/adobe/helix-deploy/compare/v13.1.17...v13.1.18) (2025-10-20)
 
 
