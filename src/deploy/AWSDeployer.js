@@ -836,7 +836,6 @@ export default class AWSDeployer extends BaseDeployer {
 
   async updateLinks() {
     const { cfg, functionName } = this;
-    const { ApiId } = await this.initApiId();
     const functionVersion = cfg.version.replace(/\./g, '_');
 
     let res;
@@ -858,85 +857,13 @@ export default class AWSDeployer extends BaseDeployer {
 
     // get all the routes
     this.log.info(chalk`--: fetching routes ...`);
-    const routes = await this.fetchRoutes(ApiId);
 
     // create routes for each symlink
     const sfx = this.getLinkVersions();
 
     for (const suffix of sfx) {
       // create or update alias
-      const aliasArn = await this.createOrUpdateAlias(suffix.replace('.', '_'), functionName, incrementalVersion);
-
-      // find or create integration
-      let integration = await this.findIntegration(ApiId, aliasArn);
-      if (integration) {
-        this.log.info(`--: using existing integration "${integration.IntegrationId}" for "${aliasArn}"`);
-      } else {
-        integration = await this._api.send(new CreateIntegrationCommand({
-          ApiId,
-          IntegrationMethod: 'POST',
-          IntegrationType: 'AWS_PROXY',
-          IntegrationUri: aliasArn,
-          PayloadFormatVersion: '2.0',
-          TimeoutInMillis: Math.min(cfg.timeout, 30000),
-        }));
-        this.log.info(chalk`{green ok:} created new integration "${integration.IntegrationId}" for "${aliasArn}"`);
-      }
-      const { IntegrationId } = integration;
-
-      const routeParams = {
-        ApiId,
-        Target: `integrations/${IntegrationId}`,
-        AuthorizerId: undefined,
-        AuthorizationType: 'NONE',
-      };
-      if (this._cfg.attachAuthorizer) {
-        this.log.info(chalk`--: fetching authorizers...`);
-        const authorizers = await this.fetchAuthorizers(ApiId);
-        const authorizer = authorizers.find((info) => info.Name === this._cfg.attachAuthorizer);
-        if (!authorizer) {
-          throw Error(`Specified authorizer ${this._cfg.attachAuthorizer} does not exist in api ${ApiId}.`);
-        }
-        routeParams.AuthorizerId = authorizer.AuthorizerId;
-        routeParams.AuthorizationType = 'CUSTOM';
-        this.log.info(chalk`{green ok:} configuring routes with authorizer {blue ${this._cfg.attachAuthorizer}} {yellow ${authorizer.AuthorizerId}}`);
-      }
-
-      // create or update routes
-      await this.createOrUpdateRoute(routes, routeParams, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}`);
-      await this.createOrUpdateRoute(routes, routeParams, `ANY /${cfg.packageName}/${cfg.baseName}/${suffix}/{path+}`);
-
-      await this.updateAuthorizers(ApiId, functionName, aliasArn);
-
-      // add permissions to invoke function (with and without path)
-      let sourceArn = `arn:aws:execute-api:${this._cfg.region}:${this._accountId}:${ApiId}/*/*/${cfg.packageName}/${cfg.baseName}/${suffix}`;
-      try {
-        // eslint-disable-next-line no-await-in-loop
-        await this._lambda.send(new AddPermissionCommand({
-          FunctionName: aliasArn,
-          Action: 'lambda:InvokeFunction',
-          SourceArn: sourceArn,
-          Principal: 'apigateway.amazonaws.com',
-          StatementId: crypto.createHash('md5').update(aliasArn + sourceArn).digest('hex'),
-        }));
-        this.log.info(chalk`{green ok:} added invoke permissions for ${sourceArn}`);
-      } catch (e) {
-        // ignore, most likely the permission already exists
-      }
-      sourceArn = `arn:aws:execute-api:${this._cfg.region}:${this._accountId}:${ApiId}/*/*/${cfg.packageName}/${cfg.baseName}/${suffix}/{path+}`;
-      try {
-        // eslint-disable-next-line no-await-in-loop
-        await this._lambda.send(new AddPermissionCommand({
-          FunctionName: aliasArn,
-          Action: 'lambda:InvokeFunction',
-          SourceArn: sourceArn,
-          Principal: 'apigateway.amazonaws.com',
-          StatementId: crypto.createHash('md5').update(aliasArn + sourceArn).digest('hex'),
-        }));
-        this.log.info(chalk`{green ok:} added invoke permissions for ${sourceArn}`);
-      } catch (e) {
-        // ignore, most likely the permission already exists
-      }
+      await this.createOrUpdateAlias(suffix.replace('.', '_'), functionName, incrementalVersion);
     }
   }
 
@@ -1082,7 +1009,6 @@ export default class AWSDeployer extends BaseDeployer {
       await this.uploadZIP();
       await this.createLambda();
       await this.deleteZIP();
-      await this.createAPI();
       await this.createExtraPermissions();
       await this.checkFunctionReady();
     } catch (err) {
