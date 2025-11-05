@@ -83,7 +83,7 @@ describe('Deploy Test', () => {
     const builder = await new CLI()
       .prepare([
         '--target', 'aws',
-        '--aws-region', '*',
+        '--aws-region', 'us-east-1',
         '--aws-api', '*',
         '--aws-role', '*',
         '--verbose',
