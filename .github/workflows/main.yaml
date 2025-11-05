@@ -55,12 +55,7 @@ jobs:
 
 
       - name: Semantic Release (Dry Run)
-        run: |
-          git config --global user.name "adobe-bot"
-          git config --global user.email "grp-opensourceoffice@adobe.com"
-          git config --global credential.helper store
-          echo "https://x-access-token:${GITHUB_TOKEN}@github.com" > ~/.git-credentials
-          npm run semantic-release-dry
+        run: npm run semantic-release-dry
         env:
           GITHUB_TOKEN: ${{ secrets.ADOBE_BOT_GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.ADOBE_BOT_NPM_TOKEN }}
