@@ -10,6 +10,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     permissions:
+      contents: write
       id-token: write
     steps:
       - uses: actions/checkout@v5
@@ -57,7 +58,7 @@ jobs:
       - name: Semantic Release (Dry Run)
         run: npm run semantic-release-dry
         env:
-          GITHUB_TOKEN: ${{ secrets.ADOBE_BOT_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
           NPM_TOKEN: ${{ secrets.ADOBE_BOT_NPM_TOKEN }}
 
   release:
