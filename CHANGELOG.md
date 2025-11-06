@@ -1,3 +1,11 @@
+## [13.1.21](https://github.com/adobe/helix-deploy/compare/v13.1.20...v13.1.21) (2025-11-06)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes (excluding semantic-release) ([#858](https://github.com/adobe/helix-deploy/issues/858)) ([d01b0b5](https://github.com/adobe/helix-deploy/commit/d01b0b521f97257cee9ead57e5752a1b812b22af)), closes [#859](https://github.com/adobe/helix-deploy/issues/859)
+* **deps:** update semantic-release to v25.0.1 ([#859](https://github.com/adobe/helix-deploy/issues/859)) ([b9b07c9](https://github.com/adobe/helix-deploy/commit/b9b07c9a900c5df59d9a98ee7a45eae211ecb510))
+
 ## [13.1.20](https://github.com/adobe/helix-deploy/compare/v13.1.19...v13.1.20) (2025-10-27)
 
 
