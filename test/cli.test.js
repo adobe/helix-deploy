@@ -445,7 +445,6 @@ describe('CLI Test', () => {
       role: 'somerole',
       apiId: 'someapi',
       arch: 'arm64',
-      createApi: true,
       linkRoutes: true,
       cleanUpIntegrations: false,
       cleanUpVersions: false,

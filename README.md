@@ -129,7 +129,6 @@ AWS Deployment Options
       --aws-cleanup-integrations  Cleans up unused integrations  [boolean] [default: false]
       --aws-cleanup-versions      Cleans up unused versions  [boolean] [default: false]
       --aws-create-routes         Create routes for function (usually not needed due to proxy function).  [boolean] [default: false]
-      --aws-create-api            Create or update the API Gateway stage and package routes for the deployed function.  [boolean] [default: true]
       --aws-link-routes           Create or update routes, integrations, permissions, and authorizers when linking versions.  [boolean] [default: true]
       --aws-create-authorizer     Creates API Gateway authorizer using lambda authorization with this function and the specified name. The string can contain placeholders (note that all dots ('.') are replaced with underscores. Example: "helix-authorizer_${version}".  [string]
       --aws-attach-authorizer     Attach specified authorizer to routes during linking.  [string]

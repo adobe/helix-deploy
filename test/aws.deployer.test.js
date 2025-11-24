@@ -43,6 +43,8 @@ const awsNock = {
 };
 
 describe('AWS Deployer Test', () => {
+  let sandbox;
+
   before(() => {
     nock.disableNetConnect();
   });
@@ -51,8 +53,6 @@ describe('AWS Deployer Test', () => {
     nock.cleanAll();
     nock.enableNetConnect();
   });
-
-  let sandbox;
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
@@ -176,10 +176,6 @@ describe('AWS Deployer Test', () => {
   });
 
   it('cleans up old versions', async () => {
-    process.env.AWS_ACCESS_KEY_ID = 'awsAccessKeyId';
-    process.env.AWS_SECRET_ACCESS_KEY = 'awsSecretAccessKey';
-    process.env.AWS_SESSION_TOKEN = 'awsSessionToken';
-
     nock('https://lambda.us-east-1.amazonaws.com')
       .get('/2015-03-31/functions/helix-services--static/aliases')
       .reply(200, {
@@ -226,10 +222,6 @@ describe('AWS Deployer Test', () => {
   });
 
   it('cleans up unused versions', async () => {
-    process.env.AWS_ACCESS_KEY_ID = 'awsAccessKeyId';
-    process.env.AWS_SECRET_ACCESS_KEY = 'awsSecretAccessKey';
-    process.env.AWS_SESSION_TOKEN = 'awsSessionToken';
-
     nock('https://lambda.us-east-1.amazonaws.com')
       .get('/2015-03-31/functions/helix-services--static/aliases')
       .reply(200, {
@@ -385,31 +377,6 @@ describe('AWS Deployer Test', () => {
     sandbox.stub(deployer, 'checkFunctionReady').resolves();
   }
 
-  it('calls createAPI() when createApi is enabled', async () => {
-    const cfg = await createBaseConfig();
-    const awsCfg = new AWSConfig()
-      .withAWSRegion('us-east-1')
-      .withAWSRole('arn:aws:iam::123456789012:role/test-role');
-    const aws = new AWSDeployer(cfg, awsCfg);
-    stubDeploymentLifecycle(aws);
-    const createApiStub = sandbox.stub(aws, 'createAPI').resolves();
-    await aws.deploy();
-    assert.strictEqual(createApiStub.callCount, 1);
-  });
-
-  it('skips createAPI() when createApi is disabled', async () => {
-    const cfg = await createBaseConfig();
-    const awsCfg = new AWSConfig()
-      .withAWSRegion('us-east-1')
-      .withAWSRole('arn:aws:iam::123456789012:role/test-role')
-      .withAWSCreateApi(false);
-    const aws = new AWSDeployer(cfg, awsCfg);
-    stubDeploymentLifecycle(aws);
-    const createApiStub = sandbox.stub(aws, 'createAPI').resolves();
-    await aws.deploy();
-    assert.strictEqual(createApiStub.callCount, 0);
-  });
-
   it('skips linking routes when linkRoutes is disabled', async () => {
     const cfg = await createBaseConfig({ links: ['ci'] });
     const awsCfg = new AWSConfig()
@@ -437,5 +404,56 @@ describe('AWS Deployer Test', () => {
     };
     await aws.updateLinks();
     assert.strictEqual(aliasUpdates, 1);
+  });
+
+  it('skips API provisioning when apiId is not create', async () => { /* eslint-disable no-underscore-dangle */
+    const cfg = await createBaseConfig();
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
+      .withAWSApi('someapi');
+    const aws = new AWSDeployer(cfg, awsCfg);
+    await aws.init();
+    stubDeploymentLifecycle(aws);
+    sandbox.stub(aws, 'initApiId').resolves({
+      ApiId: 'someapi',
+      ApiEndpoint: 'https://example.execute-api.us-east-1.amazonaws.com',
+    });
+    const apiSend = sandbox.stub(aws._api, 'send').callsFake(() => {
+      throw new Error('createAPI should not call API when apiId != create');
+    });
+    await aws.createAPI();
+    assert.strictEqual(apiSend.callCount, 0);
+    assert.strictEqual(aws._functionURL, `https://example.execute-api.us-east-1.amazonaws.com${aws.functionPath}`);
+  });
+
+  it('creates stage when apiId equals create', async () => {
+    const cfg = await createBaseConfig();
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
+      .withAWSApi('create');
+    const aws = new AWSDeployer(cfg, awsCfg);
+    await aws.init();
+    stubDeploymentLifecycle(aws);
+    aws._aliasARN = 'arn:aws:lambda:us-east-1:123456789012:function:helix-services--static:1_18_2';
+    sandbox.stub(aws, 'initApiId').resolves({
+      ApiId: 'create',
+      ApiEndpoint: 'https://example.execute-api.us-east-1.amazonaws.com',
+    });
+    const stageChecked = sandbox.stub().returns({ Items: [] });
+    const stageCreated = sandbox.stub().resolves({});
+    const apiSend = sandbox.stub(aws._api, 'send').callsFake((command) => {
+      if (command.input?.StageName === '$default') {
+        return stageCreated(command);
+      }
+      if (command.input?.ApiId === 'create') {
+        return stageChecked(command);
+      }
+      return {};
+    });
+    sandbox.stub(aws._lambda, 'send').resolves();
+    await aws.createAPI();
+    assert.strictEqual(stageChecked.callCount, 1);
+    assert.strictEqual(stageCreated.callCount, 1);
+    assert.ok(apiSend.called);
   });
 });

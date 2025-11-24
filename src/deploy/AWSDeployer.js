@@ -494,6 +494,10 @@ export default class AWSDeployer extends BaseDeployer {
     const { ApiId, ApiEndpoint } = await this.initApiId();
     this._functionURL = `${ApiEndpoint}${this.functionPath}`;
 
+    if (this._cfg.apiId !== 'create') {
+      return;
+    }
+
     // check for stage
     const res = await this._api.send(new GetStagesCommand({
       ApiId: this._cfg.apiId,
@@ -1093,11 +1097,7 @@ export default class AWSDeployer extends BaseDeployer {
       await this.uploadZIP();
       await this.createLambda();
       await this.deleteZIP();
-      if (this._cfg.createApi !== false) {
-        await this.createAPI();
-      } else {
-        this.log.info(chalk`--: skipping API creation (createApi disabled).`);
-      }
+      await this.createAPI();
       await this.createExtraPermissions();
       await this.checkFunctionReady();
     } catch (err) {
