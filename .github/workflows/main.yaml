@@ -23,43 +23,6 @@ jobs:
       # causes problem with the arch specific packages, like @jakechampion/wizer-linux-x64
       - run: npm install
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: us-east-1
-          role-to-assume: arn:aws:iam::118435662149:role/helix-gh-deploy-config-service
-      - name: Fetch AWS Secrets
-        uses: aws-actions/aws-secretsmanager-get-secrets@v2
-        with:
-          parse-json-secrets: true
-          secret-ids: |
-            /helix/github-action-secrets
-      # see https://github.com/aws-actions/aws-secretsmanager-get-secrets/issues/11
-      - name: unprefix variables
-        run: |
-          for variable in "${!_HELIX_GITHUB_ACTION_SECRETS_@}"; do 
-            echo "${variable#_HELIX_GITHUB_ACTION_SECRETS_}=${!variable}" >> $GITHUB_ENV
-          done
-      - name: Restore Google Credentials
-        run: echo $GOOGLE_CREDS | base64 --decode | tee ~/.helix-google.json | jq -e .client_email
-
-
-      - run: npm test
-      - uses: codecov/codecov-action@v5
-        with:
-          flags: unittests
-          token: ${{ secrets.CODECOV_TOKEN }}
-
-      - run: npm run integration-ci
-        env:
-          HLX_FASTLY_AUTH: ${{ secrets.HLX_FASTLY_AUTH }}
-          HLX_FASTLY_SERVICE_ID: ${{ secrets.HLX_FASTLY_SERVICE_ID }}
-      - uses: codecov/codecov-action@v5
-        with:
-          flags: integration
-          token: ${{ secrets.CODECOV_TOKEN }}
-
-
       - name: Semantic Release (Dry Run)
         run: npm run semantic-release-dry
         env:
