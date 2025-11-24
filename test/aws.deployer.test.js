@@ -58,6 +58,12 @@ describe('AWS Deployer Test', () => {
     sandbox = sinon.createSandbox();
     awsNock.getCallerIdentity('us-east-1');
     awsNock.getCallerIdentity('eu-central-1');
+    AWS_CREDENTIALS.forEach((cred) => {
+      env[cred] = process.env[cred];
+      if (process.env[cred] === undefined) {
+        process.env[cred] = 'test';
+      }
+    });
   });
 
   afterEach(() => {
