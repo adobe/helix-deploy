@@ -41,11 +41,6 @@ The deploy parameters can be specifies in the CLI via `-p`. See below.
 2. Run the linter via `npm run lint`.
 3. Run the unit-test suite with `npm test`. The script runs `c8 mocha -i -g Integration`, so tests explicitly tagged as "Integration" are skipped.
 
-> **Heads up:** several AWS deployer specs live in the default test suite and call `GetCallerIdentity` against AWS STS to 
-> resolve the account ID. Make sure you are logged in via the AWS CLI (for example `aws sso login --profile …` or 
-> `aws configure`) or export fresh `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` before
-> running `npm test`. Without valid credentials these cases fail with `ExpiredToken` or `InvalidClientTokenId`.
-
 ## CLI
 
 The command line interface `hedy` can either be invoked via `./node_modules/.bin/hedy`.

@@ -14,20 +14,61 @@
 import assert from 'assert';
 import sinon from 'sinon';
 import nock from 'nock';
+import xml2js from 'xml2js';
+
 import BaseConfig from '../src/BaseConfig.js';
 import AWSConfig from '../src/deploy/AWSConfig.js';
 import AWSDeployer from '../src/deploy/AWSDeployer.js';
 import ActionBuilder from '../src/ActionBuilder.js';
 
+const AWS_CREDENTIALS = [
+  'AWS_ACCESS_KEY_ID',
+  'AWS_SECRET_ACCESS_KEY',
+  'AWS_SESSION_TOKEN',
+];
+
+const env = {};
+const awsNock = {
+  getCallerIdentity: (region = 'us-east-1') => nock(`https://sts.${region}.amazonaws.com`)
+    .post('/', (body) => body.Action === 'GetCallerIdentity')
+    .reply(200, new xml2js.Builder().buildObject({
+      GetCallerIdentityResponse: {
+        GetCallerIdentityResult: {
+          Arn: 'arn:aws:sts::123456789012:assumed-role/master-role-ab5CD/bob',
+          UserId: 'ABCD:bob',
+          Account: '123456789012',
+        },
+      },
+    })),
+};
+
 describe('AWS Deployer Test', () => {
+  before(() => {
+    nock.disableNetConnect();
+  });
+
+  after(() => {
+    nock.cleanAll();
+    nock.enableNetConnect();
+  });
+
   let sandbox;
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
+    awsNock.getCallerIdentity('us-east-1');
+    awsNock.getCallerIdentity('eu-central-1');
   });
 
   afterEach(() => {
     sandbox.restore();
+    AWS_CREDENTIALS.forEach((cred) => {
+      if (env[cred] !== undefined) {
+        process.env[cred] = env[cred];
+      } else {
+        delete process.env[cred];
+      }
+    });
   });
   it('sets the default lambda name', async () => {
     const cfg = new BaseConfig()
