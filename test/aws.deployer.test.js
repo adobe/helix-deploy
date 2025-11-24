@@ -12,7 +12,6 @@
 
 /* eslint-env mocha */
 import assert from 'assert';
-import sinon from 'sinon';
 import nock from 'nock';
 import xml2js from 'xml2js';
 
@@ -43,8 +42,6 @@ const awsNock = {
 };
 
 describe('AWS Deployer Test', () => {
-  let sandbox;
-
   before(() => {
     nock.disableNetConnect();
   });
@@ -55,7 +52,6 @@ describe('AWS Deployer Test', () => {
   });
 
   beforeEach(() => {
-    sandbox = sinon.createSandbox();
     awsNock.getCallerIdentity('us-east-1');
     awsNock.getCallerIdentity('eu-central-1');
     AWS_CREDENTIALS.forEach((cred) => {
@@ -67,7 +63,6 @@ describe('AWS Deployer Test', () => {
   });
 
   afterEach(() => {
-    sandbox.restore();
     AWS_CREDENTIALS.forEach((cred) => {
       if (env[cred] !== undefined) {
         process.env[cred] = env[cred];
@@ -374,62 +369,55 @@ describe('AWS Deployer Test', () => {
     return cfg;
   }
 
-  function stubDeploymentLifecycle(deployer) {
-    sandbox.stub(deployer, 'initAccountId').resolves();
-    sandbox.stub(deployer, 'uploadZIP').resolves();
-    sandbox.stub(deployer, 'createLambda').resolves();
-    sandbox.stub(deployer, 'deleteZIP').resolves();
-    sandbox.stub(deployer, 'createExtraPermissions').resolves();
-    sandbox.stub(deployer, 'checkFunctionReady').resolves();
-  }
-
   it('skips linking routes when linkRoutes is disabled', async () => {
     const cfg = await createBaseConfig({ links: ['ci'] });
     const awsCfg = new AWSConfig()
       .withAWSRegion('us-east-1')
       .withAWSLinkRoutes(false);
     const aws = new AWSDeployer(cfg, awsCfg);
-    // eslint-disable-next-line no-underscore-dangle
-    aws._lambda = {
-      // eslint-disable-next-line no-unused-vars
-      send: async (command) => ({
+    const lambdaScope = nock('https://lambda.us-east-1.amazonaws.com')
+      .get('/2015-03-31/functions/helix-services--static/aliases/1_18_2')
+      .reply(200, {
         FunctionVersion: '123',
         AliasArn: 'arn:aws:lambda:us-east-1:123456789012:function:helix-services--static:1_18_2',
-      }),
-    };
-    aws.initApiId = async () => {
-      throw new Error('initApiId should not be called when linkRoutes=false');
-    };
-    aws.fetchRoutes = async () => {
-      throw new Error('fetchRoutes should not be called when linkRoutes=false');
-    };
-    let aliasUpdates = 0;
-    aws.createOrUpdateAlias = async () => {
-      aliasUpdates += 1;
-      return 'arn:aws:lambda:us-east-1:123456789012:function:helix-services--static:ci';
-    };
+      })
+      .get('/2015-03-31/functions/helix-services--static/aliases/ci')
+      .reply(200, {
+        FunctionVersion: '123',
+        AliasArn: 'arn:aws:lambda:us-east-1:123456789012:function:helix-services--static:ci',
+      })
+      .put('/2015-03-31/functions/helix-services--static/aliases/ci')
+      .reply(200, {
+        AliasArn: 'arn:aws:lambda:us-east-1:123456789012:function:helix-services--static:ci',
+      });
+
+    await aws.init();
     await aws.updateLinks();
-    assert.strictEqual(aliasUpdates, 1);
+
+    assert.ok(lambdaScope.isDone());
   });
 
-  it('skips API provisioning when apiId is not create', async () => { /* eslint-disable no-underscore-dangle */
+  // These createAPI() tests only verify the guard around the "create" code path.
+  // Each relies on nock failing if additional API Gateway endpoints are invoked,
+  // so a passing test proves createAPI() returned (or continued) exactly as intended.
+  it('skips API provisioning when apiId is not create', async () => {
     const cfg = await createBaseConfig();
     const awsCfg = new AWSConfig()
       .withAWSRegion('us-east-1')
       .withAWSApi('someapi');
     const aws = new AWSDeployer(cfg, awsCfg);
+    const apiScope = nock('https://apigateway.us-east-1.amazonaws.com')
+      .get('/v2/apis/someapi')
+      .reply(200, {
+        apiId: 'someapi',
+        apiEndpoint: 'https://example.execute-api.us-east-1.amazonaws.com',
+      });
+
     await aws.init();
-    stubDeploymentLifecycle(aws);
-    sandbox.stub(aws, 'initApiId').resolves({
-      ApiId: 'someapi',
-      ApiEndpoint: 'https://example.execute-api.us-east-1.amazonaws.com',
-    });
-    const apiSend = sandbox.stub(aws._api, 'send').callsFake(() => {
-      throw new Error('createAPI should not call API when apiId != create');
-    });
     await aws.createAPI();
-    assert.strictEqual(apiSend.callCount, 0);
-    assert.strictEqual(aws._functionURL, `https://example.execute-api.us-east-1.amazonaws.com${aws.functionPath}`);
+
+    assert.ok(apiScope.isDone());
+    assert.strictEqual(aws.fullFunctionName, `https://example.execute-api.us-east-1.amazonaws.com${aws.functionPath}`);
   });
 
   it('creates stage when apiId equals create', async () => {
@@ -438,28 +426,27 @@ describe('AWS Deployer Test', () => {
       .withAWSRegion('us-east-1')
       .withAWSApi('create');
     const aws = new AWSDeployer(cfg, awsCfg);
+    const apiBase = 'https://apigateway.us-east-1.amazonaws.com';
+    const createApiRequest = nock(apiBase)
+      .post('/v2/apis', () => true)
+      .reply(200, {
+        apiId: 'newapi',
+        apiEndpoint: 'https://example.execute-api.us-east-1.amazonaws.com',
+      });
+    const getStagesRequest = nock(apiBase)
+      .get('/v2/apis/newapi/stages')
+      .reply(200, { items: [] });
+    const createStageRequest = nock(apiBase)
+      .post('/v2/apis/newapi/stages', (body) => body.stageName === '$default' && body.autoDeploy === true)
+      .reply(201, {});
+
     await aws.init();
-    stubDeploymentLifecycle(aws);
-    aws._aliasARN = 'arn:aws:lambda:us-east-1:123456789012:function:helix-services--static:1_18_2';
-    sandbox.stub(aws, 'initApiId').resolves({
-      ApiId: 'create',
-      ApiEndpoint: 'https://example.execute-api.us-east-1.amazonaws.com',
-    });
-    const stageChecked = sandbox.stub().returns({ Items: [] });
-    const stageCreated = sandbox.stub().resolves({});
-    const apiSend = sandbox.stub(aws._api, 'send').callsFake((command) => {
-      if (command.input?.StageName === '$default') {
-        return stageCreated(command);
-      }
-      if (command.input?.ApiId === 'create') {
-        return stageChecked(command);
-      }
-      return {};
-    });
-    sandbox.stub(aws._lambda, 'send').resolves();
+    await aws.initAccountId();
     await aws.createAPI();
-    assert.strictEqual(stageChecked.callCount, 1);
-    assert.strictEqual(stageCreated.callCount, 1);
-    assert.ok(apiSend.called);
+
+    assert.ok(createApiRequest.isDone());
+    assert.ok(getStagesRequest.isDone());
+    assert.ok(createStageRequest.isDone());
+    assert.strictEqual(aws.fullFunctionName, `https://example.execute-api.us-east-1.amazonaws.com${aws.functionPath}`);
   });
 });

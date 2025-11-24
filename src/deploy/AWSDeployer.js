@@ -491,16 +491,17 @@ export default class AWSDeployer extends BaseDeployer {
 
   async createAPI() {
     const { cfg } = this;
+    const requestedApiId = this._cfg.apiId;
     const { ApiId, ApiEndpoint } = await this.initApiId();
     this._functionURL = `${ApiEndpoint}${this.functionPath}`;
 
-    if (this._cfg.apiId !== 'create') {
+    if (requestedApiId !== 'create') {
       return;
     }
 
     // check for stage
     const res = await this._api.send(new GetStagesCommand({
-      ApiId: this._cfg.apiId,
+      ApiId,
     }));
     const stage = res.Items.find((s) => s.StageName === '$default');
     if (!stage) {
