@@ -12,6 +12,7 @@
 
 /* eslint-env mocha */
 import assert from 'assert';
+import sinon from 'sinon';
 import nock from 'nock';
 import BaseConfig from '../src/BaseConfig.js';
 import AWSConfig from '../src/deploy/AWSConfig.js';
@@ -19,6 +20,15 @@ import AWSDeployer from '../src/deploy/AWSDeployer.js';
 import ActionBuilder from '../src/ActionBuilder.js';
 
 describe('AWS Deployer Test', () => {
+  let sandbox;
+
+  beforeEach(() => {
+    sandbox = sinon.createSandbox();
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+  });
   it('sets the default lambda name', async () => {
     const cfg = new BaseConfig()
       .withName('/helix-services/static@4.3.1');
@@ -325,13 +335,13 @@ describe('AWS Deployer Test', () => {
     return cfg;
   }
 
-  function stubDeploymentLifecycle(deployer) { /* eslint-disable no-param-reassign */
-    deployer.initAccountId = async () => {};
-    deployer.uploadZIP = async () => {};
-    deployer.createLambda = async () => {};
-    deployer.deleteZIP = async () => {};
-    deployer.createExtraPermissions = async () => {};
-    deployer.checkFunctionReady = async () => {};
+  function stubDeploymentLifecycle(deployer) {
+    sandbox.stub(deployer, 'initAccountId').resolves();
+    sandbox.stub(deployer, 'uploadZIP').resolves();
+    sandbox.stub(deployer, 'createLambda').resolves();
+    sandbox.stub(deployer, 'deleteZIP').resolves();
+    sandbox.stub(deployer, 'createExtraPermissions').resolves();
+    sandbox.stub(deployer, 'checkFunctionReady').resolves();
   }
 
   it('calls createAPI() when createApi is enabled', async () => {
@@ -341,12 +351,9 @@ describe('AWS Deployer Test', () => {
       .withAWSRole('arn:aws:iam::123456789012:role/test-role');
     const aws = new AWSDeployer(cfg, awsCfg);
     stubDeploymentLifecycle(aws);
-    let createApiCalls = 0;
-    aws.createAPI = async () => {
-      createApiCalls += 1;
-    };
+    const createApiStub = sandbox.stub(aws, 'createAPI').resolves();
     await aws.deploy();
-    assert.strictEqual(createApiCalls, 1);
+    assert.strictEqual(createApiStub.callCount, 1);
   });
 
   it('skips createAPI() when createApi is disabled', async () => {
@@ -357,12 +364,9 @@ describe('AWS Deployer Test', () => {
       .withAWSCreateApi(false);
     const aws = new AWSDeployer(cfg, awsCfg);
     stubDeploymentLifecycle(aws);
-    let createApiCalls = 0;
-    aws.createAPI = async () => {
-      createApiCalls += 1;
-    };
+    const createApiStub = sandbox.stub(aws, 'createAPI').resolves();
     await aws.deploy();
-    assert.strictEqual(createApiCalls, 0);
+    assert.strictEqual(createApiStub.callCount, 0);
   });
 
   it('skips linking routes when linkRoutes is disabled', async () => {
