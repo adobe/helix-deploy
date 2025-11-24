@@ -309,4 +309,88 @@ describe('AWS Deployer Test', () => {
     const aws = new AWSDeployer(cfg, awsCfg);
     assert.deepEqual(aws.functionConfig.Layers, ['my-layer:1', 'my-other-layer:1']);
   });
+
+  async function createBaseConfig({
+    version = '1.18.2',
+    // eslint-disable-next-line no-template-curly-in-string
+    name = '/helix-services/static@${version}',
+    links = [],
+  } = {}) {
+    const cfg = new BaseConfig()
+      .withVersion(version)
+      .withName(name)
+      .withLinks(links);
+    const builder = new ActionBuilder().withConfig(cfg);
+    await builder.validate();
+    return cfg;
+  }
+
+  function stubDeploymentLifecycle(deployer) { /* eslint-disable no-param-reassign */
+    deployer.initAccountId = async () => {};
+    deployer.uploadZIP = async () => {};
+    deployer.createLambda = async () => {};
+    deployer.deleteZIP = async () => {};
+    deployer.createExtraPermissions = async () => {};
+    deployer.checkFunctionReady = async () => {};
+  }
+
+  it('calls createAPI() when createApi is enabled', async () => {
+    const cfg = await createBaseConfig();
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
+      .withAWSRole('arn:aws:iam::123456789012:role/test-role');
+    const aws = new AWSDeployer(cfg, awsCfg);
+    stubDeploymentLifecycle(aws);
+    let createApiCalls = 0;
+    aws.createAPI = async () => {
+      createApiCalls += 1;
+    };
+    await aws.deploy();
+    assert.strictEqual(createApiCalls, 1);
+  });
+
+  it('skips createAPI() when createApi is disabled', async () => {
+    const cfg = await createBaseConfig();
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
+      .withAWSRole('arn:aws:iam::123456789012:role/test-role')
+      .withAWSCreateApi(false);
+    const aws = new AWSDeployer(cfg, awsCfg);
+    stubDeploymentLifecycle(aws);
+    let createApiCalls = 0;
+    aws.createAPI = async () => {
+      createApiCalls += 1;
+    };
+    await aws.deploy();
+    assert.strictEqual(createApiCalls, 0);
+  });
+
+  it('skips linking routes when linkRoutes is disabled', async () => {
+    const cfg = await createBaseConfig({ links: ['ci'] });
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
+      .withAWSLinkRoutes(false);
+    const aws = new AWSDeployer(cfg, awsCfg);
+    // eslint-disable-next-line no-underscore-dangle
+    aws._lambda = {
+      // eslint-disable-next-line no-unused-vars
+      send: async (command) => ({
+        FunctionVersion: '123',
+        AliasArn: 'arn:aws:lambda:us-east-1:123456789012:function:helix-services--static:1_18_2',
+      }),
+    };
+    aws.initApiId = async () => {
+      throw new Error('initApiId should not be called when linkRoutes=false');
+    };
+    aws.fetchRoutes = async () => {
+      throw new Error('fetchRoutes should not be called when linkRoutes=false');
+    };
+    let aliasUpdates = 0;
+    aws.createOrUpdateAlias = async () => {
+      aliasUpdates += 1;
+      return 'arn:aws:lambda:us-east-1:123456789012:function:helix-services--static:ci';
+    };
+    await aws.updateLinks();
+    assert.strictEqual(aliasUpdates, 1);
+  });
 });

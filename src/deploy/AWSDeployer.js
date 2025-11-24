@@ -836,7 +836,16 @@ export default class AWSDeployer extends BaseDeployer {
 
   async updateLinks() {
     const { cfg, functionName } = this;
-    const { ApiId } = await this.initApiId();
+    const shouldLinkRoutes = this._cfg.linkRoutes !== false;
+    let ApiId;
+    let routes = [];
+    if (shouldLinkRoutes) {
+      ({ ApiId } = await this.initApiId());
+      this.log.info(chalk`--: fetching routes ...`);
+      routes = await this.fetchRoutes(ApiId);
+    } else {
+      this.log.info(chalk`--: skipping route linking per configuration.`);
+    }
     const functionVersion = cfg.version.replace(/\./g, '_');
 
     let res;
@@ -856,16 +865,18 @@ export default class AWSDeployer extends BaseDeployer {
       throw e;
     }
 
-    // get all the routes
-    this.log.info(chalk`--: fetching routes ...`);
-    const routes = await this.fetchRoutes(ApiId);
-
     // create routes for each symlink
     const sfx = this.getLinkVersions();
 
     for (const suffix of sfx) {
       // create or update alias
       const aliasArn = await this.createOrUpdateAlias(suffix.replace('.', '_'), functionName, incrementalVersion);
+
+      if (!shouldLinkRoutes) {
+        this.log.info(chalk`--: skipped route updates for link {blue ${suffix}} (linkRoutes disabled).`);
+        // eslint-disable-next-line no-continue
+        continue;
+      }
 
       // find or create integration
       let integration = await this.findIntegration(ApiId, aliasArn);
@@ -1082,7 +1093,11 @@ export default class AWSDeployer extends BaseDeployer {
       await this.uploadZIP();
       await this.createLambda();
       await this.deleteZIP();
-      await this.createAPI();
+      if (this._cfg.createApi !== false) {
+        await this.createAPI();
+      } else {
+        this.log.info(chalk`--: skipping API creation (createApi disabled).`);
+      }
       await this.createExtraPermissions();
       await this.checkFunctionReady();
     } catch (err) {

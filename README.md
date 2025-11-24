@@ -35,6 +35,17 @@
 
 The deploy parameters can be specifies in the CLI via `-p`. See below.
 
+## Developing
+
+1. Install dependencies once with `npm install`.
+2. Run the linter via `npm run lint`.
+3. Run the unit-test suite with `npm test`. The script runs `c8 mocha -i -g Integration`, so tests explicitly tagged as "Integration" are skipped.
+
+> **Heads up:** several AWS deployer specs live in the default test suite and call `GetCallerIdentity` against AWS STS to 
+> resolve the account ID. Make sure you are logged in via the AWS CLI (for example `aws sso login --profile …` or 
+> `aws configure`) or export fresh `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` before
+> running `npm test`. Without valid credentials these cases fail with `ExpiredToken` or `InvalidClientTokenId`.
+
 ## CLI
 
 The command line interface `hedy` can either be invoked via `./node_modules/.bin/hedy`.
@@ -123,6 +134,8 @@ AWS Deployment Options
       --aws-cleanup-integrations  Cleans up unused integrations  [boolean] [default: false]
       --aws-cleanup-versions      Cleans up unused versions  [boolean] [default: false]
       --aws-create-routes         Create routes for function (usually not needed due to proxy function).  [boolean] [default: false]
+      --aws-create-api            Create or update the API Gateway stage and package routes for the deployed function.  [boolean] [default: true]
+      --aws-link-routes           Create or update routes, integrations, permissions, and authorizers when linking versions.  [boolean] [default: true]
       --aws-create-authorizer     Creates API Gateway authorizer using lambda authorization with this function and the specified name. The string can contain placeholders (note that all dots ('.') are replaced with underscores. Example: "helix-authorizer_${version}".  [string]
       --aws-attach-authorizer     Attach specified authorizer to routes during linking.  [string]
       --aws-lambda-format         Format to use to create lambda functions (note that all dots ('.') will be replaced with underscores.  [string] [default: "${packageName}--${baseName}"]
