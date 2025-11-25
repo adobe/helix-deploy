@@ -1,3 +1,16 @@
+# [13.2.0](https://github.com/adobe/helix-deploy/compare/v13.1.25...v13.2.0) (2025-11-25)
+
+
+### Bug Fixes
+
+* always get api-id for updateLinks ([67a1fc5](https://github.com/adobe/helix-deploy/commit/67a1fc560cf7429504e1c8d8ee4a56c80e3f15a1))
+* remove createApi config option ([6760c4b](https://github.com/adobe/helix-deploy/commit/6760c4b72b689f8b1ed942228301f4077232c518))
+
+
+### Features
+
+* create routes & links options ([2c1b387](https://github.com/adobe/helix-deploy/commit/2c1b38766d1a211fe6db5ed2ad7b009e171536d3))
+
 ## [13.1.25](https://github.com/adobe/helix-deploy/compare/v13.1.24...v13.1.25) (2025-11-25)
 
 
