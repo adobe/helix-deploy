@@ -19,6 +19,7 @@ export default class AWSConfig {
       region: '',
       role: '',
       apiId: '',
+      linkRoutes: true,
       cleanUpIntegrations: false,
       cleanUpVersions: false,
       createRoutes: false,
@@ -49,6 +50,7 @@ export default class AWSConfig {
       .withAWSCreateAuthorizer(argv.awsCreateAuthorizer)
       .withAWSAttachAuthorizer(argv.awsAttachAuthorizer)
       .withAWSIdentitySources(argv.awsIdentitySource)
+      .withAWSLinkRoutes(argv.awsLinkRoutes)
       .withAWSCleanUpIntegrations(argv.awsCleanupIntegrations)
       .withAWSCleanUpVersions(argv.awsCleanupVersions)
       .withAWSCreateRoutes(argv.awsCreateRoutes)
@@ -98,6 +100,11 @@ export default class AWSConfig {
 
   withAWSCleanUpVersions(value) {
     this.cleanUpVersions = value;
+    return this;
+  }
+
+  withAWSLinkRoutes(value) {
+    this.linkRoutes = value;
     return this;
   }
 
@@ -172,7 +179,7 @@ export default class AWSConfig {
   static yarg(yargs) {
     return yargs
       .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-cleanup-integrations',
-        'aws-cleanup-versions', 'aws-create-routes', 'aws-create-authorizer', 'aws-attach-authorizer',
+        'aws-cleanup-versions', 'aws-link-routes', 'aws-create-routes', 'aws-create-authorizer', 'aws-attach-authorizer',
         'aws-lambda-format', 'aws-parameter-manager', 'aws-deploy-template', 'aws-arch', 'aws-update-secrets',
         'aws-deploy-bucket', 'aws-identity-source', 'aws-log-format', 'aws-layers',
         'aws-tracing-mode', 'aws-extra-permissions', 'aws-tags', 'aws-handler'], 'AWS Deployment Options')
@@ -200,6 +207,11 @@ export default class AWSConfig {
         description: 'Create routes for function (usually not needed due to proxy function).',
         type: 'boolean',
         default: false,
+      })
+      .option('aws-link-routes', {
+        description: 'Create or update routes, integrations, permissions, and authorizers when linking versions.',
+        type: 'boolean',
+        default: true,
       })
       .option('aws-parameter-manager', {
         description: 'Manager to use for storing package params. (either "secret" for Secrets Manager or "system" for System Manager)',

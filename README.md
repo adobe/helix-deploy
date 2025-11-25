@@ -35,6 +35,12 @@
 
 The deploy parameters can be specifies in the CLI via `-p`. See below.
 
+## Developing
+
+1. Install dependencies once with `npm install`.
+2. Run the linter via `npm run lint`.
+3. Run the unit-test suite with `npm test`. The script runs `c8 mocha -i -g Integration`, so tests explicitly tagged as "Integration" are skipped.
+
 ## CLI
 
 The command line interface `hedy` can either be invoked via `./node_modules/.bin/hedy`.
@@ -123,6 +129,7 @@ AWS Deployment Options
       --aws-cleanup-integrations  Cleans up unused integrations  [boolean] [default: false]
       --aws-cleanup-versions      Cleans up unused versions  [boolean] [default: false]
       --aws-create-routes         Create routes for function (usually not needed due to proxy function).  [boolean] [default: false]
+      --aws-link-routes           Create or update routes, integrations, permissions, and authorizers when linking versions.  [boolean] [default: true]
       --aws-create-authorizer     Creates API Gateway authorizer using lambda authorization with this function and the specified name. The string can contain placeholders (note that all dots ('.') are replaced with underscores. Example: "helix-authorizer_${version}".  [string]
       --aws-attach-authorizer     Attach specified authorizer to routes during linking.  [string]
       --aws-lambda-format         Format to use to create lambda functions (note that all dots ('.') will be replaced with underscores.  [string] [default: "${packageName}--${baseName}"]
