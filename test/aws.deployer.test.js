@@ -373,8 +373,15 @@ describe('AWS Deployer Test', () => {
     const cfg = await createBaseConfig({ links: ['ci'] });
     const awsCfg = new AWSConfig()
       .withAWSRegion('us-east-1')
-      .withAWSLinkRoutes(false);
+      .withAWSLinkRoutes(false)
+      .withAWSApi('someapi');
     const aws = new AWSDeployer(cfg, awsCfg);
+    const apiScope = nock('https://apigateway.us-east-1.amazonaws.com')
+      .get('/v2/apis/someapi')
+      .reply(200, {
+        apiId: 'someapi',
+        apiEndpoint: 'https://example.execute-api.us-east-1.amazonaws.com',
+      });
     const lambdaScope = nock('https://lambda.us-east-1.amazonaws.com')
       .get('/2015-03-31/functions/helix-services--static/aliases/1_18_2')
       .reply(200, {
@@ -394,6 +401,7 @@ describe('AWS Deployer Test', () => {
     await aws.init();
     await aws.updateLinks();
 
+    assert.ok(apiScope.isDone());
     assert.ok(lambdaScope.isDone());
   });
 

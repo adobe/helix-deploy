@@ -841,17 +841,17 @@ export default class AWSDeployer extends BaseDeployer {
 
   async updateLinks() {
     const { cfg, functionName } = this;
+    const { ApiId } = await this.initApiId();
+    const functionVersion = cfg.version.replace(/\./g, '_');
     const shouldLinkRoutes = this._cfg.linkRoutes !== false;
-    let ApiId;
+
     let routes = [];
     if (shouldLinkRoutes) {
-      ({ ApiId } = await this.initApiId());
       this.log.info(chalk`--: fetching routes ...`);
       routes = await this.fetchRoutes(ApiId);
     } else {
       this.log.info(chalk`--: skipping route linking per configuration.`);
     }
-    const functionVersion = cfg.version.replace(/\./g, '_');
 
     let res;
     let incrementalVersion;
