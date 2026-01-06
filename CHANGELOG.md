@@ -1,3 +1,11 @@
+## [13.2.7](https://github.com/adobe/helix-deploy/compare/v13.2.6...v13.2.7) (2026-01-06)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @adobe/helix-shared-process-queue to v3.1.4 ([#878](https://github.com/adobe/helix-deploy/issues/878)) ([4404a28](https://github.com/adobe/helix-deploy/commit/4404a2865c8a5d9bed05d5428332406286a4e8ff))
+* **deps:** update external fixes ([#877](https://github.com/adobe/helix-deploy/issues/877)) ([fba076b](https://github.com/adobe/helix-deploy/commit/fba076b88c89cc32e95e2e13f654407d4438ab5f))
+
 ## [13.2.6](https://github.com/adobe/helix-deploy/compare/v13.2.5...v13.2.6) (2025-12-30)
 
 
