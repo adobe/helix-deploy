@@ -253,6 +253,8 @@ export default class AWSDeployer extends BaseDeployer {
       LoggingConfig: this._cfg.logFormat ? { Format: this._cfg.logFormat } : undefined,
       Layers: this._cfg.layers || [],
       TracingConfig: this._cfg.tracingMode ? { Mode: this._cfg.tracingMode } : undefined,
+      EphemeralStorage: this._cfg.ephemeralStorage
+        ? { Size: this._cfg.ephemeralStorage } : undefined,
     };
 
     // add additional tags which are not empty

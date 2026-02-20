@@ -307,6 +307,43 @@ describe('AWS Deployer Test', () => {
     });
   });
 
+  it('sets EphemeralStorage if aws-ephemeral-storage is configured', async () => {
+    const cfg = new BaseConfig()
+      .withVersion('1.18.2')
+      // eslint-disable-next-line no-template-curly-in-string
+      .withName('/helix-services/static@${version}');
+    const awsCfg = new AWSConfig().withAWSEphemeralStorage(2048);
+    const builder = new ActionBuilder().withConfig(cfg);
+    await builder.validate();
+
+    const aws = new AWSDeployer(cfg, awsCfg);
+    assert.deepStrictEqual(aws.functionConfig.EphemeralStorage, { Size: 2048 });
+  });
+
+  it('does not set EphemeralStorage if not configured', async () => {
+    const cfg = new BaseConfig();
+    const awsCfg = new AWSConfig();
+    const builder = new ActionBuilder().withConfig(cfg);
+    await builder.validate();
+
+    const aws = new AWSDeployer(cfg, awsCfg);
+    assert.strictEqual(aws.functionConfig.EphemeralStorage, undefined);
+  });
+
+  it('creates an error if aws-ephemeral-storage is below 512', async () => {
+    assert.throws(() => new AWSConfig().withAWSEphemeralStorage(256), {
+      name: 'Error',
+      message: 'aws-ephemeral-storage must be an integer between 512 and 10240 (MB)',
+    });
+  });
+
+  it('creates an error if aws-ephemeral-storage is above 10240', async () => {
+    assert.throws(() => new AWSConfig().withAWSEphemeralStorage(20480), {
+      name: 'Error',
+      message: 'aws-ephemeral-storage must be an integer between 512 and 10240 (MB)',
+    });
+  });
+
   it('correctly uses awsHandler', async () => {
     const cfg = new BaseConfig()
       .withVersion('1.18.2')
