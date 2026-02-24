@@ -181,7 +181,7 @@ export default class AWSConfig {
   withAWSEphemeralStorage(value) {
     if (value !== undefined) {
       const size = Number(value);
-      if (!Number.isInteger(size) || size < 512 || size > 10240) {
+      if (!(size >= 512 && size <= 10240)) {
         throw new Error('aws-ephemeral-storage must be an integer between 512 and 10240 (MB)');
       }
       this.ephemeralStorage = size;
