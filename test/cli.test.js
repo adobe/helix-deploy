@@ -463,6 +463,7 @@ describe('CLI Test', () => {
       logFormat: undefined,
       tags: undefined,
       handler: undefined,
+      ephemeralStorage: undefined,
     });
   });
 

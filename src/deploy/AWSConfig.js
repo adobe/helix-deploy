@@ -37,6 +37,7 @@ export default class AWSConfig {
       extraPermissions: undefined,
       tags: undefined,
       handler: undefined,
+      ephemeralStorage: undefined,
     });
   }
 
@@ -62,7 +63,8 @@ export default class AWSConfig {
       .withAWSTracingMode(argv.awsTracingMode)
       .withAWSExtraPermissions(argv.awsExtraPermissions)
       .withAWSTags(argv.awsTags)
-      .withAWSHandler(argv.awsHandler);
+      .withAWSHandler(argv.awsHandler)
+      .withAWSEphemeralStorage(argv.awsEphemeralStorage);
   }
 
   withAWSRegion(value) {
@@ -176,13 +178,25 @@ export default class AWSConfig {
     return this;
   }
 
+  withAWSEphemeralStorage(value) {
+    if (value !== undefined) {
+      const size = Number(value);
+      if (!(size >= 512 && size <= 10240)) {
+        throw new Error('aws-ephemeral-storage must be an integer between 512 and 10240 (MB)');
+      }
+      this.ephemeralStorage = size;
+    }
+    return this;
+  }
+
   static yarg(yargs) {
     return yargs
       .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-cleanup-integrations',
         'aws-cleanup-versions', 'aws-link-routes', 'aws-create-routes', 'aws-create-authorizer', 'aws-attach-authorizer',
         'aws-lambda-format', 'aws-parameter-manager', 'aws-deploy-template', 'aws-arch', 'aws-update-secrets',
         'aws-deploy-bucket', 'aws-identity-source', 'aws-log-format', 'aws-layers',
-        'aws-tracing-mode', 'aws-extra-permissions', 'aws-tags', 'aws-handler'], 'AWS Deployment Options')
+        'aws-tracing-mode', 'aws-extra-permissions', 'aws-tags', 'aws-handler',
+        'aws-ephemeral-storage'], 'AWS Deployment Options')
       .option('aws-region', {
         description: 'the AWS region to deploy lambda functions to',
         type: 'string',
@@ -286,6 +300,10 @@ export default class AWSConfig {
       .option('aws-handler', {
         description: 'Set custom lambda Handler. For example, set if an AWS layer provides another function entry point.',
         type: 'string',
+      })
+      .option('aws-ephemeral-storage', {
+        description: 'Size of the Lambda /tmp ephemeral storage in MB (512-10240). Default is 512 MB.',
+        type: 'number',
       });
   }
 }
