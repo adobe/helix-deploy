@@ -1,3 +1,15 @@
+# [13.3.0](https://github.com/adobe/helix-deploy/compare/v13.2.15...v13.3.0) (2026-02-25)
+
+
+### Bug Fixes
+
+* review feedback ([75022c0](https://github.com/adobe/helix-deploy/commit/75022c0dbc1523fe895f7e09f2c0000b5179e035))
+
+
+### Features
+
+* add support for configuring Lambda ephemeral storage (/tmp size) ([94697d4](https://github.com/adobe/helix-deploy/commit/94697d49bd4f6d24b28fb73d5f761d3cabc4641c))
+
 ## [13.2.15](https://github.com/adobe/helix-deploy/compare/v13.2.14...v13.2.15) (2026-02-23)
 
 
