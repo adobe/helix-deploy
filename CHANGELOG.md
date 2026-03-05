@@ -1,3 +1,10 @@
+## [13.3.3](https://github.com/adobe/helix-deploy/compare/v13.3.2...v13.3.3) (2026-03-05)
+
+
+### Bug Fixes
+
+* README update for aws-ephemeral-storage option ([#894](https://github.com/adobe/helix-deploy/issues/894)) ([8b11fa9](https://github.com/adobe/helix-deploy/commit/8b11fa94c16aeae9b9be1ce62fd0b2bbba91063d))
+
 ## [13.3.2](https://github.com/adobe/helix-deploy/compare/v13.3.1...v13.3.2) (2026-03-03)
 
 
