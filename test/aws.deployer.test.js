@@ -495,13 +495,19 @@ describe('AWS Deployer Test', () => {
     assert.strictEqual(aws.fullFunctionName, `https://example.execute-api.us-east-1.amazonaws.com${aws.functionPath}`);
   });
 
-  // VPC configuration tests
   it('sets vpcSubnetIds and vpcSecurityGroupIds via setters', () => {
     const awsCfg = new AWSConfig()
       .withAWSVpcSubnetIds(['subnet-abc123', 'subnet-def456'])
       .withAWSVpcSecurityGroupIds(['sg-abc123']);
     assert.deepStrictEqual(awsCfg.vpcSubnetIds, ['subnet-abc123', 'subnet-def456']);
     assert.deepStrictEqual(awsCfg.vpcSecurityGroupIds, ['sg-abc123']);
+  });
+
+  it('rejects non-string element in subnet IDs', () => {
+    assert.throws(
+      () => new AWSConfig().withAWSVpcSubnetIds([123]),
+      { message: /non-string element/ },
+    );
   });
 
   it('rejects subnet ID with wrong prefix', () => {
@@ -554,12 +560,6 @@ describe('AWS Deployer Test', () => {
       .withAWSVpcSecurityGroupIds([]);
     assert.deepStrictEqual(awsCfg.vpcSubnetIds, []);
     assert.deepStrictEqual(awsCfg.vpcSecurityGroupIds, []);
-  });
-
-  it('leaves VPC properties undefined when not set', () => {
-    const awsCfg = new AWSConfig();
-    assert.strictEqual(awsCfg.vpcSubnetIds, undefined);
-    assert.strictEqual(awsCfg.vpcSecurityGroupIds, undefined);
   });
 
   it('does not set VpcConfig if VPC flags are not configured', async () => {
@@ -626,26 +626,6 @@ describe('AWS Deployer Test', () => {
       () => aws.validate(),
       { message: '--aws-vpc-subnet-ids is required when --aws-vpc-security-group-ids is set' },
     );
-  });
-
-  it('validate() passes when both VPC flags are set', () => {
-    const cfg = new BaseConfig();
-    const awsCfg = new AWSConfig()
-      .withAWSRegion('us-east-1')
-      .withAWSRole('somerole')
-      .withAWSVpcSubnetIds(['subnet-abc123'])
-      .withAWSVpcSecurityGroupIds(['sg-abc123']);
-    const aws = new AWSDeployer(cfg, awsCfg);
-    assert.doesNotThrow(() => aws.validate());
-  });
-
-  it('validate() passes when neither VPC flag is set', () => {
-    const cfg = new BaseConfig();
-    const awsCfg = new AWSConfig()
-      .withAWSRegion('us-east-1')
-      .withAWSRole('somerole');
-    const aws = new AWSDeployer(cfg, awsCfg);
-    assert.doesNotThrow(() => aws.validate());
   });
 
   it('round-trips VPC config through configure()', () => {

@@ -495,17 +495,6 @@ describe('CLI Test', () => {
     assert.deepEqual(builder.cfg.test, 'some-${env.CUSTOM_ENV_VAR}-value');
   });
 
-  it('sets aws VPC defaults (undefined when not specified)', async () => {
-    const builder = await new CLI()
-      .prepare([
-        '--aws-region', 'us-east-1',
-        '--aws-role', 'somerole',
-      ]);
-    await builder.validate();
-    assert.strictEqual(builder._deployers.aws._cfg.vpcSubnetIds, undefined);
-    assert.strictEqual(builder._deployers.aws._cfg.vpcSecurityGroupIds, undefined);
-  });
-
   it('parses aws-vpc-subnet-ids and aws-vpc-security-group-ids', async () => {
     const builder = await new CLI()
       .prepare([

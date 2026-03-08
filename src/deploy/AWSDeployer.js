@@ -150,12 +150,10 @@ export default class AWSDeployer extends BaseDeployer {
     if (req.length) {
       throw Error(`AWS target needs ${req.join(' and ')}`);
     }
-    const hasSubnets = this._cfg.vpcSubnetIds !== undefined;
-    const hasSecurityGroups = this._cfg.vpcSecurityGroupIds !== undefined;
-    if (hasSubnets && !hasSecurityGroups) {
+    if (this._cfg.vpcSubnetIds !== undefined && this._cfg.vpcSecurityGroupIds === undefined) {
       throw Error('--aws-vpc-security-group-ids is required when --aws-vpc-subnet-ids is set');
     }
-    if (hasSecurityGroups && !hasSubnets) {
+    if (this._cfg.vpcSecurityGroupIds !== undefined && this._cfg.vpcSubnetIds === undefined) {
       throw Error('--aws-vpc-subnet-ids is required when --aws-vpc-security-group-ids is set');
     }
   }
@@ -263,7 +261,7 @@ export default class AWSDeployer extends BaseDeployer {
       TracingConfig: this._cfg.tracingMode ? { Mode: this._cfg.tracingMode } : undefined,
       EphemeralStorage: this._cfg.ephemeralStorage
         ? { Size: this._cfg.ephemeralStorage } : undefined,
-      VpcConfig: this._cfg.vpcSubnetIds !== undefined
+      VpcConfig: this._cfg.vpcSubnetIds !== undefined && this._cfg.vpcSecurityGroupIds !== undefined
         ? {
           SubnetIds: this._cfg.vpcSubnetIds,
           SecurityGroupIds: this._cfg.vpcSecurityGroupIds,
@@ -288,6 +286,12 @@ export default class AWSDeployer extends BaseDeployer {
     const functionVersion = cfg.version.replace(/\./g, '_');
 
     this.log.info(`--: using lambda role "${this._cfg.role}"`);
+
+    if (Array.isArray(this._cfg.vpcSubnetIds) && this._cfg.vpcSubnetIds.length === 0) {
+      this.log.warn(chalk`{yellow warn:} VPC detach requested - Lambda will lose VPC network access`);
+    } else if (this._cfg.vpcSubnetIds?.length) {
+      this.log.info(chalk`--: VPC config set - ensure Lambda role has {yellow ec2:CreateNetworkInterface}, {yellow ec2:DescribeNetworkInterfaces}, {yellow ec2:DeleteNetworkInterface} permissions`);
+    }
 
     // check if function already exists
     let baseARN;

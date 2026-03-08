@@ -13,6 +13,26 @@
 // eslint-disable-next-line no-template-curly-in-string
 const DEFAULT_LAMBDA_FORMAT = '${packageName}--${baseName}';
 
+function validateVpcIds(value, flagName, prefix) {
+  if (!Array.isArray(value)) {
+    throw new Error(`${flagName} must be an array`);
+  }
+  for (const id of value) {
+    if (typeof id !== 'string') {
+      throw new Error(`${flagName} contains a non-string element: ${JSON.stringify(id)}`);
+    }
+    if (id === '') {
+      throw new Error(`${flagName} contains an empty string - check that the corresponding environment variable is set`);
+    }
+    if (/\$\{env\./.test(id)) {
+      throw new Error(`${flagName} contains an unresolved \${env.} reference: "${id}"`);
+    }
+    if (!id.startsWith(prefix)) {
+      throw new Error(`Invalid ${flagName} entry "${id}" - must start with "${prefix}"`);
+    }
+  }
+}
+
 export default class AWSConfig {
   constructor() {
     Object.assign(this, {
@@ -195,20 +215,7 @@ export default class AWSConfig {
 
   withAWSVpcSubnetIds(value) {
     if (value !== undefined) {
-      if (!Array.isArray(value)) {
-        throw new Error('aws-vpc-subnet-ids must be an array');
-      }
-      for (const id of value) {
-        if (id === '') {
-          throw new Error('aws-vpc-subnet-ids contains an empty string - check that the corresponding environment variable is set');
-        }
-        if (/\$\{env\./.test(id)) {
-          throw new Error(`aws-vpc-subnet-ids contains an unresolved \${env.} reference: "${id}"`);
-        }
-        if (id && !id.startsWith('subnet-')) {
-          throw new Error(`Invalid subnet ID "${id}" - must start with "subnet-"`);
-        }
-      }
+      validateVpcIds(value, 'aws-vpc-subnet-ids', 'subnet-');
       this.vpcSubnetIds = value;
     }
     return this;
@@ -216,20 +223,7 @@ export default class AWSConfig {
 
   withAWSVpcSecurityGroupIds(value) {
     if (value !== undefined) {
-      if (!Array.isArray(value)) {
-        throw new Error('aws-vpc-security-group-ids must be an array');
-      }
-      for (const id of value) {
-        if (id === '') {
-          throw new Error('aws-vpc-security-group-ids contains an empty string - check that the corresponding environment variable is set');
-        }
-        if (/\$\{env\./.test(id)) {
-          throw new Error(`aws-vpc-security-group-ids contains an unresolved \${env.} reference: "${id}"`);
-        }
-        if (id && !id.startsWith('sg-')) {
-          throw new Error(`Invalid security group ID "${id}" - must start with "sg-"`);
-        }
-      }
+      validateVpcIds(value, 'aws-vpc-security-group-ids', 'sg-');
       this.vpcSecurityGroupIds = value;
     }
     return this;
