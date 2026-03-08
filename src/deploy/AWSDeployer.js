@@ -150,6 +150,14 @@ export default class AWSDeployer extends BaseDeployer {
     if (req.length) {
       throw Error(`AWS target needs ${req.join(' and ')}`);
     }
+    const hasSubnets = this._cfg.vpcSubnetIds !== undefined;
+    const hasSecurityGroups = this._cfg.vpcSecurityGroupIds !== undefined;
+    if (hasSubnets && !hasSecurityGroups) {
+      throw Error('--aws-vpc-security-group-ids is required when --aws-vpc-subnet-ids is set');
+    }
+    if (hasSecurityGroups && !hasSubnets) {
+      throw Error('--aws-vpc-subnet-ids is required when --aws-vpc-security-group-ids is set');
+    }
   }
 
   async init() {
@@ -255,6 +263,12 @@ export default class AWSDeployer extends BaseDeployer {
       TracingConfig: this._cfg.tracingMode ? { Mode: this._cfg.tracingMode } : undefined,
       EphemeralStorage: this._cfg.ephemeralStorage
         ? { Size: this._cfg.ephemeralStorage } : undefined,
+      VpcConfig: this._cfg.vpcSubnetIds !== undefined
+        ? {
+          SubnetIds: this._cfg.vpcSubnetIds,
+          SecurityGroupIds: this._cfg.vpcSecurityGroupIds,
+        }
+        : undefined,
     };
 
     // add additional tags which are not empty

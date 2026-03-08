@@ -561,4 +561,90 @@ describe('AWS Deployer Test', () => {
     assert.strictEqual(awsCfg.vpcSubnetIds, undefined);
     assert.strictEqual(awsCfg.vpcSecurityGroupIds, undefined);
   });
+
+  it('does not set VpcConfig if VPC flags are not configured', async () => {
+    const cfg = new BaseConfig();
+    const awsCfg = new AWSConfig();
+    const builder = new ActionBuilder().withConfig(cfg);
+    await builder.validate();
+
+    const aws = new AWSDeployer(cfg, awsCfg);
+    assert.strictEqual(aws.functionConfig.VpcConfig, undefined);
+  });
+
+  it('sets VpcConfig when both VPC flags are configured', async () => {
+    const cfg = new BaseConfig();
+    const awsCfg = new AWSConfig()
+      .withAWSVpcSubnetIds(['subnet-abc123', 'subnet-def456'])
+      .withAWSVpcSecurityGroupIds(['sg-abc123']);
+    const builder = new ActionBuilder().withConfig(cfg);
+    await builder.validate();
+
+    const aws = new AWSDeployer(cfg, awsCfg);
+    assert.deepStrictEqual(aws.functionConfig.VpcConfig, {
+      SubnetIds: ['subnet-abc123', 'subnet-def456'],
+      SecurityGroupIds: ['sg-abc123'],
+    });
+  });
+
+  it('sets VpcConfig with empty arrays for VPC detach', async () => {
+    const cfg = new BaseConfig();
+    const awsCfg = new AWSConfig()
+      .withAWSVpcSubnetIds([])
+      .withAWSVpcSecurityGroupIds([]);
+    const builder = new ActionBuilder().withConfig(cfg);
+    await builder.validate();
+
+    const aws = new AWSDeployer(cfg, awsCfg);
+    assert.deepStrictEqual(aws.functionConfig.VpcConfig, {
+      SubnetIds: [],
+      SecurityGroupIds: [],
+    });
+  });
+
+  it('validate() throws when only subnet IDs are set', () => {
+    const cfg = new BaseConfig();
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
+      .withAWSRole('somerole')
+      .withAWSVpcSubnetIds(['subnet-abc123']);
+    const aws = new AWSDeployer(cfg, awsCfg);
+    assert.throws(
+      () => aws.validate(),
+      { message: '--aws-vpc-security-group-ids is required when --aws-vpc-subnet-ids is set' },
+    );
+  });
+
+  it('validate() throws when only security group IDs are set', () => {
+    const cfg = new BaseConfig();
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
+      .withAWSRole('somerole')
+      .withAWSVpcSecurityGroupIds(['sg-abc123']);
+    const aws = new AWSDeployer(cfg, awsCfg);
+    assert.throws(
+      () => aws.validate(),
+      { message: '--aws-vpc-subnet-ids is required when --aws-vpc-security-group-ids is set' },
+    );
+  });
+
+  it('validate() passes when both VPC flags are set', () => {
+    const cfg = new BaseConfig();
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
+      .withAWSRole('somerole')
+      .withAWSVpcSubnetIds(['subnet-abc123'])
+      .withAWSVpcSecurityGroupIds(['sg-abc123']);
+    const aws = new AWSDeployer(cfg, awsCfg);
+    assert.doesNotThrow(() => aws.validate());
+  });
+
+  it('validate() passes when neither VPC flag is set', () => {
+    const cfg = new BaseConfig();
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
+      .withAWSRole('somerole');
+    const aws = new AWSDeployer(cfg, awsCfg);
+    assert.doesNotThrow(() => aws.validate());
+  });
 });
