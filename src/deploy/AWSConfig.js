@@ -13,6 +13,9 @@
 // eslint-disable-next-line no-template-curly-in-string
 const DEFAULT_LAMBDA_FORMAT = '${packageName}--${baseName}';
 
+// VPC IDs are validated more strictly than other array options (e.g. --aws-layers)
+// because VPC misconfiguration silently breaks Lambda networking with no obvious
+// symptoms, and ${env.VAR} substitution failures are a common CI footgun.
 function validateVpcIds(value, flagName, prefix) {
   if (!Array.isArray(value)) {
     throw new Error(`${flagName} must be an array`);
@@ -28,7 +31,7 @@ function validateVpcIds(value, flagName, prefix) {
       throw new Error(`${flagName} contains an unresolved \${env.} reference: "${id}"`);
     }
     if (!id.startsWith(prefix)) {
-      throw new Error(`Invalid ${flagName} entry "${id}" - must start with "${prefix}"`);
+      throw new Error(`invalid ${flagName} entry "${id}" - must start with "${prefix}"`);
     }
   }
 }

@@ -261,6 +261,7 @@ export default class AWSDeployer extends BaseDeployer {
       TracingConfig: this._cfg.tracingMode ? { Mode: this._cfg.tracingMode } : undefined,
       EphemeralStorage: this._cfg.ephemeralStorage
         ? { Size: this._cfg.ephemeralStorage } : undefined,
+      // uses strict !== undefined (not falsy check) because [] is a valid value (VPC detach)
       VpcConfig: this._cfg.vpcSubnetIds !== undefined && this._cfg.vpcSecurityGroupIds !== undefined
         ? {
           SubnetIds: this._cfg.vpcSubnetIds,
