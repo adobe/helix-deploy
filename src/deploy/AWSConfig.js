@@ -38,6 +38,8 @@ export default class AWSConfig {
       tags: undefined,
       handler: undefined,
       ephemeralStorage: undefined,
+      vpcSubnetIds: undefined,
+      vpcSecurityGroupIds: undefined,
     });
   }
 
@@ -64,7 +66,9 @@ export default class AWSConfig {
       .withAWSExtraPermissions(argv.awsExtraPermissions)
       .withAWSTags(argv.awsTags)
       .withAWSHandler(argv.awsHandler)
-      .withAWSEphemeralStorage(argv.awsEphemeralStorage);
+      .withAWSEphemeralStorage(argv.awsEphemeralStorage)
+      .withAWSVpcSubnetIds(argv.awsVpcSubnetIds)
+      .withAWSVpcSecurityGroupIds(argv.awsVpcSecurityGroupIds);
   }
 
   withAWSRegion(value) {
@@ -189,6 +193,48 @@ export default class AWSConfig {
     return this;
   }
 
+  withAWSVpcSubnetIds(value) {
+    if (value !== undefined) {
+      if (!Array.isArray(value)) {
+        throw new Error('aws-vpc-subnet-ids must be an array');
+      }
+      for (const id of value) {
+        if (id === '') {
+          throw new Error('aws-vpc-subnet-ids contains an empty string - check that the corresponding environment variable is set');
+        }
+        if (/\$\{env\./.test(id)) {
+          throw new Error(`aws-vpc-subnet-ids contains an unresolved \${env.} reference: "${id}"`);
+        }
+        if (id && !id.startsWith('subnet-')) {
+          throw new Error(`Invalid subnet ID "${id}" - must start with "subnet-"`);
+        }
+      }
+      this.vpcSubnetIds = value;
+    }
+    return this;
+  }
+
+  withAWSVpcSecurityGroupIds(value) {
+    if (value !== undefined) {
+      if (!Array.isArray(value)) {
+        throw new Error('aws-vpc-security-group-ids must be an array');
+      }
+      for (const id of value) {
+        if (id === '') {
+          throw new Error('aws-vpc-security-group-ids contains an empty string - check that the corresponding environment variable is set');
+        }
+        if (/\$\{env\./.test(id)) {
+          throw new Error(`aws-vpc-security-group-ids contains an unresolved \${env.} reference: "${id}"`);
+        }
+        if (id && !id.startsWith('sg-')) {
+          throw new Error(`Invalid security group ID "${id}" - must start with "sg-"`);
+        }
+      }
+      this.vpcSecurityGroupIds = value;
+    }
+    return this;
+  }
+
   static yarg(yargs) {
     return yargs
       .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-cleanup-integrations',
@@ -196,7 +242,7 @@ export default class AWSConfig {
         'aws-lambda-format', 'aws-parameter-manager', 'aws-deploy-template', 'aws-arch', 'aws-update-secrets',
         'aws-deploy-bucket', 'aws-identity-source', 'aws-log-format', 'aws-layers',
         'aws-tracing-mode', 'aws-extra-permissions', 'aws-tags', 'aws-handler',
-        'aws-ephemeral-storage'], 'AWS Deployment Options')
+        'aws-ephemeral-storage', 'aws-vpc-subnet-ids', 'aws-vpc-security-group-ids'], 'AWS Deployment Options')
       .option('aws-region', {
         description: 'the AWS region to deploy lambda functions to',
         type: 'string',
@@ -304,6 +350,16 @@ export default class AWSConfig {
       .option('aws-ephemeral-storage', {
         description: 'Size of the Lambda /tmp ephemeral storage in MB (512-10240). Default is 512 MB.',
         type: 'number',
+      })
+      .option('aws-vpc-subnet-ids', {
+        description: 'List of VPC subnet IDs to attach the Lambda function to.',
+        type: 'string',
+        array: true,
+      })
+      .option('aws-vpc-security-group-ids', {
+        description: 'List of VPC security group IDs to attach the Lambda function to.',
+        type: 'string',
+        array: true,
       });
   }
 }
