@@ -647,4 +647,25 @@ describe('AWS Deployer Test', () => {
     const aws = new AWSDeployer(cfg, awsCfg);
     assert.doesNotThrow(() => aws.validate());
   });
+
+  it('round-trips VPC config through configure()', () => {
+    const awsCfg = new AWSConfig().configure({
+      awsRegion: 'us-east-1',
+      awsRole: 'somerole',
+      awsApi: 'someapi',
+      awsArch: 'x86_64',
+      // eslint-disable-next-line no-template-curly-in-string
+      awsLambdaFormat: '${packageName}--${baseName}',
+      awsLinkRoutes: true,
+      awsCleanupIntegrations: false,
+      awsCleanupVersions: false,
+      awsCreateRoutes: false,
+      awsParameterManager: ['secret'],
+      awsDeployBucket: '',
+      awsVpcSubnetIds: ['subnet-abc123', 'subnet-def456'],
+      awsVpcSecurityGroupIds: ['sg-abc123'],
+    });
+    assert.deepStrictEqual(awsCfg.vpcSubnetIds, ['subnet-abc123', 'subnet-def456']);
+    assert.deepStrictEqual(awsCfg.vpcSecurityGroupIds, ['sg-abc123']);
+  });
 });
