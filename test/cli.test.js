@@ -464,6 +464,8 @@ describe('CLI Test', () => {
       tags: undefined,
       handler: undefined,
       ephemeralStorage: undefined,
+      vpcSubnetIds: undefined,
+      vpcSecurityGroupIds: undefined,
     });
   });
 
@@ -491,5 +493,18 @@ describe('CLI Test', () => {
       .prepare(['--test', 'some-${env.CUSTOM_ENV_VAR}-value']);
     // eslint-disable-next-line no-template-curly-in-string
     assert.deepEqual(builder.cfg.test, 'some-${env.CUSTOM_ENV_VAR}-value');
+  });
+
+  it('parses aws-vpc-subnet-ids and aws-vpc-security-group-ids', async () => {
+    const builder = await new CLI()
+      .prepare([
+        '--aws-region', 'us-east-1',
+        '--aws-role', 'somerole',
+        '--aws-vpc-subnet-ids', 'subnet-abc123', 'subnet-def456',
+        '--aws-vpc-security-group-ids', 'sg-abc123',
+      ]);
+    await builder.validate();
+    assert.deepStrictEqual(builder._deployers.aws._cfg.vpcSubnetIds, ['subnet-abc123', 'subnet-def456']);
+    assert.deepStrictEqual(builder._deployers.aws._cfg.vpcSecurityGroupIds, ['sg-abc123']);
   });
 });

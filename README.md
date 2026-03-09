@@ -146,6 +146,8 @@ AWS Deployment Options
       --aws-tags                  A list of additional tags to attach to the lambda function in the form key=value. To remove a tag, use key= (i.e. without a value).  [array]
       --aws-handler               Set custom lambda Handler. For example, set if an AWS layer provides another function entry point.  [string]
       --aws-ephemeral-storage     Size of the Lambda /tmp ephemeral storage in MB (512-10240).  [number] [default: 512]
+      --aws-vpc-subnet-ids          List of VPC subnet IDs to attach the Lambda function to.  [array]
+      --aws-vpc-security-group-ids  List of VPC security group IDs to attach the Lambda function to.  [array]
 
 Google Deployment Options
       --google-project-id  the Google Cloud project to deploy to. Optional when the key file is a JSON file  [string] [default: ""]

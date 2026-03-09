@@ -13,6 +13,29 @@
 // eslint-disable-next-line no-template-curly-in-string
 const DEFAULT_LAMBDA_FORMAT = '${packageName}--${baseName}';
 
+// VPC IDs are validated more strictly than other array options (e.g. --aws-layers)
+// because VPC misconfiguration silently breaks Lambda networking with no obvious
+// symptoms, and ${env.VAR} substitution failures are a common CI footgun.
+function validateVpcIds(value, flagName, prefix) {
+  if (!Array.isArray(value)) {
+    throw new Error(`${flagName} must be an array`);
+  }
+  for (const id of value) {
+    if (typeof id !== 'string') {
+      throw new Error(`${flagName} contains a non-string element: ${JSON.stringify(id)}`);
+    }
+    if (id === '') {
+      throw new Error(`${flagName} contains an empty string - check that the corresponding environment variable is set`);
+    }
+    if (/\$\{env\./.test(id)) {
+      throw new Error(`${flagName} contains an unresolved \${env.} reference: "${id}"`);
+    }
+    if (!id.startsWith(prefix)) {
+      throw new Error(`invalid ${flagName} entry "${id}" - must start with "${prefix}"`);
+    }
+  }
+}
+
 export default class AWSConfig {
   constructor() {
     Object.assign(this, {
@@ -38,6 +61,8 @@ export default class AWSConfig {
       tags: undefined,
       handler: undefined,
       ephemeralStorage: undefined,
+      vpcSubnetIds: undefined,
+      vpcSecurityGroupIds: undefined,
     });
   }
 
@@ -64,7 +89,9 @@ export default class AWSConfig {
       .withAWSExtraPermissions(argv.awsExtraPermissions)
       .withAWSTags(argv.awsTags)
       .withAWSHandler(argv.awsHandler)
-      .withAWSEphemeralStorage(argv.awsEphemeralStorage);
+      .withAWSEphemeralStorage(argv.awsEphemeralStorage)
+      .withAWSVpcSubnetIds(argv.awsVpcSubnetIds)
+      .withAWSVpcSecurityGroupIds(argv.awsVpcSecurityGroupIds);
   }
 
   withAWSRegion(value) {
@@ -189,6 +216,22 @@ export default class AWSConfig {
     return this;
   }
 
+  withAWSVpcSubnetIds(value) {
+    if (value !== undefined) {
+      validateVpcIds(value, 'aws-vpc-subnet-ids', 'subnet-');
+      this.vpcSubnetIds = value;
+    }
+    return this;
+  }
+
+  withAWSVpcSecurityGroupIds(value) {
+    if (value !== undefined) {
+      validateVpcIds(value, 'aws-vpc-security-group-ids', 'sg-');
+      this.vpcSecurityGroupIds = value;
+    }
+    return this;
+  }
+
   static yarg(yargs) {
     return yargs
       .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-cleanup-integrations',
@@ -196,7 +239,7 @@ export default class AWSConfig {
         'aws-lambda-format', 'aws-parameter-manager', 'aws-deploy-template', 'aws-arch', 'aws-update-secrets',
         'aws-deploy-bucket', 'aws-identity-source', 'aws-log-format', 'aws-layers',
         'aws-tracing-mode', 'aws-extra-permissions', 'aws-tags', 'aws-handler',
-        'aws-ephemeral-storage'], 'AWS Deployment Options')
+        'aws-ephemeral-storage', 'aws-vpc-subnet-ids', 'aws-vpc-security-group-ids'], 'AWS Deployment Options')
       .option('aws-region', {
         description: 'the AWS region to deploy lambda functions to',
         type: 'string',
@@ -304,6 +347,16 @@ export default class AWSConfig {
       .option('aws-ephemeral-storage', {
         description: 'Size of the Lambda /tmp ephemeral storage in MB (512-10240). Default is 512 MB.',
         type: 'number',
+      })
+      .option('aws-vpc-subnet-ids', {
+        description: 'List of VPC subnet IDs to attach the Lambda function to.',
+        type: 'string',
+        array: true,
+      })
+      .option('aws-vpc-security-group-ids', {
+        description: 'List of VPC security group IDs to attach the Lambda function to.',
+        type: 'string',
+        array: true,
       });
   }
 }

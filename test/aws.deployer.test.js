@@ -494,4 +494,158 @@ describe('AWS Deployer Test', () => {
     assert.ok(createStageRequest.isDone());
     assert.strictEqual(aws.fullFunctionName, `https://example.execute-api.us-east-1.amazonaws.com${aws.functionPath}`);
   });
+
+  it('sets vpcSubnetIds and vpcSecurityGroupIds via setters', () => {
+    const awsCfg = new AWSConfig()
+      .withAWSVpcSubnetIds(['subnet-abc123', 'subnet-def456'])
+      .withAWSVpcSecurityGroupIds(['sg-abc123']);
+    assert.deepStrictEqual(awsCfg.vpcSubnetIds, ['subnet-abc123', 'subnet-def456']);
+    assert.deepStrictEqual(awsCfg.vpcSecurityGroupIds, ['sg-abc123']);
+  });
+
+  it('rejects non-string element in subnet IDs', () => {
+    assert.throws(
+      () => new AWSConfig().withAWSVpcSubnetIds([123]),
+      { message: /non-string element/ },
+    );
+  });
+
+  it('rejects subnet ID with wrong prefix', () => {
+    assert.throws(
+      () => new AWSConfig().withAWSVpcSubnetIds(['vpc-123']),
+      { message: /must start with "subnet-"/ },
+    );
+  });
+
+  it('rejects security group ID with wrong prefix', () => {
+    assert.throws(
+      () => new AWSConfig().withAWSVpcSecurityGroupIds(['subnet-123']),
+      { message: /must start with "sg-"/ },
+    );
+  });
+
+  it('rejects empty string in subnet IDs', () => {
+    assert.throws(
+      () => new AWSConfig().withAWSVpcSubnetIds(['']),
+      { message: /empty string/ },
+    );
+  });
+
+  it('rejects empty string in security group IDs', () => {
+    assert.throws(
+      () => new AWSConfig().withAWSVpcSecurityGroupIds(['']),
+      { message: /empty string/ },
+    );
+  });
+
+  it('rejects unresolved env var in subnet IDs', () => {
+    assert.throws(
+      // eslint-disable-next-line no-template-curly-in-string
+      () => new AWSConfig().withAWSVpcSubnetIds(['${env.MISSING}']),
+      { message: /unresolved.*\$\{env\./ },
+    );
+  });
+
+  it('rejects unresolved env var in security group IDs', () => {
+    assert.throws(
+      // eslint-disable-next-line no-template-curly-in-string
+      () => new AWSConfig().withAWSVpcSecurityGroupIds(['${env.MISSING}']),
+      { message: /unresolved.*\$\{env\./ },
+    );
+  });
+
+  it('allows empty arrays for VPC detach', () => {
+    const awsCfg = new AWSConfig()
+      .withAWSVpcSubnetIds([])
+      .withAWSVpcSecurityGroupIds([]);
+    assert.deepStrictEqual(awsCfg.vpcSubnetIds, []);
+    assert.deepStrictEqual(awsCfg.vpcSecurityGroupIds, []);
+  });
+
+  it('does not set VpcConfig if VPC flags are not configured', async () => {
+    const cfg = new BaseConfig();
+    const awsCfg = new AWSConfig();
+    const builder = new ActionBuilder().withConfig(cfg);
+    await builder.validate();
+
+    const aws = new AWSDeployer(cfg, awsCfg);
+    assert.strictEqual(aws.functionConfig.VpcConfig, undefined);
+  });
+
+  it('sets VpcConfig when both VPC flags are configured', async () => {
+    const cfg = new BaseConfig();
+    const awsCfg = new AWSConfig()
+      .withAWSVpcSubnetIds(['subnet-abc123', 'subnet-def456'])
+      .withAWSVpcSecurityGroupIds(['sg-abc123']);
+    const builder = new ActionBuilder().withConfig(cfg);
+    await builder.validate();
+
+    const aws = new AWSDeployer(cfg, awsCfg);
+    assert.deepStrictEqual(aws.functionConfig.VpcConfig, {
+      SubnetIds: ['subnet-abc123', 'subnet-def456'],
+      SecurityGroupIds: ['sg-abc123'],
+    });
+  });
+
+  it('sets VpcConfig with empty arrays for VPC detach', async () => {
+    const cfg = new BaseConfig();
+    const awsCfg = new AWSConfig()
+      .withAWSVpcSubnetIds([])
+      .withAWSVpcSecurityGroupIds([]);
+    const builder = new ActionBuilder().withConfig(cfg);
+    await builder.validate();
+
+    const aws = new AWSDeployer(cfg, awsCfg);
+    assert.deepStrictEqual(aws.functionConfig.VpcConfig, {
+      SubnetIds: [],
+      SecurityGroupIds: [],
+    });
+  });
+
+  it('validate() throws when only subnet IDs are set', () => {
+    const cfg = new BaseConfig();
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
+      .withAWSRole('somerole')
+      .withAWSVpcSubnetIds(['subnet-abc123']);
+    const aws = new AWSDeployer(cfg, awsCfg);
+    assert.throws(
+      () => aws.validate(),
+      { message: '--aws-vpc-security-group-ids is required when --aws-vpc-subnet-ids is set' },
+    );
+  });
+
+  it('validate() throws when only security group IDs are set', () => {
+    const cfg = new BaseConfig();
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
+      .withAWSRole('somerole')
+      .withAWSVpcSecurityGroupIds(['sg-abc123']);
+    const aws = new AWSDeployer(cfg, awsCfg);
+    assert.throws(
+      () => aws.validate(),
+      { message: '--aws-vpc-subnet-ids is required when --aws-vpc-security-group-ids is set' },
+    );
+  });
+
+  it('round-trips VPC config through configure()', () => {
+    const awsCfg = new AWSConfig().configure({
+      awsRegion: 'us-east-1',
+      awsRole: 'somerole',
+      awsApi: 'someapi',
+      awsArch: 'x86_64',
+      // eslint-disable-next-line no-template-curly-in-string
+      awsLambdaFormat: '${packageName}--${baseName}',
+      awsLinkRoutes: true,
+      awsCleanupIntegrations: false,
+      awsCleanupVersions: false,
+      awsCreateRoutes: false,
+      awsParameterManager: ['secret'],
+      awsDeployBucket: '',
+      awsVpcSubnetIds: ['subnet-abc123', 'subnet-def456'],
+      awsVpcSecurityGroupIds: ['sg-abc123'],
+    });
+    assert.deepStrictEqual(awsCfg.vpcSubnetIds, ['subnet-abc123', 'subnet-def456']);
+    assert.deepStrictEqual(awsCfg.vpcSecurityGroupIds, ['sg-abc123']);
+  });
 });

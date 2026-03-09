@@ -150,6 +150,12 @@ export default class AWSDeployer extends BaseDeployer {
     if (req.length) {
       throw Error(`AWS target needs ${req.join(' and ')}`);
     }
+    if (this._cfg.vpcSubnetIds !== undefined && this._cfg.vpcSecurityGroupIds === undefined) {
+      throw Error('--aws-vpc-security-group-ids is required when --aws-vpc-subnet-ids is set');
+    }
+    if (this._cfg.vpcSecurityGroupIds !== undefined && this._cfg.vpcSubnetIds === undefined) {
+      throw Error('--aws-vpc-subnet-ids is required when --aws-vpc-security-group-ids is set');
+    }
   }
 
   async init() {
@@ -255,6 +261,13 @@ export default class AWSDeployer extends BaseDeployer {
       TracingConfig: this._cfg.tracingMode ? { Mode: this._cfg.tracingMode } : undefined,
       EphemeralStorage: this._cfg.ephemeralStorage
         ? { Size: this._cfg.ephemeralStorage } : undefined,
+      // uses strict !== undefined (not falsy check) because [] is a valid value (VPC detach)
+      VpcConfig: this._cfg.vpcSubnetIds !== undefined && this._cfg.vpcSecurityGroupIds !== undefined
+        ? {
+          SubnetIds: this._cfg.vpcSubnetIds,
+          SecurityGroupIds: this._cfg.vpcSecurityGroupIds,
+        }
+        : undefined,
     };
 
     // add additional tags which are not empty
@@ -274,6 +287,12 @@ export default class AWSDeployer extends BaseDeployer {
     const functionVersion = cfg.version.replace(/\./g, '_');
 
     this.log.info(`--: using lambda role "${this._cfg.role}"`);
+
+    if (Array.isArray(this._cfg.vpcSubnetIds) && this._cfg.vpcSubnetIds.length === 0) {
+      this.log.warn(chalk`{yellow warn:} VPC detach requested - Lambda will lose VPC network access`);
+    } else if (this._cfg.vpcSubnetIds?.length) {
+      this.log.info(chalk`--: VPC config set - ensure Lambda role has {yellow ec2:CreateNetworkInterface}, {yellow ec2:DescribeNetworkInterfaces}, {yellow ec2:DeleteNetworkInterface} permissions`);
+    }
 
     // check if function already exists
     let baseARN;
