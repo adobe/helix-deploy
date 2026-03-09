@@ -1,3 +1,11 @@
+# [13.4.0](https://github.com/adobe/helix-deploy/compare/v13.3.3...v13.4.0) (2026-03-09)
+
+
+### Features
+
+* add VPC subnet and security group properties to AWSConfig ([#897](https://github.com/adobe/helix-deploy/issues/897)) ([15cd4fe](https://github.com/adobe/helix-deploy/commit/15cd4feb74b1a9b9e238c6a821d342bf2a1db8d4))
+* add VpcConfig to functionConfig and cross-field validation ([#897](https://github.com/adobe/helix-deploy/issues/897)) ([54599c7](https://github.com/adobe/helix-deploy/commit/54599c7b88a2ddf5898a33227c4cd9ee43a528fc))
+
 ## [13.3.3](https://github.com/adobe/helix-deploy/compare/v13.3.2...v13.3.3) (2026-03-05)
 
 
