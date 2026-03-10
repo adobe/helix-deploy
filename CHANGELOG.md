@@ -1,3 +1,10 @@
+## [13.4.1](https://github.com/adobe/helix-deploy/compare/v13.4.0...v13.4.1) (2026-03-10)
+
+
+### Bug Fixes
+
+* **deps:** update external fixes ([#899](https://github.com/adobe/helix-deploy/issues/899)) ([62964cb](https://github.com/adobe/helix-deploy/commit/62964cb20690f7e970304d9aa1c2f0a4b39ebacf))
+
 # [13.4.0](https://github.com/adobe/helix-deploy/compare/v13.3.3...v13.4.0) (2026-03-09)
 
 
