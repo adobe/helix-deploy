@@ -628,6 +628,42 @@ describe('AWS Deployer Test', () => {
     );
   });
 
+  it('sets reservedConcurrency via setter', () => {
+    const awsCfg = new AWSConfig().withAWSReservedConcurrency(50);
+    assert.strictEqual(awsCfg.reservedConcurrency, 50);
+  });
+
+  it('sets reservedConcurrency to 0 (throttle)', () => {
+    const awsCfg = new AWSConfig().withAWSReservedConcurrency(0);
+    assert.strictEqual(awsCfg.reservedConcurrency, 0);
+  });
+
+  it('leaves reservedConcurrency undefined when not configured', () => {
+    const awsCfg = new AWSConfig();
+    assert.strictEqual(awsCfg.reservedConcurrency, undefined);
+  });
+
+  it('rejects negative reservedConcurrency', () => {
+    assert.throws(
+      () => new AWSConfig().withAWSReservedConcurrency(-1),
+      { message: 'aws-reserved-concurrency must be a non-negative integer' },
+    );
+  });
+
+  it('rejects fractional reservedConcurrency', () => {
+    assert.throws(
+      () => new AWSConfig().withAWSReservedConcurrency(1.5),
+      { message: 'aws-reserved-concurrency must be a non-negative integer' },
+    );
+  });
+
+  it('rejects non-numeric reservedConcurrency', () => {
+    assert.throws(
+      () => new AWSConfig().withAWSReservedConcurrency('abc'),
+      { message: 'aws-reserved-concurrency must be a non-negative integer' },
+    );
+  });
+
   it('round-trips VPC config through configure()', () => {
     const awsCfg = new AWSConfig().configure({
       awsRegion: 'us-east-1',

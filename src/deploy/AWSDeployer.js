@@ -31,7 +31,8 @@ import {
   CreateFunctionCommand, DeleteAliasCommand, DeleteFunctionCommand, GetAliasCommand,
   GetFunctionCommand,
   LambdaClient, ListAliasesCommand, ListTagsCommand, ListVersionsByFunctionCommand,
-  PublishVersionCommand, TagResourceCommand, UntagResourceCommand, UpdateAliasCommand,
+  PublishVersionCommand, PutFunctionConcurrencyCommand, TagResourceCommand,
+  UntagResourceCommand, UpdateAliasCommand,
   UpdateFunctionCodeCommand, UpdateFunctionConfigurationCommand,
 } from '@aws-sdk/client-lambda';
 
@@ -388,6 +389,25 @@ export default class AWSDeployer extends BaseDeployer {
         this.log.info(chalk`{green ok}: alias {yellow ${this._aliasARN}} created.`);
       } else {
         this.log.error(`Unable to verify existence of Lambda alias ${functionName}:${functionVersion}`);
+        throw e;
+      }
+    }
+
+    if (this._cfg.reservedConcurrency !== undefined) {
+      if (this._cfg.reservedConcurrency === 0) {
+        this.log.warn(chalk`{yellow warn}: setting reserved concurrency to 0 for {yellow ${functionName}} — function will be completely throttled`);
+      } else {
+        this.log.info(chalk`--: setting reserved concurrency to {yellow ${this._cfg.reservedConcurrency}} for {yellow ${functionName}}`);
+      }
+      try {
+        await this._lambda.send(new PutFunctionConcurrencyCommand({
+          FunctionName: functionName,
+          ReservedConcurrentExecutions: this._cfg.reservedConcurrency,
+        }));
+        this.log.info(chalk`{green ok}: reserved concurrency for {yellow ${functionName}} set to {yellow ${this._cfg.reservedConcurrency}}. Requires {yellow lambda:PutFunctionConcurrency} on the deploy role.`);
+      } catch (e) {
+        this.log.error(`Failed to set reserved concurrency for ${functionName} to ${this._cfg.reservedConcurrency}: ${e.message}`);
+        this.log.error('Ensure the deploy role has lambda:PutFunctionConcurrency permission. Function code was deployed successfully.');
         throw e;
       }
     }

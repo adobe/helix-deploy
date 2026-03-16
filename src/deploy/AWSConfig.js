@@ -63,6 +63,7 @@ export default class AWSConfig {
       ephemeralStorage: undefined,
       vpcSubnetIds: undefined,
       vpcSecurityGroupIds: undefined,
+      reservedConcurrency: undefined,
     });
   }
 
@@ -91,7 +92,8 @@ export default class AWSConfig {
       .withAWSHandler(argv.awsHandler)
       .withAWSEphemeralStorage(argv.awsEphemeralStorage)
       .withAWSVpcSubnetIds(argv.awsVpcSubnetIds)
-      .withAWSVpcSecurityGroupIds(argv.awsVpcSecurityGroupIds);
+      .withAWSVpcSecurityGroupIds(argv.awsVpcSecurityGroupIds)
+      .withAWSReservedConcurrency(argv.awsReservedConcurrency);
   }
 
   withAWSRegion(value) {
@@ -232,6 +234,17 @@ export default class AWSConfig {
     return this;
   }
 
+  withAWSReservedConcurrency(value) {
+    if (value !== undefined) {
+      const n = Number(value);
+      if (!Number.isInteger(n) || n < 0) {
+        throw new Error('aws-reserved-concurrency must be a non-negative integer');
+      }
+      this.reservedConcurrency = n;
+    }
+    return this;
+  }
+
   static yarg(yargs) {
     return yargs
       .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-cleanup-integrations',
@@ -239,7 +252,8 @@ export default class AWSConfig {
         'aws-lambda-format', 'aws-parameter-manager', 'aws-deploy-template', 'aws-arch', 'aws-update-secrets',
         'aws-deploy-bucket', 'aws-identity-source', 'aws-log-format', 'aws-layers',
         'aws-tracing-mode', 'aws-extra-permissions', 'aws-tags', 'aws-handler',
-        'aws-ephemeral-storage', 'aws-vpc-subnet-ids', 'aws-vpc-security-group-ids'], 'AWS Deployment Options')
+        'aws-ephemeral-storage', 'aws-vpc-subnet-ids', 'aws-vpc-security-group-ids',
+        'aws-reserved-concurrency'], 'AWS Deployment Options')
       .option('aws-region', {
         description: 'the AWS region to deploy lambda functions to',
         type: 'string',
@@ -357,6 +371,13 @@ export default class AWSConfig {
         description: 'List of VPC security group IDs to attach the Lambda function to.',
         type: 'string',
         array: true,
+      })
+      .option('aws-reserved-concurrency', {
+        description: 'Reserved concurrency limit for the Lambda function (non-negative integer). '
+          + 'Set to 0 to completely throttle the function. '
+          + 'Requires lambda:PutFunctionConcurrency on the deploy role. '
+          + 'Note: once set, omitting this flag does NOT remove the limit — use the AWS console or CLI to call DeleteFunctionConcurrency.',
+        type: 'number',
       });
   }
 }

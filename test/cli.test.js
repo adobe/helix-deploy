@@ -466,6 +466,7 @@ describe('CLI Test', () => {
       ephemeralStorage: undefined,
       vpcSubnetIds: undefined,
       vpcSecurityGroupIds: undefined,
+      reservedConcurrency: undefined,
     });
   });
 
