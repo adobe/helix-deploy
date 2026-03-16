@@ -1,3 +1,10 @@
+# [13.5.0](https://github.com/adobe/helix-deploy/compare/v13.4.1...v13.5.0) (2026-03-16)
+
+
+### Features
+
+* **aws:** add --aws-reserved-concurrency option ([#902](https://github.com/adobe/helix-deploy/issues/902)) ([b42a7d6](https://github.com/adobe/helix-deploy/commit/b42a7d6bbbf78783f5aaf42ab0392748c54a9de3))
+
 ## [13.4.1](https://github.com/adobe/helix-deploy/compare/v13.4.0...v13.4.1) (2026-03-10)
 
 
