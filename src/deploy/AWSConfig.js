@@ -373,7 +373,10 @@ export default class AWSConfig {
         array: true,
       })
       .option('aws-reserved-concurrency', {
-        description: 'Reserved concurrency limit for the Lambda function. Set to 0 to throttle the function.',
+        description: 'Reserved concurrency limit for the Lambda function (non-negative integer). '
+          + 'Set to 0 to completely throttle the function. '
+          + 'Requires lambda:PutFunctionConcurrency on the deploy role. '
+          + 'Note: once set, omitting this flag does NOT remove the limit — use the AWS console or CLI to call DeleteFunctionConcurrency.',
         type: 'number',
       });
   }
