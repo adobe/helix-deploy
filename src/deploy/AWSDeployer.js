@@ -31,7 +31,8 @@ import {
   CreateFunctionCommand, DeleteAliasCommand, DeleteFunctionCommand, GetAliasCommand,
   GetFunctionCommand,
   LambdaClient, ListAliasesCommand, ListTagsCommand, ListVersionsByFunctionCommand,
-  PublishVersionCommand, TagResourceCommand, UntagResourceCommand, UpdateAliasCommand,
+  PublishVersionCommand, PutFunctionConcurrencyCommand, TagResourceCommand,
+  UntagResourceCommand, UpdateAliasCommand,
   UpdateFunctionCodeCommand, UpdateFunctionConfigurationCommand,
 } from '@aws-sdk/client-lambda';
 
@@ -390,6 +391,15 @@ export default class AWSDeployer extends BaseDeployer {
         this.log.error(`Unable to verify existence of Lambda alias ${functionName}:${functionVersion}`);
         throw e;
       }
+    }
+
+    if (this._cfg.reservedConcurrency !== undefined) {
+      this.log.info(chalk`--: setting reserved concurrency to {yellow ${this._cfg.reservedConcurrency}}`);
+      await this._lambda.send(new PutFunctionConcurrencyCommand({
+        FunctionName: functionName,
+        ReservedConcurrentExecutions: this._cfg.reservedConcurrency,
+      }));
+      this.log.info(chalk`{green ok}: reserved concurrency set to {yellow ${this._cfg.reservedConcurrency}}.`);
     }
   }
 
