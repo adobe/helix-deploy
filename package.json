@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@adobe/fetch": "4.2.3",
-    "@adobe/helix-shared-process-queue": "3.1.5",
+    "@adobe/helix-shared-process-queue": "3.1.6",
     "@aws-sdk/client-apigatewayv2": "3.1005.0",
     "@aws-sdk/client-lambda": "3.1005.0",
     "@aws-sdk/client-s3": "3.1005.0",
@@ -60,7 +60,7 @@
     "yargs": "18.0.0"
   },
   "devDependencies": {
-    "@adobe/eslint-config-helix": "3.0.22",
+    "@adobe/eslint-config-helix": "3.0.23",
     "@adobe/helix-shared-wrap": "2.0.2",
     "@adobe/helix-status": "10.1.5",
     "@eslint/config-helpers": "0.5.3",
