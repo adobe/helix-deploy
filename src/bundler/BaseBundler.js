@@ -16,7 +16,6 @@ import chalk from 'chalk-template';
 import archiver from 'archiver';
 import semver from 'semver';
 import { validateBundle } from '../utils.js';
-import pkgJson from '../package.cjs';
 
 // eslint-disable-next-line no-underscore-dangle
 const __dirname = path.resolve(fileURLToPath(import.meta.url), '..');
@@ -43,6 +42,7 @@ export default class BaseBundler {
       cfg,
       arch: '',
       type: '',
+      archiveDependencies: {},
     });
   }
 
@@ -113,11 +113,7 @@ export default class BaseBundler {
         type: cfg.esm ? 'module' : 'script',
         license: 'Apache-2.0',
         dependencies: {
-          // google cloud installs these dependencies at deploy time
-          // all other environments ignore them – this allows us to
-          // avoid bundling something that only google needs
-          '@google-cloud/secret-manager': pkgJson.dependencies['@google-cloud/secret-manager'],
-          '@google-cloud/storage': pkgJson.dependencies['@google-cloud/storage'],
+          ...this.archiveDependencies,
         },
       };
       archive.pipe(output);

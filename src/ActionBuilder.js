@@ -290,6 +290,18 @@ export default class ActionBuilder {
       }
       this.bundlers.push(...bundler);
     });
+
+    // collect archive dependencies from all registered deployers and inject into bundlers
+    const archiveDependencies = Object.values(this._deployers).reduce((deps, deployer) => {
+      if (typeof deployer.getArchiveDependencies === 'function') {
+        Object.assign(deps, deployer.getArchiveDependencies());
+      }
+      return deps;
+    }, {});
+    for (const bundler of this.bundlers) {
+      bundler.archiveDependencies = archiveDependencies;
+    }
+
     for (const bundler of this.bundlers) {
       await bundler.init();
     }
