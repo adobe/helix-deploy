@@ -1,3 +1,15 @@
+# [14.0.0](https://github.com/adobe/helix-deploy/compare/v13.5.8...v14.0.0) (2026-04-14)
+
+
+### Bug Fixes
+
+* move google deployer to plugin ([#914](https://github.com/adobe/helix-deploy/issues/914)) ([015a73b](https://github.com/adobe/helix-deploy/commit/015a73b875fd7ab05c7c83402ba62be6c0d42649))
+
+
+### BREAKING CHANGES
+
+* deploying to GCF will require an additional --plugin argument
+
 ## [13.5.8](https://github.com/adobe/helix-deploy/compare/v13.5.7...v13.5.8) (2026-04-13)
 
 
