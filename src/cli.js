@@ -19,14 +19,12 @@ import escalade from 'escalade/sync';
 import BaseConfig from './BaseConfig.js';
 import OpenWhiskDeployer from './deploy/OpenWhiskDeployer.js';
 import AWSDeployer from './deploy/AWSDeployer.js';
-import GoogleDeployer from './deploy/GoogleDeployer.js';
 import ActionBuilder from './ActionBuilder.js';
 import ESBuildBundler from './bundler/ESBuildBundler.js';
 
 const PLUGINS = [
   OpenWhiskDeployer,
   AWSDeployer,
-  GoogleDeployer,
   ESBuildBundler,
 ];
 

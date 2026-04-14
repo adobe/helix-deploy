@@ -139,6 +139,16 @@ export default class BaseDeployer {
   }
 
   /**
+   * Returns additional dependencies to include in the archive's package.json.
+   * Deployers can override this to inject runtime dependencies needed by the target platform.
+   * @returns {object} an object mapping package names to version strings
+   */
+  // eslint-disable-next-line class-methods-use-this
+  getArchiveDependencies() {
+    return {};
+  }
+
+  /**
    * Can be used by deployers to run additional tasks, eg. custom commands.
    */
   // eslint-disable-next-line class-methods-use-this,no-empty-function

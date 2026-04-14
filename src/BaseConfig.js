@@ -707,7 +707,7 @@ export default class BaseConfig {
 
       .group(['target', 'hints'], 'Deploy Options')
       .option('target', {
-        description: 'Select target(s) for test, deploy, update-package actions (wsk,aws,google,auto)',
+        description: 'Select target(s) for test, deploy, update-package actions (wsk,aws,auto) or plugin targets (e.g. google via @adobe/helix-deploy-plugin-google)',
         type: 'string',
         default: ['auto'],
         array: true,
