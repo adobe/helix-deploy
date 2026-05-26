@@ -13,7 +13,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fse from 'fs-extra';
 import chalk from 'chalk-template';
-import archiver from 'archiver';
+import { ZipArchive } from 'archiver';
 import semver from 'semver';
 import { validateBundle } from '../utils.js';
 
@@ -77,7 +77,7 @@ export default class BaseBundler {
     return new Promise((resolve, reject) => {
       // create zip file for package
       const output = fse.createWriteStream(cfg.zipFile);
-      const archive = archiver('zip');
+      const archive = new ZipArchive();
       cfg.log.info('--: creating zip file ...');
 
       let hadErrors = false;
