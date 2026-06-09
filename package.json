@@ -39,21 +39,21 @@
   "dependencies": {
     "@adobe/fetch": "4.3.0",
     "@adobe/helix-shared-process-queue": "3.1.9",
-    "@aws-sdk/client-apigatewayv2": "3.1045.0",
-    "@aws-sdk/client-lambda": "3.1045.0",
-    "@aws-sdk/client-s3": "3.1045.0",
-    "@aws-sdk/client-secrets-manager": "3.1045.0",
-    "@aws-sdk/client-ssm": "3.1045.0",
-    "@aws-sdk/client-sts": "3.1045.0",
+    "@aws-sdk/client-apigatewayv2": "3.1053.0",
+    "@aws-sdk/client-lambda": "3.1053.0",
+    "@aws-sdk/client-s3": "3.1053.0",
+    "@aws-sdk/client-secrets-manager": "3.1053.0",
+    "@aws-sdk/client-ssm": "3.1053.0",
+    "@aws-sdk/client-sts": "3.1053.0",
     "archiver": "7.0.1",
     "chalk-template": "1.1.2",
     "dotenv": "17.4.2",
     "esbuild": "0.28.0",
     "escalade": "3.2.0",
     "fs-extra": "11.3.5",
-    "isomorphic-git": "1.37.6",
-    "openwhisk": "3.21.8",
-    "semver": "7.8.0",
+    "isomorphic-git": "1.38.2",
+    "openwhisk": "3.21.9",
+    "semver": "7.8.1",
     "yargs": "18.0.0"
   },
   "devDependencies": {
@@ -67,13 +67,13 @@
     "eslint": "9.4.0",
     "husky": "9.1.7",
     "lint-staged": "16.4.0",
-    "mocha": "11.7.5",
+    "mocha": "11.7.6",
     "mocha-junit-reporter": "2.2.1",
     "mocha-multi-reporters": "1.5.1",
     "nock": "14.0.15",
     "semantic-release": "25.0.3",
     "xml2js": "0.6.2",
-    "yauzl": "3.3.0"
+    "yauzl": "3.3.1"
   },
   "engines": {
     "node": ">=18.0"
