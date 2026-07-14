@@ -40,6 +40,7 @@
     "@adobe/fetch": "4.3.0",
     "@adobe/helix-shared-process-queue": "3.1.9",
     "@aws-sdk/client-apigatewayv2": "3.1076.0",
+    "@aws-sdk/client-iam": "3.1086.0",
     "@aws-sdk/client-lambda": "3.1076.0",
     "@aws-sdk/client-s3": "3.1076.0",
     "@aws-sdk/client-secrets-manager": "3.1076.0",

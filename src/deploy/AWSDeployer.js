@@ -48,6 +48,8 @@ import {
   GetStagesCommand, UpdateAuthorizerCommand, UpdateRouteCommand,
 } from '@aws-sdk/client-apigatewayv2';
 
+import { GetRoleCommand, IAMClient } from '@aws-sdk/client-iam';
+
 import { PutParameterCommand, SSMClient } from '@aws-sdk/client-ssm';
 
 import { PutSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
@@ -180,18 +182,32 @@ export default class AWSDeployer extends BaseDeployer {
   }
 
   async initAccountId() {
-    let sts;
+    const sts = new STSClient({
+      region: this._cfg.region,
+    });
 
     try {
-      sts = new STSClient({
-        region: this._cfg.region,
-      });
       const ret = await sts.send(new GetCallerIdentityCommand());
       this._accountId = ret.Account;
       this.log.info(chalk`{green ok:} initialized AWS deployer for account {yellow ${ret.Account}}`);
       this._bucket = this._cfg.deployBucket || `helix-deploy-bucket-${this._accountId}${this._cfg.region !== 'us-east-1' ? `-${this._cfg.region}` : ''}`;
     } finally {
       sts.destroy();
+    }
+  }
+
+  async lookupRole(roleName) {
+    const iam = new IAMClient({
+      region: this._cfg.region,
+    });
+
+    try {
+      const ret = await iam.send(new GetRoleCommand({
+        RoleName: roleName,
+      }));
+      return ret.Role.Arn;
+    } finally {
+      iam.destroy();
     }
   }
 
@@ -225,8 +241,13 @@ export default class AWSDeployer extends BaseDeployer {
     this.log.info(chalk`{green ok:} deleted deploy package {blueBright s3://${this._bucket}/${this._key}}.`);
   }
 
-  get functionConfig() {
+  async getFunctionConfig() {
     const { cfg, functionName, additionalTags } = this;
+
+    let roleName = this._cfg.role;
+    if (!!roleName && roleName.indexOf(':') === -1) {
+      roleName = await this.lookupRole(roleName);
+    }
 
     const functionConfig = {
       Code: {
@@ -235,7 +256,7 @@ export default class AWSDeployer extends BaseDeployer {
       },
       // todo: package name
       FunctionName: functionName,
-      Role: this._cfg.role,
+      Role: roleName,
       Runtime: `nodejs${cfg.nodeVersion}.x`,
       // todo: cram annotations into description?
       Tags: {
@@ -282,9 +303,8 @@ export default class AWSDeployer extends BaseDeployer {
   }
 
   async createLambda() {
-    const {
-      cfg, functionName, additionalTags, functionConfig,
-    } = this;
+    const { cfg, functionName, additionalTags } = this;
+    const functionConfig = await this.getFunctionConfig();
     const functionVersion = cfg.version.replace(/\./g, '_');
 
     this.log.info(`--: using lambda role "${this._cfg.role}"`);

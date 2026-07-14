@@ -39,6 +39,17 @@ const awsNock = {
         },
       },
     })),
+  lookupRole: (roleName) => nock('https://iam.amazonaws.com')
+    .post('/', (body) => body.Action === 'GetRole')
+    .reply(200, new xml2js.Builder().buildObject({
+      GetRoleResponse: {
+        GetRoleResult: {
+          Role: {
+            Arn: `arn:aws:iam::123456789012:role/${roleName}`,
+          },
+        },
+      },
+    })),
 };
 
 describe('AWS Deployer Test', () => {
@@ -71,28 +82,38 @@ describe('AWS Deployer Test', () => {
       }
     });
   });
+
   it('sets the default lambda name', async () => {
+    awsNock.lookupRole('somerole');
+
     const cfg = new BaseConfig()
       .withName('/helix-services/static@4.3.1');
-    const awsCfg = new AWSConfig();
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
+      .withAWSRole('somerole');
     const builder = new ActionBuilder().withConfig(cfg);
     await builder.validate();
     const aws = new AWSDeployer(cfg, awsCfg);
 
     assert.strictEqual(aws.functionName, 'helix-services--static');
-    assert.strictEqual(aws.functionConfig.FunctionName, 'helix-services--static');
+
+    const functionConfig = await aws.getFunctionConfig();
+    assert.strictEqual(functionConfig.FunctionName, 'helix-services--static');
   });
 
   it('sets the default lambda with dots', async () => {
     const cfg = new BaseConfig()
       .withName('/helix-services/gorky.v8@4.3.1');
-    const awsCfg = new AWSConfig();
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1');
     const builder = new ActionBuilder().withConfig(cfg);
     await builder.validate();
     const aws = new AWSDeployer(cfg, awsCfg);
 
     assert.strictEqual(aws.functionName, 'helix-services--gorky_v8');
-    assert.strictEqual(aws.functionConfig.FunctionName, 'helix-services--gorky_v8');
+
+    const functionConfig = await aws.getFunctionConfig();
+    assert.strictEqual(functionConfig.FunctionName, 'helix-services--gorky_v8');
   });
 
   it('sets the default function path', async () => {
@@ -100,7 +121,8 @@ describe('AWS Deployer Test', () => {
       .withVersion('1.18.2')
       // eslint-disable-next-line no-template-curly-in-string
       .withName('/helix-services/static@${version}');
-    const awsCfg = new AWSConfig();
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1');
     const builder = new ActionBuilder().withConfig(cfg);
     await builder.validate();
     const aws = new AWSDeployer(cfg, awsCfg);
@@ -165,6 +187,7 @@ describe('AWS Deployer Test', () => {
         aws: '/pages_${version}/${scriptName}',
       });
     const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
       // eslint-disable-next-line no-template-curly-in-string
       .withAWSLambdaFormat('pages--${scriptName}');
     const builder = new ActionBuilder().withConfig(cfg);
@@ -173,7 +196,9 @@ describe('AWS Deployer Test', () => {
 
     assert.strictEqual(aws.functionName, 'pages--html');
     assert.strictEqual(aws.functionPath, '/pages_4.3.1/html');
-    assert.strictEqual(aws.functionConfig.FunctionName, 'pages--html');
+
+    const functionConfig = await aws.getFunctionConfig();
+    assert.strictEqual(functionConfig.FunctionName, 'pages--html');
   });
 
   it('cleans up old versions', async () => {
@@ -273,13 +298,14 @@ describe('AWS Deployer Test', () => {
       .withVersion('1.18.2')
       // eslint-disable-next-line no-template-curly-in-string
       .withName('/helix-services/static@${version}');
-    const awsCfg = new AWSConfig();
+    const awsCfg = new AWSConfig().withAWSRegion('us-east-1');
     const builder = new ActionBuilder().withConfig(cfg);
     await builder.validate();
     const aws = new AWSDeployer(cfg, awsCfg);
 
     assert.deepStrictEqual(aws.additionalTags, {});
-    assert.strictEqual(Object.keys(aws.functionConfig.Tags).length, 4);
+    const functionConfig = await aws.getFunctionConfig();
+    assert.strictEqual(Object.keys(functionConfig.Tags).length, 4);
   });
 
   it('correctly transforms tags into an object', async () => {
@@ -287,7 +313,9 @@ describe('AWS Deployer Test', () => {
       .withVersion('1.18.2')
       // eslint-disable-next-line no-template-curly-in-string
       .withName('/helix-services/static@${version}');
-    const awsCfg = new AWSConfig().withAWSTags(['foo=bar', 'baz=qux=quux']);
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
+      .withAWSTags(['foo=bar', 'baz=qux=quux']);
     const builder = new ActionBuilder().withConfig(cfg);
     await builder.validate();
     const aws = new AWSDeployer(cfg, awsCfg);
@@ -296,8 +324,10 @@ describe('AWS Deployer Test', () => {
       foo: 'bar',
       baz: 'qux=quux',
     });
-    assert.strictEqual(aws.functionConfig.Tags.foo, 'bar');
-    assert.strictEqual(aws.functionConfig.Tags.baz, 'qux=quux');
+
+    const functionConfig = await aws.getFunctionConfig();
+    assert.strictEqual(functionConfig.Tags.foo, 'bar');
+    assert.strictEqual(functionConfig.Tags.baz, 'qux=quux');
   });
 
   it('creates an error if awsTags is set as an object', async () => {
@@ -312,22 +342,26 @@ describe('AWS Deployer Test', () => {
       .withVersion('1.18.2')
       // eslint-disable-next-line no-template-curly-in-string
       .withName('/helix-services/static@${version}');
-    const awsCfg = new AWSConfig().withAWSEphemeralStorage(2048);
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
+      .withAWSEphemeralStorage(2048);
     const builder = new ActionBuilder().withConfig(cfg);
     await builder.validate();
 
     const aws = new AWSDeployer(cfg, awsCfg);
-    assert.deepStrictEqual(aws.functionConfig.EphemeralStorage, { Size: 2048 });
+    const functionConfig = await aws.getFunctionConfig();
+    assert.deepStrictEqual(functionConfig.EphemeralStorage, { Size: 2048 });
   });
 
   it('does not set EphemeralStorage if not configured', async () => {
     const cfg = new BaseConfig();
-    const awsCfg = new AWSConfig();
+    const awsCfg = new AWSConfig().withAWSRegion('us-east-1');
     const builder = new ActionBuilder().withConfig(cfg);
     await builder.validate();
 
     const aws = new AWSDeployer(cfg, awsCfg);
-    assert.strictEqual(aws.functionConfig.EphemeralStorage, undefined);
+    const functionConfig = await aws.getFunctionConfig();
+    assert.strictEqual(functionConfig.EphemeralStorage, undefined);
   });
 
   it('creates an error if aws-ephemeral-storage is below 512', async () => {
@@ -356,39 +390,46 @@ describe('AWS Deployer Test', () => {
     await builder.validate();
 
     const aws = new AWSDeployer(cfg, awsCfg);
-
-    assert.strictEqual(aws.functionConfig.Handler, 'custom.handler');
+    const functionConfig = await aws.getFunctionConfig();
+    assert.strictEqual(functionConfig.Handler, 'custom.handler');
   });
 
   // https://github.com/adobe/helix-deploy/issues/734
   it('uses empty array for Layers if no awsLayers is configured', async () => {
     const cfg = new BaseConfig();
-    const awsCfg = new AWSConfig();
+    const awsCfg = new AWSConfig().withAWSRegion('us-east-1');
     const builder = new ActionBuilder().withConfig(cfg);
     await builder.validate();
 
     const aws = new AWSDeployer(cfg, awsCfg);
-    assert.deepEqual(aws.functionConfig.Layers, []);
+    const functionConfig = await aws.getFunctionConfig();
+    assert.deepEqual(functionConfig.Layers, []);
   });
 
   it('sets Layers if awsLayers is configured (1)', async () => {
     const cfg = new BaseConfig();
-    const awsCfg = new AWSConfig().withAWSLayers(['my-layer:1']);
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
+      .withAWSLayers(['my-layer:1']);
     const builder = new ActionBuilder().withConfig(cfg);
     await builder.validate();
 
     const aws = new AWSDeployer(cfg, awsCfg);
-    assert.deepEqual(aws.functionConfig.Layers, ['my-layer:1']);
+    const functionConfig = await aws.getFunctionConfig();
+    assert.deepEqual(functionConfig.Layers, ['my-layer:1']);
   });
 
   it('sets Layers if awsLayers is configured (2)', async () => {
     const cfg = new BaseConfig();
-    const awsCfg = new AWSConfig().withAWSLayers(['my-layer:1', 'my-other-layer:1']);
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
+      .withAWSLayers(['my-layer:1', 'my-other-layer:1']);
     const builder = new ActionBuilder().withConfig(cfg);
     await builder.validate();
 
     const aws = new AWSDeployer(cfg, awsCfg);
-    assert.deepEqual(aws.functionConfig.Layers, ['my-layer:1', 'my-other-layer:1']);
+    const functionConfig = await aws.getFunctionConfig();
+    assert.deepEqual(functionConfig.Layers, ['my-layer:1', 'my-other-layer:1']);
   });
 
   async function createBaseConfig({
@@ -564,24 +605,27 @@ describe('AWS Deployer Test', () => {
 
   it('does not set VpcConfig if VPC flags are not configured', async () => {
     const cfg = new BaseConfig();
-    const awsCfg = new AWSConfig();
+    const awsCfg = new AWSConfig().withAWSRegion('us-east-1');
     const builder = new ActionBuilder().withConfig(cfg);
     await builder.validate();
 
     const aws = new AWSDeployer(cfg, awsCfg);
-    assert.strictEqual(aws.functionConfig.VpcConfig, undefined);
+    const functionConfig = await aws.getFunctionConfig();
+    assert.strictEqual(functionConfig.VpcConfig, undefined);
   });
 
   it('sets VpcConfig when both VPC flags are configured', async () => {
     const cfg = new BaseConfig();
     const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
       .withAWSVpcSubnetIds(['subnet-abc123', 'subnet-def456'])
       .withAWSVpcSecurityGroupIds(['sg-abc123']);
     const builder = new ActionBuilder().withConfig(cfg);
     await builder.validate();
 
     const aws = new AWSDeployer(cfg, awsCfg);
-    assert.deepStrictEqual(aws.functionConfig.VpcConfig, {
+    const functionConfig = await aws.getFunctionConfig();
+    assert.deepStrictEqual(functionConfig.VpcConfig, {
       SubnetIds: ['subnet-abc123', 'subnet-def456'],
       SecurityGroupIds: ['sg-abc123'],
     });
@@ -590,13 +634,15 @@ describe('AWS Deployer Test', () => {
   it('sets VpcConfig with empty arrays for VPC detach', async () => {
     const cfg = new BaseConfig();
     const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
       .withAWSVpcSubnetIds([])
       .withAWSVpcSecurityGroupIds([]);
     const builder = new ActionBuilder().withConfig(cfg);
     await builder.validate();
 
     const aws = new AWSDeployer(cfg, awsCfg);
-    assert.deepStrictEqual(aws.functionConfig.VpcConfig, {
+    const functionConfig = await aws.getFunctionConfig();
+    assert.deepStrictEqual(functionConfig.VpcConfig, {
       SubnetIds: [],
       SecurityGroupIds: [],
     });
