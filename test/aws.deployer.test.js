@@ -99,6 +99,7 @@ describe('AWS Deployer Test', () => {
 
     const functionConfig = await aws.getFunctionConfig();
     assert.strictEqual(functionConfig.FunctionName, 'helix-services--static');
+    assert.strictEqual(functionConfig.Role, 'arn:aws:iam::123456789012:role/somerole');
   });
 
   it('sets the default lambda with dots', async () => {
