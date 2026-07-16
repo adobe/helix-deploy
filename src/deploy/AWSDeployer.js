@@ -58,6 +58,7 @@ import crypto from 'crypto';
 import BaseDeployer from './BaseDeployer.js';
 import ActionBuilder from '../ActionBuilder.js';
 import AWSConfig from './AWSConfig.js';
+import AWSProxyDeployer from './AWSProxyDeployer.js';
 
 const sleep = promisify(setTimeout);
 
@@ -138,6 +139,10 @@ export default class AWSDeployer extends BaseDeployer {
       }
       return acc;
     }, {});
+  }
+
+  get accountId() {
+    return this._accountId;
   }
 
   validate() {
@@ -552,6 +557,10 @@ export default class AWSDeployer extends BaseDeployer {
         ApiId,
       }));
     }
+
+    // a freshly created API has no routes yet: deploy the shared helix-deploy-proxy
+    // Lambda and its routes
+    await new AWSProxyDeployer(this).deploy(ApiId);
 
     if (this._cfg.createRoutes) {
       // find integration

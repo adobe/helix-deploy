@@ -472,6 +472,9 @@ describe('AWS Deployer Test', () => {
       .withAWSApi('create');
     const aws = new AWSDeployer(cfg, awsCfg);
     const apiBase = 'https://apigateway.us-east-1.amazonaws.com';
+    const lambdaBase = 'https://lambda.us-east-1.amazonaws.com';
+    const proxyFunctionArn = 'arn:aws:lambda:us-east-1:123456789012:function:helix-deploy-proxy';
+
     const createApiRequest = nock(apiBase)
       .post('/v2/apis', () => true)
       .reply(200, {
@@ -485,6 +488,40 @@ describe('AWS Deployer Test', () => {
       .post('/v2/apis/newapi/stages', (body) => body.stageName === '$default' && body.autoDeploy === true)
       .reply(201, {});
 
+    const getProxyFunctionRequest = nock(lambdaBase)
+      .get('/2015-03-31/functions/helix-deploy-proxy')
+      .reply(404, { message: 'Function not found' }, { 'x-amzn-errortype': 'ResourceNotFoundException' });
+    const createProxyFunctionRequest = nock(lambdaBase)
+      .post('/2015-03-31/functions', (body) => body.FunctionName === 'helix-deploy-proxy')
+      .reply(201, { FunctionArn: proxyFunctionArn });
+    const checkProxyFunctionReadyRequest = nock(lambdaBase)
+      .get(`/2015-03-31/functions/${encodeURIComponent(proxyFunctionArn)}`)
+      .reply(200, {
+        Configuration: {
+          FunctionArn: proxyFunctionArn,
+          State: 'Active',
+          LastUpdateStatus: 'Successful',
+        },
+      });
+
+    const getIntegrationsRequest = nock(apiBase)
+      .get('/v2/apis/newapi/integrations')
+      .reply(200, { items: [] });
+    const createIntegrationRequest = nock(apiBase)
+      .post('/v2/apis/newapi/integrations', (body) => body.integrationUri === proxyFunctionArn)
+      .reply(201, { integrationId: 'proxy-integration-id' });
+    const getRoutesRequest = nock(apiBase)
+      .get('/v2/apis/newapi/routes')
+      .reply(200, { items: [] });
+    const createRouteRequests = nock(apiBase)
+      .post('/v2/apis/newapi/routes', () => true)
+      .times(4)
+      .reply(201, {});
+    const addPermissionRequests = nock(lambdaBase)
+      .post(`/2015-03-31/functions/${encodeURIComponent(proxyFunctionArn)}/policy`, () => true)
+      .times(2)
+      .reply(201, {});
+
     await aws.init();
     await aws.initAccountId();
     await aws.createAPI();
@@ -492,6 +529,14 @@ describe('AWS Deployer Test', () => {
     assert.ok(createApiRequest.isDone());
     assert.ok(getStagesRequest.isDone());
     assert.ok(createStageRequest.isDone());
+    assert.ok(getProxyFunctionRequest.isDone());
+    assert.ok(createProxyFunctionRequest.isDone());
+    assert.ok(checkProxyFunctionReadyRequest.isDone());
+    assert.ok(getIntegrationsRequest.isDone());
+    assert.ok(createIntegrationRequest.isDone());
+    assert.ok(getRoutesRequest.isDone());
+    assert.ok(createRouteRequests.isDone());
+    assert.ok(addPermissionRequests.isDone());
     assert.strictEqual(aws.fullFunctionName, `https://example.execute-api.us-east-1.amazonaws.com${aws.functionPath}`);
   });
 
