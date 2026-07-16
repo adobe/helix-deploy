@@ -1,3 +1,10 @@
+# [14.1.0](https://github.com/adobe/helix-deploy/compare/v14.0.12...v14.1.0) (2026-07-16)
+
+
+### Features
+
+* deploy proxy in new API Gateway ([#934](https://github.com/adobe/helix-deploy/issues/934)) ([3d4b328](https://github.com/adobe/helix-deploy/commit/3d4b328321560a23f2e74b1886f5738fe9077f1a))
+
 ## [14.0.12](https://github.com/adobe/helix-deploy/compare/v14.0.11...v14.0.12) (2026-07-14)
 
 
