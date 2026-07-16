@@ -28,6 +28,7 @@ import { CreateIntegrationCommand } from '@aws-sdk/client-apigatewayv2';
 const __dirname = path.resolve(fileURLToPath(import.meta.url), '..');
 
 const FUNCTION_NAME = 'helix-deploy-proxy';
+const ROLE_NAME = 'helix-role-deploy-proxy';
 
 // packages served by the proxy, see the routes documented in src/template/aws-proxy-code.js
 const ROUTE_PACKAGES = ['helix-services', 'helix3'];
@@ -104,7 +105,7 @@ export default class AWSProxyDeployer {
         FunctionName: FUNCTION_NAME,
         Runtime: `nodejs${deployer.cfg.nodeVersion}.x`,
         Handler: 'index.handler',
-        Role: `arn:aws:iam::${deployer.accountId}:role/helix-role-deploy-proxy`,
+        Role: `arn:aws:iam::${deployer.accountId}:role/${ROLE_NAME}`,
         Description: 'Helix Deploy Proxy',
         Timeout: 60,
         Code: { ZipFile: zipFile },
