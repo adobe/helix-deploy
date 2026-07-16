@@ -631,6 +631,7 @@ export default class BaseConfig {
         description: 'Create symlinks (sequences) after deployment. "major" and "minor" will create respective version links',
         type: 'string',
         array: true,
+        default: [],
       })
       .option('delete', {
         description: 'Delete the action from OpenWhisk. Implies no-build',

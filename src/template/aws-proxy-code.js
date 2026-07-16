@@ -21,8 +21,8 @@ import { LambdaClient, InvokeCommand, InvocationType } from '@aws-sdk/client-lam
  * ANY /helix-services/{action}/{version}
  * ANY /helix-services/{action}/{version}/{path+}
  *
- * ANY /helix-observation/{action}/{version}
- * ANY /helix-observation/{action}/{version}/{path+}
+ * ANY /helix3/{action}/{version}
+ * ANY /helix3/{action}/{version}/{path+}
  *
  * Note that the package cannot be a path parameter, as it would clash with the pages proxy
  *
