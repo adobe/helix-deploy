@@ -24,14 +24,71 @@ import {
 
 import { CreateIntegrationCommand } from '@aws-sdk/client-apigatewayv2';
 
+import {
+  CreateRoleCommand,
+  GetRoleCommand,
+  PutRolePolicyCommand,
+} from '@aws-sdk/client-iam';
+
 // eslint-disable-next-line no-underscore-dangle
 const __dirname = path.resolve(fileURLToPath(import.meta.url), '..');
 
 const FUNCTION_NAME = 'helix-deploy-proxy';
 const ROLE_NAME = 'helix-role-deploy-proxy';
+const ROLE_POLICY_NAME = 'helix-policy-deploy-proxy';
 
 // packages served by the proxy, see the routes documented in src/template/aws-proxy-code.js
 const ROUTE_PACKAGES = ['helix-services', 'helix3'];
+
+// trust policy allowing Lambda to assume the proxy role
+const ROLE_TRUST_POLICY = {
+  Version: '2012-10-17',
+  Statement: [
+    {
+      Effect: 'Allow',
+      Principal: {
+        Service: 'lambda.amazonaws.com',
+      },
+      Action: 'sts:AssumeRole',
+    },
+  ],
+};
+
+// permissions granted to the proxy role. the `ACCOUNT_ID` placeholder is replaced
+// with `deployer.accountId` before the policy is attached (see createRole()).
+const ROLE_PERMISSIONS_POLICY = {
+  Version: '2012-10-17',
+  Statement: [
+    {
+      Sid: 'BasicExecutionLogs',
+      Effect: 'Allow',
+      Action: [
+        'logs:CreateLogGroup',
+        'logs:CreateLogStream',
+        'logs:PutLogEvents',
+      ],
+      Resource: '*',
+    },
+    {
+      Sid: 'LambdaInvoke',
+      Effect: 'Allow',
+      Action: [
+        'lambda:InvokeFunction',
+        'lambda:InvokeAsync',
+      ],
+      Resource: 'arn:aws:lambda:*:ACCOUNT_ID:function:*',
+    },
+    {
+      Sid: 'PackageSecretsReadOnly',
+      Effect: 'Allow',
+      Action: [
+        'secretsmanager:GetSecretValue',
+        'secretsmanager:DescribeSecret',
+      ],
+      Resource: 'arn:aws:secretsmanager:*:ACCOUNT_ID:secret:/helix-deploy/*',
+    },
+  ],
+};
 
 /**
  * Deploys the shared `helix-deploy-proxy` Lambda function (src/template/aws-proxy-code.js)
@@ -55,6 +112,49 @@ export default class AWSProxyDeployer {
 
   get log() {
     return this._deployer.log;
+  }
+
+  /**
+   * Creates the `helix-role-deploy-proxy` IAM role used by the proxy Lambda function, unless it
+   * already exists. The role is created with a trust policy allowing Lambda to assume it and an
+   * inline permissions policy granting logging, lambda invoke and read-only access to the
+   * `/helix-deploy/*` secrets.
+   *
+   * @returns {Promise<string>} the ARN of the role
+   */
+  async createRole() {
+    const { _deployer: deployer, log } = this;
+
+    try {
+      log.info(chalk`--: checking existing proxy role {yellow ${ROLE_NAME}}`);
+      const { Role } = await deployer.iam.send(new GetRoleCommand({
+        RoleName: ROLE_NAME,
+      }));
+      log.info(chalk`{green ok:} using existing proxy role {yellow ${Role.Arn}}`);
+      return Role.Arn;
+    } catch (e) {
+      if (e.name !== 'NoSuchEntityException') {
+        throw e;
+      }
+    }
+
+    log.info(chalk`--: creating proxy role {yellow ${ROLE_NAME}}`);
+    const { Role } = await deployer.iam.send(new CreateRoleCommand({
+      RoleName: ROLE_NAME,
+      AssumeRolePolicyDocument: JSON.stringify(ROLE_TRUST_POLICY),
+      Description: 'Helix Deploy Proxy',
+    }));
+
+    const permissions = JSON.stringify(ROLE_PERMISSIONS_POLICY)
+      .replace(/ACCOUNT_ID/g, deployer.accountId);
+    await deployer.iam.send(new PutRolePolicyCommand({
+      RoleName: ROLE_NAME,
+      PolicyName: ROLE_POLICY_NAME,
+      PolicyDocument: permissions,
+    }));
+
+    log.info(chalk`{green ok:} created proxy role {yellow ${Role.Arn}}`);
+    return Role.Arn;
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -169,6 +269,7 @@ export default class AWSProxyDeployer {
   }
 
   async deploy(ApiId) {
+    await this.createRole();
     const FunctionArn = await this.deployFunction();
     await this.createRoutesAndPermissions(ApiId, FunctionArn);
   }
