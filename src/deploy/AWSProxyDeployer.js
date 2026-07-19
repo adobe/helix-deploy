@@ -11,6 +11,7 @@
  */
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { promisify } from 'util';
 import crypto from 'crypto';
 import archiver from 'archiver';
 import chalk from 'chalk-template';
@@ -29,6 +30,8 @@ import {
   GetRoleCommand,
   PutRolePolicyCommand,
 } from '@aws-sdk/client-iam';
+
+const sleep = promisify(setTimeout);
 
 // eslint-disable-next-line no-underscore-dangle
 const __dirname = path.resolve(fileURLToPath(import.meta.url), '..');
@@ -176,19 +179,63 @@ export default class AWSProxyDeployer {
     });
   }
 
-  async deployFunction() {
+  /**
+   * Creates the proxy Lambda function, retrying with exponential backoff while the given role
+   * has not yet propagated and cannot be assumed by Lambda.
+   *
+   * @param {string} roleArn the ARN of the role to assign to the function
+   * @param {Buffer} zipFile the zipped function code
+   * @returns {Promise<string>} the ARN of the created function
+   */
+  async createFunctionWithRetry(roleArn, zipFile) {
+    const { _deployer: deployer, log } = this;
+
+    log.info(chalk`--: creating proxy Lambda function {yellow ${FUNCTION_NAME}}`);
+
+    let tries = 6;
+    let wait = 1500;
+
+    while (tries > 0) {
+      tries -= 1;
+
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        const res = await deployer.lambda.send(new CreateFunctionCommand({
+          FunctionName: FUNCTION_NAME,
+          Runtime: `nodejs${deployer.cfg.nodeVersion}.x`,
+          Handler: 'index.handler',
+          Role: roleArn,
+          Description: 'Helix Deploy Proxy',
+          Timeout: 60,
+          Code: { ZipFile: zipFile },
+        }));
+        return res.FunctionArn;
+      } catch (e) {
+        if (!(e.name === 'InvalidParameterValueException' && /cannot be assumed/.test(e.message))) {
+          throw e;
+        }
+        this.log.info(chalk`{yellow !!:} role ${roleArn} is not ready yet (retry...)`);
+        // eslint-disable-next-line no-await-in-loop
+        await sleep(wait);
+        wait *= 2;
+      }
+    }
+    throw new Error(`Unable to deploy function: ${FUNCTION_NAME}`);
+  }
+
+  async deployFunction(roleArn) {
     const { _deployer: deployer, log } = this;
     const zipFile = await this.buildZip();
 
-    let FunctionArn;
+    let functionArn;
     try {
       log.info(chalk`--: checking existing proxy Lambda function {yellow ${FUNCTION_NAME}}`);
       // eslint-disable-next-line no-underscore-dangle
       const { Configuration } = await deployer._lambda.send(new GetFunctionCommand({
         FunctionName: FUNCTION_NAME,
       }));
-      FunctionArn = Configuration.FunctionArn;
-      await deployer.checkFunctionReady(FunctionArn);
+      functionArn = Configuration.FunctionArn;
+      await deployer.checkFunctionReady(functionArn);
       log.info(chalk`--: updating proxy Lambda function code {yellow ${FUNCTION_NAME}}`);
       // eslint-disable-next-line no-underscore-dangle
       await deployer._lambda.send(new UpdateFunctionCodeCommand({
@@ -200,21 +247,11 @@ export default class AWSProxyDeployer {
         throw e;
       }
       log.info(chalk`--: creating proxy Lambda function {yellow ${FUNCTION_NAME}}`);
-      // eslint-disable-next-line no-underscore-dangle
-      const res = await deployer._lambda.send(new CreateFunctionCommand({
-        FunctionName: FUNCTION_NAME,
-        Runtime: `nodejs${deployer.cfg.nodeVersion}.x`,
-        Handler: 'index.handler',
-        Role: `arn:aws:iam::${deployer.accountId}:role/${ROLE_NAME}`,
-        Description: 'Helix Deploy Proxy',
-        Timeout: 60,
-        Code: { ZipFile: zipFile },
-      }));
-      FunctionArn = res.FunctionArn;
+      functionArn = await this.createFunctionWithRetry(roleArn, zipFile);
     }
-    await deployer.checkFunctionReady(FunctionArn);
-    log.info(chalk`{green ok:} proxy function ready {yellow ${FunctionArn}}`);
-    return FunctionArn;
+    await deployer.checkFunctionReady(functionArn);
+    log.info(chalk`{green ok:} proxy function ready {yellow ${functionArn}}`);
+    return functionArn;
   }
 
   async createRoutesAndPermissions(ApiId, FunctionArn) {
@@ -269,8 +306,8 @@ export default class AWSProxyDeployer {
   }
 
   async deploy(ApiId) {
-    await this.createRole();
-    const FunctionArn = await this.deployFunction();
-    await this.createRoutesAndPermissions(ApiId, FunctionArn);
+    const roleArn = await this.createRole();
+    const functionArn = await this.deployFunction(roleArn);
+    await this.createRoutesAndPermissions(ApiId, functionArn);
   }
 }

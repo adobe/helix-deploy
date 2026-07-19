@@ -151,6 +151,10 @@ export default class AWSDeployer extends BaseDeployer {
     return this._iam;
   }
 
+  get lambda() {
+    return this._lambda;
+  }
+
   validate() {
     const req = [];
     if (!this._cfg.role) {
