@@ -67,7 +67,7 @@ const ROLE_PERMISSIONS_POLICY = {
         'logs:CreateLogStream',
         'logs:PutLogEvents',
       ],
-      Resource: '*',
+      Resource: `arn:aws:logs:*:ACCOUNT_ID:log-group:/aws/lambda/${FUNCTION_NAME}:*`,
     },
     {
       Sid: 'LambdaInvoke',
