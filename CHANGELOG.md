@@ -1,3 +1,10 @@
+## [14.1.1](https://github.com/adobe/helix-deploy/compare/v14.1.0...v14.1.1) (2026-07-20)
+
+
+### Bug Fixes
+
+* **proxy:** create IAM role for `helix-deploy-proxy` if necessary ([#935](https://github.com/adobe/helix-deploy/issues/935)) ([3c007fa](https://github.com/adobe/helix-deploy/commit/3c007faa030de0a84f64c7c49d95f7870b56c879))
+
 # [14.1.0](https://github.com/adobe/helix-deploy/compare/v14.0.12...v14.1.0) (2026-07-16)
 
 
