@@ -488,6 +488,29 @@ describe('AWS Deployer Test', () => {
       .post('/v2/apis/newapi/stages', (body) => body.stageName === '$default' && body.autoDeploy === true)
       .reply(201, {});
 
+    const iamBase = 'https://iam.amazonaws.com';
+    const getProxyRoleRequest = nock(iamBase)
+      .post('/', (body) => body.Action === 'GetRole')
+      .reply(
+        404,
+        '<ErrorResponse><Error><Code>NoSuchEntity</Code><Message>not found</Message></Error></ErrorResponse>',
+        { 'content-type': 'text/xml' },
+      );
+    const createProxyRoleRequest = nock(iamBase)
+      .post('/', (body) => body.Action === 'CreateRole' && body.RoleName === 'helix-role-deploy-proxy')
+      .reply(
+        200,
+        '<CreateRoleResponse><CreateRoleResult><Role><Arn>arn:aws:iam::123456789012:role/helix-role-deploy-proxy</Arn></Role></CreateRoleResult></CreateRoleResponse>',
+        { 'content-type': 'text/xml' },
+      );
+    const putProxyRolePolicyRequest = nock(iamBase)
+      .post('/', (body) => body.Action === 'PutRolePolicy' && body.RoleName === 'helix-role-deploy-proxy')
+      .reply(
+        200,
+        '<PutRolePolicyResponse></PutRolePolicyResponse>',
+        { 'content-type': 'text/xml' },
+      );
+
     const getProxyFunctionRequest = nock(lambdaBase)
       .get('/2015-03-31/functions/helix-deploy-proxy')
       .reply(404, { message: 'Function not found' }, { 'x-amzn-errortype': 'ResourceNotFoundException' });
@@ -529,6 +552,9 @@ describe('AWS Deployer Test', () => {
     assert.ok(createApiRequest.isDone());
     assert.ok(getStagesRequest.isDone());
     assert.ok(createStageRequest.isDone());
+    assert.ok(getProxyRoleRequest.isDone());
+    assert.ok(createProxyRoleRequest.isDone());
+    assert.ok(putProxyRolePolicyRequest.isDone());
     assert.ok(getProxyFunctionRequest.isDone());
     assert.ok(createProxyFunctionRequest.isDone());
     assert.ok(checkProxyFunctionReadyRequest.isDone());

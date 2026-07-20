@@ -52,6 +52,8 @@ import { PutParameterCommand, SSMClient } from '@aws-sdk/client-ssm';
 
 import { PutSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
 
+import { IAMClient } from '@aws-sdk/client-iam';
+
 import path from 'path';
 import fse from 'fs-extra';
 import crypto from 'crypto';
@@ -145,6 +147,14 @@ export default class AWSDeployer extends BaseDeployer {
     return this._accountId;
   }
 
+  get iam() {
+    return this._iam;
+  }
+
+  get lambda() {
+    return this._lambda;
+  }
+
   validate() {
     const req = [];
     if (!this._cfg.role) {
@@ -179,6 +189,9 @@ export default class AWSDeployer extends BaseDeployer {
         region: this._cfg.region,
       });
       this._sm = new SecretsManagerClient({
+        region: this._cfg.region,
+      });
+      this._iam = new IAMClient({
         region: this._cfg.region,
       });
     }
