@@ -39,6 +39,12 @@ const awsNock = {
         },
       },
     })),
+  getSecretValue: (secretId, secretString, region = 'us-east-1') => nock(`https://secretsmanager.${region}.amazonaws.com`)
+    .post('/', (body) => body.SecretId === secretId)
+    .reply(200, {
+      Name: secretId,
+      SecretString: secretString,
+    }),
 };
 
 describe('AWS Deployer Test', () => {
@@ -673,29 +679,57 @@ describe('AWS Deployer Test', () => {
     });
   });
 
-  it('validate() throws when only subnet IDs are set', () => {
+  it('validate() throws when only subnet IDs are set', async () => {
     const cfg = new BaseConfig();
     const awsCfg = new AWSConfig()
       .withAWSRegion('us-east-1')
       .withAWSRole('somerole')
       .withAWSVpcSubnetIds(['subnet-abc123']);
     const aws = new AWSDeployer(cfg, awsCfg);
-    assert.throws(
-      () => aws.validate(),
+    await assert.rejects(
+      aws.validate(),
       { message: '--aws-vpc-security-group-ids is required when --aws-vpc-subnet-ids is set' },
     );
   });
 
-  it('validate() throws when only security group IDs are set', () => {
+  it('validate() throws when only security group IDs are set', async () => {
     const cfg = new BaseConfig();
     const awsCfg = new AWSConfig()
       .withAWSRegion('us-east-1')
       .withAWSRole('somerole')
       .withAWSVpcSecurityGroupIds(['sg-abc123']);
     const aws = new AWSDeployer(cfg, awsCfg);
-    assert.throws(
-      () => aws.validate(),
+    await assert.rejects(
+      aws.validate(),
       { message: '--aws-vpc-subnet-ids is required when --aws-vpc-security-group-ids is set' },
+    );
+  });
+
+  it('validate() fetches role and api from --aws-deploy-secrets', async () => {
+    awsNock.getSecretValue('my-target-secret', JSON.stringify({
+      HLX_AWS_ROLE: 'arn:aws:iam::123456789012:role/somerole',
+      HLX_AWS_API: 'someapi',
+    }));
+    const cfg = new BaseConfig();
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
+      .withAWSDeploySecrets('my-target-secret');
+    const aws = new AWSDeployer(cfg, awsCfg);
+    await aws.init();
+    await aws.validate();
+    assert.strictEqual(awsCfg.role, 'arn:aws:iam::123456789012:role/somerole');
+    assert.strictEqual(awsCfg.apiId, 'someapi');
+  });
+
+  it('validate() still throws when --aws-role is missing and --aws-deploy-secrets is not set', async () => {
+    const cfg = new BaseConfig();
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1');
+    const aws = new AWSDeployer(cfg, awsCfg);
+    await aws.init();
+    await assert.rejects(
+      aws.validate(),
+      { message: 'AWS target needs --aws-role' },
     );
   });
 

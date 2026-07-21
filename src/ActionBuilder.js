@@ -244,25 +244,26 @@ export default class ActionBuilder {
     }
     const { cfg } = this;
     const targets = { };
-    cfg.targets.forEach((t) => {
+    for (const t of cfg.targets) {
       if (t === 'auto') {
         // get all deployers that are ready();
-        Object.entries(this._deployers).forEach(([name, deployer]) => {
+        for (const [name, deployer] of Object.entries(this._deployers)) {
           if (deployer.ready()) {
-            deployer.validate();
+            // eslint-disable-next-line no-await-in-loop
+            await deployer.validate();
             targets[name] = deployer;
           }
-        });
+        }
       } else {
         // deployer must be ready
         const deployer = this._deployers[t];
         if (!deployer) {
           throw Error(`No such target: ${t}`);
         }
-        deployer.validate();
+        await deployer.validate();
         targets[t] = deployer;
       }
-    });
+    }
     this._deployers = targets;
     if (Object.keys(targets).length === 0) {
       if (cfg.deploy || cfg.test || cfg.delete || cfg.updatePackage) {

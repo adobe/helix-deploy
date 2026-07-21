@@ -50,7 +50,9 @@ import {
 
 import { PutParameterCommand, SSMClient } from '@aws-sdk/client-ssm';
 
-import { PutSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
+import {
+  GetSecretValueCommand, PutSecretValueCommand, SecretsManagerClient,
+} from '@aws-sdk/client-secrets-manager';
 
 import { IAMClient } from '@aws-sdk/client-iam';
 
@@ -155,7 +157,15 @@ export default class AWSDeployer extends BaseDeployer {
     return this._lambda;
   }
 
-  validate() {
+  async validate() {
+    if (this._cfg.deploySecrets) {
+      const { SecretString } = await this._sm.send(new GetSecretValueCommand({
+        SecretId: this._cfg.deploySecrets,
+      }));
+      const vars = JSON.parse(SecretString);
+      this._cfg.role = vars.HLX_AWS_ROLE;
+      this._cfg.apiId = vars.HLX_AWS_API;
+    }
     const req = [];
     if (!this._cfg.role) {
       req.push('--aws-role');
