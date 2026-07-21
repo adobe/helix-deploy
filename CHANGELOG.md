@@ -1,3 +1,10 @@
+# [14.2.0](https://github.com/adobe/helix-deploy/compare/v14.1.1...v14.2.0) (2026-07-21)
+
+
+### Features
+
+* **aws:** support reading secrets that contain role and api to use ([#936](https://github.com/adobe/helix-deploy/issues/936)) ([80ad3f9](https://github.com/adobe/helix-deploy/commit/80ad3f934c79032a3efaeeebd1167d1d6911b1cb))
+
 ## [14.1.1](https://github.com/adobe/helix-deploy/compare/v14.1.0...v14.1.1) (2026-07-20)
 
 
