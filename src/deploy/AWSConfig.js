@@ -54,6 +54,7 @@ export default class AWSConfig {
       identitySources: ['$request.header.Authorization'],
       deployBucket: '',
       updateSecrets: undefined,
+      deploySecrets: undefined,
       logFormat: undefined,
       layers: undefined,
       tracingMode: undefined,
@@ -84,6 +85,7 @@ export default class AWSConfig {
       .withAWSParamsManager(argv.awsParameterManager)
       .withAWSDeployBucket(argv.awsDeployBucket)
       .withAWSUpdateSecrets(argv.awsUpdateSecrets)
+      .withAWSDeploySecrets(argv.awsDeploySecrets)
       .withAWSLogFormat(argv.awsLogFormat)
       .withAWSLayers(argv.awsLayers)
       .withAWSTracingMode(argv.awsTracingMode)
@@ -174,6 +176,11 @@ export default class AWSConfig {
     return this;
   }
 
+  withAWSDeploySecrets(value) {
+    this.deploySecrets = value;
+    return this;
+  }
+
   withAWSLogFormat(value) {
     this.logFormat = value;
     return this;
@@ -250,7 +257,7 @@ export default class AWSConfig {
       .group(['aws-region', 'aws-api', 'aws-role', 'aws-cleanup-buckets', 'aws-cleanup-integrations',
         'aws-cleanup-versions', 'aws-link-routes', 'aws-create-routes', 'aws-create-authorizer', 'aws-attach-authorizer',
         'aws-lambda-format', 'aws-parameter-manager', 'aws-deploy-template', 'aws-arch', 'aws-update-secrets',
-        'aws-deploy-bucket', 'aws-identity-source', 'aws-log-format', 'aws-layers',
+        'aws-deploy-secrets', 'aws-deploy-bucket', 'aws-identity-source', 'aws-log-format', 'aws-layers',
         'aws-tracing-mode', 'aws-extra-permissions', 'aws-tags', 'aws-handler',
         'aws-ephemeral-storage', 'aws-vpc-subnet-ids', 'aws-vpc-security-group-ids',
         'aws-reserved-concurrency'], 'AWS Deployment Options')
@@ -292,6 +299,11 @@ export default class AWSConfig {
       })
       .option('aws-update-secrets', {
         description: 'Uploads the function specific secrets with the params. defaults to /helix-deploy/{pkg}/{name}',
+        type: 'string',
+      })
+      .option('aws-deploy-secrets', {
+        description: 'Name of a secret in AWS Secrets Manager (in the target account) holding the HLX_AWS_ROLE '
+          + 'and HLX_AWS_API values to use for this deployment. Requires --aws-region to be set.',
         type: 'string',
       })
       .option('aws-lambda-format', {

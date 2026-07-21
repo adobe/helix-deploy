@@ -137,6 +137,7 @@ AWS Deployment Options
       --aws-deploy-template
       --aws-arch                  deployment architecture. either 'x86_64' or 'arm64'  [string] [default: "x86_64"]
       --aws-update-secrets        Uploads the function specific secrets with the params. defaults to /helix-deploy/{pkg}/{name}  [string]
+      --aws-deploy-secrets        Name of a secret in the target account (in AWS Secrets Manager) holding the HLX_AWS_* environment variables to use for the deployment.  [string]
       --aws-deploy-bucket         Name of the deploy S3 bucket to use (default is helix-deploy-bucket-{accountId})  [string] [default: ""]
       --aws-identity-source       Identity source to used when creating the authorizer  [array] [default: ["$request.header.Authorization"]]
       --aws-log-format            The lambda log format. Can be either "JSON" or "Text".  [string]

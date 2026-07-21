@@ -457,6 +457,7 @@ describe('CLI Test', () => {
       identitySources: ['$request.header.Authorization'],
       deployBucket: '',
       updateSecrets: undefined,
+      deploySecrets: undefined,
       tracingMode: undefined,
       extraPermissions: undefined,
       layers: undefined,
