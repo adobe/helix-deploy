@@ -1,3 +1,10 @@
+# [14.3.0](https://github.com/adobe/helix-deploy/compare/v14.2.0...v14.3.0) (2026-07-23)
+
+
+### Features
+
+* **aws:** support --aws-api=none to skip API Gateway setup ([#937](https://github.com/adobe/helix-deploy/issues/937)) ([70dacbc](https://github.com/adobe/helix-deploy/commit/70dacbc798346f3a0d74b8077c7d529a1ed89a72))
+
 # [14.2.0](https://github.com/adobe/helix-deploy/compare/v14.1.1...v14.2.0) (2026-07-21)
 
 
