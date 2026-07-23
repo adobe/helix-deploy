@@ -29,7 +29,7 @@ import {
   AddPermissionCommand,
   CreateAliasCommand,
   CreateFunctionCommand, DeleteAliasCommand, DeleteFunctionCommand, GetAliasCommand,
-  GetFunctionCommand,
+  GetFunctionCommand, InvokeCommand,
   LambdaClient, ListAliasesCommand, ListTagsCommand, ListVersionsByFunctionCommand,
   PublishVersionCommand, PutFunctionConcurrencyCommand, TagResourceCommand,
   UntagResourceCommand, UpdateAliasCommand,
@@ -645,11 +645,11 @@ export default class AWSDeployer extends BaseDeployer {
   }
 
   async test() {
+    if (this._cfg.apiId === 'none') {
+      return this.testInvoke({ retry404: 5 });
+    }
     let url = this._functionURL;
     if (!url) {
-      if (this._cfg.apiId === 'none') {
-        throw new Error('Unable to test function: no API Gateway configured (--aws-api=none).');
-      }
       url = `https://${this._cfg.apiId}.execute-api.${this._cfg.region}.amazonaws.com${this.functionPath}`;
     }
     return this.testRequest({
@@ -657,6 +657,75 @@ export default class AWSDeployer extends BaseDeployer {
       idHeader: 'apigw-requestid',
       retry404: 5,
     });
+  }
+
+  /**
+   * Tests the deployed function by invoking it directly via the Lambda `Invoke` API. Used
+   * when no API Gateway is configured (`--aws-api=none`) and the function can't be reached
+   * over HTTP.
+   */
+  async testInvoke({ headers = {}, retry404 = 0 }) {
+    const { functionName, log, lambda } = this;
+    const qualifier = this.cfg.version.replace(/\./g, '_');
+    const testPath = this.cfg.testPath || '/';
+    const requestId = crypto.randomUUID();
+
+    if (this.cfg.testHeaders) {
+      // eslint-disable-next-line no-param-reassign
+      headers = Object.assign(headers, this.cfg.testHeaders);
+    }
+
+    while (retry404 >= 0) {
+      log.info(chalk`--: invoking: {blueBright ${functionName}:${qualifier}:${testPath}} ...`);
+      const event = {
+        rawPath: testPath,
+        rawQueryString: '',
+        headers,
+        pathParameters: {
+          path: testPath.substring(1),
+        },
+        requestContext: {
+          http: {
+            method: 'GET',
+            path: testPath,
+          },
+          domainName: functionName,
+          requestId,
+        },
+        isBase64Encoded: false,
+      };
+
+      // eslint-disable-next-line no-await-in-loop
+      const { Payload, FunctionError } = await lambda.send(new InvokeCommand({
+        FunctionName: functionName,
+        Qualifier: qualifier,
+        Payload: Buffer.from(JSON.stringify(event)),
+      }));
+      const result = JSON.parse(Buffer.from(Payload).toString('utf-8'));
+
+      if (FunctionError) {
+        throw new Error(`test failed: ${FunctionError}: ${result.errorMessage || JSON.stringify(result)}`);
+      }
+
+      const { statusCode, body } = result;
+      if ((statusCode >= 200 && statusCode < 300) || statusCode === 301 || statusCode === 302) {
+        log.info(chalk`{green ok:} ${statusCode}`);
+        log.debug(chalk`{grey ${JSON.stringify(result.headers, 0, 2)}}`);
+        log.debug(chalk`{grey ${body}}`);
+        return;
+      }
+      if ((statusCode === 404 || statusCode === 500) && retry404) {
+        log.info(chalk`{yellow warn:} ${statusCode} (retry)`);
+        // eslint-disable-next-line no-param-reassign
+        retry404 -= 1;
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((resolve) => {
+          setTimeout(resolve, 1500);
+        });
+      } else {
+        throw new Error(`test failed: ${statusCode} ${JSON.stringify(result.headers, 0, 2)} ${body}`);
+      }
+    }
   }
 
   get fullFunctionName() {
