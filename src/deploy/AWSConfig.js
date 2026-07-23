@@ -272,7 +272,7 @@ export default class AWSConfig {
         default: '',
       })
       .option('aws-api', {
-        description: 'the AWS API Gateway name. (id, "auto" or "create")',
+        description: 'the AWS API Gateway name. (id, "auto", "create" or "none")',
         type: 'string',
         default: 'auto',
       })
