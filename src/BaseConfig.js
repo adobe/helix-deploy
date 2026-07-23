@@ -292,7 +292,7 @@ export default class BaseConfig {
   }
 
   get testPath() {
-    if (!this.test.startsWith('/') && this.testUrl) {
+    if (!this.test?.startsWith('/') && this.testUrl) {
       return this.testUrl;
     }
     return this.test;

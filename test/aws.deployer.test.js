@@ -471,6 +471,32 @@ describe('AWS Deployer Test', () => {
     assert.strictEqual(aws.fullFunctionName, `https://example.execute-api.us-east-1.amazonaws.com${aws.functionPath}`);
   });
 
+  it('test() invokes the lambda directly via InvokeCommand when apiId is none', async () => {
+    const cfg = await createBaseConfig();
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
+      .withAWSApi('none');
+    const aws = new AWSDeployer(cfg, awsCfg);
+    await aws.init();
+
+    // no API Gateway request is registered, so nock (with net connect disabled)
+    // would fail the test if test() tried to reach one.
+    const invokeScope = nock('https://lambda.us-east-1.amazonaws.com')
+      .post('/2015-03-31/functions/helix-services--static/invocations', (event) => event.rawPath === aws.functionPath
+        && event.requestContext.http.method === 'GET')
+      .query({ Qualifier: '1_18_2' })
+      .reply(200, {
+        statusCode: 200,
+        headers: { 'content-type': 'text/plain' },
+        body: 'ok',
+        isBase64Encoded: false,
+      });
+
+    await aws.test();
+
+    assert.ok(invokeScope.isDone());
+  });
+
   it('creates stage when apiId equals create', async () => {
     const cfg = await createBaseConfig();
     const awsCfg = new AWSConfig()
