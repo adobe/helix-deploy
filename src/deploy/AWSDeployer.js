@@ -97,6 +97,9 @@ export default class AWSDeployer extends BaseDeployer {
   }
 
   get host() {
+    if (this._cfg.apiId === 'none') {
+      return undefined;
+    }
     return `${this._cfg.apiId}.execute-api.${this._cfg.region}.amazonaws.com`;
   }
 
@@ -445,6 +448,9 @@ export default class AWSDeployer extends BaseDeployer {
     let res;
     if (!this._cfg.apiId) {
       throw new Error('--aws-api is required');
+    } else if (this._cfg.apiId === 'none') {
+      this.log.info('--: no API Gateway configured (--aws-api=none)');
+      res = { ApiId: undefined, ApiEndpoint: undefined };
     } else if (this._cfg.apiId === 'create') {
       this.log.info('--: creating API from scratch');
       res = await this._api.send(new CreateApiCommand({
@@ -561,6 +567,10 @@ export default class AWSDeployer extends BaseDeployer {
   async createAPI() {
     const { cfg } = this;
     const requestedApiId = this._cfg.apiId;
+    if (requestedApiId === 'none') {
+      this.log.info('--: skipping API Gateway setup (--aws-api=none).');
+      return;
+    }
     const { ApiId, ApiEndpoint } = await this.initApiId();
     this._functionURL = `${ApiEndpoint}${this.functionPath}`;
 
@@ -637,6 +647,9 @@ export default class AWSDeployer extends BaseDeployer {
   async test() {
     let url = this._functionURL;
     if (!url) {
+      if (this._cfg.apiId === 'none') {
+        throw new Error('Unable to test function: no API Gateway configured (--aws-api=none).');
+      }
       url = `https://${this._cfg.apiId}.execute-api.${this._cfg.region}.amazonaws.com${this.functionPath}`;
     }
     return this.testRequest({
@@ -797,6 +810,9 @@ export default class AWSDeployer extends BaseDeployer {
 
   async cleanUpIntegrations(filter) {
     this.log.info('Clean up Integrations');
+    if (this._cfg.apiId === 'none') {
+      return;
+    }
     const { ApiId } = await this.initApiId();
     this.log.info(chalk`--: fetching routes...`);
     const routes = await this.fetchRoutes(ApiId);
@@ -914,9 +930,10 @@ export default class AWSDeployer extends BaseDeployer {
 
   async updateLinks() {
     const { cfg, functionName } = this;
+    const requestedApiId = this._cfg.apiId;
     const { ApiId } = await this.initApiId();
     const functionVersion = cfg.version.replace(/\./g, '_');
-    const shouldLinkRoutes = this._cfg.linkRoutes !== false;
+    const shouldLinkRoutes = this._cfg.linkRoutes !== false && requestedApiId !== 'none';
 
     let routes = [];
     if (shouldLinkRoutes) {
