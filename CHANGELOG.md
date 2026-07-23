@@ -1,3 +1,10 @@
+# [14.4.0](https://github.com/adobe/helix-deploy/compare/v14.3.0...v14.4.0) (2026-07-23)
+
+
+### Features
+
+* **aws:** support testing lambda directly when `--aws-api=none` ([#938](https://github.com/adobe/helix-deploy/issues/938)) ([3a5b55e](https://github.com/adobe/helix-deploy/commit/3a5b55e47407667c58fc942c506d7033e2df44b8)), closes [BaseConfig#testPath](https://github.com/BaseConfig/issues/testPath)
+
 # [14.3.0](https://github.com/adobe/helix-deploy/compare/v14.2.0...v14.3.0) (2026-07-23)
 
 
