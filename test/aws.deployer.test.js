@@ -472,7 +472,11 @@ describe('AWS Deployer Test', () => {
   });
 
   it('test() invokes the lambda directly via InvokeCommand when apiId is none', async () => {
+    const testUrl = '/_status_check/healthcheck.json';
+
     const cfg = await createBaseConfig();
+    cfg.withTestUrl(testUrl);
+
     const awsCfg = new AWSConfig()
       .withAWSRegion('us-east-1')
       .withAWSApi('none');
@@ -482,7 +486,7 @@ describe('AWS Deployer Test', () => {
     // no API Gateway request is registered, so nock (with net connect disabled)
     // would fail the test if test() tried to reach one.
     const invokeScope = nock('https://lambda.us-east-1.amazonaws.com')
-      .post('/2015-03-31/functions/helix-services--static/invocations', (event) => event.rawPath === aws.functionPath
+      .post('/2015-03-31/functions/helix-services--static/invocations', (event) => event.rawPath === testUrl
         && event.requestContext.http.method === 'GET')
       .query({ Qualifier: '1_18_2' })
       .reply(200, {
