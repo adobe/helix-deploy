@@ -13,7 +13,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { promisify } from 'util';
 import crypto from 'crypto';
-import archiver from 'archiver';
+import { ZipArchive } from 'archiver';
 import chalk from 'chalk-template';
 
 import {
@@ -163,7 +163,7 @@ export default class AWSProxyDeployer {
   // eslint-disable-next-line class-methods-use-this
   async buildZip() {
     return new Promise((resolve, reject) => {
-      const archive = archiver('zip');
+      const archive = new ZipArchive('zip');
       const chunks = [];
       archive.on('data', (chunk) => {
         chunks.push(chunk);
