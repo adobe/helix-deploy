@@ -72,7 +72,7 @@
     "mocha-junit-reporter": "2.2.1",
     "mocha-multi-reporters": "1.5.1",
     "nock": "14.0.17",
-    "semantic-release": "25.0.8",
+    "semantic-release": "25.0.9",
     "xml2js": "0.6.2",
     "yauzl": "3.4.0"
   },
