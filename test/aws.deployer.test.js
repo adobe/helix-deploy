@@ -819,4 +819,29 @@ describe('AWS Deployer Test', () => {
     assert.deepStrictEqual(awsCfg.vpcSubnetIds, ['subnet-abc123', 'subnet-def456']);
     assert.deepStrictEqual(awsCfg.vpcSecurityGroupIds, ['sg-abc123']);
   });
+
+  it('resolves the account ID and assigns the role correctly', async () => {
+    const cfg = new BaseConfig().withName('/helix-services/static@4.3.1');
+    const builder = new ActionBuilder().withConfig(cfg);
+    await builder.validate();
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
+      .withAWSRole('helix-generic-role');
+    const aws = new AWSDeployer(cfg, awsCfg);
+    await aws.initAccountId();
+    assert.ok(aws.accountId);
+    assert.strictEqual(aws.functionConfig.Role, `arn:aws:iam::${aws.accountId}:role/helix-generic-role`);
+  });
+
+  it('keeps full role ARN unchanged', async () => {
+    const cfg = new BaseConfig().withName('/helix-services/static@4.3.1');
+    const builder = new ActionBuilder().withConfig(cfg);
+    await builder.validate();
+    const awsCfg = new AWSConfig()
+      .withAWSRegion('us-east-1')
+      .withAWSRole('arn:aws:iam::112233667788:role/helix-role');
+    const aws = new AWSDeployer(cfg, awsCfg);
+    await aws.initAccountId();
+    assert.strictEqual(aws.functionConfig.Role, 'arn:aws:iam::112233667788:role/helix-role');
+  });
 });
