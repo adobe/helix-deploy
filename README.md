@@ -298,6 +298,8 @@ In addition to the `${version}` token described above, arguments will be interpo
 
 Will result in the materialized value of the `docker` argument to be set to `adobe/probot-ow-nodejs8:latest`.
 
+You can also use `$NAME` as the entire value to insert an environment variable, e.g. `"aws-role!important": "$HLX_MY_ROLE"`. If the variable is not set, the value is left unchanged.
+
 #### Automatically create semantic versioning sequence actions
 
 By using the `--version-link` (`-l`), the bulider can create action sequences _linking_ to the deployed version,

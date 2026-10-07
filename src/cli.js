@@ -107,7 +107,16 @@ export default class CLI {
             return env;
           }, {});
 
-        const substitute = (value) => (typeof value === 'string' ? ActionBuilder.substitute(value, envVars) : value);
+        const substitute = (value) => {
+          if (typeof value !== 'string') {
+            return value;
+          }
+          const match = value.match(/^\$([A-Za-z_][A-Za-z0-9_]*)$/);
+          if (match && match[1] in process.env) {
+            return process.env[match[1]];
+          }
+          return ActionBuilder.substitute(value, envVars);
+        };
         Object.entries(argv).forEach(([key, value]) => {
           if (typeof value === 'string') {
             // eslint-disable-next-line no-param-reassign
