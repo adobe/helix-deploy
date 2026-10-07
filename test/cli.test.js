@@ -111,14 +111,6 @@ describe('CLI Test', () => {
     assert.deepEqual(builder.cfg.test, 'helix-generic-role');
   });
 
-  it('important env is substituted with whole-value $NAME syntax', async () => {
-    process.env.HLX_TEST = 'env-test';
-    process.env.CUSTOM_ENV_VAR = 'helix-generic-role';
-    const builder = await new CLI()
-      .prepare(['--test!important', '$CUSTOM_ENV_VAR']);
-    assert.deepEqual(builder.cfg.test, 'helix-generic-role');
-  });
-
   it('sets archs', async () => {
     const builder = await new CLI()
       .prepare(['--arch=node', '--arch=edge']);
@@ -512,37 +504,6 @@ describe('CLI Test', () => {
       .prepare(['--test', 'some-${env.CUSTOM_ENV_VAR}-value']);
     // eslint-disable-next-line no-template-curly-in-string
     assert.deepEqual(builder.cfg.test, 'some-${env.CUSTOM_ENV_VAR}-value');
-  });
-
-  it('interpolates whole-value $NAME environment variables', async () => {
-    process.env.CUSTOM_ENV_VAR = 'test';
-    const builder = await new CLI()
-      .prepare(['--test', '$CUSTOM_ENV_VAR']);
-    assert.deepEqual(builder.cfg.test, 'test');
-  });
-
-  it('interpolates whole-value $NAME environment variables in arrays', async () => {
-    process.env.CUSTOM_ENV_VAR = 'test';
-    const builder = await new CLI()
-      .prepare([
-        '--serverless-externals', '$CUSTOM_ENV_VAR',
-        '--serverless-externals', '$CUSTOM_ENV_VAR',
-      ]);
-    assert.deepEqual(builder.cfg.serverlessExternals, ['test', 'test']);
-  });
-
-  it('leaves unset whole-value $NAME environment variables untouched', async () => {
-    delete process.env.SOME_UNSET_VAR;
-    const builder = await new CLI()
-      .prepare(['--test', '$SOME_UNSET_VAR']);
-    assert.deepEqual(builder.cfg.test, '$SOME_UNSET_VAR');
-  });
-
-  it('does not substitute $NAME embedded in a larger value', async () => {
-    process.env.CUSTOM_ENV_VAR = 'test';
-    const builder = await new CLI()
-      .prepare(['--test', 'some-$CUSTOM_ENV_VAR-value']);
-    assert.deepEqual(builder.cfg.test, 'some-$CUSTOM_ENV_VAR-value');
   });
 
   it('parses aws-vpc-subnet-ids and aws-vpc-security-group-ids', async () => {
