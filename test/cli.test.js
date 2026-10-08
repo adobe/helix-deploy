@@ -102,6 +102,15 @@ describe('CLI Test', () => {
     assert.deepEqual(builder.cfg.test, 'important-test');
   });
 
+  it('important env is substituted', async () => {
+    process.env.HLX_TEST = 'env-test';
+    process.env.CUSTOM_ENV_VAR = 'helix-generic-role';
+    const builder = await new CLI()
+      // eslint-disable-next-line no-template-curly-in-string
+      .prepare(['--test!important', '${env.CUSTOM_ENV_VAR}']);
+    assert.deepEqual(builder.cfg.test, 'helix-generic-role');
+  });
+
   it('sets archs', async () => {
     const builder = await new CLI()
       .prepare(['--arch=node', '--arch=edge']);

@@ -267,7 +267,8 @@ export default class AWSConfig {
         default: '',
       })
       .option('aws-role', {
-        description: 'the AWS role ARN to execute lambda functions with',
+        description: 'the AWS role ARN or role name to execute lambda functions with. '
+          + 'a role name is expanded to an ARN using the current AWS account ID',
         type: 'string',
         default: '',
       })

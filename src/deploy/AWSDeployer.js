@@ -152,6 +152,14 @@ export default class AWSDeployer extends BaseDeployer {
     return this._accountId;
   }
 
+  get roleArn() {
+    const { role } = this._cfg;
+    if (!role || role.startsWith('arn:')) {
+      return role;
+    }
+    return `arn:aws:iam::${this._accountId}:role/${role}`;
+  }
+
   get iam() {
     return this._iam;
   }
@@ -266,7 +274,7 @@ export default class AWSDeployer extends BaseDeployer {
       },
       // todo: package name
       FunctionName: functionName,
-      Role: this._cfg.role,
+      Role: this.roleArn,
       Runtime: `nodejs${cfg.nodeVersion}.x`,
       // todo: cram annotations into description?
       Tags: {
@@ -318,7 +326,7 @@ export default class AWSDeployer extends BaseDeployer {
     } = this;
     const functionVersion = cfg.version.replace(/\./g, '_');
 
-    this.log.info(`--: using lambda role "${this._cfg.role}"`);
+    this.log.info(`--: using lambda role "${this.roleArn}"`);
 
     if (Array.isArray(this._cfg.vpcSubnetIds) && this._cfg.vpcSubnetIds.length === 0) {
       this.log.warn(chalk`{yellow warn:} VPC detach requested - Lambda will lose VPC network access`);
