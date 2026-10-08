@@ -1,3 +1,16 @@
+# [14.5.0](https://github.com/adobe/helix-deploy/compare/v14.4.9...v14.5.0) (2026-10-08)
+
+
+### Features
+
+* **aws:** accept role name and resolve account ID at deploy time ([e6d0a58](https://github.com/adobe/helix-deploy/commit/e6d0a58a8c1dd23c54e192b55e4402e898fd44b3))
+* **aws:** add possibility to use  in config ([a8c5e61](https://github.com/adobe/helix-deploy/commit/a8c5e61b59316225f2b1ae3b4704f2d5561c7ff1))
+
+
+### Reverts
+
+* Revert "feat(aws): add possibility to use \$VAR in config" ([2b6ece2](https://github.com/adobe/helix-deploy/commit/2b6ece21e626629dcff1fe78ff16cf3fa1151406))
+
 ## [14.4.9](https://github.com/adobe/helix-deploy/compare/v14.4.8...v14.4.9) (2026-10-06)
 
 
