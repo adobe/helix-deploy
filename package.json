@@ -48,7 +48,7 @@
     "@aws-sdk/client-sts": "3.1137.0",
     "archiver": "8.0.0",
     "chalk-template": "1.1.2",
-    "dotenv": "17.4.2",
+    "dotenv": "18.0.4",
     "esbuild": "0.28.2",
     "escalade": "3.2.0",
     "fs-extra": "11.4.0",
