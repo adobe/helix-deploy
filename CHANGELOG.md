@@ -1,3 +1,10 @@
+## [14.5.3](https://github.com/adobe/helix-deploy/compare/v14.5.2...v14.5.3) (2026-10-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency dotenv to v18 ([#958](https://github.com/adobe/helix-deploy/issues/958)) ([9d8f3e4](https://github.com/adobe/helix-deploy/commit/9d8f3e46e1ea084ea5fa567c0bcd3d369cc03fcd))
+
 ## [14.5.2](https://github.com/adobe/helix-deploy/compare/v14.5.1...v14.5.2) (2026-10-14)
 
 
